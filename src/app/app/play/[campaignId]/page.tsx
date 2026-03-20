@@ -30,6 +30,7 @@ import {
     formatBalanceConfidence,
     formatEncounterRating,
     formatLivePressureState,
+    suggestLiveAdjustment,
 } from "@/lib/t20-balance";
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 
@@ -648,6 +649,9 @@ export default function PlayPage() {
     const livePressure = liveCombat?.isActive && liveCombat.combatants.length > 0
         ? analyzeLiveCombatPressure(liveCombat.combatants)
         : null;
+    const liveAdjustment = livePressure
+        ? suggestLiveAdjustment(livePressure, activeEncounter?.rating ?? null)
+        : null;
 
     const inspectCandidates = (inspectQuery.trim()
         ? liveCodexEntities.filter((entity) => {
@@ -978,6 +982,30 @@ export default function PlayPage() {
                                                 ))}
                                             </div>
                                         ) : null}
+                                    </div>
+                                ) : null}
+
+                                {liveAdjustment ? (
+                                    <div className="rounded-xl border border-white/8 bg-white/5 p-3">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <Badge className={`${
+                                                liveAdjustment.posture === "ease"
+                                                    ? "border-red-500/30 bg-red-500/15 text-red-300"
+                                                    : liveAdjustment.posture === "escalate"
+                                                        ? "border-sky-500/30 bg-sky-500/15 text-sky-300"
+                                                        : "border-amber-500/30 bg-amber-500/15 text-amber-300"
+                                            }`}>
+                                                Ajuste rapido
+                                            </Badge>
+                                        </div>
+                                        <p className="mt-3 text-sm font-semibold text-foreground">
+                                            {liveAdjustment.title}
+                                        </p>
+                                        <div className="mt-3 space-y-2 text-sm text-muted-foreground">
+                                            {liveAdjustment.actions.map((action) => (
+                                                <p key={action}>{action}</p>
+                                            ))}
+                                        </div>
                                     </div>
                                 ) : null}
 

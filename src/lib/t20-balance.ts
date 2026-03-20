@@ -51,6 +51,12 @@ export type LivePressureSnapshot = {
   factors: string[];
 };
 
+export type LiveAdjustmentGuide = {
+  title: string;
+  posture: "hold" | "ease" | "escalate";
+  actions: string[];
+};
+
 function normalizeRole(role?: string | null) {
   return role?.trim().toLowerCase() ?? "";
 }
@@ -313,6 +319,53 @@ export function formatLivePressureState(state: LivePressureState) {
     default:
       return state;
   }
+}
+
+export function suggestLiveAdjustment(
+  pressure: LivePressureSnapshot,
+  preparedRating?: string | null
+): LiveAdjustmentGuide {
+  const rating = preparedRating?.trim().toLowerCase() ?? "";
+
+  if (pressure.state === "critical") {
+    return {
+      title: "Alivie sem desmontar a cena",
+      posture: "ease",
+      actions: [
+        "Corte uma acao hostil secundaria ou atrase reforcos narrativos.",
+        "Abra cobertura, rota de fuga ou janela para reorganizacao do grupo.",
+        rating === "deadly" || rating === "punitivo"
+          ? "Se o encontro ja era pesado no preparo, reduza dano ou HP de uma ameaca principal."
+          : "Mantenha a tensao, mas alivie economia de acao antes de derrubar mais alguem.",
+      ],
+    };
+  }
+
+  if (pressure.state === "rising") {
+    return {
+      title: "Segure a escalada com cuidado",
+      posture: "hold",
+      actions: [
+        "Evite empilhar reforcos agora; deixe a pressao vir da posicao ou do objetivo.",
+        "Se quiser escalar, prefira custo narrativo ou terreno em vez de dano bruto.",
+        pressure.countDelta < 0
+          ? "A vantagem numerica hostil ja faz parte da pressao. Nao precisa adicionar mais corpos por enquanto."
+          : "Observe recursos de cura e controle antes de decidir por um pico extra.",
+      ],
+    };
+  }
+
+  return {
+    title: "Espaco para elevar a tensao",
+    posture: "escalate",
+    actions: [
+      "Suba a pressao por objetivo, prazo ou ameaca lateral antes de inflar HP aleatoriamente.",
+      rating === "trivial" || rating === "manageable" || rating === "jogavel"
+        ? "O encontro preparado ainda comporta uma escalada leve em dano, reforco ou terreno."
+        : "Mesmo sob controle, preserve o peso do encontro e escale em camadas pequenas.",
+      "Prefira revelar uma complicacao de cena ou reforco pontual em vez de mudar tudo de uma vez.",
+    ],
+  };
 }
 
 export function suggestEncounterAdjustment(

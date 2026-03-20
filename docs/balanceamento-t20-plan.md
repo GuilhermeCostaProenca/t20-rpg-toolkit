@@ -191,8 +191,8 @@ O mestre tambem precisa ajuste em tempo real.
 - [-] T5.2 Definir alertas ou heuristicas de desbalanceamento ao vivo
   Notas: `RPG-31` abriu o primeiro sinal ao vivo com estados `Sob controle`, `Pressao subindo` e `Critico`, baseado em HP medio, vantagem numerica e personagens caidos.
 
-- [ ] T5.3 Criar ferramentas de ajuste rapido
-  Notas:
+- [-] T5.3 Criar ferramentas de ajuste rapido
+  Notas: `RPG-32` abriu um primeiro bloco de `Ajuste rapido` no cockpit ao vivo, derivado de `livePressure` + encontro preparado, com sugestoes curtas de aliviar, segurar ou escalar a tensao sem automatizar a mesa.
 
 - [-] T5.4 Integrar com a mesa ao vivo sem poluicao visual
   Notas: `RPG-28` integrou a leitura do encontro ao pacote de preparo da mesa sem abrir nova superficie. `RPG-31` consolidou isso com o combate ativo no mesmo card stack do cockpit, sem abrir painel paralelo.

@@ -146,7 +146,7 @@ O app ja possui fundacao de combate, mas a experiencia precisa se alinhar ao pro
   Notas:
 
 - [ ] M3.4 Melhorar acoes rapidas do mestre
-  Notas:
+  Notas: `RPG-32` acrescentou `Ajuste rapido` no proprio cockpit da mesa, com opcoes curtas para aliviar, segurar ou escalar a tensao a partir do estado real do combate.
 
 - [ ] M3.5 Garantir que o combate nao monopolize a tela inteira sem necessidade
   Notas:
