@@ -204,6 +204,7 @@ export default function PlayPage() {
     const [inspectId, setInspectId] = useState<string | null>(null);
     const [inspectEntity, setInspectEntity] = useState<LiveEntityDetail | null>(null);
     const [inspectLoading, setInspectLoading] = useState(false);
+    const [revealingId, setRevealingId] = useState<string | null>(null);
 
     // Auto-remove Pings after 3s
     useEffect(() => {
@@ -519,6 +520,50 @@ export default function PlayPage() {
         } catch (e) { console.error(e); }
     }
 
+    async function handleLiveReveal(revealId: string) {
+        if (!prepPacket || !context?.campaign?.roomCode) return;
+        const reveal = prepPacket.forge.reveals.find((item) => item.id === revealId);
+        if (!reveal) return;
+
+        setRevealingId(revealId);
+        try {
+            const response = await fetch('/api/reveal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    roomCode: context.campaign.roomCode,
+                    type: reveal.imageUrl ? 'image' : 'note',
+                    title: reveal.title || 'Revelacao sem titulo',
+                    content: reveal.notes || undefined,
+                    imageUrl: reveal.imageUrl || undefined,
+                    visibility: 'players',
+                    expiresAt: new Date(Date.now() + 1000 * 60 * 10).toISOString(),
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha ao enviar reveal para a mesa');
+            }
+
+            setPrepPacket((current) => {
+                if (!current) return current;
+                return {
+                    ...current,
+                    forge: {
+                        ...current.forge,
+                        reveals: current.forge.reveals.map((item) =>
+                            item.id === revealId ? { ...item, status: 'executed' } : item
+                        ),
+                    },
+                };
+            });
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setRevealingId(null);
+        }
+    }
+
     const sendChat = (e: FormEvent) => {
         e.preventDefault();
         if (!chatInput.trim()) return;
@@ -745,6 +790,57 @@ export default function PlayPage() {
                                                     {scene.objective ? (
                                                         <p className="mt-2 text-sm text-muted-foreground">{scene.objective}</p>
                                                     ) : null}
+                                                </div>
+                                            ))}
+                                    </div>
+                                ) : null}
+
+                                {prepPacket.forge.reveals.filter((item) => item.status !== "canceled").length > 0 ? (
+                                    <div className="space-y-2">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                            Reveals prontos
+                                        </p>
+                                        {prepPacket.forge.reveals
+                                            .filter((item) => item.status !== "canceled")
+                                            .slice(0, 3)
+                                            .map((item) => (
+                                                <div key={item.id} className="rounded-xl border border-white/8 bg-white/5 p-3">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <p className="text-sm font-semibold text-foreground">
+                                                                {item.title || "Revelacao sem titulo"}
+                                                            </p>
+                                                            {item.notes ? (
+                                                                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                                                                    {item.notes}
+                                                                </p>
+                                                            ) : null}
+                                                        </div>
+                                                        <Badge variant="outline" className="border-white/10 text-white/70">
+                                                            {item.status}
+                                                        </Badge>
+                                                    </div>
+                                                    <div className="mt-3 flex gap-2">
+                                                        <Button
+                                                            size="sm"
+                                                            className="flex-1"
+                                                            onClick={() => void handleLiveReveal(item.id)}
+                                                            disabled={revealingId === item.id}
+                                                        >
+                                                            <Eye className="mr-2 h-4 w-4" />
+                                                            {revealingId === item.id ? "Enviando..." : "Revelar"}
+                                                        </Button>
+                                                        {item.imageUrl ? (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                className="border-white/10 bg-white/5"
+                                                                onClick={() => window.open(item.imageUrl, "_blank", "noopener,noreferrer")}
+                                                            >
+                                                                Ver asset
+                                                            </Button>
+                                                        ) : null}
+                                                    </div>
                                                 </div>
                                             ))}
                                     </div>

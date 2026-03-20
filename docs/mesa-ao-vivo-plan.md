@@ -67,7 +67,7 @@ Esta frente depende de:
   Notas:
 
 - [-] M4. Fechar reveal e referencia visual em operacao
-  Notas: A mesa agora consome o pacote de preparo da sessao, inclusive reveals planejados e proximas cenas, mas ainda falta integrar consulta visual mais profunda e disparo por cena direto do cockpit.
+  Notas: A mesa agora consome o pacote de preparo da sessao, inclusive reveals planejados e proximas cenas, e ja consegue disparar `reveals` direto do cockpit ao vivo. Ainda falta integrar consulta visual mais profunda e disparo mais guiado por cena.
 
 - [ ] M5. Fechar trilha, estado de ficha e suporte de mesa
   Notas:
@@ -170,10 +170,10 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
   Notas:
 
 - [ ] M4.2 Permitir disparar visual a partir de entidade ou cena
-  Notas:
+  Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao; ainda falta amarrar isso melhor a cena selecionada e a entidades em foco.
 
 - [ ] M4.3 Definir fluxo rapido para mostrar referencia sem friccao
-  Notas:
+  Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit.
 
 - [ ] M4.4 Garantir consistencia com TV/segunda tela
   Notas:
