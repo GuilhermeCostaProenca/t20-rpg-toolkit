@@ -144,7 +144,7 @@ O mestre precisa abrir uma entidade e ver "o que aconteceu com ela".
   Notas: A timeline substituiu a antiga memoria recente no workspace da entidade.
 
 - [-] W3.5 Definir filtros temporais e por campanha
-  Notas: O recorte de campanha ja existe na estacao de campanha e o inspect de sessao ja mostra o fechamento consolidado; ainda faltam filtros dedicados dentro da timeline da entidade.
+  Notas: `RPG-22` abriu o recorte por campanha na estacao da campanha e `RPG-23` trouxe filtros leves de consulta em campanha e mundo; ainda faltam filtros dedicados dentro da timeline da entidade.
 
 ### Criterios de aceite da Frente W3
 - a entidade possui historico proprio;
@@ -192,16 +192,16 @@ Memoria so vale se puder ser consultada sem friccao.
   Notas: A timeline da entidade agora consome a memoria consolidada.
 
 - [-] W5.2 Expor memoria em contexto de campanha
-  Notas: `RPG-22` abriu o painel `Memoria da campanha` na estacao de campanha e o resumo consolidado no inspect de sessao. Ainda faltam filtros e quick inspect mais profundos.
+  Notas: `RPG-22` abriu o painel `Memoria da campanha` na estacao de campanha e o resumo consolidado no inspect de sessao. `RPG-23` adicionou filtros leves e inspect dedicado de evento de memoria.
 
 - [x] W5.3 Expor eventos recentes no cockpit do mundo
   Notas: O cockpit do mundo agora tem painel proprio de memoria consolidada.
 
 - [-] W5.4 Integrar memoria a busca e inspect
-  Notas: O inspect de sessao dentro da campanha ja mostra o fechamento consolidado; ainda falta inspect dedicado de evento de memoria e busca transversal.
+  Notas: `RPG-23` abriu inspect dedicado de evento de memoria e filtros leves por termo, visibilidade e tipo em mundo/campanha. Ainda falta busca transversal mais forte.
 
 - [-] W5.5 Garantir leitura clara do que mudou
-  Notas: O cockpit, a timeline da entidade e agora a estacao da campanha ja diferenciam morte, mudanca e fechamento; ainda faltam filtros mais ricos e leitura temporal melhor.
+  Notas: O cockpit, a timeline da entidade, a estacao da campanha e agora os drawers dedicados de memoria ja diferenciam morte, mudanca e fechamento; ainda faltam leitura temporal melhor e mais contexto cruzado.
 
 ### Criterios de aceite da Frente W5
 - a memoria do mundo participa do uso diario;

@@ -5,11 +5,19 @@ type WorldEventLike = {
   ts: string;
   visibility: string;
   scope?: string;
+  campaignId?: string | null;
+  sessionId?: string | null;
+  actorId?: string | null;
+  targetId?: string | null;
   meta?: Record<string, unknown> | null;
 };
 
+function getMemoryMeta(event: WorldEventLike) {
+  return event.meta && typeof event.meta === "object" ? event.meta : undefined;
+}
+
 export function isMemoryWorldEvent(event: WorldEventLike) {
-  const meta = event.meta && typeof event.meta === "object" ? event.meta : undefined;
+  const meta = getMemoryMeta(event);
   return meta?.memorySource === "session-closeout";
 }
 
@@ -44,4 +52,61 @@ export function getMemoryEventTone(event: WorldEventLike) {
     default:
       return "note";
   }
+}
+
+export function formatMemoryEventVisibility(visibility: string) {
+  return visibility === "PLAYERS" ? "Publico" : "Mestre";
+}
+
+export function formatMemoryEventKind(event: WorldEventLike) {
+  const meta = getMemoryMeta(event);
+  switch (meta?.memoryKind) {
+    case "session-summary":
+      return "Resumo de sessao";
+    case "master-summary":
+      return "Resumo do mestre";
+    case "attendance":
+      return "Presenca";
+    case "death":
+      return "Morte";
+    case "change":
+      return "Consequencia";
+    default:
+      return "Memoria";
+  }
+}
+
+export function getMemoryEventSearchText(event: WorldEventLike) {
+  const meta = getMemoryMeta(event);
+  const fragments = [
+    event.type,
+    event.text,
+    event.visibility,
+    event.scope,
+    formatMemoryEventType(event.type),
+    formatMemoryEventKind(event),
+    typeof meta?.changeType === "string" ? meta.changeType : undefined,
+    typeof meta?.attendanceStatus === "string" ? meta.attendanceStatus : undefined,
+    typeof meta?.publicSummary === "string" ? meta.publicSummary : undefined,
+    typeof meta?.masterSummary === "string" ? meta.masterSummary : undefined,
+  ];
+
+  if (Array.isArray(meta?.linkedEntityIds)) {
+    fragments.push(
+      ...meta.linkedEntityIds.filter((item): item is string => typeof item === "string")
+    );
+  }
+
+  return fragments
+    .filter((fragment): fragment is string => typeof fragment === "string" && fragment.trim().length > 0)
+    .join(" ")
+    .toLowerCase();
+}
+
+export function getMemoryEventLinkedEntityCount(event: WorldEventLike) {
+  const meta = getMemoryMeta(event);
+  if (Array.isArray(meta?.linkedEntityIds)) {
+    return meta.linkedEntityIds.filter((item): item is string => typeof item === "string").length;
+  }
+  return [event.actorId, event.targetId].filter(Boolean).length;
 }

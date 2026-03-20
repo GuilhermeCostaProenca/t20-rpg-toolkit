@@ -46,8 +46,12 @@ import {
   type LorePrepFocus,
 } from "@/lib/lore";
 import {
+  formatMemoryEventKind,
   formatMemoryEventText,
   formatMemoryEventType,
+  formatMemoryEventVisibility,
+  getMemoryEventLinkedEntityCount,
+  getMemoryEventSearchText,
   getMemoryEventTone,
   isMemoryWorldEvent,
 } from "@/lib/world-memory";
@@ -94,6 +98,10 @@ type World = {
 
 type WorldEvent = {
   id: string;
+  campaignId?: string | null;
+  sessionId?: string | null;
+  actorId?: string | null;
+  targetId?: string | null;
   type: string;
   scope: string;
   ts: string;
@@ -162,7 +170,8 @@ function parsePoliticsMetadata(metadata: unknown) {
 
 type InspectItem =
   | { type: "campaign"; title: string; subtitle: string; body: string; href: string }
-  | { type: "event"; title: string; subtitle: string; body: string; href?: string };
+  | { type: "event"; title: string; subtitle: string; body: string; href?: string }
+  | { type: "memory"; item: WorldEvent; href?: string };
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("pt-BR", {
@@ -199,6 +208,22 @@ function formatEvent(event: WorldEvent) {
     default:
       return event.type.replaceAll("_", " ");
   }
+}
+
+function buildMemoryInspectBody(event: WorldEvent) {
+  const parts = [
+    formatMemoryEventText(event),
+    `Registrado em ${formatDateTime(event.ts)}.`,
+    `Escopo: ${event.scope}.`,
+    `Visibilidade: ${formatMemoryEventVisibility(event.visibility)}.`,
+  ];
+
+  const linkedCount = getMemoryEventLinkedEntityCount(event);
+  if (linkedCount > 0) {
+    parts.push(`Entidades ligadas: ${linkedCount}.`);
+  }
+
+  return parts.join("\n");
 }
 
 function formatPrepFocus(focus: LorePrepFocus) {
@@ -278,6 +303,9 @@ export default function WorldDetailPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
   const [inspectItem, setInspectItem] = useState<InspectItem | null>(null);
+  const [memoryQuery, setMemoryQuery] = useState("");
+  const [memoryVisibility, setMemoryVisibility] = useState<"ALL" | "MASTER" | "PLAYERS">("ALL");
+  const [memoryTone, setMemoryTone] = useState<"ALL" | "summary" | "change" | "death" | "note">("ALL");
 
   const loadWorld = useCallback(async () => {
     setLoading(true);
@@ -363,10 +391,20 @@ export default function WorldDetailPage() {
   const spotlightCampaign = useMemo(() => world?.campaigns?.[0] ?? null, [world]);
   const recentEvents = useMemo(() => events.slice(0, 8), [events]);
   const memoryEvents = useMemo(
-    () => events.filter((event) => isMemoryWorldEvent(event)).slice(0, 6),
+    () => events.filter((event) => isMemoryWorldEvent(event)),
     [events]
   );
+  const filteredMemoryEvents = useMemo(() => {
+    const query = memoryQuery.trim().toLowerCase();
+    return memoryEvents.filter((event) => {
+      if (memoryVisibility !== "ALL" && event.visibility !== memoryVisibility) return false;
+      if (memoryTone !== "ALL" && getMemoryEventTone(event) !== memoryTone) return false;
+      if (query && !getMemoryEventSearchText(event).includes(query)) return false;
+      return true;
+    });
+  }, [memoryEvents, memoryQuery, memoryTone, memoryVisibility]);
   const inspectHref = inspectItem?.type === "campaign" ? inspectItem.href : null;
+  const activeInspectHref = inspectItem?.type === "memory" ? inspectItem.href : inspectHref;
   const prepBriefing = useMemo<PrepBriefingItem[]>(() => {
     const nextCampaignId = world?.nextSession?.campaign?.id;
     return [...loreDocs]
@@ -875,18 +913,59 @@ export default function WorldDetailPage() {
                 Ainda nao existe memoria consolidada neste mundo.
               </div>
             ) : (
-              <div className="space-y-3">
-                {memoryEvents.map((event) => (
+              <div className="space-y-4">
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                  <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(2,minmax(0,0.6fr))]">
+                    <Input
+                      value={memoryQuery}
+                      onChange={(currentEvent) => setMemoryQuery(currentEvent.target.value)}
+                      placeholder="Buscar por morte, ausencia, mudanca, sessao..."
+                    />
+                    <select
+                      className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                      value={memoryVisibility}
+                      onChange={(currentEvent) =>
+                        setMemoryVisibility(currentEvent.target.value as "ALL" | "MASTER" | "PLAYERS")
+                      }
+                    >
+                      <option value="ALL">Toda visibilidade</option>
+                      <option value="PLAYERS">Publico</option>
+                      <option value="MASTER">Mestre</option>
+                    </select>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                      value={memoryTone}
+                      onChange={(currentEvent) =>
+                        setMemoryTone(currentEvent.target.value as "ALL" | "summary" | "change" | "death" | "note")
+                      }
+                    >
+                      <option value="ALL">Todo tipo</option>
+                      <option value="summary">Resumo</option>
+                      <option value="change">Mudanca</option>
+                      <option value="death">Morte</option>
+                      <option value="note">Nota</option>
+                    </select>
+                  </div>
+                  <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    {filteredMemoryEvents.length} eventos visiveis neste recorte
+                  </p>
+                </div>
+
+                {filteredMemoryEvents.length === 0 ? (
+                  <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                    Nenhum evento de memoria corresponde aos filtros atuais.
+                  </div>
+                ) : (
+                  filteredMemoryEvents.slice(0, 8).map((event) => (
                   <button
                     key={event.id}
                     type="button"
                     className="w-full rounded-[24px] border border-white/8 bg-white/4 p-4 text-left transition hover:border-primary/20 hover:bg-white/6"
                     onClick={() =>
                       setInspectItem({
-                        type: "event",
-                        title: formatMemoryEventText(event),
-                        subtitle: `${formatMemoryEventType(event.type)} · ${event.visibility}`,
-                        body: `Consolidado em ${formatDateTime(event.ts)}.\nEscopo: ${event.scope}.`,
+                        type: "memory",
+                        item: event,
+                        href: event.campaignId ? `/app/campaign/${event.campaignId}` : undefined,
                       })
                     }
                   >
@@ -904,7 +983,12 @@ export default function WorldDetailPage() {
                           >
                             {formatMemoryEventType(event.type)}
                           </Badge>
-                          <Badge className="border-white/10 bg-black/30 text-white">{event.visibility}</Badge>
+                          <Badge className="border-white/10 bg-black/30 text-white">
+                            {formatMemoryEventVisibility(event.visibility)}
+                          </Badge>
+                          <Badge className="border-white/10 bg-white/5 text-white/75">
+                            {formatMemoryEventKind(event)}
+                          </Badge>
                         </div>
                         <p className="text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
                       </div>
@@ -913,7 +997,8 @@ export default function WorldDetailPage() {
                       </span>
                     </div>
                   </button>
-                ))}
+                  ))
+                )}
               </div>
             )}
           </section>
@@ -1081,12 +1166,22 @@ export default function WorldDetailPage() {
         <CockpitDetailSheet
           open={inspectItem !== null}
           onOpenChange={(open) => !open && setInspectItem(null)}
-          badge={inspectItem.type === "campaign" ? "Quick inspect" : "Memoria do mundo"}
-          title={inspectItem.title}
-          description={inspectItem.subtitle}
+          badge={
+            inspectItem.type === "campaign"
+              ? "Quick inspect"
+              : inspectItem.type === "memory"
+                ? "Memoria do mundo"
+                : "Evento do mundo"
+          }
+          title={inspectItem.type === "memory" ? formatMemoryEventText(inspectItem.item) : inspectItem.title}
+          description={
+            inspectItem.type === "memory"
+              ? `${formatMemoryEventType(inspectItem.item.type)} · ${formatMemoryEventVisibility(inspectItem.item.visibility)}`
+              : inspectItem.subtitle
+          }
           footer={
-            inspectHref ? (
-              <Button className="w-full justify-between" onClick={() => router.push(inspectHref)}>
+            activeInspectHref ? (
+              <Button className="w-full justify-between" onClick={() => router.push(activeInspectHref)}>
                 Abrir superficie completa
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -1095,7 +1190,7 @@ export default function WorldDetailPage() {
         >
           <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
             <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">
-              {inspectItem.body}
+              {inspectItem.type === "memory" ? buildMemoryInspectBody(inspectItem.item) : inspectItem.body}
             </p>
           </div>
         </CockpitDetailSheet>

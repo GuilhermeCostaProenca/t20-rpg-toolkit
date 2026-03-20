@@ -45,8 +45,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { normalizeSessionForgeState } from "@/lib/session-forge";
 import {
+  formatMemoryEventKind,
   formatMemoryEventText,
   formatMemoryEventType,
+  formatMemoryEventVisibility,
+  getMemoryEventLinkedEntityCount,
+  getMemoryEventSearchText,
   getMemoryEventTone,
   isMemoryWorldEvent,
 } from "@/lib/world-memory";
@@ -121,10 +125,15 @@ type CombatSnapshot = {
 type InspectItem =
   | { type: "character"; item: Character }
   | { type: "session"; item: Session }
-  | { type: "npc"; item: Npc };
+  | { type: "npc"; item: Npc }
+  | { type: "memory"; item: WorldEvent };
 
 type WorldEvent = {
   id: string;
+  campaignId?: string | null;
+  sessionId?: string | null;
+  actorId?: string | null;
+  targetId?: string | null;
   type: string;
   scope: string;
   ts: string;
@@ -205,6 +214,22 @@ function getSessionTone(status?: Session["status"]) {
   }
 }
 
+function buildMemoryInspectBody(event: WorldEvent) {
+  const parts = [
+    formatMemoryEventText(event),
+    `Registrado em ${formatDateTime(event.ts)}.`,
+    `Escopo: ${event.scope}.`,
+    `Visibilidade: ${formatMemoryEventVisibility(event.visibility)}.`,
+  ];
+
+  const linkedCount = getMemoryEventLinkedEntityCount(event);
+  if (linkedCount > 0) {
+    parts.push(`Entidades ligadas: ${linkedCount}.`);
+  }
+
+  return parts.join("\n");
+}
+
 export default function CampaignPage() {
   const params = useParams<{ id: string }>();
   const campaignId = params?.id;
@@ -217,6 +242,9 @@ export default function CampaignPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [inspectItem, setInspectItem] = useState<InspectItem | null>(null);
+  const [memoryQuery, setMemoryQuery] = useState("");
+  const [memoryVisibility, setMemoryVisibility] = useState<"ALL" | "MASTER" | "PLAYERS">("ALL");
+  const [memoryTone, setMemoryTone] = useState<"ALL" | "summary" | "change" | "death" | "note">("ALL");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
@@ -313,6 +341,15 @@ export default function CampaignPage() {
     () => (campaign?.recentMemoryEvents ?? []).filter((event) => isMemoryWorldEvent(event)),
     [campaign?.recentMemoryEvents]
   );
+  const filteredCampaignMemoryEvents = useMemo(() => {
+    const query = memoryQuery.trim().toLowerCase();
+    return campaignMemoryEvents.filter((event) => {
+      if (memoryVisibility !== "ALL" && event.visibility !== memoryVisibility) return false;
+      if (memoryTone !== "ALL" && getMemoryEventTone(event) !== memoryTone) return false;
+      if (query && !getMemoryEventSearchText(event).includes(query)) return false;
+      return true;
+    });
+  }, [campaignMemoryEvents, memoryQuery, memoryTone, memoryVisibility]);
   const threatCount = useMemo(
     () => sortedNpcs.filter((npc) => npc.type === "enemy").length,
     [sortedNpcs]
@@ -949,11 +986,49 @@ export default function CampaignPage() {
                   </Badge>
                 </div>
                 {campaignMemoryEvents.length > 0 ? (
-                  <div className="mt-4 space-y-3">
-                    {campaignMemoryEvents.slice(0, 4).map((event) => (
-                      <div
+                  <div className="mt-4 space-y-4">
+                    <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.3fr)_repeat(2,minmax(0,0.6fr))]">
+                        <Input
+                          value={memoryQuery}
+                          onChange={(event) => setMemoryQuery(event.target.value)}
+                          placeholder="Buscar morte, ausencia, mudanca, sessao..."
+                        />
+                        <select
+                          className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                          value={memoryVisibility}
+                          onChange={(event) =>
+                            setMemoryVisibility(event.target.value as "ALL" | "MASTER" | "PLAYERS")
+                          }
+                        >
+                          <option value="ALL">Toda visibilidade</option>
+                          <option value="PLAYERS">Publico</option>
+                          <option value="MASTER">Mestre</option>
+                        </select>
+                        <select
+                          className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                          value={memoryTone}
+                          onChange={(event) =>
+                            setMemoryTone(event.target.value as "ALL" | "summary" | "change" | "death" | "note")
+                          }
+                        >
+                          <option value="ALL">Todo tipo</option>
+                          <option value="summary">Resumo</option>
+                          <option value="change">Mudanca</option>
+                          <option value="death">Morte</option>
+                          <option value="note">Nota</option>
+                        </select>
+                      </div>
+                      <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                        {filteredCampaignMemoryEvents.length} marcos neste recorte
+                      </p>
+                    </div>
+                    {filteredCampaignMemoryEvents.length > 0 ? filteredCampaignMemoryEvents.slice(0, 6).map((event) => (
+                      <button
                         key={event.id}
-                        className="w-full rounded-2xl border border-white/8 bg-white/4 p-4"
+                        type="button"
+                        className="w-full rounded-2xl border border-white/8 bg-white/4 p-4 text-left transition hover:border-primary/20 hover:bg-white/6"
+                        onClick={() => setInspectItem({ type: "memory", item: event })}
                       >
                         <div className="flex flex-wrap gap-2">
                           <Badge
@@ -967,14 +1042,23 @@ export default function CampaignPage() {
                           >
                             {formatMemoryEventType(event.type)}
                           </Badge>
-                          <Badge className="border-white/10 bg-black/25 text-white/75">{event.visibility}</Badge>
+                          <Badge className="border-white/10 bg-black/25 text-white/75">
+                            {formatMemoryEventVisibility(event.visibility)}
+                          </Badge>
+                          <Badge className="border-white/10 bg-white/5 text-white/75">
+                            {formatMemoryEventKind(event)}
+                          </Badge>
                         </div>
                         <p className="mt-3 text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
                         <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                           {formatDateTime(event.ts)}
                         </p>
+                      </button>
+                    )) : (
+                      <div className="rounded-2xl border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                        Nenhum marco de memoria corresponde aos filtros atuais.
                       </div>
-                    ))}
+                    )}
                   </div>
                 ) : (
                   <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -1461,9 +1545,11 @@ export default function CampaignPage() {
         <CockpitDetailSheet
           open={inspectItem !== null}
           onOpenChange={(open) => !open && setInspectItem(null)}
-          badge="Detail surface"
+          badge={inspectItem.type === "memory" ? "Memoria" : "Detail surface"}
           title={
-            inspectItem.type === "character" || inspectItem.type === "npc"
+            inspectItem.type === "memory"
+              ? formatMemoryEventText(inspectItem.item)
+              : inspectItem.type === "character" || inspectItem.type === "npc"
               ? inspectItem.item.name
               : inspectItem.item.title
           }
@@ -1472,7 +1558,9 @@ export default function CampaignPage() {
               ? `Nivel ${inspectItem.item.level}${inspectItem.item.className ? ` • ${inspectItem.item.className}` : ""}`
               : inspectItem.type === "session"
                 ? `${inspectItem.item.status || "planned"} • ${formatDateTime(inspectItem.item.scheduledAt ?? inspectItem.item.updatedAt)}`
-                : `${inspectItem.item.type === "enemy" ? "Ameaca" : "Aliado"} • DEF ${inspectItem.item.defenseFinal}`
+                : inspectItem.type === "npc"
+                  ? `${inspectItem.item.type === "enemy" ? "Ameaca" : "Aliado"} • DEF ${inspectItem.item.defenseFinal}`
+                  : `${formatMemoryEventType(inspectItem.item.type)} • ${formatMemoryEventVisibility(inspectItem.item.visibility)}`
           }
           footer={
             inspectItem.type === "character" ? (
@@ -1487,15 +1575,42 @@ export default function CampaignPage() {
                 Abrir modo sessao
                 <ArrowRight className="h-4 w-4" />
               </Button>
-            ) : (
+            ) : inspectItem.type === "npc" ? (
               <Button className="w-full justify-between" onClick={() => handleAddNpcToCombat(inspectItem.item)}>
                 Levar ao combate
                 <ArrowRight className="h-4 w-4" />
               </Button>
-            )
+            ) : undefined
           }
         >
-          {inspectItem.type === "character" ? (
+          {inspectItem.type === "memory" ? (
+            <div className="space-y-4">
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <div className="flex flex-wrap gap-2">
+                  <Badge
+                    className={
+                      getMemoryEventTone(inspectItem.item) === "death"
+                        ? "border-red-300/20 bg-red-300/10 text-red-100"
+                        : getMemoryEventTone(inspectItem.item) === "change"
+                          ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                          : "border-primary/20 bg-primary/10 text-primary"
+                    }
+                  >
+                    {formatMemoryEventType(inspectItem.item.type)}
+                  </Badge>
+                  <Badge className="border-white/10 bg-black/25 text-white/75">
+                    {formatMemoryEventKind(inspectItem.item)}
+                  </Badge>
+                  <Badge className="border-white/10 bg-black/25 text-white/75">
+                    {formatMemoryEventVisibility(inspectItem.item.visibility)}
+                  </Badge>
+                </div>
+                <p className="mt-3 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+                  {buildMemoryInspectBody(inspectItem.item)}
+                </p>
+              </div>
+            </div>
+          ) : inspectItem.type === "character" ? (
             <div className="space-y-4">
               <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Funcao</p>
