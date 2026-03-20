@@ -117,7 +117,7 @@ Memoria sem entidade ligada perde valor.
   Notas: O workspace da entidade agora mostra timeline de memoria consolidada.
 
 - [-] W2.5 Garantir consistencia entre mundo, campanha e entidade
-  Notas: O fluxo ja liga sessao, campanha, mundo e entidade; ainda falta ampliar isso para filtros dedicados.
+  Notas: O fluxo ja liga sessao, campanha, mundo e entidade. `RPG-24` adicionou links rapidos e contexto cruzado no inspect; ainda falta ampliar isso para busca transversal mais forte.
 
 ### Criterios de aceite da Frente W2
 - eventos importantes aparecem no lugar certo;
@@ -144,7 +144,7 @@ O mestre precisa abrir uma entidade e ver "o que aconteceu com ela".
   Notas: A timeline substituiu a antiga memoria recente no workspace da entidade.
 
 - [-] W3.5 Definir filtros temporais e por campanha
-  Notas: `RPG-22` abriu o recorte por campanha na estacao da campanha e `RPG-23` trouxe filtros leves de consulta em campanha e mundo; ainda faltam filtros dedicados dentro da timeline da entidade.
+  Notas: `RPG-22` abriu o recorte por campanha na estacao da campanha, `RPG-23` trouxe filtros leves de consulta em campanha e mundo, e `RPG-24` melhorou a leitura temporal com badges/contexto. Ainda faltam filtros dedicados dentro da timeline da entidade.
 
 ### Criterios de aceite da Frente W3
 - a entidade possui historico proprio;
@@ -198,10 +198,10 @@ Memoria so vale se puder ser consultada sem friccao.
   Notas: O cockpit do mundo agora tem painel proprio de memoria consolidada.
 
 - [-] W5.4 Integrar memoria a busca e inspect
-  Notas: `RPG-23` abriu inspect dedicado de evento de memoria e filtros leves por termo, visibilidade e tipo em mundo/campanha. Ainda falta busca transversal mais forte.
+  Notas: `RPG-23` abriu inspect dedicado de evento de memoria e filtros leves por termo, visibilidade e tipo em mundo/campanha. `RPG-24` aprofundou o inspect com contexto cruzado e links rapidos. Ainda falta busca transversal mais forte.
 
 - [-] W5.5 Garantir leitura clara do que mudou
-  Notas: O cockpit, a timeline da entidade, a estacao da campanha e agora os drawers dedicados de memoria ja diferenciam morte, mudanca e fechamento; ainda faltam leitura temporal melhor e mais contexto cruzado.
+  Notas: O cockpit, a timeline da entidade, a estacao da campanha e os drawers dedicados de memoria ja diferenciam morte, mudanca e fechamento. `RPG-24` melhorou leitura temporal e contexto cruzado; ainda faltam derivacoes temporais mais profundas.
 
 ### Criterios de aceite da Frente W5
 - a memoria do mundo participa do uso diario;

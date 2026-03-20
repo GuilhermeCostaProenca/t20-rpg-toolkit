@@ -45,6 +45,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { normalizeSessionForgeState } from "@/lib/session-forge";
 import {
+  formatMemoryEventTemporalLabel,
   formatMemoryEventKind,
   formatMemoryEventText,
   formatMemoryEventType,
@@ -214,13 +215,22 @@ function getSessionTone(status?: Session["status"]) {
   }
 }
 
-function buildMemoryInspectBody(event: WorldEvent) {
+function buildMemoryInspectBody(
+  event: WorldEvent,
+  options?: {
+    sessionTitle?: string;
+  }
+) {
   const parts = [
     formatMemoryEventText(event),
     `Registrado em ${formatDateTime(event.ts)}.`,
     `Escopo: ${event.scope}.`,
     `Visibilidade: ${formatMemoryEventVisibility(event.visibility)}.`,
   ];
+
+  if (options?.sessionTitle) {
+    parts.push(`Sessao ligada: ${options.sessionTitle}.`);
+  }
 
   const linkedCount = getMemoryEventLinkedEntityCount(event);
   if (linkedCount > 0) {
@@ -350,6 +360,10 @@ export default function CampaignPage() {
       return true;
     });
   }, [campaignMemoryEvents, memoryQuery, memoryTone, memoryVisibility]);
+  const sessionTitleById = useMemo(
+    () => new Map(sessions.map((session) => [session.id, session.title])),
+    [sessions]
+  );
   const threatCount = useMemo(
     () => sortedNpcs.filter((npc) => npc.type === "enemy").length,
     [sortedNpcs]
@@ -1048,8 +1062,16 @@ export default function CampaignPage() {
                           <Badge className="border-white/10 bg-white/5 text-white/75">
                             {formatMemoryEventKind(event)}
                           </Badge>
+                          <Badge className="border-white/10 bg-white/5 text-white/75">
+                            {formatMemoryEventTemporalLabel(event.ts)}
+                          </Badge>
                         </div>
                         <p className="mt-3 text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
+                        {event.sessionId ? (
+                          <p className="mt-2 text-xs uppercase tracking-[0.14em] text-amber-100/80">
+                            {sessionTitleById.get(event.sessionId) || "Sessao ligada"}
+                          </p>
+                        ) : null}
                         <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                           {formatDateTime(event.ts)}
                         </p>
@@ -1606,8 +1628,39 @@ export default function CampaignPage() {
                   </Badge>
                 </div>
                 <p className="mt-3 whitespace-pre-line text-sm leading-7 text-muted-foreground">
-                  {buildMemoryInspectBody(inspectItem.item)}
+                  {buildMemoryInspectBody(inspectItem.item, {
+                    sessionTitle: inspectItem.item.sessionId
+                      ? sessionTitleById.get(inspectItem.item.sessionId)
+                      : undefined,
+                  })}
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {inspectItem.item.sessionId ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={() => {
+                        const session = sessions.find((item) => item.id === inspectItem.item.sessionId);
+                        if (session) openSessionMode(session);
+                      }}
+                    >
+                      Abrir modo sessao
+                    </Button>
+                  ) : null}
+                  {inspectItem.item.sessionId ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      asChild
+                    >
+                      <Link href={`/app/campaign/${campaignId}/forge/${inspectItem.item.sessionId}`}>
+                        Abrir forja da sessao
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
               </div>
             </div>
           ) : inspectItem.type === "character" ? (

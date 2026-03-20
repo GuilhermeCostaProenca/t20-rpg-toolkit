@@ -46,10 +46,12 @@ import {
   type LorePrepFocus,
 } from "@/lib/lore";
 import {
+  formatMemoryEventTemporalLabel,
   formatMemoryEventKind,
   formatMemoryEventText,
   formatMemoryEventType,
   formatMemoryEventVisibility,
+  getMemoryEventLinkedEntityIds,
   getMemoryEventLinkedEntityCount,
   getMemoryEventSearchText,
   getMemoryEventTone,
@@ -210,7 +212,14 @@ function formatEvent(event: WorldEvent) {
   }
 }
 
-function buildMemoryInspectBody(event: WorldEvent) {
+function buildMemoryInspectBody(
+  event: WorldEvent,
+  options?: {
+    campaignName?: string;
+    linkedEntityNames?: string[];
+    sessionHref?: string;
+  }
+) {
   const parts = [
     formatMemoryEventText(event),
     `Registrado em ${formatDateTime(event.ts)}.`,
@@ -218,9 +227,21 @@ function buildMemoryInspectBody(event: WorldEvent) {
     `Visibilidade: ${formatMemoryEventVisibility(event.visibility)}.`,
   ];
 
-  const linkedCount = getMemoryEventLinkedEntityCount(event);
-  if (linkedCount > 0) {
-    parts.push(`Entidades ligadas: ${linkedCount}.`);
+  if (options?.campaignName) {
+    parts.push(`Campanha: ${options.campaignName}.`);
+  }
+
+  if (options?.linkedEntityNames?.length) {
+    parts.push(`Entidades ligadas: ${options.linkedEntityNames.join(", ")}.`);
+  } else {
+    const linkedCount = getMemoryEventLinkedEntityCount(event);
+    if (linkedCount > 0) {
+      parts.push(`Entidades ligadas: ${linkedCount}.`);
+    }
+  }
+
+  if (options?.sessionHref) {
+    parts.push("Existe uma sessao ligada para abrir no fluxo tatico.");
   }
 
   return parts.join("\n");
@@ -403,6 +424,14 @@ export default function WorldDetailPage() {
       return true;
     });
   }, [memoryEvents, memoryQuery, memoryTone, memoryVisibility]);
+  const campaignNameById = useMemo(
+    () => new Map((world?.campaigns ?? []).map((campaign) => [campaign.id, campaign.name])),
+    [world?.campaigns]
+  );
+  const entityNameById = useMemo(
+    () => new Map(codexEntities.map((entity) => [entity.id, entity.name])),
+    [codexEntities]
+  );
   const inspectHref = inspectItem?.type === "campaign" ? inspectItem.href : null;
   const activeInspectHref = inspectItem?.type === "memory" ? inspectItem.href : inspectHref;
   const prepBriefing = useMemo<PrepBriefingItem[]>(() => {
@@ -989,8 +1018,16 @@ export default function WorldDetailPage() {
                           <Badge className="border-white/10 bg-white/5 text-white/75">
                             {formatMemoryEventKind(event)}
                           </Badge>
+                          <Badge className="border-white/10 bg-white/5 text-white/75">
+                            {formatMemoryEventTemporalLabel(event.ts)}
+                          </Badge>
                         </div>
                         <p className="text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
+                        {event.campaignId ? (
+                          <p className="text-xs uppercase tracking-[0.14em] text-amber-100/80">
+                            {campaignNameById.get(event.campaignId) || "Campanha ligada"}
+                          </p>
+                        ) : null}
                       </div>
                       <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
                         {formatDateTime(event.ts)}
@@ -1190,8 +1227,57 @@ export default function WorldDetailPage() {
         >
           <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
             <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">
-              {inspectItem.type === "memory" ? buildMemoryInspectBody(inspectItem.item) : inspectItem.body}
+              {inspectItem.type === "memory"
+                ? buildMemoryInspectBody(inspectItem.item, {
+                    campaignName: inspectItem.item.campaignId
+                      ? campaignNameById.get(inspectItem.item.campaignId)
+                      : undefined,
+                    linkedEntityNames: getMemoryEventLinkedEntityIds(inspectItem.item)
+                      .map((id) => entityNameById.get(id))
+                      .filter((name): name is string => Boolean(name))
+                      .slice(0, 4),
+                    sessionHref:
+                      inspectItem.item.campaignId && inspectItem.item.sessionId
+                        ? `/app/campaign/${inspectItem.item.campaignId}/forge/${inspectItem.item.sessionId}`
+                        : undefined,
+                  })
+                : inspectItem.body}
             </p>
+            {inspectItem.type === "memory" ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {inspectItem.item.campaignId ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={() => router.push(`/app/campaign/${inspectItem.item.campaignId}`)}
+                  >
+                    Abrir campanha
+                  </Button>
+                ) : null}
+                {inspectItem.item.campaignId && inspectItem.item.sessionId ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={() => router.push(`/app/campaign/${inspectItem.item.campaignId}/forge/${inspectItem.item.sessionId}`)}
+                  >
+                    Abrir sessao
+                  </Button>
+                ) : null}
+                {getMemoryEventLinkedEntityIds(inspectItem.item).slice(0, 2).map((entityId) => (
+                  <Button
+                    key={entityId}
+                    size="sm"
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={() => router.push(`/app/worlds/${worldId}/codex/${entityId}`)}
+                  >
+                    {entityNameById.get(entityId) || "Abrir entidade"}
+                  </Button>
+                ))}
+              </div>
+            ) : null}
           </div>
         </CockpitDetailSheet>
       ) : null}

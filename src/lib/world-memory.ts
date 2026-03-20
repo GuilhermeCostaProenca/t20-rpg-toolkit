@@ -16,6 +16,10 @@ function getMemoryMeta(event: WorldEventLike) {
   return event.meta && typeof event.meta === "object" ? event.meta : undefined;
 }
 
+function startOfDay(value: Date) {
+  return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+}
+
 export function isMemoryWorldEvent(event: WorldEventLike) {
   const meta = getMemoryMeta(event);
   return meta?.memorySource === "session-closeout";
@@ -104,9 +108,35 @@ export function getMemoryEventSearchText(event: WorldEventLike) {
 }
 
 export function getMemoryEventLinkedEntityCount(event: WorldEventLike) {
+  return getMemoryEventLinkedEntityIds(event).length;
+}
+
+export function getMemoryEventLinkedEntityIds(event: WorldEventLike) {
   const meta = getMemoryMeta(event);
   if (Array.isArray(meta?.linkedEntityIds)) {
-    return meta.linkedEntityIds.filter((item): item is string => typeof item === "string").length;
+    return meta.linkedEntityIds.filter((item): item is string => typeof item === "string");
   }
-  return [event.actorId, event.targetId].filter(Boolean).length;
+  return Array.from(
+    new Set([event.actorId, event.targetId].filter((value): value is string => typeof value === "string" && value.length > 0))
+  );
+}
+
+export function formatMemoryEventTemporalLabel(ts: string, now = new Date()) {
+  const eventDate = new Date(ts);
+  if (Number.isNaN(eventDate.getTime())) return "Sem data";
+
+  const diffDays = Math.round(
+    (startOfDay(now).getTime() - startOfDay(eventDate).getTime()) / 86400000
+  );
+
+  if (diffDays === 0) return "Hoje";
+  if (diffDays === 1) return "Ontem";
+  if (diffDays > 1 && diffDays < 7) {
+    return eventDate.toLocaleDateString("pt-BR", { weekday: "long" });
+  }
+
+  return eventDate.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  });
 }
