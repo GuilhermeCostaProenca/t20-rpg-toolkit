@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { normalizeSessionForgeState, type SessionForgeState } from "@/lib/session-forge";
+import { formatBalanceConfidence, formatEncounterRating } from "@/lib/t20-balance";
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 
 // --- Types ---
@@ -590,6 +591,10 @@ export default function PlayPage() {
         ) ?? []
         : prepPacket?.forge.reveals.filter((item) => item.status !== "canceled") ?? [];
 
+    const activeEncounter = prepPacket?.forge.encounters.find((encounter) =>
+        activeScene ? encounter.linkedSceneId === activeScene.id : true
+    ) ?? prepPacket?.forge.encounters[0] ?? null;
+
     const inspectCandidates = (inspectQuery.trim()
         ? liveCodexEntities.filter((entity) => {
             const term = inspectQuery.trim().toLowerCase();
@@ -780,6 +785,10 @@ export default function PlayPage() {
                                         <span className="inline-flex items-center gap-2"><Users2 className="h-3 w-3" /> Entidades em foco</span>
                                         <span className="font-semibold text-foreground">{prepPacket.forge.linkedEntityIds.length}</span>
                                     </div>
+                                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-3 py-2">
+                                        <span className="inline-flex items-center gap-2"><Shield className="h-3 w-3" /> Encontros prontos</span>
+                                        <span className="font-semibold text-foreground">{prepPacket.forge.encounters.length}</span>
+                                    </div>
                                 </div>
 
                                 {prepPacket.forge.scenes.length > 0 ? (
@@ -828,6 +837,32 @@ export default function PlayPage() {
                                         {activeScene.objective ? (
                                             <p className="mt-2 text-sm text-muted-foreground">{activeScene.objective}</p>
                                         ) : null}
+                                    </div>
+                                ) : null}
+
+                                {activeEncounter ? (
+                                    <div className="rounded-xl border border-white/8 bg-white/5 p-3">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <Badge className="border-primary/20 bg-primary/10 text-primary">
+                                                {formatEncounterRating(activeEncounter.rating)}
+                                            </Badge>
+                                            <Badge variant="outline" className="border-white/10 text-white/70">
+                                                Confianca {formatBalanceConfidence(activeEncounter.confidence)}
+                                            </Badge>
+                                        </div>
+                                        <p className="mt-3 text-sm font-semibold text-foreground">
+                                            {activeEncounter.title || "Encontro preparado"}
+                                        </p>
+                                        <div className="mt-3 grid gap-1 text-sm text-muted-foreground">
+                                            {activeEncounter.enemies.map((enemy) => (
+                                                <p key={`${activeEncounter.id}:${enemy.npcId ?? enemy.label}`}>
+                                                    {enemy.quantity}x {enemy.label || "Ameaca sem nome"}
+                                                </p>
+                                            ))}
+                                        </div>
+                                        <p className="mt-3 text-sm text-muted-foreground">
+                                            {activeEncounter.recommendation}
+                                        </p>
                                     </div>
                                 ) : null}
 

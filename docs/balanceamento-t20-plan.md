@@ -67,8 +67,8 @@ Pode iniciar modelagem antes, mas a experiencia final depende dessas frentes.
 - [-] T4. Criar apoio para preparo de encontro
   Notas: `RPG-26` abriu o primeiro slice operacional dentro da estacao da campanha, com selecao de ameacas hostis, composicao de encontro preparada, releitura dedicada do risco e sugestao de ajuste. `RPG-27` passou a persistir essa composicao na sessao e a liga-la opcionalmente a uma cena da Forja.
 
-- [ ] T5. Criar apoio para ajuste durante a mesa
-  Notas:
+- [-] T5. Criar apoio para ajuste durante a mesa
+  Notas: `RPG-28` abriu o primeiro slice ao vivo, levando o encontro preparado da sessao para o cockpit de `/app/play/[campaignId]` com risco, confianca, composicao e recomendacao.
 
 ---
 
@@ -185,8 +185,8 @@ Balanceamento precisa ajudar antes da sessao, nao so diagnosticar.
 Contexto tecnico:
 O mestre tambem precisa ajuste em tempo real.
 
-- [ ] T5.1 Definir o que pode ser lido durante combate
-  Notas:
+- [-] T5.1 Definir o que pode ser lido durante combate
+  Notas: `RPG-28` ja expoe o encontro preparado em foco com rating, confianca, composicao e recomendacao curta no cockpit ao vivo.
 
 - [ ] T5.2 Definir alertas ou heuristicas de desbalanceamento ao vivo
   Notas:
@@ -194,8 +194,8 @@ O mestre tambem precisa ajuste em tempo real.
 - [ ] T5.3 Criar ferramentas de ajuste rapido
   Notas:
 
-- [ ] T5.4 Integrar com a mesa ao vivo sem poluicao visual
-  Notas:
+- [-] T5.4 Integrar com a mesa ao vivo sem poluicao visual
+  Notas: `RPG-28` integrou a leitura do encontro ao pacote de preparo da mesa sem abrir nova superficie. Ainda falta consolidar melhor com combate.
 
 - [ ] T5.5 Garantir que a sugestao seja util sem sequestrar a narracao
   Notas:

@@ -58,7 +58,7 @@ Esta frente depende de:
 ## Checklist Mestre
 
 - [-] M1. Reestruturar cockpit da sessao ao vivo
-  Notas: `RPG-19` abriu o primeiro pacote de preparo dentro de `/app/play/[campaignId]`, puxando a sessao ativa ou proxima sessao da campanha para o cockpit ao vivo com objetivo de mesa, contagem operacional e proximas cenas.
+  Notas: `RPG-19` abriu o primeiro pacote de preparo dentro de `/app/play/[campaignId]`, puxando a sessao ativa ou proxima sessao da campanha para o cockpit ao vivo com objetivo de mesa, contagem operacional e proximas cenas. `RPG-28` acrescentou leitura do encontro preparado em foco no mesmo cockpit, com risco, confianca, composicao e recomendacao.
 
 - [-] M2. Fechar consulta rapida de entidades durante a mesa
   Notas: `RPG-19` agora abre quick inspect world-scoped dentro de `/app/play/[campaignId]`, com busca curta, atalhos para entidades em foco da sessao e drawer de detalhe reaproveitando o padrao do Codex.
