@@ -199,7 +199,7 @@ Preparar e rodar precisam conversar.
   Notas:
 
 - [ ] F5.5 Preparar integracao futura com memoria do mundo
-  Notas:
+  Notas: `RPG-20` abriu o primeiro fechamento pos-sessao dentro da propria Forja, com `Session.metadata.memory` para resumo publico, resumo do mestre, presencas, mortes e mudancas persistentes, alem de sincronizacao inicial com `WorldEvent`.
 
 ### Criterios de aceite da Frente F5
 - a forja nao termina em si mesma;

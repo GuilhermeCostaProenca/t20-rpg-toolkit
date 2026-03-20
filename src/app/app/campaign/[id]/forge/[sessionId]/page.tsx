@@ -13,6 +13,8 @@ import {
   ArrowUp,
   Plus,
   RefreshCw,
+  ScrollText,
+  Skull,
   Sparkles,
   Swords,
   Target,
@@ -41,6 +43,11 @@ import {
   type SessionForgeBeatStatus,
   type SessionForgeDramaticItem,
   type SessionForgeDramaticStatus,
+  type SessionForgeMemoryAttendanceItem,
+  type SessionForgeMemoryChangeItem,
+  type SessionForgeMemoryChangeType,
+  type SessionForgeMemoryDeathItem,
+  type SessionForgeMemoryVisibility,
   type SessionForgeScene,
   type SessionForgeSceneStatus,
   type SessionForgeSubscene,
@@ -133,6 +140,18 @@ const sceneStatusOptions: SessionForgeSceneStatus[] = [
   "discarded",
 ];
 
+const memoryVisibilityOptions: SessionForgeMemoryVisibility[] = ["MASTER", "PLAYERS"];
+
+const memoryChangeTypeOptions: SessionForgeMemoryChangeType[] = [
+  "world_change",
+  "status",
+  "discovery",
+  "alliance",
+  "rupture",
+  "secret",
+  "other",
+];
+
 function formatDateTime(value?: string | null) {
   if (!value) return "Sem agenda";
   return new Date(value).toLocaleString("pt-BR", {
@@ -175,6 +194,29 @@ function formatPrepContext(context: LorePrepContext) {
     default:
       return context;
   }
+}
+
+function formatMemoryChangeType(type: SessionForgeMemoryChangeType) {
+  switch (type) {
+    case "world_change":
+      return "Mudanca de mundo";
+    case "status":
+      return "Mudanca de status";
+    case "discovery":
+      return "Descoberta";
+    case "alliance":
+      return "Alianca";
+    case "rupture":
+      return "Ruptura";
+    case "secret":
+      return "Segredo";
+    default:
+      return "Outro";
+  }
+}
+
+function formatMemoryVisibility(visibility: SessionForgeMemoryVisibility) {
+  return visibility === "PLAYERS" ? "Publico" : "Mestre";
 }
 
 function buildVisualAssets(entities: CodexEntity[]): SessionVisualAsset[] {
@@ -278,6 +320,36 @@ function buildDramaticItem(): SessionForgeDramaticItem {
     title: "",
     notes: "",
     status: "planned",
+  };
+}
+
+function buildAttendanceItem(status: "appeared" | "absent"): SessionForgeMemoryAttendanceItem {
+  return {
+    id: `attendance-${Math.random().toString(36).slice(2, 10)}`,
+    label: "",
+    status,
+    notes: "",
+    visibility: status === "appeared" ? "PLAYERS" : "MASTER",
+  };
+}
+
+function buildDeathItem(): SessionForgeMemoryDeathItem {
+  return {
+    id: `death-${Math.random().toString(36).slice(2, 10)}`,
+    label: "",
+    notes: "",
+    visibility: "MASTER",
+  };
+}
+
+function buildMemoryChange(): SessionForgeMemoryChangeItem {
+  return {
+    id: `change-${Math.random().toString(36).slice(2, 10)}`,
+    title: "",
+    type: "world_change",
+    notes: "",
+    linkedEntityIds: [],
+    visibility: "MASTER",
   };
 }
 
@@ -431,6 +503,11 @@ export default function SessionForgePage() {
     [forge.scenes]
   );
 
+  const memoryEntityOptions = useMemo(() => {
+    if (focusedEntities.length > 0) return focusedEntities.slice(0, 18);
+    return entities.slice(0, 18);
+  }, [entities, focusedEntities]);
+
   async function handleSaveForge() {
     if (!selectedSession) return;
     setSaving(true);
@@ -479,6 +556,45 @@ export default function SessionForgePage() {
     setForge((current) => ({
       ...current,
       [key]: current[key].map((item) => (item.id === itemId ? updater(item) : item)),
+    }));
+  }
+
+  function updateAttendanceItem(
+    itemId: string,
+    updater: (item: SessionForgeMemoryAttendanceItem) => SessionForgeMemoryAttendanceItem
+  ) {
+    setForge((current) => ({
+      ...current,
+      memory: {
+        ...current.memory,
+        attendance: current.memory.attendance.map((item) => (item.id === itemId ? updater(item) : item)),
+      },
+    }));
+  }
+
+  function updateDeathItem(
+    itemId: string,
+    updater: (item: SessionForgeMemoryDeathItem) => SessionForgeMemoryDeathItem
+  ) {
+    setForge((current) => ({
+      ...current,
+      memory: {
+        ...current.memory,
+        deaths: current.memory.deaths.map((item) => (item.id === itemId ? updater(item) : item)),
+      },
+    }));
+  }
+
+  function updateMemoryChangeItem(
+    itemId: string,
+    updater: (item: SessionForgeMemoryChangeItem) => SessionForgeMemoryChangeItem
+  ) {
+    setForge((current) => ({
+      ...current,
+      memory: {
+        ...current.memory,
+        changes: current.memory.changes.map((item) => (item.id === itemId ? updater(item) : item)),
+      },
     }));
   }
 
@@ -1392,6 +1508,492 @@ export default function SessionForgePage() {
                 }
                 placeholder="Musicas, reveals, momentos de consulta ou operacao rapida"
               />
+            </div>
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
+            <div className="mb-5 space-y-2">
+              <p className="section-eyebrow">Memoria do mundo</p>
+              <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                Fechamento pos-sessao
+              </h2>
+              <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+                Consolide o que realmente ficou da mesa: resumo publico, resumo do mestre, presencas,
+                mortes e mudancas persistentes do mundo.
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              <Textarea
+                rows={4}
+                value={forge.memory.publicSummary}
+                onChange={(event) =>
+                  setForge((current) => ({
+                    ...current,
+                    memory: { ...current.memory, publicSummary: event.target.value },
+                  }))
+                }
+                placeholder="Resumo publico do que a mesa e o mundo ja podem tratar como ocorrido"
+              />
+              <Textarea
+                rows={5}
+                value={forge.memory.masterSummary}
+                onChange={(event) =>
+                  setForge((current) => ({
+                    ...current,
+                    memory: { ...current.memory, masterSummary: event.target.value },
+                  }))
+                }
+                placeholder="Resumo privado do mestre, com contexto, leitura politica e consequencias ocultas"
+              />
+            </div>
+
+            <div className="mt-6 grid gap-6 xl:grid-cols-3">
+              <div className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                      Presencas e ausencias
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Quem apareceu ou nao apareceu nesta sessao.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={() =>
+                        setForge((current) => ({
+                          ...current,
+                          memory: {
+                            ...current.memory,
+                            attendance: [...current.memory.attendance, buildAttendanceItem("appeared")],
+                          },
+                        }))
+                      }
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={() =>
+                        setForge((current) => ({
+                          ...current,
+                          memory: {
+                            ...current.memory,
+                            attendance: [...current.memory.attendance, buildAttendanceItem("absent")],
+                          },
+                        }))
+                      }
+                    >
+                      <Users2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  {forge.memory.attendance.length > 0 ? (
+                    forge.memory.attendance.map((item) => (
+                      <div key={item.id} className="rounded-2xl border border-white/8 bg-black/20 p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <Badge
+                            className={
+                              item.status === "appeared"
+                                ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+                                : "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                            }
+                          >
+                            {item.status === "appeared" ? "Apareceu" : "Nao apareceu"}
+                          </Badge>
+                          <Button
+                            variant="outline"
+                            className="border-white/10 bg-white/5"
+                            onClick={() =>
+                              setForge((current) => ({
+                                ...current,
+                                memory: {
+                                  ...current.memory,
+                                  attendance: current.memory.attendance.filter((entry) => entry.id !== item.id),
+                                },
+                              }))
+                            }
+                          >
+                            Remover
+                          </Button>
+                        </div>
+                        <div className="mt-3 grid gap-3">
+                          <Input
+                            value={item.label}
+                            onChange={(event) =>
+                              updateAttendanceItem(item.id, (current) => ({
+                                ...current,
+                                label: event.target.value,
+                              }))
+                            }
+                            placeholder="Quem apareceu ou faltou"
+                          />
+                          <Textarea
+                            rows={3}
+                            value={item.notes}
+                            onChange={(event) =>
+                              updateAttendanceItem(item.id, (current) => ({
+                                ...current,
+                                notes: event.target.value,
+                              }))
+                            }
+                            placeholder="Contexto curto do papel na sessao"
+                          />
+                          <div className="flex flex-wrap gap-2">
+                            {memoryVisibilityOptions.map((visibility) => (
+                              <Button
+                                key={`${item.id}:${visibility}`}
+                                type="button"
+                                variant="outline"
+                                className={
+                                  item.visibility === visibility
+                                    ? "border-primary/30 bg-primary/10 text-primary"
+                                    : "border-white/10 bg-white/5"
+                                }
+                                onClick={() =>
+                                  updateAttendanceItem(item.id, (current) => ({
+                                    ...current,
+                                    visibility,
+                                  }))
+                                }
+                              >
+                                {formatMemoryVisibility(visibility)}
+                              </Button>
+                            ))}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {memoryEntityOptions.map((entity) => {
+                              const selected = item.entityId === entity.id;
+                              return (
+                                <Button
+                                  key={`${item.id}:${entity.id}`}
+                                  type="button"
+                                  variant="outline"
+                                  className={
+                                    selected
+                                      ? "border-primary/30 bg-primary/10 text-primary"
+                                      : "border-white/10 bg-white/5"
+                                  }
+                                  onClick={() =>
+                                    updateAttendanceItem(item.id, (current) => ({
+                                      ...current,
+                                      entityId: current.entityId === entity.id ? undefined : entity.id,
+                                      label:
+                                        current.entityId === entity.id && current.label === entity.name
+                                          ? ""
+                                          : current.label || entity.name,
+                                    }))
+                                  }
+                                >
+                                  {entity.name}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-muted-foreground">
+                      Ainda nao houve consolidacao de presencas.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                      Mortes
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Quem morreu, sumiu ou precisa marcar ruptura irreversivel.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={() =>
+                      setForge((current) => ({
+                        ...current,
+                        memory: {
+                          ...current.memory,
+                          deaths: [...current.memory.deaths, buildDeathItem()],
+                        },
+                      }))
+                    }
+                  >
+                    <Skull className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  {forge.memory.deaths.length > 0 ? (
+                    forge.memory.deaths.map((item) => (
+                      <div key={item.id} className="rounded-2xl border border-white/8 bg-black/20 p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <Badge className="border-red-300/20 bg-red-300/10 text-red-100">Morte</Badge>
+                          <Button
+                            variant="outline"
+                            className="border-white/10 bg-white/5"
+                            onClick={() =>
+                              setForge((current) => ({
+                                ...current,
+                                memory: {
+                                  ...current.memory,
+                                  deaths: current.memory.deaths.filter((entry) => entry.id !== item.id),
+                                },
+                              }))
+                            }
+                          >
+                            Remover
+                          </Button>
+                        </div>
+                        <div className="mt-3 grid gap-3">
+                          <Input
+                            value={item.label}
+                            onChange={(event) =>
+                              updateDeathItem(item.id, (current) => ({
+                                ...current,
+                                label: event.target.value,
+                              }))
+                            }
+                            placeholder="Quem morreu"
+                          />
+                          <Textarea
+                            rows={3}
+                            value={item.notes}
+                            onChange={(event) =>
+                              updateDeathItem(item.id, (current) => ({
+                                ...current,
+                                notes: event.target.value,
+                              }))
+                            }
+                            placeholder="Circunstancia, impacto e como isso fica registrado"
+                          />
+                          <div className="flex flex-wrap gap-2">
+                            {memoryVisibilityOptions.map((visibility) => (
+                              <Button
+                                key={`${item.id}:${visibility}`}
+                                type="button"
+                                variant="outline"
+                                className={
+                                  item.visibility === visibility
+                                    ? "border-primary/30 bg-primary/10 text-primary"
+                                    : "border-white/10 bg-white/5"
+                                }
+                                onClick={() =>
+                                  updateDeathItem(item.id, (current) => ({
+                                    ...current,
+                                    visibility,
+                                  }))
+                                }
+                              >
+                                {formatMemoryVisibility(visibility)}
+                              </Button>
+                            ))}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {memoryEntityOptions.map((entity) => {
+                              const selected = item.entityId === entity.id;
+                              return (
+                                <Button
+                                  key={`${item.id}:${entity.id}`}
+                                  type="button"
+                                  variant="outline"
+                                  className={
+                                    selected
+                                      ? "border-primary/30 bg-primary/10 text-primary"
+                                      : "border-white/10 bg-white/5"
+                                  }
+                                  onClick={() =>
+                                    updateDeathItem(item.id, (current) => ({
+                                      ...current,
+                                      entityId: current.entityId === entity.id ? undefined : entity.id,
+                                      label:
+                                        current.entityId === entity.id && current.label === entity.name
+                                          ? ""
+                                          : current.label || entity.name,
+                                    }))
+                                  }
+                                >
+                                  {entity.name}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-muted-foreground">
+                      Nenhuma morte consolidada ainda.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                      Mudancas persistentes
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      O que o mundo precisa lembrar depois da sessao.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={() =>
+                      setForge((current) => ({
+                        ...current,
+                        memory: {
+                          ...current.memory,
+                          changes: [...current.memory.changes, buildMemoryChange()],
+                        },
+                      }))
+                    }
+                  >
+                    <ScrollText className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  {forge.memory.changes.length > 0 ? (
+                    forge.memory.changes.map((item) => (
+                      <div key={item.id} className="rounded-2xl border border-white/8 bg-black/20 p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <Badge className="border-primary/20 bg-primary/10 text-primary">
+                            {formatMemoryChangeType(item.type)}
+                          </Badge>
+                          <Button
+                            variant="outline"
+                            className="border-white/10 bg-white/5"
+                            onClick={() =>
+                              setForge((current) => ({
+                                ...current,
+                                memory: {
+                                  ...current.memory,
+                                  changes: current.memory.changes.filter((entry) => entry.id !== item.id),
+                                },
+                              }))
+                            }
+                          >
+                            Remover
+                          </Button>
+                        </div>
+                        <div className="mt-3 grid gap-3">
+                          <Input
+                            value={item.title}
+                            onChange={(event) =>
+                              updateMemoryChangeItem(item.id, (current) => ({
+                                ...current,
+                                title: event.target.value,
+                              }))
+                            }
+                            placeholder="O que mudou de verdade"
+                          />
+                          <Textarea
+                            rows={3}
+                            value={item.notes}
+                            onChange={(event) =>
+                              updateMemoryChangeItem(item.id, (current) => ({
+                                ...current,
+                                notes: event.target.value,
+                              }))
+                            }
+                            placeholder="Como isso afeta o mundo, a campanha ou a proxima sessao"
+                          />
+                          <div className="flex flex-wrap gap-2">
+                            {memoryChangeTypeOptions.map((type) => (
+                              <Button
+                                key={`${item.id}:${type}`}
+                                type="button"
+                                variant="outline"
+                                className={
+                                  item.type === type
+                                    ? "border-primary/30 bg-primary/10 text-primary"
+                                    : "border-white/10 bg-white/5"
+                                }
+                                onClick={() =>
+                                  updateMemoryChangeItem(item.id, (current) => ({
+                                    ...current,
+                                    type,
+                                  }))
+                                }
+                              >
+                                {formatMemoryChangeType(type)}
+                              </Button>
+                            ))}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {memoryVisibilityOptions.map((visibility) => (
+                              <Button
+                                key={`${item.id}:${visibility}`}
+                                type="button"
+                                variant="outline"
+                                className={
+                                  item.visibility === visibility
+                                    ? "border-primary/30 bg-primary/10 text-primary"
+                                    : "border-white/10 bg-white/5"
+                                }
+                                onClick={() =>
+                                  updateMemoryChangeItem(item.id, (current) => ({
+                                    ...current,
+                                    visibility,
+                                  }))
+                                }
+                              >
+                                {formatMemoryVisibility(visibility)}
+                              </Button>
+                            ))}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {memoryEntityOptions.map((entity) => {
+                              const selected = item.linkedEntityIds.includes(entity.id);
+                              return (
+                                <Button
+                                  key={`${item.id}:${entity.id}`}
+                                  type="button"
+                                  variant="outline"
+                                  className={
+                                    selected
+                                      ? "border-primary/30 bg-primary/10 text-primary"
+                                      : "border-white/10 bg-white/5"
+                                  }
+                                  onClick={() =>
+                                    updateMemoryChangeItem(item.id, (current) => ({
+                                      ...current,
+                                      linkedEntityIds: current.linkedEntityIds.includes(entity.id)
+                                        ? current.linkedEntityIds.filter((entry) => entry !== entity.id)
+                                        : [...current.linkedEntityIds, entity.id].slice(0, 6),
+                                    }))
+                                  }
+                                >
+                                  {entity.name}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-muted-foreground">
+                      Nenhuma mudanca persistente consolidada ainda.
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </section>
         </div>

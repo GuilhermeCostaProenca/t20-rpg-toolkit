@@ -52,8 +52,8 @@ Esta frente depende de:
 
 ## Checklist Mestre
 
-- [ ] W1. Estruturar eventos narrativos do mundo
-  Notas:
+- [-] W1. Estruturar eventos narrativos do mundo
+  Notas: `RPG-20` abriu a primeira sincronizacao narrativa a partir da propria `Session`, usando `Session.metadata.memory` e gerando `WorldEvent` de fechamento, morte, presenca/ausencia e mudanca consolidada.
 
 - [ ] W2. Ligar eventos a entidades e campanhas
   Notas:
@@ -61,14 +61,14 @@ Esta frente depende de:
 - [ ] W3. Derivar historico por entidade
   Notas:
 
-- [ ] W4. Registrar consequencias de sessao
-  Notas:
+- [-] W4. Registrar consequencias de sessao
+  Notas: A Forja de Sessao agora possui superficie de fechamento pos-sessao com resumos, presencas, mortes e mudancas persistentes; ainda falta ligar melhor isso a historico de entidade e consulta de campanha.
 
 - [ ] W5. Fechar superficies de consulta da memoria
   Notas:
 
-- [ ] W6. Fechar consolidacao pos-sessao e visibilidade
-  Notas:
+- [-] W6. Fechar consolidacao pos-sessao e visibilidade
+  Notas: O primeiro fluxo manual de consolidacao ja existe em `/app/campaign/[id]/forge/[sessionId]`, incluindo controle de visibilidade `MASTER` vs `PLAYERS`; ainda falta automacao e revisao mais forte.
 
 ---
 
@@ -77,17 +77,17 @@ Esta frente depende de:
 Contexto tecnico:
 O produto ja tem `WorldEvent`, mas a frente precisa tornar a memoria narrativamente util.
 
-- [ ] W1.1 Definir camada de evento narrativo relevante ao mestre
-  Notas:
+- [x] W1.1 Definir camada de evento narrativo relevante ao mestre
+  Notas: O slice inicial usa `Session.metadata.memory` como consolidacao do fechamento da mesa e sincroniza para `WorldEvent`.
 
 - [ ] W1.2 Definir tipos minimos de evento de continuidade
   Notas:
 
-- [ ] W1.3 Definir visibilidade e escopo
-  Notas:
+- [-] W1.3 Definir visibilidade e escopo
+  Notas: O slice inicial ja diferencia `MASTER` e `PLAYERS` em resumo, presencas, mortes e mudancas; ainda falta expandir isso para historico e consulta.
 
-- [ ] W1.4 Definir como eventos nascem a partir da mesa e da forja
-  Notas:
+- [-] W1.4 Definir como eventos nascem a partir da mesa e da forja
+  Notas: O `PUT /api/sessions/[id]` agora sincroniza a memoria consolidada da Forja para `WorldEvent`.
 
 - [ ] W1.5 Garantir integridade temporal e consulta por mundo
   Notas:
@@ -107,8 +107,8 @@ Memoria sem entidade ligada perde valor.
 - [ ] W2.1 Permitir ligar evento a uma ou mais entidades
   Notas:
 
-- [ ] W2.2 Permitir contextualizacao por campanha
-  Notas:
+- [-] W2.2 Permitir contextualizacao por campanha
+  Notas: Os eventos de memoria ja nascem ligados a `sessionId` e `campaignId`; ainda falta leitura dedicada por campanha.
 
 - [ ] W2.3 Permitir referencia cruzada com relacoes
   Notas:
@@ -158,23 +158,23 @@ O mestre precisa abrir uma entidade e ver "o que aconteceu com ela".
 Contexto tecnico:
 Sessao jogada precisa alimentar memoria do mundo.
 
-- [ ] W4.1 Definir quais resultados da mesa viram memoria persistente
-  Notas:
+- [x] W4.1 Definir quais resultados da mesa viram memoria persistente
+  Notas: O primeiro recorte formalizou resumo publico, resumo do mestre, presencas, ausencias, mortes e mudancas persistentes.
 
-- [ ] W4.2 Definir como a forja e a sessao geram consequencias
-  Notas:
+- [-] W4.2 Definir como a forja e a sessao geram consequencias
+  Notas: A consolidacao agora nasce na Forja de Sessao e desagua automaticamente em `WorldEvent`.
 
-- [ ] W4.3 Permitir registrar morte, descoberta, alianca, ruptura e eventos chave
-  Notas:
+- [-] W4.3 Permitir registrar morte, descoberta, alianca, ruptura e eventos chave
+  Notas: O slice inicial cobre morte e mudanca persistente com tipos como `discovery`, `alliance`, `rupture`, `status`, `world_change`, `secret` e `other`.
 
-- [ ] W4.4 Garantir revisao/confirmacao do mestre onde necessario
-  Notas:
+- [x] W4.4 Garantir revisao/confirmacao do mestre onde necessario
+  Notas: O fechamento pos-sessao e manual e controlado pelo mestre dentro da Forja antes de sincronizar.
 
 - [ ] W4.5 Garantir que a continuidade do mundo fique refletida apos a sessao
   Notas:
 
-- [ ] W4.6 Consolidar quem apareceu, quem nao apareceu, quem morreu e o que mudou
-  Notas:
+- [x] W4.6 Consolidar quem apareceu, quem nao apareceu, quem morreu e o que mudou
+  Notas: O bloco `memory` da sessao agora registra exatamente esses quatro grupos.
 
 ### Criterios de aceite da Frente W4
 - o mundo de fato muda apos a sessao;
@@ -215,20 +215,20 @@ Memoria so vale se puder ser consultada sem friccao.
 Contexto tecnico:
 Depois da sessao, o sistema precisa transformar o caos do jogo em memoria util do mundo.
 
-- [ ] W6.1 Definir fluxo de consolidacao pos-sessao
-  Notas:
+- [x] W6.1 Definir fluxo de consolidacao pos-sessao
+  Notas: O primeiro fluxo existe dentro da propria Forja de Sessao.
 
 - [ ] W6.2 Preparar suporte para captacao, transcricao ou escuta da sessao
   Notas:
 
-- [ ] W6.3 Permitir revisar automaticamente aparicoes, mortes e eventos-chave
-  Notas:
+- [-] W6.3 Permitir revisar automaticamente aparicoes, mortes e eventos-chave
+  Notas: A revisao existe, mas ainda e inteiramente manual; a automacao vem depois.
 
-- [ ] W6.4 Permitir marcar o que fica publico versus privado do mestre
-  Notas:
+- [x] W6.4 Permitir marcar o que fica publico versus privado do mestre
+  Notas: Cada item consolidado aceita `MASTER` ou `PLAYERS`.
 
-- [ ] W6.5 Garantir que isso alimente entidades, campanha e mundo corretamente
-  Notas:
+- [-] W6.5 Garantir que isso alimente entidades, campanha e mundo corretamente
+  Notas: O fluxo ja alimenta mundo, campanha e sessao. O historico por entidade ainda precisa ser fechado.
 
 ### Criterios de aceite da Frente W6
 - a sessao pode ser consolidada sem reensino manual massivo;

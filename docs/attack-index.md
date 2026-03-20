@@ -145,8 +145,8 @@ Racional:
 - [-] A7. Fechar Mesa ao Vivo
   Notas: `RPG-19` abriu o primeiro consumo real da `Forja de Sessao` dentro de `/app/play/[campaignId]`, puxando sessao ativa ou proxima sessao para o cockpit ao vivo com objetivo de mesa, contagem operacional e proximas cenas, depois adicionou quick inspect world-scoped com busca curta e drawer de detalhe, passou a permitir disparar `reveals` preparados direto do cockpit da mesa e agora ja trabalha com `cena em foco` para contextualizar o pacote narrativo. Ainda faltam integracao visual mais profunda e encaixe melhor entre narracao, combate e reveal.
 
-- [ ] A8. Fechar Memoria do Mundo
-  Notas:
+- [-] A8. Fechar Memoria do Mundo
+  Notas: `RPG-20` abriu o primeiro slice real da frente em cima da propria `Session`: a Forja de Sessao agora consolida resumo publico, resumo do mestre, presencas, ausencias, mortes e mudancas persistentes em `Session.metadata.memory`, e o `PUT /api/sessions/[id]` ja sincroniza isso para `WorldEvent` com visibilidade e vinculo por sessao/campanha/mundo. Ainda faltam historico por entidade, superficies de consulta e consolidacao mais automatica.
 
 - [ ] A9. Fechar Balanceamento T20
   Notas:

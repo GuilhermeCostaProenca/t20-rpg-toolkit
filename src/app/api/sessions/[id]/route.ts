@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { syncSessionMemoryEvents } from "@/lib/session-memory";
 import { SessionUpdateSchema } from "@/lib/validators";
 import { ZodError } from "zod";
 
@@ -20,7 +21,7 @@ export async function PUT(req: Request, { params }: Context) {
 
     const existing = await prisma.session.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, worldId: true, campaignId: true, title: true },
     });
     if (!existing) {
       const message = "Sessao nao encontrada.";
@@ -39,6 +40,14 @@ export async function PUT(req: Request, { params }: Context) {
         scheduledAt: parsed.scheduledAt ? new Date(parsed.scheduledAt) : null,
         status: parsed.status ?? "planned",
       },
+    });
+
+    await syncSessionMemoryEvents({
+      id: updated.id,
+      worldId: existing.worldId,
+      campaignId: existing.campaignId,
+      title: updated.title,
+      metadata: updated.metadata as Prisma.JsonValue | null,
     });
 
     return Response.json({ data: updated });

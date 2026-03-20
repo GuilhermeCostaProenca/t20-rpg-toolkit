@@ -40,6 +40,53 @@ export type SessionForgeScene = {
   subscenes: SessionForgeSubscene[];
 };
 
+export type SessionForgeMemoryVisibility = "MASTER" | "PLAYERS";
+
+export type SessionForgeMemoryAttendanceStatus = "appeared" | "absent";
+
+export type SessionForgeMemoryAttendanceItem = {
+  id: string;
+  label: string;
+  entityId?: string;
+  status: SessionForgeMemoryAttendanceStatus;
+  notes: string;
+  visibility: SessionForgeMemoryVisibility;
+};
+
+export type SessionForgeMemoryDeathItem = {
+  id: string;
+  label: string;
+  entityId?: string;
+  notes: string;
+  visibility: SessionForgeMemoryVisibility;
+};
+
+export type SessionForgeMemoryChangeType =
+  | "discovery"
+  | "alliance"
+  | "rupture"
+  | "status"
+  | "world_change"
+  | "secret"
+  | "other";
+
+export type SessionForgeMemoryChangeItem = {
+  id: string;
+  title: string;
+  type: SessionForgeMemoryChangeType;
+  notes: string;
+  linkedEntityIds: string[];
+  visibility: SessionForgeMemoryVisibility;
+};
+
+export type SessionForgeMemoryState = {
+  publicSummary: string;
+  masterSummary: string;
+  attendance: SessionForgeMemoryAttendanceItem[];
+  deaths: SessionForgeMemoryDeathItem[];
+  changes: SessionForgeMemoryChangeItem[];
+};
+
 export type SessionForgeState = {
   briefing: string;
   tableObjective: string;
@@ -52,6 +99,7 @@ export type SessionForgeState = {
   hooks: SessionForgeDramaticItem[];
   secrets: SessionForgeDramaticItem[];
   reveals: SessionForgeDramaticItem[];
+  memory: SessionForgeMemoryState;
 };
 
 function buildForgeId(prefix: string) {
@@ -71,6 +119,13 @@ export function getEmptySessionForgeState(): SessionForgeState {
     hooks: [],
     secrets: [],
     reveals: [],
+    memory: {
+      publicSummary: "",
+      masterSummary: "",
+      attendance: [],
+      deaths: [],
+      changes: [],
+    },
   };
 }
 
@@ -144,11 +199,87 @@ function parseDramaticCollection(value: unknown): SessionForgeDramaticItem[] {
     : [];
 }
 
+function parseMemoryVisibility(value: unknown): SessionForgeMemoryVisibility {
+  return value === "PLAYERS" ? "PLAYERS" : "MASTER";
+}
+
+function parseMemoryAttendanceStatus(value: unknown): SessionForgeMemoryAttendanceStatus {
+  return value === "absent" ? "absent" : "appeared";
+}
+
+function parseMemoryAttendance(value: unknown): SessionForgeMemoryAttendanceItem[] {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+        .map((item) => ({
+          id:
+            typeof item.id === "string" && item.id.trim()
+              ? item.id
+              : buildForgeId("attendance"),
+          label: typeof item.label === "string" ? item.label : "",
+          entityId: typeof item.entityId === "string" ? item.entityId : undefined,
+          status: parseMemoryAttendanceStatus(item.status),
+          notes: typeof item.notes === "string" ? item.notes : "",
+          visibility: parseMemoryVisibility(item.visibility),
+        }))
+    : [];
+}
+
+function parseMemoryDeaths(value: unknown): SessionForgeMemoryDeathItem[] {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+        .map((item) => ({
+          id:
+            typeof item.id === "string" && item.id.trim()
+              ? item.id
+              : buildForgeId("death"),
+          label: typeof item.label === "string" ? item.label : "",
+          entityId: typeof item.entityId === "string" ? item.entityId : undefined,
+          notes: typeof item.notes === "string" ? item.notes : "",
+          visibility: parseMemoryVisibility(item.visibility),
+        }))
+    : [];
+}
+
+function parseMemoryChangeType(value: unknown): SessionForgeMemoryChangeType {
+  return value === "discovery" ||
+    value === "alliance" ||
+    value === "rupture" ||
+    value === "status" ||
+    value === "world_change" ||
+    value === "secret"
+    ? value
+    : "other";
+}
+
+function parseMemoryChanges(value: unknown): SessionForgeMemoryChangeItem[] {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+        .map((item) => ({
+          id:
+            typeof item.id === "string" && item.id.trim()
+              ? item.id
+              : buildForgeId("change"),
+          title: typeof item.title === "string" ? item.title : "",
+          type: parseMemoryChangeType(item.type),
+          notes: typeof item.notes === "string" ? item.notes : "",
+          linkedEntityIds: parseLinkedIds(item.linkedEntityIds),
+          visibility: parseMemoryVisibility(item.visibility),
+        }))
+    : [];
+}
+
 export function normalizeSessionForgeState(metadata: unknown): SessionForgeState {
   const meta = metadata && typeof metadata === "object" ? (metadata as Record<string, unknown>) : undefined;
   const forge =
     meta?.forge && typeof meta.forge === "object"
       ? (meta.forge as Record<string, unknown>)
+      : undefined;
+  const memory =
+    meta?.memory && typeof meta.memory === "object"
+      ? (meta.memory as Record<string, unknown>)
       : undefined;
 
   const beats = Array.isArray(forge?.beats)
@@ -187,6 +318,13 @@ export function normalizeSessionForgeState(metadata: unknown): SessionForgeState
     hooks: parseDramaticCollection(forge?.hooks),
     secrets: parseDramaticCollection(forge?.secrets),
     reveals: parseDramaticCollection(forge?.reveals),
+    memory: {
+      publicSummary: typeof memory?.publicSummary === "string" ? memory.publicSummary : "",
+      masterSummary: typeof memory?.masterSummary === "string" ? memory.masterSummary : "",
+      attendance: parseMemoryAttendance(memory?.attendance),
+      deaths: parseMemoryDeaths(memory?.deaths),
+      changes: parseMemoryChanges(memory?.changes),
+    },
   };
 }
 
@@ -260,6 +398,39 @@ export function buildSessionMetadata(forge: SessionForgeState, currentMetadata?:
             notes: item.notes || undefined,
             status: item.status,
             imageUrl: item.imageUrl || undefined,
+          }))
+        : undefined,
+    },
+    memory: {
+      publicSummary: forge.memory.publicSummary || undefined,
+      masterSummary: forge.memory.masterSummary || undefined,
+      attendance: forge.memory.attendance.length
+        ? forge.memory.attendance.map((item) => ({
+            id: item.id,
+            label: item.label || undefined,
+            entityId: item.entityId || undefined,
+            status: item.status,
+            notes: item.notes || undefined,
+            visibility: item.visibility,
+          }))
+        : undefined,
+      deaths: forge.memory.deaths.length
+        ? forge.memory.deaths.map((item) => ({
+            id: item.id,
+            label: item.label || undefined,
+            entityId: item.entityId || undefined,
+            notes: item.notes || undefined,
+            visibility: item.visibility,
+          }))
+        : undefined,
+      changes: forge.memory.changes.length
+        ? forge.memory.changes.map((item) => ({
+            id: item.id,
+            title: item.title || undefined,
+            type: item.type,
+            notes: item.notes || undefined,
+            linkedEntityIds: item.linkedEntityIds.length ? item.linkedEntityIds : undefined,
+            visibility: item.visibility,
           }))
         : undefined,
     },
