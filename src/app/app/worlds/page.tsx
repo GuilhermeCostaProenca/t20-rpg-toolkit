@@ -107,10 +107,20 @@ export default function WorldsPage() {
     if (!confirm("Tem certeza que deseja arquivar este mundo?")) return;
 
     try {
-      await fetch(`/api/worlds/${worldId}`, { method: "DELETE" });
+      const res = await fetch(`/api/worlds/${worldId}`, { method: "DELETE" });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(payload.error ?? "Nao foi possivel arquivar o mundo");
+      }
+      setWorlds((current) => current.filter((world) => world.id !== worldId));
       await loadWorlds(currentTab);
     } catch (archiveError) {
       console.error(archiveError);
+      setError(
+        archiveError instanceof Error
+          ? archiveError.message
+          : "Erro inesperado ao arquivar mundo"
+      );
     }
   }
 
