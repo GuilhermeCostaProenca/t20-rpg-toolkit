@@ -25,7 +25,12 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { normalizeSessionForgeState, type SessionForgeState } from "@/lib/session-forge";
-import { formatBalanceConfidence, formatEncounterRating } from "@/lib/t20-balance";
+import {
+    analyzeLiveCombatPressure,
+    formatBalanceConfidence,
+    formatEncounterRating,
+    formatLivePressureState,
+} from "@/lib/t20-balance";
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 
 // --- Types ---
@@ -71,6 +76,20 @@ type LiveEntityDetail = LiveCodexEntity & {
     outgoingRelations: { id: string; type: string; toEntity?: { id: string; name: string } | null }[];
     incomingRelations: { id: string; type: string; fromEntity?: { id: string; name: string } | null }[];
     recentEvents: { id: string; type: string; text?: string | null; ts: string; visibility?: string | null }[];
+};
+
+type LiveCombat = {
+    id: string;
+    isActive: boolean;
+    round: number;
+    turnIndex: number;
+    combatants: {
+        id: string;
+        kind: string;
+        name: string;
+        hpCurrent: number;
+        hpMax: number;
+    }[];
 };
 
 // --- Components ---
@@ -207,6 +226,7 @@ export default function PlayPage() {
     const [inspectLoading, setInspectLoading] = useState(false);
     const [revealingId, setRevealingId] = useState<string | null>(null);
     const [focusedSceneId, setFocusedSceneId] = useState<string | null>(null);
+    const [liveCombat, setLiveCombat] = useState<LiveCombat | null>(null);
 
     // Auto-remove Pings after 3s
     useEffect(() => {
@@ -435,6 +455,37 @@ export default function PlayPage() {
     }, [campaignId]);
 
     useEffect(() => {
+        if (!campaignId) return;
+
+        let cancelled = false;
+
+        const loadLiveCombat = async () => {
+            try {
+                const res = await fetch(`/api/campaigns/${campaignId}/combat`, { cache: "no-store" });
+                const json = await res.json();
+                if (!cancelled) {
+                    setLiveCombat((json.data as LiveCombat | null | undefined) ?? null);
+                }
+            } catch (error) {
+                if (!cancelled) {
+                    console.error("Live combat load failed", error);
+                    setLiveCombat(null);
+                }
+            }
+        };
+
+        void loadLiveCombat();
+        const interval = setInterval(() => {
+            void loadLiveCombat();
+        }, 4000);
+
+        return () => {
+            cancelled = true;
+            clearInterval(interval);
+        };
+    }, [campaignId]);
+
+    useEffect(() => {
         if (!context?.worldId) return;
 
         const loadCodexEntities = async () => {
@@ -594,6 +645,9 @@ export default function PlayPage() {
     const activeEncounter = prepPacket?.forge.encounters.find((encounter) =>
         activeScene ? encounter.linkedSceneId === activeScene.id : true
     ) ?? prepPacket?.forge.encounters[0] ?? null;
+    const livePressure = liveCombat?.isActive && liveCombat.combatants.length > 0
+        ? analyzeLiveCombatPressure(liveCombat.combatants)
+        : null;
 
     const inspectCandidates = (inspectQuery.trim()
         ? liveCodexEntities.filter((entity) => {
@@ -863,6 +917,67 @@ export default function PlayPage() {
                                         <p className="mt-3 text-sm text-muted-foreground">
                                             {activeEncounter.recommendation}
                                         </p>
+                                    </div>
+                                ) : null}
+
+                                {livePressure ? (
+                                    <div className="rounded-xl border border-white/8 bg-white/5 p-3">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <Badge className={`${
+                                                livePressure.state === "critical"
+                                                    ? "border-red-500/30 bg-red-500/15 text-red-300"
+                                                    : livePressure.state === "rising"
+                                                        ? "border-amber-500/30 bg-amber-500/15 text-amber-300"
+                                                        : "border-emerald-500/30 bg-emerald-500/15 text-emerald-300"
+                                            }`}>
+                                                {formatLivePressureState(livePressure.state)}
+                                            </Badge>
+                                            <Badge variant="outline" className="border-white/10 text-white/70">
+                                                Round {liveCombat?.round ?? 1}
+                                            </Badge>
+                                        </div>
+                                        <p className="mt-3 text-sm font-semibold text-foreground">
+                                            Sinais ao vivo
+                                        </p>
+                                        <p className="mt-2 text-sm text-foreground/90">
+                                            {livePressure.summary}
+                                        </p>
+                                        <div className="mt-3 grid gap-2 text-xs text-muted-foreground">
+                                            <div className="flex items-center justify-between rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+                                                <span>HP medio do grupo</span>
+                                                <span className="font-semibold text-foreground">
+                                                    {Math.round(livePressure.playerHpRatio * 100)}%
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+                                                <span>HP medio hostil</span>
+                                                <span className="font-semibold text-foreground">
+                                                    {Math.round(livePressure.hostileHpRatio * 100)}%
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+                                                <span>Contagem viva</span>
+                                                <span className="font-semibold text-foreground">
+                                                    {livePressure.playerCount} x {livePressure.hostileCount}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+                                                <span>Quedas no grupo</span>
+                                                <span className="font-semibold text-foreground">
+                                                    {livePressure.downedPlayers}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <p className="mt-3 text-sm text-muted-foreground">
+                                            {livePressure.recommendation}
+                                        </p>
+                                        {livePressure.factors.length > 0 ? (
+                                            <div className="mt-3 space-y-1 text-xs text-white/60">
+                                                {livePressure.factors.slice(0, 2).map((factor) => (
+                                                    <p key={factor}>{factor}</p>
+                                                ))}
+                                            </div>
+                                        ) : null}
                                     </div>
                                 ) : null}
 

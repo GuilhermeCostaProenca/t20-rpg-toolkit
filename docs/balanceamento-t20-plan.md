@@ -186,19 +186,19 @@ Contexto tecnico:
 O mestre tambem precisa ajuste em tempo real.
 
 - [-] T5.1 Definir o que pode ser lido durante combate
-  Notas: `RPG-28` ja expoe o encontro preparado em foco com rating, confianca, composicao e recomendacao curta no cockpit ao vivo.
+  Notas: `RPG-28` ja expoe o encontro preparado em foco com rating, confianca, composicao e recomendacao curta no cockpit ao vivo. `RPG-31` acrescentou leitura do combate ativo com round, HP medio do grupo/hostis, contagem viva, quedas e resumo de pressao.
 
-- [ ] T5.2 Definir alertas ou heuristicas de desbalanceamento ao vivo
-  Notas:
+- [-] T5.2 Definir alertas ou heuristicas de desbalanceamento ao vivo
+  Notas: `RPG-31` abriu o primeiro sinal ao vivo com estados `Sob controle`, `Pressao subindo` e `Critico`, baseado em HP medio, vantagem numerica e personagens caidos.
 
 - [ ] T5.3 Criar ferramentas de ajuste rapido
   Notas:
 
 - [-] T5.4 Integrar com a mesa ao vivo sem poluicao visual
-  Notas: `RPG-28` integrou a leitura do encontro ao pacote de preparo da mesa sem abrir nova superficie. Ainda falta consolidar melhor com combate.
+  Notas: `RPG-28` integrou a leitura do encontro ao pacote de preparo da mesa sem abrir nova superficie. `RPG-31` consolidou isso com o combate ativo no mesmo card stack do cockpit, sem abrir painel paralelo.
 
-- [ ] T5.5 Garantir que a sugestao seja util sem sequestrar a narracao
-  Notas:
+- [-] T5.5 Garantir que a sugestao seja util sem sequestrar a narracao
+  Notas: `RPG-31` mantem recomendacao curta e discreta, com no maximo dois fatores de pressao visiveis por vez.
 
 ### Criterios de aceite da Frente T5
 - o mestre consegue reagir a encontro quebrado;

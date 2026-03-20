@@ -15,6 +15,7 @@ type BalanceNpcInput = {
 
 type BalanceRating = "trivial" | "manageable" | "risky" | "deadly";
 type BalanceConfidence = "low" | "medium" | "high";
+type LivePressureState = "stable" | "rising" | "critical";
 
 export type EncounterBalanceSnapshot = {
   rating: BalanceRating;
@@ -26,6 +27,28 @@ export type EncounterBalanceSnapshot = {
   enemyCount: number;
   factors: string[];
   recommendation: string;
+};
+
+type LiveCombatantInput = {
+  id?: string | null;
+  kind?: string | null;
+  name?: string | null;
+  hpCurrent?: number | null;
+  hpMax?: number | null;
+};
+
+export type LivePressureSnapshot = {
+  state: LivePressureState;
+  playerCount: number;
+  hostileCount: number;
+  playerHpRatio: number;
+  hostileHpRatio: number;
+  downedPlayers: number;
+  downedHostiles: number;
+  countDelta: number;
+  summary: string;
+  recommendation: string;
+  factors: string[];
 };
 
 function normalizeRole(role?: string | null) {
@@ -65,6 +88,19 @@ function getRoleWeight(role?: string | null) {
   if (/(striker|dano|assassin|atacante)/.test(normalized)) return 1.5;
   if (/(leader|lider|controle|tatico)/.test(normalized)) return 1;
   return 0.5;
+}
+
+function averageHpRatio(combatants: LiveCombatantInput[]) {
+  if (combatants.length === 0) return 0;
+
+  const ratios = combatants.map((combatant) => {
+    const hpMax = Math.max(combatant.hpMax ?? 0, 0);
+    const hpCurrent = Math.max(combatant.hpCurrent ?? 0, 0);
+    if (hpMax <= 0) return 0;
+    return Math.min(hpCurrent / hpMax, 1);
+  });
+
+  return ratios.reduce((total, ratio) => total + ratio, 0) / ratios.length;
 }
 
 export function analyzeT20Encounter(
@@ -148,6 +184,96 @@ export function analyzeT20Encounter(
   };
 }
 
+export function analyzeLiveCombatPressure(combatants: LiveCombatantInput[]): LivePressureSnapshot {
+  const players = combatants.filter((combatant) => combatant.kind === "CHARACTER");
+  const hostiles = combatants.filter((combatant) => combatant.kind !== "CHARACTER");
+
+  const playerHpRatio = averageHpRatio(players);
+  const hostileHpRatio = averageHpRatio(hostiles);
+  const downedPlayers = players.filter((combatant) => (combatant.hpCurrent ?? 0) <= 0).length;
+  const downedHostiles = hostiles.filter((combatant) => (combatant.hpCurrent ?? 0) <= 0).length;
+  const countDelta = players.length - hostiles.length;
+
+  const factors: string[] = [];
+  let pressureScore = 0;
+
+  if (players.length === 0) {
+    factors.push("Sem personagens de jogador no combate.");
+    pressureScore += 3;
+  }
+
+  if (hostiles.length === 0) {
+    factors.push("Sem hostis ativos no combate.");
+    pressureScore -= 2;
+  }
+
+  if (playerHpRatio <= 0.35) {
+    pressureScore += 3;
+    factors.push("Grupo com HP medio muito baixo.");
+  } else if (playerHpRatio <= 0.6) {
+    pressureScore += 1;
+    factors.push("Grupo ja sentindo desgaste relevante.");
+  }
+
+  if (hostileHpRatio <= 0.3) {
+    pressureScore -= 2;
+    factors.push("Hostis quase colapsando.");
+  } else if (hostileHpRatio <= 0.55) {
+    pressureScore -= 1;
+    factors.push("Hostis ja perderam parte importante do folego.");
+  }
+
+  if (countDelta <= -2) {
+    pressureScore += 2;
+    factors.push("Hostis com vantagem numerica clara.");
+  } else if (countDelta < 0) {
+    pressureScore += 1;
+    factors.push("Hostis com leve vantagem numerica.");
+  } else if (countDelta >= 2) {
+    pressureScore -= 1;
+    factors.push("Grupo com vantagem numerica clara.");
+  }
+
+  if (downedPlayers > 0) {
+    pressureScore += 2 + downedPlayers;
+    factors.push(`${downedPlayers} personagem(ns) ja caiu(ra)m.`);
+  }
+
+  if (downedHostiles > 0) {
+    pressureScore -= Math.min(downedHostiles, 2);
+    factors.push(`${downedHostiles} hostil(is) ja saiu(ra)m do combate.`);
+  }
+
+  let state: LivePressureState = "stable";
+  if (pressureScore >= 4) state = "critical";
+  else if (pressureScore >= 1) state = "rising";
+
+  let summary = "Mesa sob controle.";
+  let recommendation = "Se quiser elevar a tensao, mexa em objetivo, terreno ou reforco narrativo.";
+
+  if (state === "rising") {
+    summary = "Pressao subindo.";
+    recommendation = "Economia de acao, cura e posicionamento ja importam. Escale com cuidado.";
+  } else if (state === "critical") {
+    summary = "Pressao critica.";
+    recommendation = "Considere aliviar dano, cortar reforcos ou abrir uma saida tatica para nao quebrar a mesa.";
+  }
+
+  return {
+    state,
+    playerCount: players.length,
+    hostileCount: hostiles.length,
+    playerHpRatio: Number(playerHpRatio.toFixed(2)),
+    hostileHpRatio: Number(hostileHpRatio.toFixed(2)),
+    downedPlayers,
+    downedHostiles,
+    countDelta,
+    summary,
+    recommendation,
+    factors,
+  };
+}
+
 export function formatEncounterRating(rating: BalanceRating) {
   switch (rating) {
     case "trivial":
@@ -173,6 +299,19 @@ export function formatBalanceConfidence(confidence: BalanceConfidence) {
       return "Baixa";
     default:
       return confidence;
+  }
+}
+
+export function formatLivePressureState(state: LivePressureState) {
+  switch (state) {
+    case "stable":
+      return "Sob controle";
+    case "rising":
+      return "Pressao subindo";
+    case "critical":
+      return "Critico";
+    default:
+      return state;
   }
 }
 
