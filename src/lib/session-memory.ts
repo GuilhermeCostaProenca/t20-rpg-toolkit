@@ -140,25 +140,28 @@ export async function syncSessionMemoryEvents(session: SessionMemorySyncInput) {
 
   for (const item of memory.changes) {
     if (!item.title.trim()) continue;
-    creates.push({
-      worldId: session.worldId,
-      campaignId: session.campaignId,
-      sessionId: session.id,
-      type: WorldEventType.WORLD_CHANGE,
-      scope: WorldEventScope.MACRO,
-      impactLevel: 4,
-      actorId: item.linkedEntityIds[0],
-      targetId: item.linkedEntityIds[1],
-      visibility:
-        item.visibility === "PLAYERS" ? WorldEventVisibility.PLAYERS : WorldEventVisibility.MASTER,
-      text: buildEventText("Mudanca consolidada", item.title, item.notes),
-      meta: {
-        memorySource: "session-closeout",
-        memoryKind: "change",
-        changeType: item.type,
-        linkedEntityIds: item.linkedEntityIds,
-      } as Prisma.InputJsonValue,
-    });
+    const linkedIds = item.linkedEntityIds.length ? item.linkedEntityIds : [undefined];
+    for (const linkedEntityId of linkedIds) {
+      creates.push({
+        worldId: session.worldId,
+        campaignId: session.campaignId,
+        sessionId: session.id,
+        type: WorldEventType.WORLD_CHANGE,
+        scope: WorldEventScope.MACRO,
+        impactLevel: 4,
+        actorId: linkedEntityId,
+        targetId: linkedEntityId,
+        visibility:
+          item.visibility === "PLAYERS" ? WorldEventVisibility.PLAYERS : WorldEventVisibility.MASTER,
+        text: buildEventText("Mudanca consolidada", item.title, item.notes),
+        meta: {
+          memorySource: "session-closeout",
+          memoryKind: "change",
+          changeType: item.type,
+          linkedEntityIds: item.linkedEntityIds,
+        } as Prisma.InputJsonValue,
+      });
+    }
   }
 
   if (creates.length > 0) {

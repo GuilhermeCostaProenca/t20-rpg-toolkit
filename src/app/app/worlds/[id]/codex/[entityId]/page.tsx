@@ -13,6 +13,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { VISUAL_KIND_OPTIONS, getVisualKindLabel } from "@/lib/visual-library";
+import {
+  formatMemoryEventText,
+  formatMemoryEventType,
+  getMemoryEventTone,
+  isMemoryWorldEvent,
+} from "@/lib/world-memory";
 
 type Campaign = { id: string; name: string };
 type EntityImage = { id: string; url: string; kind: string; caption?: string | null; sortOrder?: number | null };
@@ -386,6 +392,10 @@ export default function CodexEntityWorkspacePage() {
       ...entity.incomingRelations.map((relation) => ({ ...relation, label: `${relation.fromEntity?.name || "Origem"} -> ${relation.type}` })),
     ];
   }, [entity]);
+  const memoryTimeline = useMemo(
+    () => (entity?.recentEvents ?? []).filter((event) => isMemoryWorldEvent(event)),
+    [entity]
+  );
 
   if (loading) {
     return (
@@ -617,9 +627,28 @@ export default function CodexEntityWorkspacePage() {
           </Card>
 
           <Card className="rounded-[28px] border-white/10 bg-card/70">
-            <CardHeader><CardTitle className="text-xl font-black uppercase tracking-[0.04em]">Memoria recente</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-xl font-black uppercase tracking-[0.04em]">Timeline da entidade</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              {entity.recentEvents.length ? entity.recentEvents.map((event) => (
+              {memoryTimeline.length ? memoryTimeline.map((event) => (
+                <div key={event.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge
+                      className={
+                        getMemoryEventTone(event) === "death"
+                          ? "border-red-300/20 bg-red-300/10 text-red-100"
+                          : getMemoryEventTone(event) === "change"
+                            ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                            : "border-primary/20 bg-primary/10 text-primary"
+                      }
+                    >
+                      {formatMemoryEventType(event.type)}
+                    </Badge>
+                    <Badge className="border-white/10 bg-black/25 text-white/75">{event.visibility}</Badge>
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-foreground">{formatMemoryEventText(event)}</p>
+                  <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">{formatDate(event.ts)}</p>
+                </div>
+              )) : entity.recentEvents.length ? entity.recentEvents.map((event) => (
                 <div key={event.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
                   <p className="text-sm font-semibold text-foreground">{event.text || event.type}</p>
                   <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">{formatDate(event.ts)} • {event.visibility}</p>

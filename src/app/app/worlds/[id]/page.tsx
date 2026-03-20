@@ -45,6 +45,12 @@ import {
   type LorePrepContext,
   type LorePrepFocus,
 } from "@/lib/lore";
+import {
+  formatMemoryEventText,
+  formatMemoryEventType,
+  getMemoryEventTone,
+  isMemoryWorldEvent,
+} from "@/lib/world-memory";
 import { CampaignCreateSchema } from "@/lib/validators";
 
 const initialForm = {
@@ -94,6 +100,7 @@ type WorldEvent = {
   text?: string | null;
   visibility: string;
   payload?: Record<string, unknown> | null;
+  meta?: Record<string, unknown> | null;
 };
 
 type PoliticalCodexEntity = {
@@ -355,6 +362,10 @@ export default function WorldDetailPage() {
 
   const spotlightCampaign = useMemo(() => world?.campaigns?.[0] ?? null, [world]);
   const recentEvents = useMemo(() => events.slice(0, 8), [events]);
+  const memoryEvents = useMemo(
+    () => events.filter((event) => isMemoryWorldEvent(event)).slice(0, 6),
+    [events]
+  );
   const inspectHref = inspectItem?.type === "campaign" ? inspectItem.href : null;
   const prepBriefing = useMemo<PrepBriefingItem[]>(() => {
     const nextCampaignId = world?.nextSession?.campaign?.id;
@@ -839,6 +850,67 @@ export default function WorldDetailPage() {
                         <p className="text-sm leading-6 text-foreground">{formatEvent(event)}</p>
                       </div>
                       <ChevronRight className="mt-1 h-4 w-4 text-white/35" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="section-eyebrow">Memoria consolidada</p>
+                <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                  O que ficou da mesa
+                </h2>
+              </div>
+              <Button asChild variant="outline" className="border-white/10 bg-white/5">
+                <Link href={`/app/worlds/${worldId}/codex`}>Abrir Codex</Link>
+              </Button>
+            </div>
+
+            {memoryEvents.length === 0 ? (
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                Ainda nao existe memoria consolidada neste mundo.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {memoryEvents.map((event) => (
+                  <button
+                    key={event.id}
+                    type="button"
+                    className="w-full rounded-[24px] border border-white/8 bg-white/4 p-4 text-left transition hover:border-primary/20 hover:bg-white/6"
+                    onClick={() =>
+                      setInspectItem({
+                        type: "event",
+                        title: formatMemoryEventText(event),
+                        subtitle: `${formatMemoryEventType(event.type)} · ${event.visibility}`,
+                        body: `Consolidado em ${formatDateTime(event.ts)}.\nEscopo: ${event.scope}.`,
+                      })
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge
+                            className={
+                              getMemoryEventTone(event) === "death"
+                                ? "border-red-300/20 bg-red-300/10 text-red-100"
+                                : getMemoryEventTone(event) === "change"
+                                  ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                                  : "border-primary/20 bg-primary/10 text-primary"
+                            }
+                          >
+                            {formatMemoryEventType(event.type)}
+                          </Badge>
+                          <Badge className="border-white/10 bg-black/30 text-white">{event.visibility}</Badge>
+                        </div>
+                        <p className="text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
+                      </div>
+                      <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                        {formatDateTime(event.ts)}
+                      </span>
                     </div>
                   </button>
                 ))}

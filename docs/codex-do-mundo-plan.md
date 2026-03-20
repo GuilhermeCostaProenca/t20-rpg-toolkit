@@ -98,7 +98,7 @@ Mas nao possui:
   Notas: Quick inspect no Codex via `CockpitDetailSheet` agora mostra imagem principal, tags, relacoes, memoria recente e salto para o workspace.
 
 - [-] C7. Criar `Entity Workspace`
-  Notas: Workspace entregue em `/app/worlds/[id]/codex/[entityId]` com overview editavel, relacoes, galeria, upload simples, edicao inline e memoria recente. Falta refino visual e aprofundamento maior do fluxo.
+  Notas: Workspace entregue em `/app/worlds/[id]/codex/[entityId]` com overview editavel, relacoes, galeria, upload simples, edicao inline e agora timeline da entidade alimentada pela `Memoria do Mundo`. Falta refino visual e aprofundamento maior do fluxo.
 
 - [-] C8. Integrar o shell do mundo ao novo Codex
   Notas: Sidebar e cockpit ja apontam para o Codex, o quick inspect leva ao workspace e NPCs/Characters ja conseguem abrir ou criar entidades no Codex. Ainda falta reduzir mais o peso das rotas legadas.
@@ -290,7 +290,7 @@ Cada entidade precisa ter um lugar proprio forte o bastante para concentrar trab
   Notas: Criacao e remocao de relacoes no proprio workspace.
 
 - [x] C7.5 Criar secao de historico narrativo basico
-  Notas: Memoria recente baseada em `WorldEvent` entregue.
+  Notas: Timeline da entidade baseada em `WorldEvent` e memoria consolidada entregue.
 
 ### Criterios de aceite da Frente C7
 - a entidade parece uma unidade viva, nao um formulario;
