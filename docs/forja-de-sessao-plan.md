@@ -163,7 +163,7 @@ A forja nao pode ser uma ilha.
   Notas:
 
 - [ ] F4.2 Permitir anexar imagens e assets visuais
-  Notas: `reveals` ja aceitam `imageUrl` e reaproveitam imagens de entidades do Codex; ainda falta curadoria mais profunda de assets da biblioteca visual.
+  Notas: `reveals` ja aceitam `imageUrl`, reaproveitam imagens de entidades do Codex e a forja agora monta um `pacote visual da mesa` com assets puxados do preparo. Ainda falta curadoria mais profunda de assets da biblioteca visual.
 
 - [ ] F4.3 Permitir preparar reveals ligados a cena
   Notas: Cenas e subcenas ja prendem `reveals` por ID; esses reveals agora podem inclusive ser enviados para a mesa.
@@ -172,7 +172,7 @@ A forja nao pode ser uma ilha.
   Notas:
 
 - [ ] F4.5 Garantir consulta rapida do mundo durante o preparo
-  Notas:
+  Notas: A forja agora sobe `pacote operacional` e `pacote visual da mesa` no proprio workspace, reduzindo a necessidade de sair da sessao para consultar o essencial.
 
 ### Criterios de aceite da Frente F4
 - preparar sessao usa o mundo real do app;
@@ -190,7 +190,7 @@ Preparar e rodar precisam conversar.
   Notas: `reveals` ja podem sair da forja para a mesa usando o `roomCode` da campanha; ainda falta estruturar melhor cenas, subcenas e notas operacionais como superficie de consulta da mesa.
 
 - [ ] F5.2 Definir o que pode ser aberto rapidamente durante a sessao
-  Notas:
+  Notas: O recorte atual ja destaca cenas prontas, reveals preparados e assets visuais em foco, mas ainda falta transformar isso em superficie dedicada da mesa ao vivo.
 
 - [ ] F5.3 Definir o que pode virar acao operacional
   Notas:

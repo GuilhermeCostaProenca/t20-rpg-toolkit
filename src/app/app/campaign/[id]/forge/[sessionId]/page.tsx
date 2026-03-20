@@ -32,6 +32,7 @@ import {
   type LorePrepContext,
   type LorePrepFocus,
 } from "@/lib/lore";
+import { getVisualKindLabel, getVisualKindPriority } from "@/lib/visual-library";
 import {
   buildSessionMetadata,
   getEmptySessionForgeState,
@@ -73,7 +74,25 @@ type CodexEntity = {
   summary?: string | null;
   coverImageUrl?: string | null;
   portraitImageUrl?: string | null;
+  images?: {
+    id: string;
+    url: string;
+    kind?: string | null;
+    caption?: string | null;
+    sortOrder?: number | null;
+  }[];
   campaign?: { id: string; name: string } | null;
+};
+
+type SessionVisualAsset = {
+  id: string;
+  entityId: string;
+  entityName: string;
+  entityType: string;
+  kind: string;
+  url: string;
+  caption?: string | null;
+  campaignId?: string | null;
 };
 
 type LoreDoc = {
@@ -156,6 +175,67 @@ function formatPrepContext(context: LorePrepContext) {
     default:
       return context;
   }
+}
+
+function buildVisualAssets(entities: CodexEntity[]): SessionVisualAsset[] {
+  const assets = entities.flatMap((entity) => {
+    const base: SessionVisualAsset[] = [];
+
+    if (entity.coverImageUrl) {
+      base.push({
+        id: `cover:${entity.id}`,
+        entityId: entity.id,
+        entityName: entity.name,
+        entityType: entity.type,
+        kind: "cover",
+        url: entity.coverImageUrl,
+        caption: entity.summary,
+        campaignId: entity.campaign?.id,
+      });
+    }
+
+    if (entity.portraitImageUrl && entity.portraitImageUrl !== entity.coverImageUrl) {
+      base.push({
+        id: `portrait:${entity.id}`,
+        entityId: entity.id,
+        entityName: entity.name,
+        entityType: entity.type,
+        kind: "portrait",
+        url: entity.portraitImageUrl,
+        caption: entity.summary,
+        campaignId: entity.campaign?.id,
+      });
+    }
+
+    for (const image of entity.images ?? []) {
+      base.push({
+        id: image.id,
+        entityId: entity.id,
+        entityName: entity.name,
+        entityType: entity.type,
+        kind: image.kind || "reference",
+        url: image.url,
+        caption: image.caption,
+        campaignId: entity.campaign?.id,
+      });
+    }
+
+    return base;
+  });
+
+  const deduped = new Map<string, SessionVisualAsset>();
+  for (const asset of assets) {
+    const key = `${asset.entityId}:${asset.url}`;
+    if (!deduped.has(key)) {
+      deduped.set(key, asset);
+    }
+  }
+
+  return [...deduped.values()].sort((left, right) => {
+    const kindDiff = getVisualKindPriority(left.kind) - getVisualKindPriority(right.kind);
+    if (kindDiff !== 0) return kindDiff;
+    return left.entityName.localeCompare(right.entityName, "pt-BR");
+  });
 }
 
 function buildBeat(): SessionForgeBeat {
@@ -317,6 +397,39 @@ export default function SessionForgePage() {
         };
       });
   }, [campaign?.world.id, campaignId, entities, loreDocs]);
+
+  const forgeEntityIds = useMemo(() => {
+    const ids = new Set<string>(forge.linkedEntityIds);
+    for (const beat of forge.beats) {
+      for (const entityId of beat.linkedEntityIds) ids.add(entityId);
+    }
+    for (const scene of forge.scenes) {
+      for (const entityId of scene.linkedEntityIds) ids.add(entityId);
+      for (const subscene of scene.subscenes) {
+        for (const entityId of subscene.linkedEntityIds) ids.add(entityId);
+      }
+    }
+    return [...ids];
+  }, [forge]);
+
+  const focusedEntities = useMemo(
+    () => entities.filter((entity) => forgeEntityIds.includes(entity.id)),
+    [entities, forgeEntityIds]
+  );
+
+  const prepVisualAssets = useMemo(
+    () => buildVisualAssets(focusedEntities).slice(0, 20),
+    [focusedEntities]
+  );
+
+  const readyScenes = useMemo(
+    () =>
+      forge.scenes.filter(
+        (scene) =>
+          scene.status !== "discarded" && (scene.linkedEntityIds.length > 0 || scene.linkedRevealIds.length > 0)
+      ),
+    [forge.scenes]
+  );
 
   async function handleSaveForge() {
     if (!selectedSession) return;
@@ -1186,17 +1299,19 @@ export default function SessionForgePage() {
                                   }
                                   placeholder="URL da imagem para reveal visual"
                                 />
+                                {item.imageUrl ? (
+                                  <div className="overflow-hidden rounded-[20px] border border-white/10 bg-black/30">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={item.imageUrl} alt={item.title || "Reveal"} className="h-40 w-full object-cover" />
+                                  </div>
+                                ) : null}
                                 <div className="flex flex-wrap gap-2">
-                                  {entities
-                                    .filter((entity) => entity.coverImageUrl || entity.portraitImageUrl)
-                                    .slice(0, 10)
-                                    .map((entity) => {
-                                      const candidateUrl = entity.portraitImageUrl || entity.coverImageUrl;
-                                      if (!candidateUrl) return null;
+                                  {prepVisualAssets.slice(0, 12).map((asset) => {
+                                      const candidateUrl = asset.url;
                                       const selected = item.imageUrl === candidateUrl;
                                       return (
                                         <Button
-                                          key={`${item.id}:${entity.id}`}
+                                          key={`${item.id}:${asset.id}`}
                                           type="button"
                                           variant="outline"
                                           className={
@@ -1212,7 +1327,7 @@ export default function SessionForgePage() {
                                             }))
                                           }
                                         >
-                                          {entity.name}
+                                          {asset.entityName}
                                         </Button>
                                       );
                                     })}
@@ -1328,6 +1443,54 @@ export default function SessionForgePage() {
           </section>
 
           <section className="chrome-panel rounded-[30px] p-6">
+            <p className="section-eyebrow">Pacote visual da mesa</p>
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm leading-6 text-muted-foreground">
+                  Assets puxados das entidades ligadas ao preparo. Use isso para montar reveals e consulta rapida sem sair da sessao.
+                </p>
+                <Button asChild variant="outline" className="border-white/10 bg-white/5">
+                  <Link href={`/app/worlds/${campaign.world.id}/visual-library?campaignId=${campaign.id}`}>
+                    Biblioteca visual
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+
+              {prepVisualAssets.length > 0 ? (
+                <div className="grid gap-3">
+                  {prepVisualAssets.slice(0, 6).map((asset) => (
+                    <div
+                      key={asset.id}
+                      className="overflow-hidden rounded-[24px] border border-white/8 bg-white/4"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={asset.url} alt={asset.entityName} className="h-28 w-full object-cover" />
+                      <div className="space-y-2 p-3">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge className="border-white/10 bg-white/5 text-white/75">
+                            {getVisualKindLabel(asset.kind)}
+                          </Badge>
+                          <Badge className="border-primary/20 bg-primary/10 text-primary">
+                            {asset.entityName}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {asset.caption || "Asset em foco para consulta ou reveal."}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                  Ligue entidades ao preparo, cenas ou beats para trazer assets visuais automaticamente para a sessao.
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
             <p className="section-eyebrow">Entidades em foco</p>
             <div className="mt-4 flex flex-wrap gap-2">
               {entities.slice(0, 18).map((entity) => (
@@ -1364,6 +1527,16 @@ export default function SessionForgePage() {
           <section className="chrome-panel rounded-[30px] p-6">
             <p className="section-eyebrow">Passagem para a mesa</p>
             <div className="mt-4 grid gap-3">
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <p className="text-sm font-semibold uppercase tracking-[0.12em] text-foreground">
+                  Pacote operacional
+                </p>
+                <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
+                  <p>{readyScenes.length} cenas com estrutura operacional</p>
+                  <p>{forge.reveals.filter((item) => item.status !== "canceled").length} reveals preparados</p>
+                  <p>{forge.hooks.filter((item) => item.status !== "canceled").length} ganchos ativos</p>
+                </div>
+              </div>
               <Button asChild className="justify-between">
                 <Link href={`/app/play/${campaign.id}`}>
                   Abrir modo sessao
