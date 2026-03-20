@@ -59,14 +59,14 @@ Esta frente depende de:
 - [-] F1. Criar workspace de preparacao de sessao
   Notas: `GUI-40` abriu `/app/campaign/[id]/forge/[sessionId]` em cima da propria `Session`, com `metadata` para briefing, objetivo de mesa, beats, notas do mestre, notas operacionais, entidades em foco e leitura de lore priorizado da campanha.
 
-- [ ] F2. Fechar estrutura de roteiro e cenas
-  Notas: `GUI-40` ja abriu a camada inicial de beats dentro da propria sessao, com status (`planned`, `optional`, `improvised`, `discarded`) e ligacao a entidades. Ainda faltam cenas/subcenas e reorganizacao melhor.
+- [-] F2. Fechar estrutura de roteiro e cenas
+  Notas: `GUI-40` agora sustenta `beats`, `cenas` e `subcenas` dentro de `Session.metadata.forge`, com reordenacao, vinculacao a entidades, ligacao de reveals e reaproveitamento de beats como base narrativa. Ainda falta aprofundar a navegacao e ligar isso mais diretamente a mesa ao vivo.
 
 - [-] F3. Fechar ganchos, segredos e revelacoes
-  Notas: `GUI-40` ja suporta ganchos, segredos e revelacoes dentro de `Session.metadata.forge`, com status (`planned`, `executed`, `delayed`, `canceled`). Ainda faltam visibilidade mais forte e integracao com reveal/mesa.
+  Notas: `GUI-40` ja suporta ganchos, segredos e revelacoes dentro de `Session.metadata.forge`, com status (`planned`, `executed`, `delayed`, `canceled`). Revelacoes ja podem ser enviadas direto para a mesa pela propria forja usando `roomCode`; ainda faltam visibilidade mais forte e ligacao mais profunda com assets visuais.
 
 - [ ] F4. Integrar entidades e referencias visuais ao preparo
-  Notas:
+  Notas: `GUI-40` agora ja permite ligar imagem real a `reveals` da sessao e reaproveitar retrato/capa de entidades do Codex sem sair da forja. Ainda faltam assets mais ricos da biblioteca visual e ligacao mais forte por cena.
 
 - [ ] F5. Definir transicao da forja para a mesa ao vivo
   Notas:
@@ -105,20 +105,20 @@ Preparar sessao precisa ser atividade de primeira classe, nao campo de texto per
 Contexto tecnico:
 O mestre precisa estruturar fluxo narrativo sem ficar preso a documento externo.
 
-- [ ] F2.1 Permitir definir beats ou blocos de sessao
-  Notas:
+- [x] F2.1 Permitir definir beats ou blocos de sessao
+  Notas: `beats` existem no workspace e persistem na propria `Session`.
 
-- [ ] F2.2 Permitir criar cenas e subcenas
-  Notas:
+- [x] F2.2 Permitir criar cenas e subcenas
+  Notas: `GUI-40` agora cria `cenas` e `subcenas` em `Session.metadata.forge`.
 
-- [ ] F2.3 Permitir associar entidades a cada cena
-  Notas:
+- [x] F2.3 Permitir associar entidades a cada cena
+  Notas: Cada cena ja aceita entidades em foco; ainda falta abrir o mesmo nivel de densidade para cada subcena.
 
-- [ ] F2.4 Permitir marcar estados como planejado, opcional, improvisado ou descartado
-  Notas:
+- [x] F2.4 Permitir marcar estados como planejado, opcional, improvisado ou descartado
+  Notas: Beats, cenas e subcenas usam a mesma semantica de status no preparo.
 
-- [ ] F2.5 Permitir reorganizar a ordem das cenas
-  Notas:
+- [-] F2.5 Permitir reorganizar a ordem das cenas
+  Notas: A ordem ja pode ser reorganizada com controles de subir/descer em cenas e subcenas; ainda falta uma interacao mais fluida e mais visual.
 
 ### Criterios de aceite da Frente F2
 - o mestre consegue estruturar uma sessao inteira no app;
@@ -142,7 +142,7 @@ Esses elementos sao centrais para narracao e precisam ser tratados explicitament
   Notas: `reveals` agora podem ser preparados no mesmo workspace da sessao.
 
 - [-] F3.4 Definir visibilidade e uso pelo mestre
-  Notas: O recorte atual ja separa estruturalmente esses itens no workspace do mestre, mas ainda falta integracao formal com modos de reveal/mesa.
+  Notas: O recorte atual ja separa estruturalmente esses itens no workspace do mestre, e `reveals` ja podem ser enviados para a mesa ao vivo; ainda falta visibilidade mais forte e ligacao com biblioteca visual.
 
 - [x] F3.5 Definir estados de executado, adiado e cancelado
   Notas: Hooks, segredos e revelacoes agora aceitam `planned`, `executed`, `delayed` e `canceled`.
@@ -163,10 +163,10 @@ A forja nao pode ser uma ilha.
   Notas:
 
 - [ ] F4.2 Permitir anexar imagens e assets visuais
-  Notas:
+  Notas: `reveals` ja aceitam `imageUrl` e reaproveitam imagens de entidades do Codex; ainda falta curadoria mais profunda de assets da biblioteca visual.
 
 - [ ] F4.3 Permitir preparar reveals ligados a cena
-  Notas:
+  Notas: Cenas e subcenas ja prendem `reveals` por ID; esses reveals agora podem inclusive ser enviados para a mesa.
 
 - [ ] F4.4 Permitir referencia cruzada para lugar, faccao e personagem
   Notas:
@@ -187,7 +187,7 @@ Contexto tecnico:
 Preparar e rodar precisam conversar.
 
 - [ ] F5.1 Definir o que da forja aparece na mesa ao vivo
-  Notas:
+  Notas: `reveals` ja podem sair da forja para a mesa usando o `roomCode` da campanha; ainda falta estruturar melhor cenas, subcenas e notas operacionais como superficie de consulta da mesa.
 
 - [ ] F5.2 Definir o que pode ser aberto rapidamente durante a sessao
   Notas:

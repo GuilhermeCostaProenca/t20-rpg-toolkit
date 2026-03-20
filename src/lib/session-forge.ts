@@ -15,6 +15,29 @@ export type SessionForgeDramaticItem = {
   title: string;
   notes: string;
   status: SessionForgeDramaticStatus;
+  imageUrl?: string;
+};
+
+export type SessionForgeSceneStatus = SessionForgeBeatStatus;
+
+export type SessionForgeSubscene = {
+  id: string;
+  title: string;
+  objective: string;
+  status: SessionForgeSceneStatus;
+  linkedEntityIds: string[];
+  linkedRevealIds: string[];
+};
+
+export type SessionForgeScene = {
+  id: string;
+  title: string;
+  objective: string;
+  status: SessionForgeSceneStatus;
+  linkedEntityIds: string[];
+  linkedRevealIds: string[];
+  linkedBeatIds: string[];
+  subscenes: SessionForgeSubscene[];
 };
 
 export type SessionForgeState = {
@@ -25,10 +48,15 @@ export type SessionForgeState = {
   operationalNotes: string;
   linkedEntityIds: string[];
   beats: SessionForgeBeat[];
+  scenes: SessionForgeScene[];
   hooks: SessionForgeDramaticItem[];
   secrets: SessionForgeDramaticItem[];
   reveals: SessionForgeDramaticItem[];
 };
+
+function buildForgeId(prefix: string) {
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+}
 
 export function getEmptySessionForgeState(): SessionForgeState {
   return {
@@ -39,10 +67,55 @@ export function getEmptySessionForgeState(): SessionForgeState {
     operationalNotes: "",
     linkedEntityIds: [],
     beats: [],
+    scenes: [],
     hooks: [],
     secrets: [],
     reveals: [],
   };
+}
+
+function parseSceneStatus(value: unknown): SessionForgeSceneStatus {
+  return value === "optional" || value === "improvised" || value === "discarded"
+    ? value
+    : "planned";
+}
+
+function parseLinkedIds(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
+}
+
+function parseSubscenes(value: unknown): SessionForgeSubscene[] {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+        .map((item) => ({
+          id: typeof item.id === "string" && item.id.trim() ? item.id : buildForgeId("subscene"),
+          title: typeof item.title === "string" ? item.title : "",
+          objective: typeof item.objective === "string" ? item.objective : "",
+          status: parseSceneStatus(item.status),
+          linkedEntityIds: parseLinkedIds(item.linkedEntityIds),
+          linkedRevealIds: parseLinkedIds(item.linkedRevealIds),
+        }))
+    : [];
+}
+
+function parseScenes(value: unknown): SessionForgeScene[] {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+        .map((item) => ({
+          id: typeof item.id === "string" && item.id.trim() ? item.id : buildForgeId("scene"),
+          title: typeof item.title === "string" ? item.title : "",
+          objective: typeof item.objective === "string" ? item.objective : "",
+          status: parseSceneStatus(item.status),
+          linkedEntityIds: parseLinkedIds(item.linkedEntityIds),
+          linkedRevealIds: parseLinkedIds(item.linkedRevealIds),
+          linkedBeatIds: parseLinkedIds(item.linkedBeatIds),
+          subscenes: parseSubscenes(item.subscenes),
+        }))
+    : [];
 }
 
 function parseDramaticCollection(value: unknown): SessionForgeDramaticItem[] {
@@ -61,10 +134,11 @@ function parseDramaticCollection(value: unknown): SessionForgeDramaticItem[] {
             id:
               typeof item.id === "string" && item.id.trim()
                 ? item.id
-                : `dramatic-${Math.random().toString(36).slice(2, 10)}`,
+                : buildForgeId("dramatic"),
             title: typeof item.title === "string" ? item.title : "",
             notes: typeof item.notes === "string" ? item.notes : "",
             status,
+            imageUrl: typeof item.imageUrl === "string" ? item.imageUrl : undefined,
           };
         })
     : [];
@@ -92,13 +166,11 @@ export function normalizeSessionForgeState(metadata: unknown): SessionForgeState
             id:
               typeof item.id === "string" && item.id.trim()
                 ? item.id
-                : `beat-${Math.random().toString(36).slice(2, 10)}`,
+                : buildForgeId("beat"),
             title: typeof item.title === "string" ? item.title : "",
             summary: typeof item.summary === "string" ? item.summary : "",
             status,
-            linkedEntityIds: Array.isArray(item.linkedEntityIds)
-              ? item.linkedEntityIds.filter((entityId): entityId is string => typeof entityId === "string")
-              : [],
+            linkedEntityIds: parseLinkedIds(item.linkedEntityIds),
           };
         })
     : [];
@@ -109,10 +181,9 @@ export function normalizeSessionForgeState(metadata: unknown): SessionForgeState
     currentArc: typeof forge?.currentArc === "string" ? forge.currentArc : "",
     masterNotes: typeof forge?.masterNotes === "string" ? forge.masterNotes : "",
     operationalNotes: typeof forge?.operationalNotes === "string" ? forge.operationalNotes : "",
-    linkedEntityIds: Array.isArray(forge?.linkedEntityIds)
-      ? forge.linkedEntityIds.filter((entityId): entityId is string => typeof entityId === "string")
-      : [],
+    linkedEntityIds: parseLinkedIds(forge?.linkedEntityIds),
     beats,
+    scenes: parseScenes(forge?.scenes),
     hooks: parseDramaticCollection(forge?.hooks),
     secrets: parseDramaticCollection(forge?.secrets),
     reveals: parseDramaticCollection(forge?.reveals),
@@ -143,12 +214,34 @@ export function buildSessionMetadata(forge: SessionForgeState, currentMetadata?:
             linkedEntityIds: beat.linkedEntityIds.length ? beat.linkedEntityIds : undefined,
           }))
         : undefined,
+      scenes: forge.scenes.length
+        ? forge.scenes.map((scene) => ({
+            id: scene.id,
+            title: scene.title || undefined,
+            objective: scene.objective || undefined,
+            status: scene.status,
+            linkedEntityIds: scene.linkedEntityIds.length ? scene.linkedEntityIds : undefined,
+            linkedRevealIds: scene.linkedRevealIds.length ? scene.linkedRevealIds : undefined,
+            linkedBeatIds: scene.linkedBeatIds.length ? scene.linkedBeatIds : undefined,
+            subscenes: scene.subscenes.length
+              ? scene.subscenes.map((subscene) => ({
+                  id: subscene.id,
+                  title: subscene.title || undefined,
+                  objective: subscene.objective || undefined,
+                  status: subscene.status,
+                  linkedEntityIds: subscene.linkedEntityIds.length ? subscene.linkedEntityIds : undefined,
+                  linkedRevealIds: subscene.linkedRevealIds.length ? subscene.linkedRevealIds : undefined,
+                }))
+              : undefined,
+          }))
+        : undefined,
       hooks: forge.hooks.length
         ? forge.hooks.map((item) => ({
             id: item.id,
             title: item.title || undefined,
             notes: item.notes || undefined,
             status: item.status,
+            imageUrl: item.imageUrl || undefined,
           }))
         : undefined,
       secrets: forge.secrets.length
@@ -157,6 +250,7 @@ export function buildSessionMetadata(forge: SessionForgeState, currentMetadata?:
             title: item.title || undefined,
             notes: item.notes || undefined,
             status: item.status,
+            imageUrl: item.imageUrl || undefined,
           }))
         : undefined,
       reveals: forge.reveals.length
@@ -165,6 +259,7 @@ export function buildSessionMetadata(forge: SessionForgeState, currentMetadata?:
             title: item.title || undefined,
             notes: item.notes || undefined,
             status: item.status,
+            imageUrl: item.imageUrl || undefined,
           }))
         : undefined,
     },

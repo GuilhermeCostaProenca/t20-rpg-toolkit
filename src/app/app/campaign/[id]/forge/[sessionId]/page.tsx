@@ -9,6 +9,8 @@ import {
   CalendarClock,
   Eye,
   LayoutGrid,
+  ArrowDown,
+  ArrowUp,
   Plus,
   RefreshCw,
   Sparkles,
@@ -38,6 +40,9 @@ import {
   type SessionForgeBeatStatus,
   type SessionForgeDramaticItem,
   type SessionForgeDramaticStatus,
+  type SessionForgeScene,
+  type SessionForgeSceneStatus,
+  type SessionForgeSubscene,
   type SessionForgeState,
 } from "@/lib/session-forge";
 
@@ -66,6 +71,8 @@ type CodexEntity = {
   type: string;
   subtype?: string | null;
   summary?: string | null;
+  coverImageUrl?: string | null;
+  portraitImageUrl?: string | null;
   campaign?: { id: string; name: string } | null;
 };
 
@@ -98,6 +105,13 @@ const dramaticStatusOptions: SessionForgeDramaticStatus[] = [
   "executed",
   "delayed",
   "canceled",
+];
+
+const sceneStatusOptions: SessionForgeSceneStatus[] = [
+  "planned",
+  "optional",
+  "improvised",
+  "discarded",
 ];
 
 function formatDateTime(value?: string | null) {
@@ -154,6 +168,30 @@ function buildBeat(): SessionForgeBeat {
   };
 }
 
+function buildSubscene(): SessionForgeSubscene {
+  return {
+    id: `subscene-${Math.random().toString(36).slice(2, 10)}`,
+    title: "",
+    objective: "",
+    status: "planned",
+    linkedEntityIds: [],
+    linkedRevealIds: [],
+  };
+}
+
+function buildScene(): SessionForgeScene {
+  return {
+    id: `scene-${Math.random().toString(36).slice(2, 10)}`,
+    title: "",
+    objective: "",
+    status: "planned",
+    linkedEntityIds: [],
+    linkedRevealIds: [],
+    linkedBeatIds: [],
+    subscenes: [],
+  };
+}
+
 function buildDramaticItem(): SessionForgeDramaticItem {
   return {
     id: `dramatic-${Math.random().toString(36).slice(2, 10)}`,
@@ -161,6 +199,15 @@ function buildDramaticItem(): SessionForgeDramaticItem {
     notes: "",
     status: "planned",
   };
+}
+
+function moveItem<T>(items: T[], fromIndex: number, direction: "up" | "down") {
+  const nextIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
+  if (nextIndex < 0 || nextIndex >= items.length) return items;
+  const next = [...items];
+  const [item] = next.splice(fromIndex, 1);
+  next.splice(nextIndex, 0, item);
+  return next;
 }
 
 function getLoreScore(doc: LoreDoc, entities: CodexEntity[], campaignId: string) {
@@ -193,6 +240,7 @@ export default function SessionForgePage() {
   const [forge, setForge] = useState<SessionForgeState>(getEmptySessionForgeState());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [revealingId, setRevealingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -321,6 +369,67 @@ export default function SessionForgePage() {
     }));
   }
 
+  async function handleRevealNow(item: SessionForgeDramaticItem) {
+    if (!campaign?.roomCode) {
+      setError("A campanha precisa ter roomCode para enviar reveals para a mesa.");
+      return;
+    }
+
+    setRevealingId(item.id);
+    setError(null);
+    setMessage(null);
+    try {
+      const response = await fetch("/api/reveal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomCode: campaign.roomCode,
+          type: item.imageUrl ? "image" : "note",
+          title: item.title || "Revelacao sem titulo",
+          content: item.notes || undefined,
+          imageUrl: item.imageUrl || undefined,
+          visibility: "players",
+          expiresAt: new Date(Date.now() + 1000 * 60 * 10).toISOString(),
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Nao foi possivel enviar a revelacao para a mesa");
+      }
+
+      updateDramaticCollection("reveals", item.id, (current) => ({
+        ...current,
+        status: "executed",
+      }));
+      setMessage(`Revelacao "${item.title || "sem titulo"}" enviada para a mesa.`);
+    } catch (revealError) {
+      setError(revealError instanceof Error ? revealError.message : "Erro inesperado ao enviar reveal");
+    } finally {
+      setRevealingId(null);
+    }
+  }
+
+  function updateScene(sceneId: string, updater: (scene: SessionForgeScene) => SessionForgeScene) {
+    setForge((current) => ({
+      ...current,
+      scenes: current.scenes.map((scene) => (scene.id === sceneId ? updater(scene) : scene)),
+    }));
+  }
+
+  function updateSubscene(
+    sceneId: string,
+    subsceneId: string,
+    updater: (subscene: SessionForgeSubscene) => SessionForgeSubscene
+  ) {
+    updateScene(sceneId, (scene) => ({
+      ...scene,
+      subscenes: scene.subscenes.map((subscene) =>
+        subscene.id === subsceneId ? updater(subscene) : subscene
+      ),
+    }));
+  }
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -372,7 +481,7 @@ export default function SessionForgePage() {
                 {selectedSession.title}
               </h1>
               <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
-                Estruture briefing, beats e notas operacionais da sessao em cima da propria campanha.
+                Estruture briefing, roteiro, cenas e notas operacionais da sessao em cima da propria campanha.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -469,6 +578,396 @@ export default function SessionForgePage() {
                 placeholder="Briefing do mestre para a sessao"
               />
             </div>
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="section-eyebrow">Cenas em jogo</p>
+                <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                  Estrutura de cena
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+                  Transforme os beats em cenas jogaveis, organize subcenas e prenda entidades e revelacoes no fluxo real da mesa.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="border-white/10 bg-white/5"
+                onClick={() => setForge((current) => ({ ...current, scenes: [...current.scenes, buildScene()] }))}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Nova cena
+              </Button>
+            </div>
+
+            {forge.scenes.length === 0 ? (
+              <EmptyState
+                title="Nenhuma cena ainda"
+                description="Cenas viram a espinha da mesa. Elas organizam ritmo, revelacoes e quem precisa entrar em foco."
+                icon={<LayoutGrid className="h-6 w-6" />}
+                action={
+                  <Button onClick={() => setForge((current) => ({ ...current, scenes: [buildScene()] }))}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Criar primeira cena
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="space-y-5">
+                {forge.scenes.map((scene, sceneIndex) => (
+                  <div key={scene.id} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                          Cena {sceneIndex + 1}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Macrobloco que pode ser quebrado em subcenas, reveals e entidades em foco.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setForge((current) => ({
+                              ...current,
+                              scenes: moveItem(current.scenes, sceneIndex, "up"),
+                            }))
+                          }
+                          disabled={sceneIndex === 0}
+                        >
+                          <ArrowUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setForge((current) => ({
+                              ...current,
+                              scenes: moveItem(current.scenes, sceneIndex, "down"),
+                            }))
+                          }
+                          disabled={sceneIndex === forge.scenes.length - 1}
+                        >
+                          <ArrowDown className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setForge((current) => ({
+                              ...current,
+                              scenes: current.scenes.filter((item) => item.id !== scene.id),
+                            }))
+                          }
+                        >
+                          Remover
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3">
+                      <Input
+                        value={scene.title}
+                        onChange={(event) =>
+                          updateScene(scene.id, (current) => ({ ...current, title: event.target.value }))
+                        }
+                        placeholder="Titulo da cena"
+                      />
+                      <Textarea
+                        rows={3}
+                        value={scene.objective}
+                        onChange={(event) =>
+                          updateScene(scene.id, (current) => ({ ...current, objective: event.target.value }))
+                        }
+                        placeholder="O que precisa acontecer nesta cena"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        {sceneStatusOptions.map((status) => (
+                          <Button
+                            key={status}
+                            type="button"
+                            variant="outline"
+                            className={
+                              scene.status === status
+                                ? "border-primary/30 bg-primary/10 text-primary"
+                                : "border-white/10 bg-white/5"
+                            }
+                            onClick={() => updateScene(scene.id, (current) => ({ ...current, status }))}
+                          >
+                            {status}
+                          </Button>
+                        ))}
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                          Beats-base
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {forge.beats.length > 0 ? (
+                            forge.beats.map((beat) => (
+                              <Button
+                                key={beat.id}
+                                type="button"
+                                variant="outline"
+                                className={
+                                  scene.linkedBeatIds.includes(beat.id)
+                                    ? "border-primary/30 bg-primary/10 text-primary"
+                                    : "border-white/10 bg-white/5"
+                                }
+                                onClick={() =>
+                                  updateScene(scene.id, (current) => ({
+                                    ...current,
+                                    linkedBeatIds: current.linkedBeatIds.includes(beat.id)
+                                      ? current.linkedBeatIds.filter((item) => item !== beat.id)
+                                      : [...current.linkedBeatIds, beat.id].slice(0, 6),
+                                  }))
+                                }
+                              >
+                                {beat.title || "Beat sem titulo"}
+                              </Button>
+                            ))
+                          ) : (
+                            <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 px-3 py-2 text-sm text-muted-foreground">
+                              Crie beats antes ou use a cena como estrutura principal.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                          Entidades em cena
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {entities.slice(0, 20).map((entity) => (
+                            <Button
+                              key={entity.id}
+                              type="button"
+                              variant="outline"
+                              className={
+                                scene.linkedEntityIds.includes(entity.id)
+                                  ? "border-primary/30 bg-primary/10 text-primary"
+                                  : "border-white/10 bg-white/5"
+                              }
+                              onClick={() =>
+                                updateScene(scene.id, (current) => ({
+                                  ...current,
+                                  linkedEntityIds: current.linkedEntityIds.includes(entity.id)
+                                    ? current.linkedEntityIds.filter((item) => item !== entity.id)
+                                    : [...current.linkedEntityIds, entity.id].slice(0, 10),
+                                }))
+                              }
+                            >
+                              {entity.name}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                          Revelacoes ligadas
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {forge.reveals.length > 0 ? (
+                            forge.reveals.map((reveal) => (
+                              <Button
+                                key={reveal.id}
+                                type="button"
+                                variant="outline"
+                                className={
+                                  scene.linkedRevealIds.includes(reveal.id)
+                                    ? "border-primary/30 bg-primary/10 text-primary"
+                                    : "border-white/10 bg-white/5"
+                                }
+                                onClick={() =>
+                                  updateScene(scene.id, (current) => ({
+                                    ...current,
+                                    linkedRevealIds: current.linkedRevealIds.includes(reveal.id)
+                                      ? current.linkedRevealIds.filter((item) => item !== reveal.id)
+                                      : [...current.linkedRevealIds, reveal.id].slice(0, 6),
+                                  }))
+                                }
+                              >
+                                {reveal.title || "Revelacao sem titulo"}
+                              </Button>
+                            ))
+                          ) : (
+                            <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 px-3 py-2 text-sm text-muted-foreground">
+                              Crie revelacoes na camada dramatica para prende-las a cenas.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 rounded-[22px] border border-white/8 bg-black/20 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                            Subcenas
+                          </p>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            Quebre a cena em entradas menores, improvisos guiados ou viradas de ritmo.
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            updateScene(scene.id, (current) => ({
+                              ...current,
+                              subscenes: [...current.subscenes, buildSubscene()],
+                            }))
+                          }
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Nova subcena
+                        </Button>
+                      </div>
+
+                      <div className="mt-4 space-y-3">
+                        {scene.subscenes.length > 0 ? (
+                          scene.subscenes.map((subscene, subsceneIndex) => (
+                            <div key={subscene.id} className="rounded-[20px] border border-white/8 bg-white/4 p-4">
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                                  Subcena {sceneIndex + 1}.{subsceneIndex + 1}
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  <Button
+                                    variant="outline"
+                                    className="border-white/10 bg-white/5"
+                                    onClick={() =>
+                                      updateScene(scene.id, (current) => ({
+                                        ...current,
+                                        subscenes: moveItem(current.subscenes, subsceneIndex, "up"),
+                                      }))
+                                    }
+                                    disabled={subsceneIndex === 0}
+                                  >
+                                    <ArrowUp className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    className="border-white/10 bg-white/5"
+                                    onClick={() =>
+                                      updateScene(scene.id, (current) => ({
+                                        ...current,
+                                        subscenes: moveItem(current.subscenes, subsceneIndex, "down"),
+                                      }))
+                                    }
+                                    disabled={subsceneIndex === scene.subscenes.length - 1}
+                                  >
+                                    <ArrowDown className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    className="border-white/10 bg-white/5"
+                                    onClick={() =>
+                                      updateScene(scene.id, (current) => ({
+                                        ...current,
+                                        subscenes: current.subscenes.filter((item) => item.id !== subscene.id),
+                                      }))
+                                    }
+                                  >
+                                    Remover
+                                  </Button>
+                                </div>
+                              </div>
+
+                              <div className="mt-3 grid gap-3">
+                                <Input
+                                  value={subscene.title}
+                                  onChange={(event) =>
+                                    updateSubscene(scene.id, subscene.id, (current) => ({
+                                      ...current,
+                                      title: event.target.value,
+                                    }))
+                                  }
+                                  placeholder="Titulo da subcena"
+                                />
+                                <Textarea
+                                  rows={2}
+                                  value={subscene.objective}
+                                  onChange={(event) =>
+                                    updateSubscene(scene.id, subscene.id, (current) => ({
+                                      ...current,
+                                      objective: event.target.value,
+                                    }))
+                                  }
+                                  placeholder="Objetivo, virada ou improviso guiado"
+                                />
+                                <div className="flex flex-wrap gap-2">
+                                  {sceneStatusOptions.map((status) => (
+                                    <Button
+                                      key={status}
+                                      type="button"
+                                      variant="outline"
+                                      className={
+                                        subscene.status === status
+                                          ? "border-primary/30 bg-primary/10 text-primary"
+                                          : "border-white/10 bg-white/5"
+                                      }
+                                      onClick={() =>
+                                        updateSubscene(scene.id, subscene.id, (current) => ({
+                                          ...current,
+                                          status,
+                                        }))
+                                      }
+                                    >
+                                      {status}
+                                    </Button>
+                                  ))}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {forge.reveals.length > 0 ? (
+                                    forge.reveals.map((reveal) => (
+                                      <Button
+                                        key={reveal.id}
+                                        type="button"
+                                        variant="outline"
+                                        className={
+                                          subscene.linkedRevealIds.includes(reveal.id)
+                                            ? "border-primary/30 bg-primary/10 text-primary"
+                                            : "border-white/10 bg-white/5"
+                                        }
+                                        onClick={() =>
+                                          updateSubscene(scene.id, subscene.id, (current) => ({
+                                            ...current,
+                                            linkedRevealIds: current.linkedRevealIds.includes(reveal.id)
+                                              ? current.linkedRevealIds.filter((item) => item !== reveal.id)
+                                              : [...current.linkedRevealIds, reveal.id].slice(0, 4),
+                                          }))
+                                        }
+                                      >
+                                        {reveal.title || "Revelacao sem titulo"}
+                                      </Button>
+                                    ))
+                                  ) : (
+                                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 px-3 py-2 text-sm text-muted-foreground">
+                                      Sem revelacoes disponiveis ainda.
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-muted-foreground">
+                            Nenhuma subcena ainda.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="chrome-panel rounded-[30px] p-6">
@@ -627,18 +1126,31 @@ export default function SessionForgePage() {
                         <div key={item.id} className="rounded-2xl border border-white/8 bg-black/20 p-3">
                           <div className="flex items-center justify-between gap-3">
                             <p className="text-sm font-semibold text-foreground">{column.singular}</p>
-                            <Button
-                              variant="outline"
-                              className="border-white/10 bg-white/5"
-                              onClick={() =>
-                                setForge((current) => ({
-                                  ...current,
-                                  [column.key]: current[column.key].filter((entry) => entry.id !== item.id),
-                                }))
-                              }
-                            >
-                              Remover
-                            </Button>
+                            <div className="flex flex-wrap gap-2">
+                              {column.key === "reveals" ? (
+                                <Button
+                                  variant="outline"
+                                  className="border-primary/20 bg-primary/10 text-primary"
+                                  onClick={() => void handleRevealNow(item)}
+                                  disabled={revealingId === item.id || !campaign.roomCode}
+                                >
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  {revealingId === item.id ? "Enviando..." : "Enviar para mesa"}
+                                </Button>
+                              ) : null}
+                              <Button
+                                variant="outline"
+                                className="border-white/10 bg-white/5"
+                                onClick={() =>
+                                  setForge((current) => ({
+                                    ...current,
+                                    [column.key]: current[column.key].filter((entry) => entry.id !== item.id),
+                                  }))
+                                }
+                              >
+                                Remover
+                              </Button>
+                            </div>
                           </div>
                           <div className="mt-3 grid gap-3">
                             <Input
@@ -662,6 +1174,51 @@ export default function SessionForgePage() {
                               }
                               placeholder="Notas de preparo"
                             />
+                            {column.key === "reveals" ? (
+                              <div className="grid gap-3">
+                                <Input
+                                  value={item.imageUrl ?? ""}
+                                  onChange={(event) =>
+                                    updateDramaticCollection(column.key, item.id, (current) => ({
+                                      ...current,
+                                      imageUrl: event.target.value,
+                                    }))
+                                  }
+                                  placeholder="URL da imagem para reveal visual"
+                                />
+                                <div className="flex flex-wrap gap-2">
+                                  {entities
+                                    .filter((entity) => entity.coverImageUrl || entity.portraitImageUrl)
+                                    .slice(0, 10)
+                                    .map((entity) => {
+                                      const candidateUrl = entity.portraitImageUrl || entity.coverImageUrl;
+                                      if (!candidateUrl) return null;
+                                      const selected = item.imageUrl === candidateUrl;
+                                      return (
+                                        <Button
+                                          key={`${item.id}:${entity.id}`}
+                                          type="button"
+                                          variant="outline"
+                                          className={
+                                            selected
+                                              ? "border-primary/30 bg-primary/10 text-primary"
+                                              : "border-white/10 bg-white/5"
+                                          }
+                                          onClick={() =>
+                                            updateDramaticCollection(column.key, item.id, (current) => ({
+                                              ...current,
+                                              imageUrl:
+                                                current.imageUrl === candidateUrl ? undefined : candidateUrl,
+                                            }))
+                                          }
+                                        >
+                                          {entity.name}
+                                        </Button>
+                                      );
+                                    })}
+                                </div>
+                              </div>
+                            ) : null}
                             <div className="flex flex-wrap gap-2">
                               {dramaticStatusOptions.map((status) => (
                                 <Button
