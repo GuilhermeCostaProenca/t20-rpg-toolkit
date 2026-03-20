@@ -65,7 +65,7 @@ Pode iniciar modelagem antes, mas a experiencia final depende dessas frentes.
   Notas: `RPG-25` abriu o primeiro painel de leitura na estacao da campanha, com classificacao, confianca, score de grupo, score de pressao e fatores explicitos.
 
 - [-] T4. Criar apoio para preparo de encontro
-  Notas: `RPG-26` abriu o primeiro slice operacional dentro da estacao da campanha, com selecao de ameacas hostis, composicao de encontro preparada, releitura dedicada do risco e sugestao de ajuste.
+  Notas: `RPG-26` abriu o primeiro slice operacional dentro da estacao da campanha, com selecao de ameacas hostis, composicao de encontro preparada, releitura dedicada do risco e sugestao de ajuste. `RPG-27` passou a persistir essa composicao na sessao e a liga-la opcionalmente a uma cena da Forja.
 
 - [ ] T5. Criar apoio para ajuste durante a mesa
   Notas:
@@ -167,11 +167,11 @@ Balanceamento precisa ajudar antes da sessao, nao so diagnosticar.
 - [-] T4.3 Integrar a ameacas e entidades relevantes
   Notas: O recorte usa NPCs `enemy` ja cadastrados na campanha como fonte de composicao do encontro e calcula o risco sobre eles.
 
-- [ ] T4.4 Permitir salvar composicoes de encontro
-  Notas:
+- [-] T4.4 Permitir salvar composicoes de encontro
+  Notas: `RPG-27` salva o encontro preparado em `Session.metadata.forge.encounters`, preservando composicao, leitura de risco, confianca e recomendacao.
 
-- [ ] T4.5 Permitir associar encontro a sessao ou cena
-  Notas:
+- [-] T4.5 Permitir associar encontro a sessao ou cena
+  Notas: `RPG-27` ja associa o encontro a uma sessao alvo e, quando desejado, a uma cena existente da Forja. Falta aprofundar a edicao e manutencao desse vinculo.
 
 ### Criterios de aceite da Frente T4
 - o mestre consegue montar encontro com mais seguranca;

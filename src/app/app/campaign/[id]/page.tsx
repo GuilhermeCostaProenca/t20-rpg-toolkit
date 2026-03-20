@@ -43,9 +43,10 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { normalizeSessionForgeState } from "@/lib/session-forge";
+import { buildSessionMetadata, normalizeSessionForgeState } from "@/lib/session-forge";
 import {
   analyzeT20Encounter,
+  estimateEnemyUnitScore,
   formatBalanceConfidence,
   formatEncounterRating,
   suggestEncounterAdjustment,
@@ -283,6 +284,11 @@ export default function CampaignPage() {
   const [npcUploading, setNpcUploading] = useState(false);
   const [npcSubmitting, setNpcSubmitting] = useState(false);
   const [encounterDraft, setEncounterDraft] = useState<Record<string, number>>({});
+  const [encounterTargetSessionId, setEncounterTargetSessionId] = useState("");
+  const [encounterTargetSceneId, setEncounterTargetSceneId] = useState("");
+  const [encounterSaving, setEncounterSaving] = useState(false);
+  const [encounterSaveMessage, setEncounterSaveMessage] = useState<string | null>(null);
+  const [encounterSaveError, setEncounterSaveError] = useState<string | null>(null);
 
   const loadData = useCallback(async (id: string) => {
     setLoading(true);
@@ -354,6 +360,11 @@ export default function CampaignPage() {
       ) ?? sortedSessions[0] ?? null,
     [sortedSessions]
   );
+  useEffect(() => {
+    if (!encounterTargetSessionId && nextSession) {
+      setEncounterTargetSessionId(nextSession.id);
+    }
+  }, [encounterTargetSessionId, nextSession]);
   const campaignMemoryEvents = useMemo(
     () => (campaign?.recentMemoryEvents ?? []).filter((event) => isMemoryWorldEvent(event)),
     [campaign?.recentMemoryEvents]
@@ -439,6 +450,28 @@ export default function CampaignPage() {
       ),
     [availableEnemies, preparedEncounterBalance]
   );
+  const encounterTargetSession = useMemo(
+    () =>
+      sortedSessions.find((session) => session.id === encounterTargetSessionId) ?? nextSession ?? null,
+    [encounterTargetSessionId, nextSession, sortedSessions]
+  );
+  const encounterTargetForge = useMemo(
+    () => (encounterTargetSession ? normalizeSessionForgeState(encounterTargetSession.metadata) : null),
+    [encounterTargetSession]
+  );
+  const encounterTargetScenes = useMemo(
+    () =>
+      (encounterTargetForge?.scenes ?? []).filter((scene) => scene.status !== "discarded"),
+    [encounterTargetForge]
+  );
+  useEffect(() => {
+    if (
+      encounterTargetSceneId &&
+      !encounterTargetScenes.some((scene) => scene.id === encounterTargetSceneId)
+    ) {
+      setEncounterTargetSceneId("");
+    }
+  }, [encounterTargetSceneId, encounterTargetScenes]);
 
   async function uploadImage(file: File) {
     const body = new FormData();
@@ -768,6 +801,99 @@ export default function CampaignPage() {
       if (typeof window !== "undefined") {
         window.alert(err instanceof Error ? err.message : "Erro ao adicionar NPC");
       }
+    }
+  }
+
+  async function handleSaveEncounterToSession() {
+    setEncounterSaveError(null);
+    setEncounterSaveMessage(null);
+
+    if (!encounterTargetSession) {
+      setEncounterSaveError("Escolha uma sessao para anexar o encontro preparado.");
+      return;
+    }
+
+    const draftEntries = availableEnemies
+      .map((enemy) => ({
+        enemy,
+        quantity: Math.max(encounterDraft[enemy.id] ?? 0, 0),
+      }))
+      .filter((entry) => entry.quantity > 0);
+
+    if (draftEntries.length === 0) {
+      setEncounterSaveError("Selecione pelo menos uma ameaca para salvar o encontro.");
+      return;
+    }
+
+    const targetForge = normalizeSessionForgeState(encounterTargetSession.metadata);
+    const linkedScene = encounterTargetScenes.find((scene) => scene.id === encounterTargetSceneId);
+    const encounterTitle = linkedScene?.title
+      ? `Encontro: ${linkedScene.title}`
+      : `Encontro preparado ${draftEntries.length}`;
+
+    const nextForge = {
+      ...targetForge,
+      encounters: [
+        ...targetForge.encounters,
+        {
+          id: `encounter-${Math.random().toString(36).slice(2, 10)}`,
+          title: encounterTitle,
+          notes: encounterAdjustmentSuggestion,
+          linkedSceneId: linkedScene?.id,
+          enemies: draftEntries.map(({ enemy, quantity }) => ({
+            npcId: enemy.id,
+            label: enemy.name,
+            quantity,
+            unitScore: estimateEnemyUnitScore({
+              id: enemy.id,
+              type: enemy.type,
+              hpMax: enemy.hpMax,
+              defenseFinal: enemy.defenseFinal,
+              damageFormula: enemy.damageFormula,
+              name: enemy.name,
+            }),
+          })),
+          rating: preparedEncounterBalance.rating,
+          confidence: preparedEncounterBalance.confidence,
+          pressureRatio: preparedEncounterBalance.pressureRatio,
+          recommendation: preparedEncounterBalance.recommendation,
+        },
+      ],
+    };
+
+    setEncounterSaving(true);
+    try {
+      const response = await fetch(`/api/sessions/${encounterTargetSession.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: encounterTargetSession.title,
+          description: encounterTargetSession.description,
+          coverUrl: encounterTargetSession.coverUrl,
+          scheduledAt: encounterTargetSession.scheduledAt ?? undefined,
+          status: encounterTargetSession.status ?? "planned",
+          metadata: buildSessionMetadata(nextForge, encounterTargetSession.metadata),
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Nao foi possivel salvar o encontro no preparo da sessao.");
+      }
+      const saved = payload.data as Session;
+      setSessions((current) => current.map((session) => (session.id === saved.id ? saved : session)));
+      setEncounterSaveMessage(
+        linkedScene
+          ? `Encontro salvo em ${saved.title} e ligado a ${linkedScene.title}.`
+          : `Encontro salvo em ${saved.title}.`
+      );
+    } catch (saveError) {
+      setEncounterSaveError(
+        saveError instanceof Error
+          ? saveError.message
+          : "Erro inesperado ao salvar o encontro preparado."
+      );
+    } finally {
+      setEncounterSaving(false);
     }
   }
 
@@ -1222,6 +1348,65 @@ export default function CampaignPage() {
                             <p className="mt-2 text-sm leading-6 text-foreground">
                               {encounterAdjustmentSuggestion}
                             </p>
+                          </div>
+                          <div className="mt-4 rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <div>
+                                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                                  Anexar ao preparo
+                                </p>
+                                <p className="mt-2 text-sm text-foreground">
+                                  Salve esta composicao em uma sessao e, se quiser, prenda o encontro a uma cena.
+                                </p>
+                              </div>
+                              <Badge className="border-white/10 bg-black/25 text-white/75">
+                                {(encounterTargetForge?.encounters.length ?? 0)} encontros salvos
+                              </Badge>
+                            </div>
+                            <div className="mt-4 grid gap-3">
+                              <label className="grid gap-2 text-sm">
+                                <span className="text-muted-foreground">Sessao alvo</span>
+                                <select
+                                  value={encounterTargetSession?.id ?? ""}
+                                  onChange={(event) => setEncounterTargetSessionId(event.target.value)}
+                                  className="h-11 rounded-2xl border border-white/10 bg-white/5 px-3 text-foreground outline-none"
+                                >
+                                  <option value="">Selecione uma sessao</option>
+                                  {sortedSessions.map((session) => (
+                                    <option key={session.id} value={session.id}>
+                                      {session.title}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className="grid gap-2 text-sm">
+                                <span className="text-muted-foreground">Cena alvo</span>
+                                <select
+                                  value={encounterTargetSceneId}
+                                  onChange={(event) => setEncounterTargetSceneId(event.target.value)}
+                                  className="h-11 rounded-2xl border border-white/10 bg-white/5 px-3 text-foreground outline-none"
+                                >
+                                  <option value="">Sem cena especifica</option>
+                                  {encounterTargetScenes.map((scene) => (
+                                    <option key={scene.id} value={scene.id}>
+                                      {scene.title || "Cena sem titulo"}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <Button
+                                onClick={() => void handleSaveEncounterToSession()}
+                                disabled={encounterSaving || preparedEncounterEnemies.length === 0}
+                              >
+                                {encounterSaving ? "Salvando encontro..." : "Salvar no preparo da sessao"}
+                              </Button>
+                              {encounterSaveMessage ? (
+                                <p className="text-sm text-emerald-200">{encounterSaveMessage}</p>
+                              ) : null}
+                              {encounterSaveError ? (
+                                <p className="text-sm text-destructive">{encounterSaveError}</p>
+                              ) : null}
+                            </div>
                           </div>
                         </div>
                       </div>

@@ -53,6 +53,7 @@ import {
   type SessionForgeSubscene,
   type SessionForgeState,
 } from "@/lib/session-forge";
+import { formatBalanceConfidence, formatEncounterRating } from "@/lib/t20-balance";
 
 type Campaign = {
   id: string;
@@ -499,6 +500,13 @@ export default function SessionForgePage() {
       forge.scenes.filter(
         (scene) =>
           scene.status !== "discarded" && (scene.linkedEntityIds.length > 0 || scene.linkedRevealIds.length > 0)
+      ),
+    [forge.scenes]
+  );
+  const sceneTitleById = useMemo(
+    () =>
+      new Map(
+        forge.scenes.map((scene) => [scene.id, scene.title || "Cena sem titulo"])
       ),
     [forge.scenes]
   );
@@ -2127,6 +2135,58 @@ export default function SessionForgePage() {
           </section>
 
           <section className="chrome-panel rounded-[30px] p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="section-eyebrow">Encontros preparados</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Composicoes salvas a partir da campanha e ligadas a cenas desta sessao.
+                </p>
+              </div>
+              <Badge className="border-white/10 bg-white/5 text-white/75">
+                {forge.encounters.length} encontros
+              </Badge>
+            </div>
+            <div className="mt-4 space-y-3">
+              {forge.encounters.length > 0 ? (
+                forge.encounters.map((encounter) => (
+                  <div key={encounter.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge className="border-primary/20 bg-primary/10 text-primary">
+                        {formatEncounterRating(encounter.rating)}
+                      </Badge>
+                      <Badge className="border-white/10 bg-white/5 text-white/75">
+                        Confianca {formatBalanceConfidence(encounter.confidence)}
+                      </Badge>
+                      {encounter.linkedSceneId ? (
+                        <Badge className="border-white/10 bg-white/5 text-white/75">
+                          {sceneTitleById.get(encounter.linkedSceneId) ?? "Cena vinculada"}
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <h3 className="mt-3 text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
+                      {encounter.title || "Encontro preparado"}
+                    </h3>
+                    <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
+                      {encounter.enemies.map((enemy) => (
+                        <p key={`${encounter.id}:${enemy.npcId ?? enemy.label}`}>
+                          {enemy.quantity}x {enemy.label || "Ameaca sem nome"}
+                        </p>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                      {encounter.notes || encounter.recommendation || "Sem nota de ajuste registrada."}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                  Salve encontros na estacao da campanha para prende-los a esta sessao e reutilizar o balanceamento no preparo.
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
             <p className="section-eyebrow">Passagem para a mesa</p>
             <div className="mt-4 grid gap-3">
               <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
@@ -2137,6 +2197,7 @@ export default function SessionForgePage() {
                   <p>{readyScenes.length} cenas com estrutura operacional</p>
                   <p>{forge.reveals.filter((item) => item.status !== "canceled").length} reveals preparados</p>
                   <p>{forge.hooks.filter((item) => item.status !== "canceled").length} ganchos ativos</p>
+                  <p>{forge.encounters.length} encontros preparados</p>
                 </div>
               </div>
               <Button asChild className="justify-between">

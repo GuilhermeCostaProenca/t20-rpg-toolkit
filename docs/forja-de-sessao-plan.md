@@ -65,8 +65,8 @@ Esta frente depende de:
 - [-] F3. Fechar ganchos, segredos e revelacoes
   Notas: `GUI-40` ja suporta ganchos, segredos e revelacoes dentro de `Session.metadata.forge`, com status (`planned`, `executed`, `delayed`, `canceled`). Revelacoes ja podem ser enviadas direto para a mesa pela propria forja usando `roomCode`; ainda faltam visibilidade mais forte e ligacao mais profunda com assets visuais.
 
-- [ ] F4. Integrar entidades e referencias visuais ao preparo
-  Notas: `GUI-40` agora ja permite ligar imagem real a `reveals` da sessao e reaproveitar retrato/capa de entidades do Codex sem sair da forja. Ainda faltam assets mais ricos da biblioteca visual e ligacao mais forte por cena.
+- [-] F4. Integrar entidades e referencias visuais ao preparo
+  Notas: `GUI-40` agora ja permite ligar imagem real a `reveals` da sessao e reaproveitar retrato/capa de entidades do Codex sem sair da forja. `RPG-27` acrescentou `encontros preparados` vindos da campanha e ligados opcionalmente a cenas da sessao. Ainda faltam assets mais ricos da biblioteca visual e ligacao mais forte por cena.
 
 - [ ] F5. Definir transicao da forja para a mesa ao vivo
   Notas:

@@ -40,6 +40,25 @@ export type SessionForgeScene = {
   subscenes: SessionForgeSubscene[];
 };
 
+export type SessionForgeEncounterEnemy = {
+  npcId?: string;
+  label: string;
+  quantity: number;
+  unitScore?: number;
+};
+
+export type SessionForgeEncounter = {
+  id: string;
+  title: string;
+  notes: string;
+  linkedSceneId?: string;
+  enemies: SessionForgeEncounterEnemy[];
+  rating: "trivial" | "manageable" | "risky" | "deadly";
+  confidence: "low" | "medium" | "high";
+  pressureRatio: number;
+  recommendation: string;
+};
+
 export type SessionForgeMemoryVisibility = "MASTER" | "PLAYERS";
 
 export type SessionForgeMemoryAttendanceStatus = "appeared" | "absent";
@@ -99,6 +118,7 @@ export type SessionForgeState = {
   hooks: SessionForgeDramaticItem[];
   secrets: SessionForgeDramaticItem[];
   reveals: SessionForgeDramaticItem[];
+  encounters: SessionForgeEncounter[];
   memory: SessionForgeMemoryState;
 };
 
@@ -119,6 +139,7 @@ export function getEmptySessionForgeState(): SessionForgeState {
     hooks: [],
     secrets: [],
     reveals: [],
+    encounters: [],
     memory: {
       publicSummary: "",
       masterSummary: "",
@@ -196,6 +217,46 @@ function parseDramaticCollection(value: unknown): SessionForgeDramaticItem[] {
             imageUrl: typeof item.imageUrl === "string" ? item.imageUrl : undefined,
           };
         })
+    : [];
+}
+
+function parseEncounterEnemies(value: unknown): SessionForgeEncounterEnemy[] {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+        .map((item) => ({
+          npcId: typeof item.npcId === "string" ? item.npcId : undefined,
+          label: typeof item.label === "string" ? item.label : "",
+          quantity: typeof item.quantity === "number" ? Math.max(item.quantity, 1) : 1,
+          unitScore: typeof item.unitScore === "number" ? item.unitScore : undefined,
+        }))
+    : [];
+}
+
+function parseEncounters(value: unknown): SessionForgeEncounter[] {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+        .map((item) => ({
+          id:
+            typeof item.id === "string" && item.id.trim()
+              ? item.id
+              : buildForgeId("encounter"),
+          title: typeof item.title === "string" ? item.title : "",
+          notes: typeof item.notes === "string" ? item.notes : "",
+          linkedSceneId: typeof item.linkedSceneId === "string" ? item.linkedSceneId : undefined,
+          enemies: parseEncounterEnemies(item.enemies),
+          rating:
+            item.rating === "trivial" ||
+            item.rating === "risky" ||
+            item.rating === "deadly"
+              ? item.rating
+              : "manageable",
+          confidence:
+            item.confidence === "low" || item.confidence === "medium" ? item.confidence : "high",
+          pressureRatio: typeof item.pressureRatio === "number" ? item.pressureRatio : 0,
+          recommendation: typeof item.recommendation === "string" ? item.recommendation : "",
+        }))
     : [];
 }
 
@@ -318,6 +379,7 @@ export function normalizeSessionForgeState(metadata: unknown): SessionForgeState
     hooks: parseDramaticCollection(forge?.hooks),
     secrets: parseDramaticCollection(forge?.secrets),
     reveals: parseDramaticCollection(forge?.reveals),
+    encounters: parseEncounters(forge?.encounters),
     memory: {
       publicSummary: typeof memory?.publicSummary === "string" ? memory.publicSummary : "",
       masterSummary: typeof memory?.masterSummary === "string" ? memory.masterSummary : "",
@@ -398,6 +460,26 @@ export function buildSessionMetadata(forge: SessionForgeState, currentMetadata?:
             notes: item.notes || undefined,
             status: item.status,
             imageUrl: item.imageUrl || undefined,
+          }))
+        : undefined,
+      encounters: forge.encounters.length
+        ? forge.encounters.map((encounter) => ({
+            id: encounter.id,
+            title: encounter.title || undefined,
+            notes: encounter.notes || undefined,
+            linkedSceneId: encounter.linkedSceneId || undefined,
+            enemies: encounter.enemies.length
+              ? encounter.enemies.map((enemy) => ({
+                  npcId: enemy.npcId || undefined,
+                  label: enemy.label || undefined,
+                  quantity: enemy.quantity,
+                  unitScore: enemy.unitScore,
+                }))
+              : undefined,
+            rating: encounter.rating,
+            confidence: encounter.confidence,
+            pressureRatio: encounter.pressureRatio,
+            recommendation: encounter.recommendation || undefined,
           }))
         : undefined,
     },
