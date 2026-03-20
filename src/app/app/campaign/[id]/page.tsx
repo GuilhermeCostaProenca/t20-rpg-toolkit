@@ -48,6 +48,7 @@ import {
   analyzeT20Encounter,
   formatBalanceConfidence,
   formatEncounterRating,
+  suggestEncounterAdjustment,
 } from "@/lib/t20-balance";
 import {
   formatMemoryEventTemporalLabel,
@@ -281,6 +282,7 @@ export default function CampaignPage() {
   const [npcFormError, setNpcFormError] = useState<string | null>(null);
   const [npcUploading, setNpcUploading] = useState(false);
   const [npcSubmitting, setNpcSubmitting] = useState(false);
+  const [encounterDraft, setEncounterDraft] = useState<Record<string, number>>({});
 
   const loadData = useCallback(async (id: string) => {
     setLoading(true);
@@ -390,6 +392,52 @@ export default function CampaignPage() {
         }))
       ),
     [sortedCharacters, sortedNpcs]
+  );
+  const availableEnemies = useMemo(
+    () => sortedNpcs.filter((npc) => npc.type === "enemy"),
+    [sortedNpcs]
+  );
+  const preparedEncounterEnemies = useMemo(
+    () =>
+      availableEnemies.flatMap((enemy) => {
+        const quantity = encounterDraft[enemy.id] ?? 0;
+        return Array.from({ length: Math.max(quantity, 0) }, () => enemy);
+      }),
+    [availableEnemies, encounterDraft]
+  );
+  const preparedEncounterBalance = useMemo(
+    () =>
+      analyzeT20Encounter(
+        sortedCharacters.map((character) => ({
+          level: character.level,
+          role: character.role,
+          className: character.className,
+        })),
+        preparedEncounterEnemies.map((enemy) => ({
+          id: enemy.id,
+          type: enemy.type,
+          hpMax: enemy.hpMax,
+          defenseFinal: enemy.defenseFinal,
+          damageFormula: enemy.damageFormula,
+          name: enemy.name,
+        }))
+      ),
+    [preparedEncounterEnemies, sortedCharacters]
+  );
+  const encounterAdjustmentSuggestion = useMemo(
+    () =>
+      suggestEncounterAdjustment(
+        preparedEncounterBalance,
+        availableEnemies.map((enemy) => ({
+          id: enemy.id,
+          type: enemy.type,
+          hpMax: enemy.hpMax,
+          defenseFinal: enemy.defenseFinal,
+          damageFormula: enemy.damageFormula,
+          name: enemy.name,
+        }))
+      ),
+    [availableEnemies, preparedEncounterBalance]
   );
 
   async function uploadImage(file: File) {
@@ -1062,6 +1110,126 @@ export default function CampaignPage() {
                         {factor}
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-5 rounded-[24px] border border-white/8 bg-black/20 p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                          Preparo de encontro
+                        </p>
+                        <h3 className="mt-2 text-lg font-bold text-foreground">
+                          Monte a composicao hostil da proxima cena
+                        </h3>
+                      </div>
+                      <Badge className="border-white/10 bg-black/25 text-white/75">
+                        {preparedEncounterEnemies.length} ameacas selecionadas
+                      </Badge>
+                    </div>
+
+                    {availableEnemies.length > 0 ? (
+                      <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                        <div className="space-y-3">
+                          {availableEnemies.map((enemy) => {
+                            const quantity = encounterDraft[enemy.id] ?? 0;
+                            return (
+                              <div
+                                key={enemy.id}
+                                className="rounded-2xl border border-white/8 bg-white/4 p-4"
+                              >
+                                <div className="flex items-start justify-between gap-4">
+                                  <div>
+                                    <p className="text-sm font-semibold text-foreground">{enemy.name}</p>
+                                    <p className="mt-1 text-sm text-muted-foreground">
+                                      {enemy.hpMax} PV • DEF {enemy.defenseFinal} • {enemy.damageFormula || "sem dano"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="border-white/10 bg-black/25"
+                                      onClick={() =>
+                                        setEncounterDraft((current) => ({
+                                          ...current,
+                                          [enemy.id]: Math.max((current[enemy.id] ?? 0) - 1, 0),
+                                        }))
+                                      }
+                                    >
+                                      -
+                                    </Button>
+                                    <div className="min-w-8 text-center text-sm font-semibold text-foreground">
+                                      {quantity}
+                                    </div>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="border-white/10 bg-black/25"
+                                      onClick={() =>
+                                        setEncounterDraft((current) => ({
+                                          ...current,
+                                          [enemy.id]: (current[enemy.id] ?? 0) + 1,
+                                        }))
+                                      }
+                                    >
+                                      +
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                          <div className="flex flex-wrap gap-2">
+                            <Badge
+                              className={
+                                preparedEncounterBalance.rating === "deadly"
+                                  ? "border-red-300/20 bg-red-300/10 text-red-100"
+                                  : preparedEncounterBalance.rating === "risky"
+                                    ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                                    : preparedEncounterBalance.rating === "trivial"
+                                      ? "border-sky-300/20 bg-sky-300/10 text-sky-100"
+                                      : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+                              }
+                            >
+                              {formatEncounterRating(preparedEncounterBalance.rating)}
+                            </Badge>
+                            <Badge className="border-white/10 bg-black/25 text-white/75">
+                              Confianca {formatBalanceConfidence(preparedEncounterBalance.confidence)}
+                            </Badge>
+                          </div>
+                          <p className="mt-3 text-sm font-semibold text-foreground">
+                            Razao de pressao {preparedEncounterBalance.pressureRatio}
+                          </p>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {preparedEncounterBalance.recommendation}
+                          </p>
+                          <div className="mt-4 grid gap-2">
+                            {preparedEncounterBalance.factors.map((factor) => (
+                              <div
+                                key={factor}
+                                className="rounded-2xl border border-white/8 bg-black/20 px-3 py-2 text-sm text-muted-foreground"
+                              >
+                                {factor}
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-4 rounded-2xl border border-amber-300/10 bg-amber-300/6 p-4">
+                            <p className="text-xs uppercase tracking-[0.18em] text-amber-100/80">
+                              Sugestao de ajuste
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-foreground">
+                              {encounterAdjustmentSuggestion}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-4 rounded-2xl border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                        Cadastre ameacas do tipo `enemy` para montar uma composicao de encontro.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

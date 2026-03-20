@@ -5,6 +5,7 @@ type BalanceCharacterInput = {
 };
 
 type BalanceNpcInput = {
+  id?: string | null;
   type?: "npc" | "enemy";
   hpMax?: number | null;
   defenseFinal?: number | null;
@@ -46,6 +47,16 @@ function averageDiceFormula(formula?: string | null) {
   return diceCount * ((diceFaces + 1) / 2) + flatBonus;
 }
 
+export function estimateEnemyUnitScore(enemy: BalanceNpcInput) {
+  const hp = Math.max(enemy.hpMax ?? 0, 0);
+  const defense = Math.max(enemy.defenseFinal ?? 10, 0);
+  const damage = Math.max(averageDiceFormula(enemy.damageFormula), 0);
+  const durabilityScore = hp / 8;
+  const defenseScore = defense / 3;
+  const damageScore = damage * 1.75;
+  return Number((durabilityScore + defenseScore + damageScore).toFixed(1));
+}
+
 function getRoleWeight(role?: string | null) {
   const normalized = normalizeRole(role);
   if (!normalized) return 0;
@@ -75,13 +86,7 @@ export function analyzeT20Encounter(
   }, 0);
 
   const threatScore = enemies.reduce((total, enemy) => {
-    const hp = Math.max(enemy.hpMax ?? 0, 0);
-    const defense = Math.max(enemy.defenseFinal ?? 10, 0);
-    const damage = Math.max(averageDiceFormula(enemy.damageFormula), 0);
-    const durabilityScore = hp / 8;
-    const defenseScore = defense / 3;
-    const damageScore = damage * 1.75;
-    return total + durabilityScore + defenseScore + damageScore;
+    return total + estimateEnemyUnitScore(enemy);
   }, 0);
 
   const pressureRatio = partyScore > 0 ? threatScore / partyScore : 0;
@@ -169,4 +174,34 @@ export function formatBalanceConfidence(confidence: BalanceConfidence) {
     default:
       return confidence;
   }
+}
+
+export function suggestEncounterAdjustment(
+  snapshot: EncounterBalanceSnapshot,
+  availableEnemies: BalanceNpcInput[]
+) {
+  const rankedEnemies = [...availableEnemies]
+    .filter((enemy) => enemy.type === "enemy")
+    .sort((left, right) => estimateEnemyUnitScore(right) - estimateEnemyUnitScore(left));
+
+  const strongest = rankedEnemies[0];
+  const weakest = rankedEnemies[rankedEnemies.length - 1];
+
+  if (snapshot.rating === "trivial" && weakest) {
+    return `Para subir a pressao, adicione mais uma ameaca como ${weakest.name || "o inimigo mais leve"} ou aumente o dano medio do encontro.`;
+  }
+
+  if (snapshot.rating === "manageable" && strongest) {
+    return "Faixa jogavel. Se quiser um pico dramatico, aumente quantidade de ameacas ou traga uma figura elite.";
+  }
+
+  if (snapshot.rating === "risky" && weakest) {
+    return `Se o grupo estiver sem recursos, remova uma ameaca menor como ${weakest.name || "uma ameaca leve"} ou reduza dano/acao inimiga.`;
+  }
+
+  if (snapshot.rating === "deadly" && strongest) {
+    return `Pico punitivo. Considere remover ${strongest.name || "a ameaca mais forte"} ou reduzir HP e dano das ameacas principais.`;
+  }
+
+  return "Ainda faltam dados suficientes para sugerir ajuste de encontro com seguranca.";
 }

@@ -64,8 +64,8 @@ Pode iniciar modelagem antes, mas a experiencia final depende dessas frentes.
 - [-] T3. Criar superficie de analise de dificuldade
   Notas: `RPG-25` abriu o primeiro painel de leitura na estacao da campanha, com classificacao, confianca, score de grupo, score de pressao e fatores explicitos.
 
-- [ ] T4. Criar apoio para preparo de encontro
-  Notas:
+- [-] T4. Criar apoio para preparo de encontro
+  Notas: `RPG-26` abriu o primeiro slice operacional dentro da estacao da campanha, com selecao de ameacas hostis, composicao de encontro preparada, releitura dedicada do risco e sugestao de ajuste.
 
 - [ ] T5. Criar apoio para ajuste durante a mesa
   Notas:
@@ -158,14 +158,14 @@ O mestre precisa ler rapidamente se o encontro esta facil, medio, dificil ou per
 Contexto tecnico:
 Balanceamento precisa ajudar antes da sessao, nao so diagnosticar.
 
-- [ ] T4.1 Integrar analise a preparacao de encontro
-  Notas:
+- [-] T4.1 Integrar analise a preparacao de encontro
+  Notas: `RPG-26` integrou a heuristica diretamente ao fluxo da campanha, sem abrir tela paralela, usando os NPCs hostis como base do rascunho de encontro.
 
-- [ ] T4.2 Sugerir ajuste de composicao ou intensidade
-  Notas:
+- [-] T4.2 Sugerir ajuste de composicao ou intensidade
+  Notas: O helper agora gera sugestao simples de ajuste com base na leitura do encontro preparado e das ameacas disponiveis.
 
-- [ ] T4.3 Integrar a ameacas e entidades relevantes
-  Notas:
+- [-] T4.3 Integrar a ameacas e entidades relevantes
+  Notas: O recorte usa NPCs `enemy` ja cadastrados na campanha como fonte de composicao do encontro e calcula o risco sobre eles.
 
 - [ ] T4.4 Permitir salvar composicoes de encontro
   Notas:
