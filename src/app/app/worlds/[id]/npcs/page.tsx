@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Plus, Search, Skull, Shield, Heart, MoreVertical, Trash } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BookOpen, Plus, Search, Skull, Shield, Heart } from "lucide-react";
 import { RevealButton } from "@/components/reveal-button";
 
 import { Button } from "@/components/ui/button";
@@ -18,15 +19,40 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+
+type CodexEntity = {
+    id: string;
+    name: string;
+    type: string;
+    campaignId?: string | null;
+    metadata?: { legacyNpcId?: string } | null;
+};
+
+type NpcItem = {
+    id: string;
+    name: string;
+    type: string;
+    hpMax: number;
+    defenseFinal: number;
+    description?: string | null;
+    tags?: string | null;
+    imageUrl?: string | null;
+    campaignId?: string | null;
+    campaign?: { id: string; name: string } | null;
+};
 
 export default function WorldNpcsPage() {
     const params = useParams();
+    const router = useRouter();
     const worldId = params?.id as string;
-    const [npcs, setNpcs] = useState<any[]>([]);
-    const [campaigns, setCampaigns] = useState<any[]>([]);
+    const [npcs, setNpcs] = useState<NpcItem[]>([]);
+    const [campaigns, setCampaigns] = useState<Array<{ id: string; name: string }>>([]);
+    const [codexEntities, setCodexEntities] = useState<CodexEntity[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [createOpen, setCreateOpen] = useState(false);
+    const [syncingNpcId, setSyncingNpcId] = useState<string | null>(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -39,23 +65,24 @@ export default function WorldNpcsPage() {
         type: "npc" // or enemy
     });
 
-    useEffect(() => {
-        loadData();
-    }, [worldId]);
-
-    async function loadData() {
+    const loadData = useCallback(async () => {
         try {
             setLoading(true);
-            const [npcsRes, campaignsRes] = await Promise.all([
+            const [npcsRes, worldRes, codexRes] = await Promise.all([
                 fetch(`/api/npcs?worldId=${worldId}`),
-                fetch(`/api/worlds/${worldId}`) // Fetch world to get campaigns
+                fetch(`/api/worlds/${worldId}`),
+                fetch(`/api/worlds/${worldId}/codex`)
             ]);
 
-            const npcsData = await npcsRes.json();
-            const worldData = await campaignsRes.json();
+            const [npcsData, worldData, codexData] = await Promise.all([
+                npcsRes.json(),
+                worldRes.json(),
+                codexRes.json(),
+            ]);
 
             setNpcs(npcsData.data || []);
             setCampaigns(worldData.data?.campaigns || []);
+            setCodexEntities(codexData.data?.entities || []);
 
             // Default campaign selection
             if (worldData.data?.campaigns?.length > 0) {
@@ -66,7 +93,11 @@ export default function WorldNpcsPage() {
         } finally {
             setLoading(false);
         }
-    }
+    }, [worldId]);
+
+    useEffect(() => {
+        void loadData();
+    }, [loadData]);
 
     async function handleCreate(e: FormEvent) {
         e.preventDefault();
@@ -86,8 +117,55 @@ export default function WorldNpcsPage() {
             setCreateOpen(false);
             setFormData({ ...formData, name: "", description: "", tags: "" });
             loadData();
-        } catch (err) {
+        } catch {
             alert("Falha ao criar NPC");
+        }
+    }
+
+    function matchNpcEntity(npc: NpcItem) {
+        return codexEntities.find((entity) => {
+            const metadata = entity.metadata || {};
+            return metadata.legacyNpcId === npc.id
+                || (
+                    entity.type === "npc"
+                    && entity.name.trim().toLowerCase() === npc.name.trim().toLowerCase()
+                    && (entity.campaignId || "") === (npc.campaignId || "")
+                );
+        });
+    }
+
+    async function handleCreateCodexEntityFromNpc(npc: NpcItem) {
+        setSyncingNpcId(npc.id);
+        try {
+            const res = await fetch(`/api/worlds/${worldId}/entities`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    campaignId: npc.campaignId || undefined,
+                    name: npc.name,
+                    type: "npc",
+                    summary: npc.description || undefined,
+                    description: npc.description || undefined,
+                    tags: npc.tags ? npc.tags.split(",").map((item) => item.trim()).filter(Boolean) : [],
+                    portraitImageUrl: npc.imageUrl || undefined,
+                    metadata: {
+                        legacyNpcId: npc.id,
+                        legacyNpcType: npc.type,
+                        hpMax: npc.hpMax,
+                        defenseFinal: npc.defenseFinal,
+                        damageFormula: undefined,
+                    },
+                }),
+            });
+            const payload = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(payload.error || "Falha ao criar entidade no Codex");
+            toast.success("NPC espelhado no Codex.");
+            await loadData();
+            if (payload.data?.id) router.push(`/app/worlds/${worldId}/codex/${payload.data.id}`);
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Falha ao espelhar NPC no Codex");
+        } finally {
+            setSyncingNpcId(null);
         }
     }
 
@@ -160,7 +238,7 @@ export default function WorldNpcsPage() {
                                         onChange={(e) => setFormData({ ...formData, campaignId: e.target.value })}
                                     >
                                         <option value="" disabled>Selecione...</option>
-                                        {campaigns.map((c: any) => (
+                                        {campaigns.map((c) => (
                                             <option key={c.id} value={c.id} className="bg-zinc-900">{c.name}</option>
                                         ))}
                                     </select>
@@ -197,7 +275,9 @@ export default function WorldNpcsPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {filteredNpcs.map(npc => (
+                    {filteredNpcs.map(npc => {
+                        const codexEntity = matchNpcEntity(npc);
+                        return (
                         <Card key={npc.id} className="bg-white/5 border-white/10 hover:border-primary/30 transition-colors group">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -229,12 +309,27 @@ export default function WorldNpcsPage() {
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="pt-0 pb-3 text-[10px] text-muted-foreground flex justify-between">
-                                <span className="truncate max-w-[120px]">{npc.campaign?.name}</span>
-                                <span className="opacity-50 group-hover:opacity-100 uppercase tracking-widest">{npc.tags}</span>
+                            <CardFooter className="pt-0 pb-3 text-[10px] text-muted-foreground flex flex-col items-stretch gap-3">
+                                <div className="flex justify-between">
+                                    <span className="truncate max-w-[120px]">{npc.campaign?.name}</span>
+                                    <span className="opacity-50 group-hover:opacity-100 uppercase tracking-widest">{npc.tags}</span>
+                                </div>
+                                {codexEntity ? (
+                                    <Button asChild size="sm" variant="outline" className="border-white/10 bg-white/5 justify-between">
+                                        <Link href={`/app/worlds/${worldId}/codex/${codexEntity.id}`}>
+                                            Abrir no Codex
+                                            <BookOpen className="h-3.5 w-3.5" />
+                                        </Link>
+                                    </Button>
+                                ) : (
+                                    <Button size="sm" variant="outline" className="border-white/10 bg-white/5 justify-between" onClick={() => void handleCreateCodexEntityFromNpc(npc)} disabled={syncingNpcId === npc.id}>
+                                        {syncingNpcId === npc.id ? "Espelhando..." : "Criar no Codex"}
+                                        <ArrowRight className="h-3.5 w-3.5" />
+                                    </Button>
+                                )}
                             </CardFooter>
                         </Card>
-                    ))}
+                    )})}
                 </div>
             )}
         </div>

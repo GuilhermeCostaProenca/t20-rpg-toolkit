@@ -29,7 +29,7 @@ export async function GET(_req: Request, { params }: Context) {
       prisma.session.findFirst({
         where: { worldId: id, scheduledAt: { gt: new Date() }, status: { not: 'finished' } },
         orderBy: { scheduledAt: 'asc' },
-        select: { id: true, title: true, scheduledAt: true, campaign: { select: { name: true } } }
+        select: { id: true, title: true, scheduledAt: true, campaign: { select: { id: true, name: true } } }
       }),
       prisma.npc.count({ where: { worldId: id } }),
       prisma.session.count({ where: { worldId: id } })
@@ -73,6 +73,7 @@ export async function PUT(req: Request, { params }: Context) {
         title: parsed.title,
         description: parsed.description,
         coverImage: parsed.coverImage,
+        metadata: parsed.metadata,
       },
     });
 

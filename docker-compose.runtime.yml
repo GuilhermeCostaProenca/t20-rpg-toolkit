@@ -1,0 +1,21 @@
+services:
+  app:
+    build:
+      context: .
+      target: runner
+    environment: !override
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public"
+      DIRECT_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public"
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-http://127.0.0.1:3000,http://localhost:3000}
+    command: >
+      sh -c "npx prisma migrate deploy &&
+      npm run start:docker"
+    volumes: !reset []
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache
+    cap_drop:
+      - ALL

@@ -17,6 +17,20 @@ type RecentBlock = {
   items: { label: string; badge?: string }[];
 };
 
+function getRollBadge(breakdown: unknown) {
+  if (!breakdown || typeof breakdown !== "object" || !("toHit" in breakdown)) {
+    return undefined;
+  }
+
+  const toHit = breakdown.toHit;
+  if (!toHit || typeof toHit !== "object" || !("total" in toHit)) {
+    return undefined;
+  }
+
+  const total = toHit.total;
+  return typeof total === "number" || typeof total === "string" ? `${total}` : undefined;
+}
+
 export function SessionRecents() {
   const { state } = useSession();
 
@@ -27,7 +41,7 @@ export function SessionRecents() {
         .slice(0, 3)
         .map((e) => ({
           label: e.message,
-          badge: e.breakdown?.toHit ? `${e.breakdown.toHit.total}` : undefined,
+          badge: getRollBadge(e.breakdown),
         })),
     [state.events]
   );

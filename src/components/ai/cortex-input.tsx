@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Command, Loader2, Mic, Send, Sparkles } from "lucide-react";
+import { Loader2, Mic, Send, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ export function CortexInput({ className, mode = "default" }: CortexInputProps) {
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
     // Connect to Context
-    const { sendMessage, isOpen } = useCortex();
+    const { sendMessage } = useCortex();
     const [localLoading, setLocalLoading] = useState(false);
 
     // Focus shortcut (Ctrl+K) - Only if in default mode or focused
@@ -136,7 +136,7 @@ export function CortexInput({ className, mode = "default" }: CortexInputProps) {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={isListening ? "Ouvindo..." : (mode === "default" ? "C.O.R.T.E.X. (Ctrl+K)" : "Digite um comando...")}
+                placeholder={isListening ? "Ouvindo..." : (mode === "default" ? "Jarvis (Ctrl+K)" : "Digite um comando...")}
                 className="flex-1 bg-transparent px-2 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
                 disabled={localLoading}
             />

@@ -1,0 +1,183 @@
+# T20 RPG Toolkit - Attack Index
+
+## Como usar
+- Marque `[x]` quando concluido
+- Use `[-]` para em andamento
+- Use `[ ]` para pendente
+- Atualize a linha `Notas:` com contexto curto, branch, PR ou decisao
+
+---
+
+## Objetivo
+
+Este arquivo e o indice executivo do rework do `t20-rpg-toolkit`.
+
+Ele existe para:
+- definir a ordem oficial de ataque;
+- registrar dependencias entre frentes;
+- impedir trabalho paralelo demais em partes que ainda nao tem base;
+- garantir que cada frente feche de ponta a ponta;
+- deixar claro o que pode entrar em branch, o que pode virar PR e quando uma frente pode ser considerada encerrada.
+
+Este arquivo deve sempre refletir a verdade atual do programa de trabalho.
+
+---
+
+## Regra de ouro do programa
+
+- Nada e implementado direto na `master`.
+- Toda frente nasce em branch propria com prefixo `codex/`.
+- Toda branch precisa ter escopo claro e prazo de vida curto.
+- Toda branch precisa abrir PR contra `master`.
+- Toda PR precisa ter criterio de aceite fechado no respectivo plano.
+- Merge padrao: `squash merge`.
+- Depois do merge, a branch morre.
+- Nada fica "morando" em branch antiga.
+- Nada fica "so comitado" fora de PR.
+- O que foi mergeado precisa ficar estavel na `master`.
+
+---
+
+## Workflow oficial de branch, commit, PR e merge
+
+### Branches
+- Prefixo obrigatorio: `codex/`
+- Formato recomendado: `codex/<frente>-<recorte>`
+- Exemplos:
+  - `codex/shell-cockpit-foundation`
+  - `codex/codex-world-schema`
+  - `codex/graph-entity-relations`
+
+### Commits
+- Padrao obrigatorio: Conventional Commits
+- Exemplos:
+  - `feat(shell): build cockpit workspace foundation`
+  - `feat(codex): add universal entity model`
+  - `refactor(world): align world shell and navigation`
+  - `docs(plan): expand attack plan acceptance criteria`
+
+### Pull requests
+- Toda branch relevante abre PR contra `master`
+- Estrutura obrigatoria da PR:
+  - Summary
+  - Motivation
+  - Changes
+  - Testing
+  - Risks
+  - Notes
+- PR deve referenciar explicitamente o plano atacado
+- PR deve listar o que ficou fora de escopo
+
+### Merge
+- Merge padrao: `squash merge`
+- Branch apagada apos merge
+- Nao usar `rebase and merge` como padrao
+- Nao manter branch viva apos merge "por garantia"
+
+### Condicoes minimas para merge
+- checklist da frente atualizado;
+- criterios de aceite atendidos;
+- testes relevantes passando;
+- sem regressao visivel no fluxo principal;
+- sem dependencia escondida de branch paralela;
+- docs atualizados se a entrega mudou direcao, escopo ou operacao.
+
+---
+
+## Ordem oficial de ataque
+
+1. `shell-cockpit-plan.md`
+2. `codex-do-mundo-plan.md`
+3. `grafo-narrativo-plan.md`
+4. `biblioteca-visual-plan.md`
+5. `forja-do-mundo-plan.md`
+6. `forja-de-sessao-plan.md`
+7. `mesa-ao-vivo-plan.md`
+8. `memoria-do-mundo-plan.md`
+9. `balanceamento-t20-plan.md`
+
+Racional:
+- `shell` define o produto;
+- `codex` define o nucleo de dominio;
+- `grafo` e `biblioteca visual` enriquecem a camada de mundo;
+- `forja do mundo` transforma criacao profunda de mundo em fluxo de produto;
+- `forja de sessao` e `mesa` dependem dessa fundacao;
+- `memoria` consolida consequencia;
+- `balanceamento` fecha a frente T20 de apoio ao mestre.
+
+---
+
+## Dependencias entre frentes
+
+- `shell-cockpit-plan.md` destrava `codex-do-mundo-plan.md`
+- `codex-do-mundo-plan.md` destrava `grafo-narrativo-plan.md`
+- `codex-do-mundo-plan.md` destrava `biblioteca-visual-plan.md`
+- `codex-do-mundo-plan.md` destrava `forja-do-mundo-plan.md`
+- `grafo-narrativo-plan.md` e `biblioteca-visual-plan.md` fortalecem `forja-do-mundo-plan.md`
+- `forja-do-mundo-plan.md` destrava `forja-de-sessao-plan.md`
+- `shell-cockpit-plan.md` destrava `mesa-ao-vivo-plan.md`
+- `codex-do-mundo-plan.md` destrava `memoria-do-mundo-plan.md`
+- `forja-de-sessao-plan.md` e `mesa-ao-vivo-plan.md` alimentam `memoria-do-mundo-plan.md`
+- `balanceamento-t20-plan.md` pode iniciar em paralelo apenas depois de `codex` estar firme
+
+---
+
+## Checklist Mestre
+
+- [-] A1. Fechar shell e cockpit base
+  Notas: Atualizacao 1 ganhou shell unificado, cockpit do mundo, biblioteca de mundos, estacao de campanha e atlas redesenhados. Build de producao passou; falta consolidar drawers/detail surfaces e validacao final de densidade.
+
+- [-] A2. Fechar modulo 1 - Codex do Mundo
+  Notas: Schema Prisma, APIs world-scoped, Codex Index com agrupamento visual, tags fortes e quick inspect completo, alem de `Entity Workspace` com overview editavel, relacoes, galeria, upload e edicao inline. NPCs e Characters ja convergem para o Codex; ainda faltam refinamento maior do fluxo e reducao mais profunda do legado.
+
+- [-] A3. Fechar Grafo Narrativo
+  Notas: Base world-scoped entregue com board visual, quick inspect, salto para o Codex, modo genealogico e criacao/edicao/remocao de relacoes no fluxo. Navegacao encadeada entre entidades conectadas ja entrou; ainda faltam filtros mais profundos e interacao mais board-driven.
+
+- [-] A4. Fechar Biblioteca Visual
+  Notas: Biblioteca visual world-scoped entrou com agrupamento por entidade, reveal direto, lightbox, quick inspect proprio, curadoria inline de asset com `sortOrder`, papel visual, promocao para capa/retrato, filtros por subtipo, `mesa pack` cinematografico por campanha e leitura de prontidao do asset. Ainda faltam refinamentos finais de preparo de mesa/TV por contexto de cena.
+
+- [-] A5. Fechar Forja do Mundo
+  Notas: `RPG-16` fechou o bootstrap real da forja, `RPG-17` estruturou casas/faccoes, `RPG-18` abriu a oficina genealogica em `/forge/genealogy`, `GUI-37` amadureceu politica/conselhos em `/forge/politics`, `GUI-38` abriu a oficina de cronologia em `/forge/timeline` com `World.metadata.chronology` e `WorldEvent` macro, e `GUI-39` abriu a oficina de lore-base em `/forge/lore` sobre `RulesetDocument` com busca, visibilidade, ligacoes ao Codex e subida de `Prep imediato` para o cockpit do mundo. Ainda faltam conselhos mais profundos, manipulacao genealogica mais forte, refinamento da cronologia e passagem mais direta para a futura Forja de Sessao.
+
+- [-] A6. Fechar Forja de Sessao
+  Notas: `GUI-40` abriu a primeira superficie real em `/app/campaign/[id]/forge/[sessionId]`, reaproveitando a propria `Session` como fonte de verdade, com briefing, objetivo de mesa, beats, notas operacionais, entidades em foco, lore priorizado da campanha e camada inicial de ganchos/segredos/revelacoes. Ainda faltam cenas/subcenas, reveals conectados a mesa e passagem mais forte para operacao ao vivo.
+
+- [ ] A7. Fechar Mesa ao Vivo
+  Notas:
+
+- [ ] A8. Fechar Memoria do Mundo
+  Notas:
+
+- [ ] A9. Fechar Balanceamento T20
+  Notas:
+
+---
+
+## Criterio de encerramento do programa
+
+O rework principal so e considerado consolidado quando:
+- o app funciona como cockpit continuo do mestre;
+- o modulo de mundo e a fonte natural de preparacao;
+- o mundo deixa de parecer um conjunto de tabelas e paginas dispersas;
+- a mesa ao vivo funciona com consulta e operacao fluida;
+- a memoria do mundo preserva continuidade real;
+- o visual final parece produto premium, nao template adaptado;
+- a `master` contem todas as entregas importantes sem dependencia de branches paralelas.
+
+---
+
+## Arquivos deste pacote
+
+- `docs/t20-toolkit-master-plan.md`
+- `docs/attack-index.md`
+- `docs/front-cleanup-zero-plan.md`
+- `docs/reference-harvest-plan.md`
+- `docs/shell-cockpit-plan.md`
+- `docs/codex-do-mundo-plan.md`
+- `docs/grafo-narrativo-plan.md`
+- `docs/biblioteca-visual-plan.md`
+- `docs/forja-do-mundo-plan.md`
+- `docs/forja-de-sessao-plan.md`
+- `docs/mesa-ao-vivo-plan.md`
+- `docs/memoria-do-mundo-plan.md`
+- `docs/balanceamento-t20-plan.md`

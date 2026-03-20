@@ -15,12 +15,14 @@ interface RevealButtonProps {
     title: string;
     content?: string;
     imageUrl?: string;
-    campaigns: { id: string; name: string; roomCode?: string }[];
+    campaigns: { id: string; name: string; roomCode?: string | null }[];
 }
 
 export function RevealButton({ type, title, content, imageUrl, campaigns }: RevealButtonProps) {
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
+
+    const revealType = type === "NPC" ? "npc" : imageUrl ? "image" : "note";
 
     async function handleReveal(roomCode: string) {
         if (!roomCode) {
@@ -34,7 +36,7 @@ export function RevealButton({ type, title, content, imageUrl, campaigns }: Reve
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     roomCode,
-                    type,
+                    type: revealType,
                     title,
                     content,
                     imageUrl,
@@ -49,7 +51,7 @@ export function RevealButton({ type, title, content, imageUrl, campaigns }: Reve
 
             setOpen(false);
             // alert("Revelado com sucesso!"); 
-        } catch (error) {
+        } catch {
             alert("Erro ao revelar para jogadores");
         } finally {
             setLoading(false);

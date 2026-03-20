@@ -1,27 +1,31 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   ArrowRight,
-  NotebookPen,
+  BookOpenText,
+  CalendarClock,
+  Castle,
+  Compass,
+  Crosshair,
+  LayoutGrid,
   Plus,
-  Sparkles,
+  RefreshCw,
+  Shield,
   Swords,
-  Users,
+  Trash2,
+  UserRound,
+  Users2,
 } from "lucide-react";
 
 import { EmptyState } from "@/components/empty-state";
+import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
+import { CombatPanel } from "@/components/combat/combat-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -38,15 +42,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import {
   CharacterCreateSchema,
   NpcCreateSchema,
   SessionCreateSchema,
 } from "@/lib/validators";
-import { Textarea } from "@/components/ui/textarea";
-import { CombatPanel } from "@/components/combat/combat-panel";
-import { AgentCard } from "@/components/dashboard/agent-card";
-import { NpcCard } from "@/components/dashboard/npc-card";
 
 type Campaign = {
   id: string;
@@ -56,6 +57,7 @@ type Campaign = {
   roomCode: string;
   createdAt: string;
   updatedAt: string;
+  world: { id: string; title: string };
 };
 
 type Character = {
@@ -99,6 +101,19 @@ type Npc = {
   updatedAt: string;
 };
 
+type CombatSnapshot = {
+  id: string;
+  isActive: boolean;
+  round: number;
+  turnIndex: number;
+  combatants: Array<{ id: string }>;
+} | null;
+
+type InspectItem =
+  | { type: "character"; item: Character }
+  | { type: "session"; item: Session }
+  | { type: "npc"; item: Npc };
+
 const initialCharacter = {
   name: "",
   ancestry: "",
@@ -127,7 +142,7 @@ const initialSession = {
   description: "",
   scheduledAt: toDatetimeLocal(new Date()),
   coverUrl: "",
-  status: "planned",
+  status: "planned" as "planned" | "active" | "finished",
 };
 
 const initialNpc = {
@@ -141,6 +156,36 @@ const initialNpc = {
   imageUrl: "",
 };
 
+function formatDate(value: string | null | undefined) {
+  if (!value) return "Sem data";
+  return new Date(value).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatDateTime(value: string | null | undefined) {
+  if (!value) return "Sem agenda";
+  return new Date(value).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function getSessionTone(status?: Session["status"]) {
+  switch (status) {
+    case "active":
+      return "border-emerald-400/25 bg-emerald-400/10 text-emerald-100";
+    case "finished":
+      return "border-white/10 bg-white/8 text-white/70";
+    default:
+      return "border-amber-300/25 bg-amber-300/10 text-amber-100";
+  }
+}
+
 export default function CampaignPage() {
   const params = useParams<{ id: string }>();
   const campaignId = params?.id;
@@ -149,20 +194,25 @@ export default function CampaignPage() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [npcs, setNpcs] = useState<Npc[]>([]);
+  const [combat, setCombat] = useState<CombatSnapshot>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inspectItem, setInspectItem] = useState<InspectItem | null>(null);
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
   const [form, setForm] = useState(initialCharacter);
   const [formError, setFormError] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
   const [sessionDialogOpen, setSessionDialogOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const [sessionForm, setSessionForm] = useState(initialSession);
   const [sessionFormError, setSessionFormError] = useState<string | null>(null);
   const [sessionUploading, setSessionUploading] = useState(false);
   const [sessionSubmitting, setSessionSubmitting] = useState(false);
+
   const [npcDialogOpen, setNpcDialogOpen] = useState(false);
   const [editingNpc, setEditingNpc] = useState<Npc | null>(null);
   const [npcForm, setNpcForm] = useState(initialNpc);
@@ -170,15 +220,53 @@ export default function CampaignPage() {
   const [npcUploading, setNpcUploading] = useState(false);
   const [npcSubmitting, setNpcSubmitting] = useState(false);
 
+  const loadData = useCallback(async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [campaignRes, characterRes, sessionRes, npcRes, combatRes] =
+        await Promise.all([
+          fetch(`/api/campaigns/${id}`, { cache: "no-store" }),
+          fetch(`/api/campaigns/${id}/characters`, { cache: "no-store" }),
+          fetch(`/api/campaigns/${id}/sessions`, { cache: "no-store" }),
+          fetch(`/api/campaigns/${id}/npcs`, { cache: "no-store" }),
+          fetch(`/api/campaigns/${id}/combat`, { cache: "no-store" }),
+        ]);
+
+      const campaignPayload = await campaignRes.json().catch(() => ({}));
+      const characterPayload = await characterRes.json().catch(() => ({}));
+      const sessionPayload = await sessionRes.json().catch(() => ({}));
+      const npcPayload = await npcRes.json().catch(() => ({}));
+      const combatPayload = await combatRes.json().catch(() => ({}));
+
+      if (!campaignRes.ok) throw new Error(campaignPayload.error ?? "Erro ao buscar campanha");
+      if (!characterRes.ok) throw new Error(characterPayload.error ?? "Erro ao buscar personagens");
+      if (!sessionRes.ok) throw new Error(sessionPayload.error ?? "Erro ao buscar sessoes");
+      if (!npcRes.ok) throw new Error(npcPayload.error ?? "Erro ao buscar NPCs");
+
+      setCampaign(campaignPayload.data ?? null);
+      setCharacters(characterPayload.data ?? []);
+      setSessions(sessionPayload.data ?? []);
+      setNpcs(npcPayload.data ?? []);
+      setCombat(combatRes.ok ? (combatPayload.data ?? null) : null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro inesperado ao carregar");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (campaignId) void loadData(campaignId);
+  }, [campaignId, loadData]);
+
   const sortedCharacters = useMemo(
     () =>
       [...characters].sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       ),
     [characters]
   );
-
   const sortedSessions = useMemo(
     () =>
       [...sessions].sort((a, b) => {
@@ -188,80 +276,31 @@ export default function CampaignPage() {
       }),
     [sessions]
   );
-
   const sortedNpcs = useMemo(
     () =>
       [...npcs].sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       ),
     [npcs]
   );
-
-  useEffect(() => {
-    if (campaignId) {
-      loadData(campaignId);
-    }
-  }, [campaignId]);
-
-  async function loadData(id: string) {
-    setLoading(true);
-    setError(null);
-    try {
-      const [campaignRes, characterRes, sessionRes, npcRes] = await Promise.all([
-        fetch("/api/campaigns", { cache: "no-store" }),
-        fetch(`/api/campaigns/${id}/characters`, { cache: "no-store" }),
-        fetch(`/api/campaigns/${id}/sessions`, { cache: "no-store" }),
-        fetch(`/api/campaigns/${id}/npcs`, { cache: "no-store" }),
-      ]);
-
-      const campaignPayload = await campaignRes.json();
-      if (!campaignRes.ok) {
-        throw new Error(campaignPayload.error ?? "Erro ao buscar campanha");
-      }
-      const found: Campaign | undefined = (campaignPayload.data ?? []).find(
-        (item: Campaign) => item.id === id
-      );
-      if (!found) {
-        throw new Error("Campanha nÃ£o encontrada");
-      }
-      setCampaign(found);
-
-      const characterPayload = await characterRes.json();
-      if (!characterRes.ok) {
-        throw new Error(characterPayload.error ?? "Erro ao buscar personagens");
-      }
-      setCharacters(characterPayload.data ?? []);
-
-      const sessionPayload = await sessionRes.json();
-      if (!sessionRes.ok) {
-        throw new Error(sessionPayload.error ?? "Erro ao buscar sessoes");
-      }
-      setSessions(sessionPayload.data ?? []);
-
-      const npcPayload = await npcRes.json();
-      if (!npcRes.ok) {
-        throw new Error(npcPayload.error ?? "Erro ao buscar NPCs");
-      }
-      setNpcs(npcPayload.data ?? []);
-
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Erro inesperado ao carregar";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const nextSession = useMemo(
+    () =>
+      sortedSessions.find(
+        (session) => session.status !== "finished" && session.scheduledAt
+      ) ?? sortedSessions[0] ?? null,
+    [sortedSessions]
+  );
+  const threatCount = useMemo(
+    () => sortedNpcs.filter((npc) => npc.type === "enemy").length,
+    [sortedNpcs]
+  );
 
   async function uploadImage(file: File) {
     const body = new FormData();
     body.append("file", file);
     const res = await fetch("/api/upload", { method: "POST", body });
     const payload = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(payload.error ?? "Falha ao enviar imagem");
-    }
+    if (!res.ok) throw new Error(payload.error ?? "Falha ao enviar imagem");
     return payload.url as string;
   }
 
@@ -272,8 +311,7 @@ export default function CampaignPage() {
       const url = await uploadImage(file);
       setForm((prev) => ({ ...prev, avatarUrl: url }));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro ao enviar avatar";
-      setFormError(message);
+      setFormError(err instanceof Error ? err.message : "Erro ao enviar avatar");
     } finally {
       setAvatarUploading(false);
     }
@@ -286,8 +324,7 @@ export default function CampaignPage() {
       const url = await uploadImage(file);
       setSessionForm((prev) => ({ ...prev, coverUrl: url }));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro ao enviar imagem";
-      setSessionFormError(message);
+      setSessionFormError(err instanceof Error ? err.message : "Erro ao enviar imagem");
     } finally {
       setSessionUploading(false);
     }
@@ -300,8 +337,7 @@ export default function CampaignPage() {
       const url = await uploadImage(file);
       setNpcForm((prev) => ({ ...prev, imageUrl: url }));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro ao enviar imagem";
-      setNpcFormError(message);
+      setNpcFormError(err instanceof Error ? err.message : "Erro ao enviar imagem");
     } finally {
       setNpcUploading(false);
     }
@@ -353,23 +389,19 @@ export default function CampaignPage() {
         body: JSON.stringify(parsed.data),
       });
       const payload = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(payload.error ?? "Erro ao salvar personagem");
-      }
+      if (!res.ok) throw new Error(payload.error ?? "Erro ao salvar personagem");
 
       const saved: Character = payload.data ?? payload;
       setCharacters((prev) =>
-        editingCharacter ? prev.map((item) => (item.id === saved.id ? saved : item)) : [saved, ...prev]
+        editingCharacter
+          ? prev.map((item) => (item.id === saved.id ? saved : item))
+          : [saved, ...prev]
       );
       setDialogOpen(false);
       setEditingCharacter(null);
       setForm(initialCharacter);
     } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Erro inesperado ao salvar personagem";
-      setFormError(message);
+      setFormError(err instanceof Error ? err.message : "Erro inesperado ao salvar personagem");
     } finally {
       setSubmitting(false);
     }
@@ -383,13 +415,12 @@ export default function CampaignPage() {
     try {
       const res = await fetch(`/api/characters/${character.id}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(payload.error ?? "Erro ao remover personagem");
-      }
+      if (!res.ok) throw new Error(payload.error ?? "Erro ao remover personagem");
       setCharacters((prev) => prev.filter((item) => item.id !== character.id));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro ao remover personagem";
-      if (typeof window !== "undefined") window.alert(message);
+      if (typeof window !== "undefined") {
+        window.alert(err instanceof Error ? err.message : "Erro ao remover personagem");
+      }
     }
   }
 
@@ -448,20 +479,19 @@ export default function CampaignPage() {
         body: JSON.stringify(parsed.data),
       });
       const payload = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(payload.error ?? "Erro ao salvar sessao");
-      }
+      if (!res.ok) throw new Error(payload.error ?? "Erro ao salvar sessao");
 
       const saved: Session = payload.data ?? payload;
       setSessions((prev) =>
-        editingSession ? prev.map((item) => (item.id === saved.id ? saved : item)) : [saved, ...prev]
+        editingSession
+          ? prev.map((item) => (item.id === saved.id ? saved : item))
+          : [saved, ...prev]
       );
       setSessionDialogOpen(false);
       setEditingSession(null);
       setSessionForm(initialSession);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro inesperado ao salvar sessao";
-      setSessionFormError(message);
+      setSessionFormError(err instanceof Error ? err.message : "Erro inesperado ao salvar sessao");
     } finally {
       setSessionSubmitting(false);
     }
@@ -475,13 +505,12 @@ export default function CampaignPage() {
     try {
       const res = await fetch(`/api/sessions/${session.id}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(payload.error ?? "Erro ao remover sessao");
-      }
+      if (!res.ok) throw new Error(payload.error ?? "Erro ao remover sessao");
       setSessions((prev) => prev.filter((item) => item.id !== session.id));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro ao remover sessao";
-      if (typeof window !== "undefined") window.alert(message);
+      if (typeof window !== "undefined") {
+        window.alert(err instanceof Error ? err.message : "Erro ao remover sessao");
+      }
     }
   }
 
@@ -538,20 +567,18 @@ export default function CampaignPage() {
         body: JSON.stringify(parsed.data),
       });
       const payload = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(payload.error ?? "Erro ao salvar NPC");
-      }
-
+      if (!res.ok) throw new Error(payload.error ?? "Erro ao salvar NPC");
       const saved: Npc = payload.data ?? payload;
       setNpcs((prev) =>
-        editingNpc ? prev.map((item) => (item.id === saved.id ? saved : item)) : [saved, ...prev]
+        editingNpc
+          ? prev.map((item) => (item.id === saved.id ? saved : item))
+          : [saved, ...prev]
       );
       setNpcDialogOpen(false);
       setEditingNpc(null);
       setNpcForm(initialNpc);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro inesperado ao salvar NPC";
-      setNpcFormError(message);
+      setNpcFormError(err instanceof Error ? err.message : "Erro inesperado ao salvar NPC");
     } finally {
       setNpcSubmitting(false);
     }
@@ -559,19 +586,18 @@ export default function CampaignPage() {
 
   async function handleDeleteNpc(npc: Npc) {
     if (typeof window !== "undefined") {
-      const ok = window.confirm(`Remover NPC \"${npc.name}\"?`);
+      const ok = window.confirm(`Remover NPC "${npc.name}"?`);
       if (!ok) return;
     }
     try {
       const res = await fetch(`/api/npcs/${npc.id}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(payload.error ?? "Erro ao remover NPC");
-      }
+      if (!res.ok) throw new Error(payload.error ?? "Erro ao remover NPC");
       setNpcs((prev) => prev.filter((item) => item.id !== npc.id));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro ao remover NPC";
-      if (typeof window !== "undefined") window.alert(message);
+      if (typeof window !== "undefined") {
+        window.alert(err instanceof Error ? err.message : "Erro ao remover NPC");
+      }
     }
   }
 
@@ -591,23 +617,20 @@ export default function CampaignPage() {
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error ?? "Erro ao adicionar NPC ao combate");
-      }
+      if (!res.ok) throw new Error(data.error ?? "Erro ao adicionar NPC ao combate");
+      await loadData(campaignId);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Erro inesperado ao adicionar NPC";
-      if (typeof window !== "undefined") window.alert(message);
+      if (typeof window !== "undefined") {
+        window.alert(err instanceof Error ? err.message : "Erro ao adicionar NPC");
+      }
     }
   }
 
-  const loadingState = loading || !campaignId;
-
-  if (loadingState) {
+  if (loading || !campaignId) {
     return (
       <div className="space-y-6">
-        <div className="h-32 animate-pulse rounded-3xl bg-white/5" />
-        <div className="h-64 animate-pulse rounded-3xl bg-white/5" />
+        <div className="h-[320px] animate-pulse rounded-[32px] border border-white/10 bg-white/5" />
+        <div className="h-[720px] animate-pulse rounded-[32px] border border-white/10 bg-white/5" />
       </div>
     );
   }
@@ -616,832 +639,1176 @@ export default function CampaignPage() {
     return (
       <EmptyState
         title="Algo deu errado"
-        description={error ?? "Campanha nÃ£o encontrada"}
-        action={
-          <Button
-            onClick={() => campaignId && loadData(campaignId)}
-            className="shadow-[0_0_18px_rgba(226,69,69,0.3)]"
-          >
-            Tentar novamente
-          </Button>
-        }
+        description={error ?? "Campanha nao encontrada"}
+        action={<Button onClick={() => campaignId && loadData(campaignId)}>Tentar novamente</Button>}
         icon={<Swords className="h-6 w-6" />}
       />
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="chrome-panel rounded-3xl border-white/10 bg-white/5 p-6 sm:p-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <Badge className="border-primary/30 bg-primary/10 text-primary">
-              {campaign.system}
-            </Badge>
-            <h1 className="text-3xl font-bold">{campaign.name}</h1>
-            <p className="text-muted-foreground">
-              {campaign.description || "Sem descrição ainda. Adicione detalhes em breve."}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Link href={`/app/play/${campaignId}`}>
-              <Button className="shadow-[0_0_24px_rgba(226,69,69,0.35)]">
-                <Swords className="mr-2 h-4 w-4" />
-                Iniciar Sessão
-              </Button>
-            </Link>
-            <Button variant="outline" className="border-primary/30 text-primary">
-              <Sparkles className="h-4 w-4" />
-              Em breve: ficha rápida
-            </Button>
-            <Button
-              variant="outline"
-              className="border-primary/30 text-primary"
-              onClick={() => campaignId && loadData(campaignId)}
-            >
-              Atualizar
-            </Button>
-          </div>
-        </div>
-        <Separator className="my-6 border-white/10" />
-        <div className="grid gap-4 sm:grid-cols-4">
-          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-muted-foreground">
-            <div className="text-xs uppercase tracking-[0.18em] text-primary">
-              Personagens
-            </div>
-            <div className="text-xl font-semibold text-foreground">
-              {characters.length} ativos
-            </div>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-muted-foreground">
-            <div className="text-xs uppercase tracking-[0.18em] text-primary">
-              Sistema
-            </div>
-            <div className="text-xl font-semibold text-foreground">
-              Tormenta 20
-            </div>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-muted-foreground">
-            <div className="text-xs uppercase tracking-[0.18em] text-primary">
-              Room code
-            </div>
-            <div className="text-xl font-semibold text-foreground">
-              {campaign.roomCode}
-            </div>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-muted-foreground">
-            <div className="text-xs uppercase tracking-[0.18em] text-primary">
-              Atualizada
-            </div>
-            <div className="text-xl font-semibold text-foreground">
-              {new Date(campaign.updatedAt).toLocaleDateString("pt-BR")}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <Tabs defaultValue="characters" className="space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <TabsList className="bg-white/5 text-foreground">
-            <TabsTrigger value="characters">Personagens</TabsTrigger>
-            <TabsTrigger value="npcs">NPCs</TabsTrigger>
-            <TabsTrigger value="compendium">Compêndio</TabsTrigger>
-            <TabsTrigger value="sessions">Sessões</TabsTrigger>
-            <TabsTrigger value="combat">Combate</TabsTrigger>
-          </TabsList>
-          <div className="flex gap-2">
-            <Dialog
-              open={dialogOpen}
-              onOpenChange={(open) => {
-                setDialogOpen(open);
-                if (!open) {
-                  setEditingCharacter(null);
-                  setFormError(null);
+    <div className="space-y-8 pb-8">
+      <section className="world-hero rounded-[32px] px-6 py-7 sm:px-8 xl:px-10">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.8fr)]">
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className="border-primary/20 bg-primary/10 text-primary">
+                {campaign.system}
+              </Badge>
+              <Badge className="border-amber-300/20 bg-amber-300/8 text-amber-100">
+                Sala {campaign.roomCode}
+              </Badge>
+              <Badge
+                className={
+                  combat?.isActive
+                    ? "border-red-400/25 bg-red-500/12 text-red-100"
+                    : "border-emerald-400/25 bg-emerald-500/10 text-emerald-100"
                 }
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button
-                  className="shadow-[0_0_24px_rgba(226,69,69,0.35)]"
-                  onClick={openCreateCharacter}
-                >
-                  <Plus className="h-4 w-4" />
-                  Novo personagem
+              >
+                {combat?.isActive ? "Combate em andamento" : "Sem combate ativo"}
+              </Badge>
+            </div>
+
+            <div className="space-y-3">
+              <p className="section-eyebrow">Estacao de campanha</p>
+              <h1 className="max-w-4xl text-4xl font-black uppercase tracking-[0.04em] text-foreground sm:text-5xl xl:text-6xl">
+                {campaign.name}
+              </h1>
+              <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
+                {campaign.description ||
+                  "Campanha pronta para operar elenco, sessoes, combate e contexto de mundo em uma unica superficie."}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href={`/app/play/${campaign.id}`}>
+                  <Swords className="mr-2 h-4 w-4" />
+                  Abrir mesa ao vivo
+                </Link>
+              </Button>
+              <Button variant="outline" className="border-white/10 bg-white/5" asChild>
+                <Link href={`/app/worlds/${campaign.world.id}/map`}>
+                  <Compass className="mr-2 h-4 w-4" />
+                  Abrir atlas
+                </Link>
+              </Button>
+              <Button variant="outline" className="border-white/10 bg-white/5" asChild>
+                <Link href={`/app/worlds/${campaign.world.id}`}>
+                  <Castle className="mr-2 h-4 w-4" />
+                  Voltar ao mundo
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                className="border-white/10 bg-white/5"
+                onClick={() => campaignId && loadData(campaignId)}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Atualizar leitura
+              </Button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-4">
+              <div className="cinematic-frame rounded-2xl p-4">
+                <p className="section-eyebrow">Personagens</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <span className="text-3xl font-black text-foreground">
+                    {characters.length}
+                  </span>
+                  <Users2 className="h-5 w-5 text-amber-300/80" />
+                </div>
+              </div>
+              <div className="cinematic-frame rounded-2xl p-4">
+                <p className="section-eyebrow">Ameacas</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <span className="text-3xl font-black text-foreground">
+                    {threatCount}
+                  </span>
+                  <Crosshair className="h-5 w-5 text-red-200/90" />
+                </div>
+              </div>
+              <div className="cinematic-frame rounded-2xl p-4">
+                <p className="section-eyebrow">Sessoes</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <span className="text-3xl font-black text-foreground">
+                    {sessions.length}
+                  </span>
+                  <CalendarClock className="h-5 w-5 text-amber-100/80" />
+                </div>
+              </div>
+              <div className="cinematic-frame rounded-2xl p-4">
+                <p className="section-eyebrow">Atualizada</p>
+                <div className="mt-3 text-sm font-semibold text-foreground">
+                  {formatDate(campaign.updatedAt)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Leitura tatica</p>
+              <div className="mt-4 space-y-3">
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Mundo
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-foreground">
+                    {campaign.world.title}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Proxima sessao
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">
+                    {nextSession ? nextSession.title : "Nenhuma sessao programada"}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {nextSession
+                      ? formatDateTime(nextSession.scheduledAt)
+                      : "Crie a proxima sessao para alimentar o ritmo da campanha."}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Combate
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">
+                    {combat?.isActive
+                      ? `Round ${combat.round || 1} • ${combat.combatants.length} combatentes`
+                      : "Nenhum confronto aberto"}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Use a aba de combate para operar a cena sem sair desta estacao.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Atalhos da campanha</p>
+              <div className="mt-4 grid gap-3">
+                <Button variant="outline" className="justify-between border-white/10 bg-white/5" asChild>
+                  <Link href={`/app/worlds/${campaign.world.id}/characters`}>
+                    Elenco do mundo
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="chrome-panel flex max-h-[85vh] w-[95vw] max-w-xl flex-col overflow-hidden border-white/10 bg-card/80 p-0 text-left backdrop-blur">
-                <DialogHeader className="shrink-0 px-6 pt-6 pb-4">
-                  <DialogTitle>
-                    {editingCharacter ? "Editar personagem" : "Novo personagem"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    Nome, raca, classe e nivel (1 a 20) com validacao direta.
-                  </DialogDescription>
-                </DialogHeader>
-                <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSaveCharacter}>
-                  <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Nome
-                      </label>
-                      <Input
-                        value={form.name}
-                        onChange={(e) =>
-                          setForm((prev) => ({ ...prev, name: e.target.value }))
-                        }
-                        placeholder="Artoniano lendario"
-                      />
+                <Button variant="outline" className="justify-between border-white/10 bg-white/5" asChild>
+                  <Link href={`/app/worlds/${campaign.world.id}/diary`}>
+                    Diario e memoria
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button variant="outline" className="justify-between border-white/10 bg-white/5" asChild>
+                  <Link href={`/app/worlds/${campaign.world.id}/compendium`}>
+                    Biblioteca de regras
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="h-auto flex-wrap rounded-2xl border border-white/10 bg-black/25 p-1 text-foreground">
+          <TabsTrigger value="overview">Visao geral</TabsTrigger>
+          <TabsTrigger value="characters">Personagens</TabsTrigger>
+          <TabsTrigger value="sessions">Sessoes</TabsTrigger>
+          <TabsTrigger value="npcs">NPCs e ameacas</TabsTrigger>
+          <TabsTrigger value="combat">Combate</TabsTrigger>
+          <TabsTrigger value="links">Ecossistema</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,0.9fr)]">
+            <div className="cinematic-frame rounded-[28px] p-6">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="section-eyebrow">Pressao atual</p>
+                  <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                    Frente pronta para operar.
+                  </h2>
+                </div>
+                <Badge className="border-primary/20 bg-primary/10 text-primary">
+                  Estacao ativa
+                </Badge>
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Elenco principal
+                  </p>
+                  <p className="mt-2 text-sm text-foreground">
+                    {characters.length
+                      ? `${characters.length} personagens prontos para entrar em cena.`
+                      : "Nenhum personagem registrado ainda."}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Pressao hostil
+                  </p>
+                  <p className="mt-2 text-sm text-foreground">
+                    {threatCount
+                      ? `${threatCount} ameacas preparadas para confronto.`
+                      : "Nenhuma ameaca catalogada nesta campanha."}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Ritmo da mesa
+                  </p>
+                  <p className="mt-2 text-sm text-foreground">
+                    {nextSession
+                      ? `Proxima entrada marcada para ${formatDateTime(nextSession.scheduledAt)}.`
+                      : "Sem proxima sessao definida."}
+                  </p>
+                </div>
+              </div>
+
+              <Separator className="my-6 bg-white/10" />
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-[24px] border border-white/8 bg-black/20 p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="section-eyebrow">Proxima sessao</p>
+                      <h3 className="mt-2 text-lg font-bold text-foreground">
+                        {nextSession?.title ?? "Sem sessao programada"}
+                      </h3>
                     </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
-                          Raca
-                        </label>
-                        <Input
-                          value={form.ancestry ?? ""}
-                          onChange={(e) =>
-                            setForm((prev) => ({ ...prev, ancestry: e.target.value }))
-                          }
-                          placeholder="Humano, elfo, etc."
-                        />
+                    <Button size="sm" onClick={openCreateSession}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Sessao
+                    </Button>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {nextSession
+                      ? nextSession.description ||
+                        "Abra a ficha da sessao e refine a frente antes de entrar na mesa."
+                      : "Crie a proxima sessao para organizar roteiro, reveal e ritmo."}
+                  </p>
+                </div>
+
+                <div className="rounded-[24px] border border-white/8 bg-black/20 p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="section-eyebrow">Pressao narrativa</p>
+                      <h3 className="mt-2 text-lg font-bold text-foreground">
+                        Combate e elenco no mesmo eixo
+                      </h3>
+                    </div>
+                    <Button size="sm" variant="outline" className="border-white/10 bg-white/5" asChild>
+                      <Link href={`/app/play/${campaign.id}`}>Mesa</Link>
+                    </Button>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    Personagens, NPCs e sessao ao vivo agora ficam amarrados dentro da mesma superficie de campanha.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="cinematic-frame rounded-[28px] p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="section-eyebrow">Elenco em foco</p>
+                    <h3 className="mt-2 text-lg font-bold text-foreground">
+                      Ultimos personagens
+                    </h3>
+                  </div>
+                  <Button size="sm" variant="outline" className="border-white/10 bg-white/5" onClick={openCreateCharacter}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Personagem
+                  </Button>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {sortedCharacters.slice(0, 4).map((character) => (
+                    <div key={character.id} className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-foreground">{character.name}</p>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            Nv. {character.level}
+                            {character.className ? ` • ${character.className}` : ""}
+                            {character.ancestry ? ` • ${character.ancestry}` : ""}
+                          </p>
+                        </div>
+                        <Button size="sm" variant="ghost" onClick={() => openEditCharacter(character)}>
+                          Editar
+                        </Button>
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
-                          Classe
-                        </label>
-                        <Input
-                          value={form.className ?? ""}
-                          onChange={(e) =>
-                            setForm((prev) => ({ ...prev, className: e.target.value }))
-                          }
-                          placeholder="Guerreiro, mago, etc."
-                        />
+                    </div>
+                  ))}
+                  {!sortedCharacters.length ? (
+                    <p className="text-sm text-muted-foreground">
+                      Nenhum personagem registrado nesta campanha ainda.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="cinematic-frame rounded-[28px] p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="section-eyebrow">Pressao hostil</p>
+                    <h3 className="mt-2 text-lg font-bold text-foreground">
+                      NPCs e ameacas
+                    </h3>
+                  </div>
+                  <Button size="sm" variant="outline" className="border-white/10 bg-white/5" onClick={openCreateNpc}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    NPC
+                  </Button>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {sortedNpcs.slice(0, 4).map((npc) => (
+                    <div key={npc.id} className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-foreground">{npc.name}</p>
+                            <Badge className={npc.type === "enemy" ? "border-red-400/20 bg-red-500/10 text-red-100" : "border-sky-400/20 bg-sky-500/10 text-sky-100"}>
+                              {npc.type === "enemy" ? "Ameaca" : "Aliado"}
+                            </Badge>
+                          </div>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {npc.hpMax} PV • DEF {npc.defenseFinal} • {npc.damageFormula}
+                          </p>
+                        </div>
+                        <Button size="sm" variant="ghost" onClick={() => openEditNpc(npc)}>
+                          Editar
+                        </Button>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Papel
-                      </label>
-                      <Input
-                        value={form.role ?? ""}
-                        onChange={(e) =>
-                          setForm((prev) => ({ ...prev, role: e.target.value }))
-                        }
-                        placeholder="Guerreiro, Mago, etc."
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Nivel
-                      </label>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={20}
-                        value={form.level}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            level: Number(e.target.value) || 1,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Descricao curta
-                      </label>
-                      <Textarea
-                        value={form.description ?? ""}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }))
-                        }
-                        rows={3}
-                        placeholder="Resumo rapido do personagem"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Avatar (opcional)
-                      </label>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        disabled={avatarUploading}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            void handleAvatarUpload(file);
-                          }
-                          e.currentTarget.value = "";
-                        }}
-                      />
-                      {form.avatarUrl ? (
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={form.avatarUrl}
-                            alt={form.name || "Avatar"}
-                            className="h-12 w-12 rounded-full border border-white/10 object-cover"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setForm((prev) => ({ ...prev, avatarUrl: "" }))}
-                          >
-                            Remover imagem
+                  ))}
+                  {!sortedNpcs.length ? (
+                    <p className="text-sm text-muted-foreground">
+                      Nenhum NPC registrado nesta campanha ainda.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="characters" className="space-y-6">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="section-eyebrow">Elenco jogavel</p>
+              <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                Personagens da campanha
+              </h2>
+            </div>
+            <Button onClick={openCreateCharacter}>
+              <Plus className="mr-2 h-4 w-4" />
+              Novo personagem
+            </Button>
+          </div>
+
+          {sortedCharacters.length ? (
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {sortedCharacters.map((character, index) => (
+                <Card key={character.id} className="overflow-hidden rounded-[28px] border-white/10 bg-black/20">
+                  <CardContent className="p-0">
+                    <div
+                      className="flex min-h-[320px] flex-col justify-between p-5"
+                      style={{
+                        backgroundImage: character.avatarUrl
+                          ? `linear-gradient(180deg, rgba(8,8,13,0.2), rgba(8,8,13,0.92)), url(${character.avatarUrl})`
+                          : index % 2 === 0
+                            ? "linear-gradient(135deg, rgba(188,74,63,0.2), rgba(8,8,13,0.95))"
+                            : "linear-gradient(135deg, rgba(213,162,64,0.14), rgba(8,8,13,0.95))",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <Badge className="border-white/12 bg-black/28 text-white">
+                          Nivel {character.level}
+                        </Badge>
+                        <span className="text-xs uppercase tracking-[0.18em] text-white/55">
+                          {formatDate(character.updatedAt)}
+                        </span>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-2xl font-black uppercase tracking-[0.04em] text-white">
+                            {character.name}
+                          </h3>
+                          <p className="mt-2 text-sm leading-6 text-white/72">
+                            {character.role || "Sem funcao narrativa registrada"}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="rounded-2xl border border-white/10 bg-black/28 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">
+                              Classe
+                            </p>
+                            <p className="mt-2 text-sm font-semibold text-white">
+                              {character.className || "Sem classe"}
+                            </p>
+                          </div>
+                          <div className="rounded-2xl border border-white/10 bg-black/28 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">
+                              Linhagem
+                            </p>
+                            <p className="mt-2 text-sm font-semibold text-white">
+                              {character.ancestry || "Sem raca"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" className="bg-white text-black hover:bg-white/90" asChild>
+                            <Link href={`/app/characters/${character.id}`}>Abrir ficha</Link>
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" onClick={() => setInspectItem({ type: "character", item: character })}>
+                            <LayoutGrid className="mr-2 h-4 w-4" />
+                            Inspecionar
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" onClick={() => openEditCharacter(character)}>
+                            Editar
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" onClick={() => handleDeleteCharacter(character)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Remover
                           </Button>
                         </div>
-                      ) : null}
-                      {avatarUploading ? (
-                        <p className="text-xs text-muted-foreground">Enviando imagem...</p>
-                      ) : null}
+                      </div>
                     </div>
-                    {formError ? (
-                      <p className="text-sm text-destructive">{formError}</p>
-                    ) : null}
-                  </div>
-                  <div className="shrink-0 border-t border-white/10 px-6 py-4">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        type="button"
-                        className="text-muted-foreground"
-                        onClick={() => setDialogOpen(false)}
-                        disabled={submitting}
-                      >
-                        Cancelar
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={submitting || avatarUploading}
-                        className="shadow-[0_0_18px_rgba(226,69,69,0.3)]"
-                      >
-                        {submitting
-                          ? "Salvando..."
-                          : editingCharacter
-                            ? "Salvar"
-                            : "Criar personagem"}
-                      </Button>
-                    </div>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-
-        <TabsContent value="characters" className="space-y-4">
-          {sortedCharacters.length === 0 ? (
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
             <EmptyState
               title="Nenhum personagem ainda"
-              description="Cadastre fichas para este grupo e acompanhe tudo em um sÃ³ lugar."
+              description="Crie o primeiro personagem desta campanha para consolidar elenco e ficha."
+              icon={<UserRound className="h-6 w-6" />}
               action={
                 <Button onClick={openCreateCharacter}>
-                  <Plus className="h-4 w-4" />
-                  Novo personagem
+                  <Plus className="mr-2 h-4 w-4" />
+                  Criar personagem
                 </Button>
               }
-              icon={<Users className="h-6 w-6" />}
             />
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {sortedCharacters.map((character) => (
-                <Link
-                  key={character.id}
-                  href={`/app/personagens/${character.id}`}
-                  className="block h-full"
-                >
-                  <AgentCard
-                    character={{
-                      id: character.id,
-                      name: character.name,
-                      class: character.className || character.role || "Agente",
-                      level: character.level,
-                      avatarUrl: character.avatarUrl || undefined,
-                      hp: { current: 10, max: 20 }, // Mock values since they aren't in the type yet
-                      pm: { current: 5, max: 10 },
-                      attributes: {} // Pass empty attributes to satisfy stricter types if needed
-                    }}
-                    onSelect={() => { }} // Link handles navigation
-                    className="w-full h-48"
-                  />
-                  {/* Edit/Delete implementation would need to be moved outside the card or overlayed differently */}
-                </Link>
-              ))}
-            </div>
           )}
         </TabsContent>
 
-        <TabsContent value="npcs" className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="space-y-1">
-              <h3 className="text-lg font-semibold">NPCs</h3>
-              <p className="text-sm text-muted-foreground">
-                Prepare NPCs e adicione ao combate com um clique.
-              </p>
+        <TabsContent value="sessions" className="space-y-6">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="section-eyebrow">Ritmo e agenda</p>
+              <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                Sessoes da campanha
+              </h2>
             </div>
-            <Dialog
-              open={npcDialogOpen}
-              onOpenChange={(open) => {
-                setNpcDialogOpen(open);
-                if (!open) {
-                  setEditingNpc(null);
-                  setNpcFormError(null);
-                }
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button
-                  className="shadow-[0_0_24px_rgba(226,69,69,0.35)]"
-                  onClick={openCreateNpc}
-                >
-                  <Plus className="h-4 w-4" />
-                  Novo NPC
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="chrome-panel flex max-h-[85vh] w-[95vw] max-w-xl flex-col overflow-hidden border-white/10 bg-card/80 p-0 text-left backdrop-blur">
-                <DialogHeader className="shrink-0 px-6 pt-6 pb-4">
-                  <DialogTitle>{editingNpc ? "Editar NPC" : "Novo NPC"}</DialogTitle>
-                  <DialogDescription>
-                    Nome, tipo, PV, defesa e ataque base com edicao rapida.
-                  </DialogDescription>
-                </DialogHeader>
-                <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSaveNpc}>
-                  <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Nome
-                      </label>
-                      <Input
-                        value={npcForm.name}
-                        onChange={(e) =>
-                          setNpcForm((prev) => ({ ...prev, name: e.target.value }))
-                        }
-                        placeholder="Capitao da guarda"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Tipo
-                      </label>
-                      <select
-                        className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm"
-                        value={npcForm.type}
-                        onChange={(e) =>
-                          setNpcForm((prev) => ({
-                            ...prev,
-                            type: e.target.value as "npc" | "enemy",
-                          }))
-                        }
-                      >
-                        <option value="npc">NPC</option>
-                        <option value="enemy">Inimigo</option>
-                      </select>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
-                          PV
-                        </label>
-                        <Input
-                          type="number"
-                          min={1}
-                          value={npcForm.hpMax}
-                          onChange={(e) =>
-                            setNpcForm((prev) => ({
-                              ...prev,
-                              hpMax: Number(e.target.value) || 1,
-                            }))
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
-                          Defesa
-                        </label>
-                        <Input
-                          type="number"
-                          min={0}
-                          value={npcForm.defenseFinal}
-                          onChange={(e) =>
-                            setNpcForm((prev) => ({
-                              ...prev,
-                              defenseFinal: Number(e.target.value) || 0,
-                            }))
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Ataque base
-                      </label>
-                      <Input
-                        value={npcForm.damageFormula}
-                        onChange={(e) =>
-                          setNpcForm((prev) => ({
-                            ...prev,
-                            damageFormula: e.target.value,
-                          }))
-                        }
-                        placeholder="1d6+2"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Descricao
-                      </label>
-                      <Textarea
-                        value={npcForm.description ?? ""}
-                        onChange={(e) =>
-                          setNpcForm((prev) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }))
-                        }
-                        rows={3}
-                        placeholder="Detalhes rapidos do NPC"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Tags
-                      </label>
-                      <Input
-                        value={npcForm.tags ?? ""}
-                        onChange={(e) =>
-                          setNpcForm((prev) => ({ ...prev, tags: e.target.value }))
-                        }
-                        placeholder="guarda, cidade, aliado"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Imagem (opcional)
-                      </label>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        disabled={npcUploading}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            void handleNpcUpload(file);
-                          }
-                          e.currentTarget.value = "";
-                        }}
-                      />
-                      {npcForm.imageUrl ? (
-                        <div className="space-y-2">
-                          <img
-                            src={npcForm.imageUrl}
-                            alt={npcForm.name || "NPC"}
-                            className="h-32 w-full rounded-lg border border-white/10 object-cover"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setNpcForm((prev) => ({ ...prev, imageUrl: "" }))
-                            }
-                          >
-                            Remover imagem
-                          </Button>
-                        </div>
-                      ) : null}
-                      {npcUploading ? (
-                        <p className="text-xs text-muted-foreground">Enviando imagem...</p>
-                      ) : null}
-                    </div>
-                    {npcFormError ? (
-                      <p className="text-sm text-destructive">{npcFormError}</p>
-                    ) : null}
-                  </div>
-                  <div className="shrink-0 border-t border-white/10 px-6 py-4">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        type="button"
-                        className="text-muted-foreground"
-                        onClick={() => setNpcDialogOpen(false)}
-                        disabled={npcSubmitting}
-                      >
-                        Cancelar
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={npcSubmitting || npcUploading}
-                        className="shadow-[0_0_18px_rgba(226,69,69,0.3)]"
-                      >
-                        {npcSubmitting
-                          ? "Salvando..."
-                          : editingNpc
-                            ? "Salvar"
-                            : "Criar NPC"}
-                      </Button>
-                    </div>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <Button onClick={openCreateSession}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nova sessao
+            </Button>
           </div>
 
-          {sortedNpcs.length === 0 ? (
-            <EmptyState
-              title="Nenhum NPC ainda"
-              description="Crie NPCs para preparar encontros e adversarios."
-              action={
-                <Button onClick={openCreateNpc}>
-                  <Plus className="h-4 w-4" />
-                  Novo NPC
-                </Button>
-              }
-              icon={<NotebookPen className="h-6 w-6" />}
-            />
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {sortedNpcs.map((npc) => (
-                <NpcCard
-                  key={npc.id}
-                  npc={{
-                    id: npc.id,
-                    name: npc.name,
-                    type: npc.type,
-                    hpMax: npc.hpMax || 10,
-                    defenseFinal: npc.defenseFinal || 10,
-                    damageFormula: npc.damageFormula,
-                    imageUrl: npc.imageUrl || undefined,
-                    description: npc.description || undefined
-                  }}
-                  onSelect={() => openEditNpc(npc)}
-                  onAddToCombat={() => void handleAddNpcToCombat(npc)}
-                />
+          {sortedSessions.length ? (
+            <div className="grid gap-6 lg:grid-cols-2">
+              {sortedSessions.map((session) => (
+                <Card key={session.id} className="overflow-hidden rounded-[28px] border-white/10 bg-black/20">
+                  <CardContent className="p-0">
+                    <div
+                      className="flex min-h-[280px] flex-col justify-between p-5"
+                      style={{
+                        backgroundImage: session.coverUrl
+                          ? `linear-gradient(180deg, rgba(8,8,13,0.24), rgba(8,8,13,0.94)), url(${session.coverUrl})`
+                          : "linear-gradient(135deg, rgba(188,74,63,0.14), rgba(8,8,13,0.95))",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <Badge className={getSessionTone(session.status)}>
+                          {session.status || "planned"}
+                        </Badge>
+                        <span className="text-xs uppercase tracking-[0.18em] text-white/55">
+                          {formatDateTime(session.scheduledAt ?? session.updatedAt)}
+                        </span>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-2xl font-black uppercase tracking-[0.04em] text-white">
+                            {session.title}
+                          </h3>
+                          <p className="mt-3 line-clamp-4 text-sm leading-6 text-white/72">
+                            {session.description ||
+                              "Sem briefing registrado. Abra a sessao para aprofundar a frente de mesa."}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" className="bg-white text-black hover:bg-white/90" onClick={() => openSessionMode(session)}>
+                            Abrir modo sessao
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" asChild>
+                            <Link href={`/app/campaign/${campaign.id}/forge/${session.id}`}>
+                              Forjar sessao
+                            </Link>
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" onClick={() => setInspectItem({ type: "session", item: session })}>
+                            <LayoutGrid className="mr-2 h-4 w-4" />
+                            Inspecionar
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" onClick={() => openEditSession(session)}>
+                            Editar
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" onClick={() => handleDeleteSession(session)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Remover
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="compendium">
-          <EmptyState
-            title="CompÃªndio em construÃ§Ã£o"
-            description="Buscas instantÃ¢neas e referÃªncias rÃ¡pidas chegam em breve."
-            icon={<Sparkles className="h-6 w-6" />}
-          />
-        </TabsContent>
-
-        <TabsContent value="sessions" className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="space-y-1">
-              <h3 className="text-lg font-semibold">Sessoes</h3>
-              <p className="text-sm text-muted-foreground">
-                Organize os encontros e abra o Modo Sessao quando precisar.
-              </p>
-            </div>
-            <Dialog
-              open={sessionDialogOpen}
-              onOpenChange={(open) => {
-                setSessionDialogOpen(open);
-                if (!open) {
-                  setEditingSession(null);
-                  setSessionFormError(null);
-                }
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button
-                  className="shadow-[0_0_24px_rgba(226,69,69,0.35)]"
-                  onClick={openCreateSession}
-                >
-                  <Plus className="h-4 w-4" />
-                  Nova sessao
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="chrome-panel flex max-h-[85vh] w-[95vw] max-w-xl flex-col overflow-hidden border-white/10 bg-card/80 p-0 text-left backdrop-blur">
-                <DialogHeader className="shrink-0 px-6 pt-6 pb-4">
-                  <DialogTitle>
-                    {editingSession ? "Editar sessao" : "Nova sessao"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    Defina titulo, descricao, data e capa opcional.
-                  </DialogDescription>
-                </DialogHeader>
-                <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSaveSession}>
-                  <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Titulo
-                      </label>
-                      <Input
-                        value={sessionForm.title}
-                        onChange={(e) =>
-                          setSessionForm((prev) => ({ ...prev, title: e.target.value }))
-                        }
-                        placeholder="Sessao 12 - Fortaleza"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Resumo
-                      </label>
-                      <Textarea
-                        value={sessionForm.description ?? ""}
-                        onChange={(e) =>
-                          setSessionForm((prev) => ({ ...prev, description: e.target.value }))
-                        }
-                        rows={3}
-                        placeholder="Resumo rapido do encontro"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Data / hora
-                      </label>
-                      <Input
-                        type="datetime-local"
-                        value={sessionForm.scheduledAt}
-                        onChange={(e) =>
-                          setSessionForm((prev) => ({ ...prev, scheduledAt: e.target.value }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Status
-                      </label>
-                      <select
-                        className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm"
-                        value={sessionForm.status}
-                        onChange={(e) =>
-                          setSessionForm((prev) => ({
-                            ...prev,
-                            status: e.target.value as "planned" | "active" | "finished",
-                          }))
-                        }
-                      >
-                        <option value="planned">Planejada</option>
-                        <option value="active">Ativa</option>
-                        <option value="finished">Encerrada</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
-                        Capa (opcional)
-                      </label>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        disabled={sessionUploading}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            void handleCoverUpload(file);
-                          }
-                          e.currentTarget.value = "";
-                        }}
-                      />
-                      {sessionForm.coverUrl ? (
-                        <div className="space-y-2">
-                          <img
-                            src={sessionForm.coverUrl}
-                            alt={sessionForm.title || "Capa da sessao"}
-                            className="h-32 w-full rounded-lg border border-white/10 object-cover"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setSessionForm((prev) => ({ ...prev, coverUrl: "" }))
-                            }
-                          >
-                            Remover imagem
-                          </Button>
-                        </div>
-                      ) : null}
-                      {sessionUploading ? (
-                        <p className="text-xs text-muted-foreground">Enviando imagem...</p>
-                      ) : null}
-                    </div>
-                    {sessionFormError ? (
-                      <p className="text-sm text-destructive">{sessionFormError}</p>
-                    ) : null}
-                  </div>
-                  <div className="shrink-0 border-t border-white/10 px-6 py-4">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        type="button"
-                        className="text-muted-foreground"
-                        onClick={() => setSessionDialogOpen(false)}
-                        disabled={sessionSubmitting}
-                      >
-                        Cancelar
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={sessionSubmitting || sessionUploading}
-                        className="shadow-[0_0_18px_rgba(226,69,69,0.3)]"
-                      >
-                        {sessionSubmitting
-                          ? "Salvando..."
-                          : editingSession
-                            ? "Salvar"
-                            : "Criar sessao"}
-                      </Button>
-                    </div>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          {sortedSessions.length === 0 ? (
+          ) : (
             <EmptyState
               title="Nenhuma sessao ainda"
-              description="Crie sessoes para organizar o log e abrir o modo ao vivo."
+              description="Crie a primeira sessao para amarrar ritmo, agenda e reveal."
+              icon={<CalendarClock className="h-6 w-6" />}
               action={
                 <Button onClick={openCreateSession}>
-                  <Plus className="h-4 w-4" />
-                  Nova sessao
+                  <Plus className="mr-2 h-4 w-4" />
+                  Criar sessao
                 </Button>
               }
-              icon={<Swords className="h-6 w-6" />}
             />
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {sortedSessions.map((session) => {
-                const displayDate = new Date(
-                  session.scheduledAt ?? session.updatedAt
-                ).toLocaleString("pt-BR");
-                const statusLabel =
-                  session.status === "active"
-                    ? "Ativa"
-                    : session.status === "finished"
-                      ? "Encerrada"
-                      : "Planejada";
-                return (
-                  <Card
-                    key={session.id}
-                    className="chrome-panel rounded-2xl border-white/10 bg-white/5"
-                  >
-                    {session.coverUrl ? (
-                      <img
-                        src={session.coverUrl}
-                        alt={session.title}
-                        className="h-36 w-full rounded-t-2xl border-b border-white/10 object-cover"
-                      />
-                    ) : null}
-                    <CardHeader className="space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <CardTitle className="text-lg">{session.title}</CardTitle>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Badge variant="outline" className="text-muted-foreground">
-                            {statusLabel}
-                          </Badge>
-                          <Badge variant="outline" className="text-muted-foreground">
-                            {displayDate}
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardDescription>
-                        {session.description || "Sem descricao registrada."}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-wrap gap-2">
-                      <Button size="sm" onClick={() => openSessionMode(session)}>
-                        Abrir no Modo Sessao
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => openEditSession(session)}>
-                        Editar
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive"
-                        onClick={() => void handleDeleteSession(session)}
-                      >
-                        Apagar
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
           )}
         </TabsContent>
 
-        <TabsContent value="combat">
+        <TabsContent value="npcs" className="space-y-6">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="section-eyebrow">Pressao narrativa</p>
+              <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                NPCs, aliados e ameacas
+              </h2>
+            </div>
+            <Button onClick={openCreateNpc}>
+              <Plus className="mr-2 h-4 w-4" />
+              Novo NPC
+            </Button>
+          </div>
+
+          {sortedNpcs.length ? (
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {sortedNpcs.map((npc) => (
+                <Card key={npc.id} className="overflow-hidden rounded-[28px] border-white/10 bg-black/20">
+                  <CardContent className="p-0">
+                    <div
+                      className="flex min-h-[300px] flex-col justify-between p-5"
+                      style={{
+                        backgroundImage: npc.imageUrl
+                          ? `linear-gradient(180deg, rgba(8,8,13,0.2), rgba(8,8,13,0.94)), url(${npc.imageUrl})`
+                          : npc.type === "enemy"
+                            ? "linear-gradient(135deg, rgba(146,26,26,0.24), rgba(8,8,13,0.95))"
+                            : "linear-gradient(135deg, rgba(54,90,150,0.22), rgba(8,8,13,0.95))",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <Badge className={npc.type === "enemy" ? "border-red-400/20 bg-red-500/10 text-red-100" : "border-sky-400/20 bg-sky-500/10 text-sky-100"}>
+                          {npc.type === "enemy" ? "Ameaca" : "Aliado"}
+                        </Badge>
+                        <span className="text-xs uppercase tracking-[0.18em] text-white/55">
+                          {formatDate(npc.updatedAt)}
+                        </span>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-2xl font-black uppercase tracking-[0.04em] text-white">
+                            {npc.name}
+                          </h3>
+                          <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/72">
+                            {npc.description || "Sem descricao registrada para este NPC."}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="rounded-2xl border border-white/10 bg-black/28 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">PV</p>
+                            <p className="mt-2 text-sm font-semibold text-white">{npc.hpMax}</p>
+                          </div>
+                          <div className="rounded-2xl border border-white/10 bg-black/28 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">DEF</p>
+                            <p className="mt-2 text-sm font-semibold text-white">{npc.defenseFinal}</p>
+                          </div>
+                          <div className="rounded-2xl border border-white/10 bg-black/28 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">Dano</p>
+                            <p className="mt-2 text-sm font-semibold text-white">{npc.damageFormula}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" className="bg-white text-black hover:bg-white/90" onClick={() => handleAddNpcToCombat(npc)}>
+                            <Swords className="mr-2 h-4 w-4" />
+                            Entrar no combate
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" onClick={() => setInspectItem({ type: "npc", item: npc })}>
+                            <LayoutGrid className="mr-2 h-4 w-4" />
+                            Inspecionar
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" onClick={() => openEditNpc(npc)}>
+                            Editar
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-white/10 bg-black/25 text-white" onClick={() => handleDeleteNpc(npc)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Remover
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="Nenhum NPC ainda"
+              description="Cadastre aliados, ameacas e figuras recorrentes desta campanha."
+              icon={<Shield className="h-6 w-6" />}
+              action={
+                <Button onClick={openCreateNpc}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Criar NPC
+                </Button>
+              }
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="combat" className="space-y-6">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="section-eyebrow">Operacao tatica</p>
+              <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                Painel de combate
+              </h2>
+            </div>
+            <Badge
+              className={
+                combat?.isActive
+                  ? "border-red-400/25 bg-red-500/12 text-red-100"
+                  : "border-white/10 bg-white/8 text-white/70"
+              }
+            >
+              {combat?.isActive ? "Em andamento" : "Aguardando abertura"}
+            </Badge>
+          </div>
           <CombatPanel
-            campaignId={campaignId ?? ""}
-            characters={characters}
+            campaignId={campaign.id}
+            characters={sortedCharacters.map((character) => ({
+              id: character.id,
+              name: character.name,
+            }))}
           />
         </TabsContent>
+
+        <TabsContent value="links" className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Nucleo do mundo</p>
+              <h3 className="mt-2 text-xl font-black uppercase tracking-[0.04em] text-foreground">
+                Voltar para o cockpit
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                Reabrir o contexto geral do mundo, campanhas irmas, proximos passos e eventos recentes.
+              </p>
+              <Button className="mt-5 w-full justify-between" asChild>
+                <Link href={`/app/worlds/${campaign.world.id}`}>
+                  Abrir cockpit do mundo
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Atlas e terreno</p>
+              <h3 className="mt-2 text-xl font-black uppercase tracking-[0.04em] text-foreground">
+                Ler o mapa como superficie de jogo
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                Abrir o atlas para consultar deslocamento, posicionamento e referencias de lugar sem sair da lingua visual do shell.
+              </p>
+              <Button className="mt-5 w-full justify-between" asChild>
+                <Link href={`/app/worlds/${campaign.world.id}/map`}>
+                  Abrir atlas
+                  <Compass className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Biblioteca viva</p>
+              <h3 className="mt-2 text-xl font-black uppercase tracking-[0.04em] text-foreground">
+                Regras, diario e referencias
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                O compendio do mundo, o diario e a memoria continuam acessiveis como ecossistema conectado desta campanha.
+              </p>
+              <div className="mt-5 grid gap-2">
+                <Button variant="outline" className="justify-between border-white/10 bg-white/5" asChild>
+                  <Link href={`/app/worlds/${campaign.world.id}/compendium`}>
+                    <BookOpenText className="mr-2 h-4 w-4" />
+                    Compendio
+                  </Link>
+                </Button>
+                <Button variant="outline" className="justify-between border-white/10 bg-white/5" asChild>
+                  <Link href={`/app/worlds/${campaign.world.id}/diary`}>
+                    <CalendarClock className="mr-2 h-4 w-4" />
+                    Diario
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
-    </div >
+
+      {inspectItem ? (
+        <CockpitDetailSheet
+          open={inspectItem !== null}
+          onOpenChange={(open) => !open && setInspectItem(null)}
+          badge="Detail surface"
+          title={
+            inspectItem.type === "character" || inspectItem.type === "npc"
+              ? inspectItem.item.name
+              : inspectItem.item.title
+          }
+          description={
+            inspectItem.type === "character"
+              ? `Nivel ${inspectItem.item.level}${inspectItem.item.className ? ` • ${inspectItem.item.className}` : ""}`
+              : inspectItem.type === "session"
+                ? `${inspectItem.item.status || "planned"} • ${formatDateTime(inspectItem.item.scheduledAt ?? inspectItem.item.updatedAt)}`
+                : `${inspectItem.item.type === "enemy" ? "Ameaca" : "Aliado"} • DEF ${inspectItem.item.defenseFinal}`
+          }
+          footer={
+            inspectItem.type === "character" ? (
+              <Button className="w-full justify-between" asChild>
+                <Link href={`/app/characters/${inspectItem.item.id}`}>
+                  Abrir superficie completa
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            ) : inspectItem.type === "session" ? (
+              <Button className="w-full justify-between" onClick={() => openSessionMode(inspectItem.item)}>
+                Abrir modo sessao
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button className="w-full justify-between" onClick={() => handleAddNpcToCombat(inspectItem.item)}>
+                Levar ao combate
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            )
+          }
+        >
+          {inspectItem.type === "character" ? (
+            <div className="space-y-4">
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Funcao</p>
+                <p className="mt-2 text-sm leading-7 text-foreground">
+                  {inspectItem.item.role || "Sem funcao registrada"}
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Raca</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">
+                    {inspectItem.item.ancestry || "Nao definida"}
+                  </p>
+                </div>
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Classe</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">
+                    {inspectItem.item.className || "Nao definida"}
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Descricao</p>
+                <p className="mt-2 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+                  {inspectItem.item.description || "Sem descricao registrada."}
+                </p>
+              </div>
+            </div>
+          ) : inspectItem.type === "session" ? (
+            <div className="space-y-4">
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Status</p>
+                <p className="mt-2 text-sm font-semibold text-foreground">
+                  {inspectItem.item.status || "planned"}
+                </p>
+              </div>
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Descricao</p>
+                <p className="mt-2 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+                  {inspectItem.item.description || "Sem briefing registrado."}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">PV</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">{inspectItem.item.hpMax}</p>
+                </div>
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">DEF</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">{inspectItem.item.defenseFinal}</p>
+                </div>
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Dano</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">{inspectItem.item.damageFormula}</p>
+                </div>
+              </div>
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Descricao</p>
+                <p className="mt-2 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+                  {inspectItem.item.description || "Sem descricao registrada."}
+                </p>
+              </div>
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Tags</p>
+                <p className="mt-2 text-sm font-semibold text-foreground">
+                  {inspectItem.item.tags || "Sem tags"}
+                </p>
+              </div>
+            </div>
+          )}
+        </CockpitDetailSheet>
+      ) : null}
+
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            setEditingCharacter(null);
+            setFormError(null);
+          }
+        }}
+      >
+        <DialogTrigger asChild>
+          <span className="hidden" />
+        </DialogTrigger>
+        <DialogContent className="chrome-panel max-h-[88vh] overflow-y-auto border-white/10 bg-card/85 sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingCharacter ? "Editar personagem" : "Novo personagem"}
+            </DialogTitle>
+            <DialogDescription>
+              Elenco jogavel da campanha, com nivel, classe, funcao e retrato.
+            </DialogDescription>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={handleSaveCharacter}>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Nome</label>
+              <Input
+                value={form.name}
+                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Raca</label>
+                <Input
+                  value={form.ancestry}
+                  onChange={(event) => setForm((prev) => ({ ...prev, ancestry: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Classe</label>
+                <Input
+                  value={form.className}
+                  onChange={(event) => setForm((prev) => ({ ...prev, className: event.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Funcao</label>
+                <Input
+                  value={form.role}
+                  onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Nivel</label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={form.level}
+                  onChange={(event) => setForm((prev) => ({ ...prev, level: Number(event.target.value) }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Descricao</label>
+              <Textarea
+                rows={4}
+                value={form.description}
+                onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Avatar</label>
+              <Input
+                placeholder="URL do retrato"
+                value={form.avatarUrl}
+                onChange={(event) => setForm((prev) => ({ ...prev, avatarUrl: event.target.value }))}
+              />
+              <Input
+                type="file"
+                accept="image/*"
+                disabled={avatarUploading}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void handleAvatarUpload(file);
+                }}
+              />
+              {avatarUploading ? (
+                <p className="text-sm text-muted-foreground">Enviando avatar...</p>
+              ) : null}
+            </div>
+            {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? "Salvando..." : editingCharacter ? "Salvar alteracoes" : "Criar personagem"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={sessionDialogOpen}
+        onOpenChange={(open) => {
+          setSessionDialogOpen(open);
+          if (!open) {
+            setEditingSession(null);
+            setSessionFormError(null);
+          }
+        }}
+      >
+        <DialogTrigger asChild>
+          <span className="hidden" />
+        </DialogTrigger>
+        <DialogContent className="chrome-panel max-h-[88vh] overflow-y-auto border-white/10 bg-card/85 sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>{editingSession ? "Editar sessao" : "Nova sessao"}</DialogTitle>
+            <DialogDescription>
+              Agenda, cover e status para manter o ritmo da campanha sob controle.
+            </DialogDescription>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={handleSaveSession}>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Titulo</label>
+              <Input
+                value={sessionForm.title}
+                onChange={(event) => setSessionForm((prev) => ({ ...prev, title: event.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Descricao</label>
+              <Textarea
+                rows={4}
+                value={sessionForm.description}
+                onChange={(event) => setSessionForm((prev) => ({ ...prev, description: event.target.value }))}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Data</label>
+                <Input
+                  type="datetime-local"
+                  value={sessionForm.scheduledAt}
+                  onChange={(event) => setSessionForm((prev) => ({ ...prev, scheduledAt: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Status</label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                  value={sessionForm.status}
+                  onChange={(event) =>
+                    setSessionForm((prev) => ({
+                      ...prev,
+                      status: event.target.value as "planned" | "active" | "finished",
+                    }))
+                  }
+                >
+                  <option value="planned">planned</option>
+                  <option value="active">active</option>
+                  <option value="finished">finished</option>
+                </select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Capa</label>
+              <Input
+                placeholder="URL da capa"
+                value={sessionForm.coverUrl}
+                onChange={(event) => setSessionForm((prev) => ({ ...prev, coverUrl: event.target.value }))}
+              />
+              <Input
+                type="file"
+                accept="image/*"
+                disabled={sessionUploading}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void handleCoverUpload(file);
+                }}
+              />
+              {sessionUploading ? (
+                <p className="text-sm text-muted-foreground">Enviando capa...</p>
+              ) : null}
+            </div>
+            {sessionFormError ? <p className="text-sm text-destructive">{sessionFormError}</p> : null}
+            <Button type="submit" className="w-full" disabled={sessionSubmitting}>
+              {sessionSubmitting ? "Salvando..." : editingSession ? "Salvar alteracoes" : "Criar sessao"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={npcDialogOpen}
+        onOpenChange={(open) => {
+          setNpcDialogOpen(open);
+          if (!open) {
+            setEditingNpc(null);
+            setNpcFormError(null);
+          }
+        }}
+      >
+        <DialogTrigger asChild>
+          <span className="hidden" />
+        </DialogTrigger>
+        <DialogContent className="chrome-panel max-h-[88vh] overflow-y-auto border-white/10 bg-card/85 sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>{editingNpc ? "Editar NPC" : "Novo NPC"}</DialogTitle>
+            <DialogDescription>
+              Cadastre aliados, figuras neutras ou ameacas com estatisticas minimas para combate.
+            </DialogDescription>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={handleSaveNpc}>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Nome</label>
+              <Input
+                value={npcForm.name}
+                onChange={(event) => setNpcForm((prev) => ({ ...prev, name: event.target.value }))}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Tipo</label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                  value={npcForm.type}
+                  onChange={(event) =>
+                    setNpcForm((prev) => ({
+                      ...prev,
+                      type: event.target.value as "npc" | "enemy",
+                    }))
+                  }
+                >
+                  <option value="npc">npc</option>
+                  <option value="enemy">enemy</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Tags</label>
+                <Input
+                  value={npcForm.tags}
+                  onChange={(event) => setNpcForm((prev) => ({ ...prev, tags: event.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">PV</label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={npcForm.hpMax}
+                  onChange={(event) => setNpcForm((prev) => ({ ...prev, hpMax: Number(event.target.value) }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">DEF</label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={npcForm.defenseFinal}
+                  onChange={(event) =>
+                    setNpcForm((prev) => ({ ...prev, defenseFinal: Number(event.target.value) }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Dano</label>
+                <Input
+                  value={npcForm.damageFormula}
+                  onChange={(event) => setNpcForm((prev) => ({ ...prev, damageFormula: event.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Descricao</label>
+              <Textarea
+                rows={4}
+                value={npcForm.description}
+                onChange={(event) => setNpcForm((prev) => ({ ...prev, description: event.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Imagem</label>
+              <Input
+                placeholder="URL da imagem"
+                value={npcForm.imageUrl}
+                onChange={(event) => setNpcForm((prev) => ({ ...prev, imageUrl: event.target.value }))}
+              />
+              <Input
+                type="file"
+                accept="image/*"
+                disabled={npcUploading}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void handleNpcUpload(file);
+                }}
+              />
+              {npcUploading ? <p className="text-sm text-muted-foreground">Enviando imagem...</p> : null}
+            </div>
+            {npcFormError ? <p className="text-sm text-destructive">{npcFormError}</p> : null}
+            <Button type="submit" className="w-full" disabled={npcSubmitting}>
+              {npcSubmitting ? "Salvando..." : editingNpc ? "Salvar alteracoes" : "Criar NPC"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

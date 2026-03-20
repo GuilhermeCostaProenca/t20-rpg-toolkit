@@ -2,16 +2,16 @@ import { prisma } from "@/lib/prisma";
 import { WorldCreateSchema } from "@/lib/validators";
 import { ZodError } from "zod";
 import { dispatchEvent } from "@/lib/events/dispatcher";
-import { WorldEventType } from "@prisma/client";
+import { WorldEventType, WorldStatus } from "@prisma/client";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
-    const where: any = {};
-    if (status) {
-      where.status = status;
+    const where: { status?: WorldStatus } = {};
+    if (status && ["ACTIVE", "ARCHIVED", "DELETED"].includes(status)) {
+      where.status = status as WorldStatus;
     } else {
       where.status = "ACTIVE";
     }
@@ -46,6 +46,7 @@ export async function POST(req: Request) {
         title: parsed.title,
         description: parsed.description,
         coverImage: parsed.coverImage,
+        metadata: parsed.metadata,
       },
     });
 

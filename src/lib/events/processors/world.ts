@@ -2,8 +2,12 @@ import { Prisma } from "@prisma/client";
 import { WorldCreatedPayload } from "../types";
 
 type Tx = Prisma.TransactionClient;
+type WorldCreatedEvent = {
+    worldId: string;
+    payload: WorldCreatedPayload;
+};
 
-export async function applyWorldCreated(tx: Tx, event: any) {
+export async function applyWorldCreated(tx: Tx, event: WorldCreatedEvent) {
     const payload = event.payload as WorldCreatedPayload;
 
     // Create the World Projection
@@ -19,12 +23,14 @@ export async function applyWorldCreated(tx: Tx, event: any) {
             title: payload.title,
             description: payload.description,
             coverImage: payload.coverImage,
+            metadata: payload.metadata as Prisma.InputJsonValue | undefined,
         },
         create: {
             id: event.worldId,
             title: payload.title,
             description: payload.description,
             coverImage: payload.coverImage,
+            metadata: payload.metadata as Prisma.InputJsonValue | undefined,
         },
     });
 }

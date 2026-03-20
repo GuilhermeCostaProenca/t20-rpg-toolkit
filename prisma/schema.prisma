@@ -22,6 +22,7 @@ model Campaign {
 
   world       World        @relation(fields: [worldId], references: [id], onDelete: Cascade)
   characters  Character[]
+  entities    Entity[]
   npcs        Npc[]
   sessions    Session[]
   combat      Combat?
@@ -63,6 +64,7 @@ model World {
   title       String      @db.VarChar(200)
   description String?     @db.VarChar(1000)
   coverImage  String?     @db.VarChar(500)
+  metadata    Json?
   status      WorldStatus @default(ACTIVE)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -71,10 +73,86 @@ model World {
   campaigns        Campaign[]
   events           WorldEvent[]
   characters       Character[]
+  entities         Entity[]
+  entityImages     EntityImage[]
+  entityRelationships EntityRelationship[]
   npcs             Npc[]
   sessions         Session[]
   sessionSummaries SessionSummary[]
   rulesetDocuments RulesetDocument[]
+}
+
+model Entity {
+  id               String   @id @default(cuid())
+  worldId          String
+  campaignId       String?
+  name             String   @db.VarChar(160)
+  slug             String?  @db.VarChar(180)
+  type             String   @db.VarChar(40)
+  subtype          String?  @db.VarChar(60)
+  summary          String?  @db.VarChar(220)
+  description      String?  @db.VarChar(4000)
+  status           String   @default("active") @db.VarChar(30)
+  visibility       String   @default("MASTER") @db.VarChar(20)
+  tags             Json?
+  metadata         Json?
+  coverImageUrl    String?  @db.VarChar(500)
+  portraitImageUrl String?  @db.VarChar(500)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  world             World                @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  campaign          Campaign?            @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  images            EntityImage[]
+  outgoingRelations EntityRelationship[] @relation("EntityRelationshipFrom")
+  incomingRelations EntityRelationship[] @relation("EntityRelationshipTo")
+
+  @@index([worldId, updatedAt])
+  @@index([worldId, type])
+  @@index([worldId, status])
+  @@index([campaignId])
+  @@unique([worldId, slug])
+}
+
+model EntityRelationship {
+  id             String   @id @default(cuid())
+  worldId        String
+  fromEntityId   String
+  toEntityId     String
+  type           String   @db.VarChar(60)
+  directionality String   @default("DIRECTED") @db.VarChar(20)
+  weight         Int?
+  notes          String?  @db.VarChar(1000)
+  metadata       Json?
+  visibility     String   @default("MASTER") @db.VarChar(20)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  world      World  @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  fromEntity Entity @relation("EntityRelationshipFrom", fields: [fromEntityId], references: [id], onDelete: Cascade)
+  toEntity   Entity @relation("EntityRelationshipTo", fields: [toEntityId], references: [id], onDelete: Cascade)
+
+  @@index([worldId])
+  @@index([fromEntityId])
+  @@index([toEntityId])
+}
+
+model EntityImage {
+  id        String   @id @default(cuid())
+  entityId  String
+  worldId   String
+  url       String   @db.VarChar(500)
+  kind      String   @default("reference") @db.VarChar(30)
+  caption   String?  @db.VarChar(240)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entity Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  world  World  @relation(fields: [worldId], references: [id], onDelete: Cascade)
+
+  @@index([entityId, sortOrder])
+  @@index([worldId])
 }
 
 enum WorldEventScope {
@@ -361,6 +439,7 @@ model Session {
   title       String    @db.VarChar(200)
   description String?   @db.VarChar(1000)
   coverUrl    String?   @db.VarChar(500)
+  metadata    Json?
   scheduledAt DateTime?
   status      String    @default("planned") @db.VarChar(16)
   createdAt   DateTime  @default(now())

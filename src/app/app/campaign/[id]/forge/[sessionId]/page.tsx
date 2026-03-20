@@ -1,0 +1,834 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import {
+  ArrowRight,
+  BookOpenText,
+  CalendarClock,
+  Eye,
+  LayoutGrid,
+  Plus,
+  RefreshCw,
+  Sparkles,
+  Swords,
+  Target,
+  Users2,
+} from "lucide-react";
+
+import { EmptyState } from "@/components/empty-state";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  inferLoreCampaignIds,
+  inferLorePrepContexts,
+  parseLoreTextIndex,
+  type LorePrepContext,
+  type LorePrepFocus,
+} from "@/lib/lore";
+import {
+  buildSessionMetadata,
+  getEmptySessionForgeState,
+  normalizeSessionForgeState,
+  type SessionForgeBeat,
+  type SessionForgeBeatStatus,
+  type SessionForgeDramaticItem,
+  type SessionForgeDramaticStatus,
+  type SessionForgeState,
+} from "@/lib/session-forge";
+
+type Campaign = {
+  id: string;
+  name: string;
+  description?: string | null;
+  roomCode: string;
+  world: { id: string; title: string };
+};
+
+type Session = {
+  id: string;
+  title: string;
+  description?: string | null;
+  coverUrl?: string | null;
+  metadata?: Record<string, unknown> | null;
+  scheduledAt?: string | null;
+  status?: "planned" | "active" | "finished";
+  updatedAt: string;
+};
+
+type CodexEntity = {
+  id: string;
+  name: string;
+  type: string;
+  subtype?: string | null;
+  summary?: string | null;
+  campaign?: { id: string; name: string } | null;
+};
+
+type LoreDoc = {
+  id: string;
+  title: string;
+  textIndex?: string | null;
+  createdAt: string;
+};
+
+type PrepItem = {
+  id: string;
+  title: string;
+  summary: string;
+  contexts: LorePrepContext[];
+  focuses: LorePrepFocus[];
+  visibility: "MASTER" | "PLAYERS";
+  href: string;
+};
+
+const beatStatusOptions: SessionForgeBeatStatus[] = [
+  "planned",
+  "optional",
+  "improvised",
+  "discarded",
+];
+
+const dramaticStatusOptions: SessionForgeDramaticStatus[] = [
+  "planned",
+  "executed",
+  "delayed",
+  "canceled",
+];
+
+function formatDateTime(value?: string | null) {
+  if (!value) return "Sem agenda";
+  return new Date(value).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatPrepFocus(focus: LorePrepFocus) {
+  switch (focus) {
+    case "foco_de_mesa":
+      return "Foco de mesa";
+    case "gancho":
+      return "Gancho";
+    case "arco":
+      return "Arco";
+    case "segredo":
+      return "Segredo";
+    case "referencia":
+      return "Referencia";
+    default:
+      return focus;
+  }
+}
+
+function formatPrepContext(context: LorePrepContext) {
+  switch (context) {
+    case "politica":
+      return "Politica";
+    case "casas":
+      return "Casas";
+    case "lugares":
+      return "Lugares";
+    case "figuras":
+      return "Figuras";
+    case "geral":
+      return "Base";
+    default:
+      return context;
+  }
+}
+
+function buildBeat(): SessionForgeBeat {
+  return {
+    id: `beat-${Math.random().toString(36).slice(2, 10)}`,
+    title: "",
+    summary: "",
+    status: "planned",
+    linkedEntityIds: [],
+  };
+}
+
+function buildDramaticItem(): SessionForgeDramaticItem {
+  return {
+    id: `dramatic-${Math.random().toString(36).slice(2, 10)}`,
+    title: "",
+    notes: "",
+    status: "planned",
+  };
+}
+
+function getLoreScore(doc: LoreDoc, entities: CodexEntity[], campaignId: string) {
+  const meta = parseLoreTextIndex(doc.textIndex);
+  const linked = meta.linkedEntityIds
+    .map((id) => entities.find((entity) => entity.id === id))
+    .filter((entity): entity is CodexEntity => Boolean(entity));
+  const campaignIds = inferLoreCampaignIds(linked);
+
+  let score = 0;
+  if (campaignIds.includes(campaignId)) score += 50;
+  if (meta.prepFocuses.includes("foco_de_mesa")) score += 30;
+  if (meta.prepFocuses.includes("gancho")) score += 20;
+  if (meta.prepFocuses.includes("arco")) score += 12;
+  if (meta.prepFocuses.includes("segredo")) score += 8;
+  if (meta.visibility === "MASTER") score += 4;
+  return score;
+}
+
+export default function SessionForgePage() {
+  const params = useParams<{ id: string; sessionId: string }>();
+  const router = useRouter();
+  const campaignId = params?.id;
+  const sessionId = params?.sessionId;
+
+  const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [entities, setEntities] = useState<CodexEntity[]>([]);
+  const [loreDocs, setLoreDocs] = useState<LoreDoc[]>([]);
+  const [forge, setForge] = useState<SessionForgeState>(getEmptySessionForgeState());
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const loadWorkspace = useCallback(async () => {
+    if (!campaignId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const campaignRes = await fetch(`/api/campaigns/${campaignId}`, { cache: "no-store" });
+      const campaignPayload = await campaignRes.json().catch(() => ({}));
+      if (!campaignRes.ok || !campaignPayload.data) {
+        throw new Error(campaignPayload.error ?? "Nao foi possivel abrir a forja da sessao");
+      }
+
+      const nextCampaign = campaignPayload.data as Campaign;
+      const [sessionsRes, codexRes, loreRes] = await Promise.all([
+        fetch(`/api/campaigns/${campaignId}/sessions`, { cache: "no-store" }),
+        fetch(`/api/worlds/${nextCampaign.world.id}/codex?limit=240`, { cache: "no-store" }),
+        fetch(`/api/ruleset-docs?worldId=${nextCampaign.world.id}&type=LORE`, { cache: "no-store" }),
+      ]);
+
+      const sessionsPayload = await sessionsRes.json().catch(() => ({}));
+      const codexPayload = await codexRes.json().catch(() => ({}));
+      const lorePayload = await loreRes.json().catch(() => ({}));
+
+      setCampaign(nextCampaign);
+      setSessions((sessionsPayload.data as Session[] | undefined) ?? []);
+      setEntities((codexPayload.data?.entities as CodexEntity[] | undefined) ?? []);
+      setLoreDocs((lorePayload.data as LoreDoc[] | undefined) ?? []);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Erro inesperado ao abrir a forja");
+    } finally {
+      setLoading(false);
+    }
+  }, [campaignId]);
+
+  useEffect(() => {
+    void loadWorkspace();
+  }, [loadWorkspace]);
+
+  const selectedSession = useMemo(
+    () => sessions.find((session) => session.id === sessionId) ?? null,
+    [sessionId, sessions]
+  );
+
+  useEffect(() => {
+    if (selectedSession) {
+      setForge(normalizeSessionForgeState(selectedSession.metadata));
+    }
+  }, [selectedSession]);
+
+  const prepLore = useMemo<PrepItem[]>(() => {
+    if (!campaignId) return [];
+    return [...loreDocs]
+      .sort((left, right) => {
+        const diff = getLoreScore(right, entities, campaignId) - getLoreScore(left, entities, campaignId);
+        if (diff !== 0) return diff;
+        return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+      })
+      .slice(0, 5)
+      .map((doc) => {
+        const meta = parseLoreTextIndex(doc.textIndex);
+        const linked = meta.linkedEntityIds
+          .map((id) => entities.find((entity) => entity.id === id))
+          .filter((entity): entity is CodexEntity => Boolean(entity));
+        return {
+          id: doc.id,
+          title: doc.title,
+          summary: meta.summary || "Bloco de lore ligado ao preparo desta sessao.",
+          contexts: inferLorePrepContexts(linked),
+          focuses: meta.prepFocuses,
+          visibility: meta.visibility,
+          href: `/app/worlds/${campaign?.world.id}/forge/lore?docId=${doc.id}`,
+        };
+      });
+  }, [campaign?.world.id, campaignId, entities, loreDocs]);
+
+  async function handleSaveForge() {
+    if (!selectedSession) return;
+    setSaving(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const response = await fetch(`/api/sessions/${selectedSession.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: selectedSession.title,
+          description: selectedSession.description,
+          coverUrl: selectedSession.coverUrl,
+          scheduledAt: selectedSession.scheduledAt ?? undefined,
+          status: selectedSession.status ?? "planned",
+          metadata: buildSessionMetadata(forge, selectedSession.metadata),
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Nao foi possivel salvar a forja da sessao");
+      }
+      setSessions((current) =>
+        current.map((session) => (session.id === selectedSession.id ? (payload.data as Session) : session))
+      );
+      setMessage("Preparo salvo na propria sessao. Voce pode retomar daqui depois.");
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Erro inesperado ao salvar a sessao");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function updateBeat(beatId: string, updater: (beat: SessionForgeBeat) => SessionForgeBeat) {
+    setForge((current) => ({
+      ...current,
+      beats: current.beats.map((beat) => (beat.id === beatId ? updater(beat) : beat)),
+    }));
+  }
+
+  function updateDramaticCollection(
+    key: "hooks" | "secrets" | "reveals",
+    itemId: string,
+    updater: (item: SessionForgeDramaticItem) => SessionForgeDramaticItem
+  ) {
+    setForge((current) => ({
+      ...current,
+      [key]: current[key].map((item) => (item.id === itemId ? updater(item) : item)),
+    }));
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-[280px] w-full rounded-[32px]" />
+        <Skeleton className="h-[920px] w-full rounded-[32px]" />
+      </div>
+    );
+  }
+
+  if (!campaign || !selectedSession) {
+    return (
+      <EmptyState
+        title="Forja de sessao indisponivel"
+        description={error ?? "A sessao nao foi encontrada para abrir o preparo."}
+        icon={<Swords className="h-6 w-6" />}
+        action={
+          <Button onClick={() => router.push(campaignId ? `/app/campaign/${campaignId}` : "/app/worlds")}>
+            Voltar
+          </Button>
+        }
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-8 pb-8">
+      <section
+        className="world-hero rounded-[32px] px-6 py-7 sm:px-8 xl:px-10"
+        style={{
+          backgroundImage: selectedSession.coverUrl
+            ? `linear-gradient(120deg, rgba(8,8,13,0.92), rgba(12,10,13,0.84)), url(${selectedSession.coverUrl})`
+            : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.8fr)]">
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className="border-primary/20 bg-primary/10 text-primary">Forja de sessao</Badge>
+              <Badge className="border-amber-300/20 bg-amber-300/8 text-amber-100">
+                {selectedSession.status ?? "planned"}
+              </Badge>
+              <Badge className="border-white/10 bg-white/5 text-white/80">{campaign.name}</Badge>
+            </div>
+            <div className="space-y-3">
+              <p className="section-eyebrow">Preparacao world-first</p>
+              <h1 className="max-w-4xl text-4xl font-black uppercase tracking-[0.04em] text-foreground sm:text-5xl xl:text-6xl">
+                {selectedSession.title}
+              </h1>
+              <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
+                Estruture briefing, beats e notas operacionais da sessao em cima da propria campanha.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={handleSaveForge} disabled={saving}>
+                <Sparkles className="mr-2 h-4 w-4" />
+                {saving ? "Salvando..." : "Salvar preparo"}
+              </Button>
+              <Button
+                variant="outline"
+                className="border-white/10 bg-white/5"
+                onClick={() => void loadWorkspace()}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Recarregar
+              </Button>
+              <Button asChild variant="outline" className="border-white/10 bg-white/5">
+                <Link href={`/app/campaign/${campaign.id}`}>
+                  <LayoutGrid className="mr-2 h-4 w-4" />
+                  Voltar para campanha
+                </Link>
+              </Button>
+            </div>
+            {message ? <p className="text-sm text-emerald-200">{message}</p> : null}
+            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          </div>
+
+          <div className="space-y-4">
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Sessao em foco</p>
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm text-amber-100">
+                  <CalendarClock className="h-4 w-4 text-amber-300/80" />
+                  {formatDateTime(selectedSession.scheduledAt ?? selectedSession.updatedAt)}
+                </div>
+                <p className="text-sm leading-6 text-muted-foreground">
+                  {selectedSession.description || "Sem briefing curto registrado ainda na sessao."}
+                </p>
+              </div>
+            </div>
+
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Acessos</p>
+              <div className="mt-4 grid gap-3">
+                <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
+                  <Link href={`/app/play/${campaign.id}`}>
+                    Mesa ao vivo
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
+                  <Link href={`/app/worlds/${campaign.world.id}/forge/lore`}>
+                    Corpus de lore
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
+                  <Link href={`/app/worlds/${campaign.world.id}/visual-library`}>
+                    Biblioteca visual
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_360px]">
+        <div className="space-y-6">
+          <section className="chrome-panel rounded-[30px] p-6">
+            <div className="mb-5 space-y-2">
+              <p className="section-eyebrow">Briefing</p>
+              <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                Norte da mesa
+              </h2>
+            </div>
+            <div className="grid gap-4">
+              <Input
+                value={forge.currentArc}
+                onChange={(event) => setForge((current) => ({ ...current, currentArc: event.target.value }))}
+                placeholder="Arco atual ou eixo principal da sessao"
+              />
+              <Input
+                value={forge.tableObjective}
+                onChange={(event) =>
+                  setForge((current) => ({ ...current, tableObjective: event.target.value }))
+                }
+                placeholder="Objetivo de mesa: o que precisa acontecer hoje"
+              />
+              <Textarea
+                rows={5}
+                value={forge.briefing}
+                onChange={(event) => setForge((current) => ({ ...current, briefing: event.target.value }))}
+                placeholder="Briefing do mestre para a sessao"
+              />
+            </div>
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="section-eyebrow">Roteiro flexivel</p>
+                <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                  Beats da sessao
+                </h2>
+              </div>
+              <Button
+                variant="outline"
+                className="border-white/10 bg-white/5"
+                onClick={() => setForge((current) => ({ ...current, beats: [...current.beats, buildBeat()] }))}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Novo beat
+              </Button>
+            </div>
+
+            {forge.beats.length === 0 ? (
+              <EmptyState
+                title="Nenhum beat ainda"
+                description="Abra o primeiro bloco da sessao para organizar o que e principal, opcional ou improvisado."
+                icon={<Target className="h-6 w-6" />}
+                action={
+                  <Button onClick={() => setForge((current) => ({ ...current, beats: [buildBeat()] }))}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Criar primeiro beat
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="space-y-4">
+                {forge.beats.map((beat, index) => (
+                  <div key={beat.id} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                        Beat {index + 1}
+                      </p>
+                      <Button
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        onClick={() =>
+                          setForge((current) => ({
+                            ...current,
+                            beats: current.beats.filter((item) => item.id !== beat.id),
+                          }))
+                        }
+                      >
+                        Remover
+                      </Button>
+                    </div>
+                    <div className="mt-4 grid gap-3">
+                      <Input
+                        value={beat.title}
+                        onChange={(event) =>
+                          updateBeat(beat.id, (current) => ({ ...current, title: event.target.value }))
+                        }
+                        placeholder="Titulo do beat ou cena"
+                      />
+                      <Textarea
+                        rows={3}
+                        value={beat.summary}
+                        onChange={(event) =>
+                          updateBeat(beat.id, (current) => ({ ...current, summary: event.target.value }))
+                        }
+                        placeholder="O que precisa acontecer aqui"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        {beatStatusOptions.map((status) => (
+                          <Button
+                            key={status}
+                            type="button"
+                            variant="outline"
+                            className={
+                              beat.status === status
+                                ? "border-primary/30 bg-primary/10 text-primary"
+                                : "border-white/10 bg-white/5"
+                            }
+                            onClick={() => updateBeat(beat.id, (current) => ({ ...current, status }))}
+                          >
+                            {status}
+                          </Button>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {entities.slice(0, 16).map((entity) => (
+                          <Button
+                            key={entity.id}
+                            type="button"
+                            variant="outline"
+                            className={
+                              beat.linkedEntityIds.includes(entity.id)
+                                ? "border-primary/30 bg-primary/10 text-primary"
+                                : "border-white/10 bg-white/5"
+                            }
+                            onClick={() =>
+                              updateBeat(beat.id, (current) => ({
+                                ...current,
+                                linkedEntityIds: current.linkedEntityIds.includes(entity.id)
+                                  ? current.linkedEntityIds.filter((item) => item !== entity.id)
+                                  : [...current.linkedEntityIds, entity.id].slice(0, 6),
+                              }))
+                            }
+                          >
+                            {entity.name}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
+            <div className="mb-5 space-y-2">
+              <p className="section-eyebrow">Camada dramatica</p>
+              <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                Ganchos, segredos e revelacoes
+              </h2>
+            </div>
+            <div className="grid gap-6 xl:grid-cols-3">
+              {([
+                { key: "hooks", title: "Ganchos", singular: "Gancho", description: "O que deve puxar a mesa para frente." },
+                { key: "secrets", title: "Segredos", singular: "Segredo", description: "O que so o mestre ou poucos sabem." },
+                { key: "reveals", title: "Revelacoes", singular: "Revelacao", description: "O que pode explodir na sessao." },
+              ] as const).map((column) => (
+                <div key={column.key} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                        {column.title}
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">{column.description}</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={() =>
+                        setForge((current) => ({
+                          ...current,
+                          [column.key]: [...current[column.key], buildDramaticItem()],
+                        }))
+                      }
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    {forge[column.key].length > 0 ? (
+                      forge[column.key].map((item) => (
+                        <div key={item.id} className="rounded-2xl border border-white/8 bg-black/20 p-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-foreground">{column.singular}</p>
+                            <Button
+                              variant="outline"
+                              className="border-white/10 bg-white/5"
+                              onClick={() =>
+                                setForge((current) => ({
+                                  ...current,
+                                  [column.key]: current[column.key].filter((entry) => entry.id !== item.id),
+                                }))
+                              }
+                            >
+                              Remover
+                            </Button>
+                          </div>
+                          <div className="mt-3 grid gap-3">
+                            <Input
+                              value={item.title}
+                              onChange={(event) =>
+                                updateDramaticCollection(column.key, item.id, (current) => ({
+                                  ...current,
+                                  title: event.target.value,
+                                }))
+                              }
+                              placeholder={`${column.singular} principal`}
+                            />
+                            <Textarea
+                              rows={3}
+                              value={item.notes}
+                              onChange={(event) =>
+                                updateDramaticCollection(column.key, item.id, (current) => ({
+                                  ...current,
+                                  notes: event.target.value,
+                                }))
+                              }
+                              placeholder="Notas de preparo"
+                            />
+                            <div className="flex flex-wrap gap-2">
+                              {dramaticStatusOptions.map((status) => (
+                                <Button
+                                  key={status}
+                                  type="button"
+                                  variant="outline"
+                                  className={
+                                    item.status === status
+                                      ? "border-primary/30 bg-primary/10 text-primary"
+                                      : "border-white/10 bg-white/5"
+                                  }
+                                  onClick={() =>
+                                    updateDramaticCollection(column.key, item.id, (current) => ({
+                                      ...current,
+                                      status,
+                                    }))
+                                  }
+                                >
+                                  {status}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-muted-foreground">
+                        Nenhum item ainda.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
+            <div className="mb-5 space-y-2">
+              <p className="section-eyebrow">Notas operacionais</p>
+              <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                O que precisa ficar na mao
+              </h2>
+            </div>
+            <div className="grid gap-4">
+              <Textarea
+                rows={5}
+                value={forge.masterNotes}
+                onChange={(event) => setForge((current) => ({ ...current, masterNotes: event.target.value }))}
+                placeholder="Segredos, gatilhos, detalhes que so o mestre precisa ver"
+              />
+              <Textarea
+                rows={5}
+                value={forge.operationalNotes}
+                onChange={(event) =>
+                  setForge((current) => ({ ...current, operationalNotes: event.target.value }))
+                }
+                placeholder="Musicas, reveals, momentos de consulta ou operacao rapida"
+              />
+            </div>
+          </section>
+        </div>
+
+        <div className="space-y-6">
+          <section className="chrome-panel rounded-[30px] p-6">
+            <p className="section-eyebrow">Lore em foco</p>
+            <div className="mt-4 space-y-3">
+              {prepLore.length > 0 ? (
+                prepLore.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className="block rounded-[24px] border border-white/8 bg-white/4 p-4 transition hover:border-primary/25"
+                  >
+                    <div className="flex flex-wrap gap-2">
+                      {item.focuses.slice(0, 2).map((focus) => (
+                        <Badge key={focus} className="border-violet-300/20 bg-violet-300/10 text-violet-100">
+                          {formatPrepFocus(focus)}
+                        </Badge>
+                      ))}
+                      {item.contexts.slice(0, 2).map((context) => (
+                        <Badge key={context} className="border-white/10 bg-white/5 text-white/75">
+                          {formatPrepContext(context)}
+                        </Badge>
+                      ))}
+                      <Badge
+                        className={
+                          item.visibility === "MASTER"
+                            ? "border-red-300/20 bg-red-300/10 text-red-100"
+                            : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+                        }
+                      >
+                        {item.visibility === "MASTER" ? "Mestre" : "Revelavel"}
+                      </Badge>
+                    </div>
+                    <h3 className="mt-3 text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.summary}</p>
+                  </Link>
+                ))
+              ) : (
+                <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                  Nenhum bloco de lore priorizado para esta campanha ainda.
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
+            <p className="section-eyebrow">Entidades em foco</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {entities.slice(0, 18).map((entity) => (
+                <Button
+                  key={entity.id}
+                  type="button"
+                  variant="outline"
+                  className={
+                    forge.linkedEntityIds.includes(entity.id)
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : "border-white/10 bg-white/5"
+                  }
+                  onClick={() =>
+                    setForge((current) => ({
+                      ...current,
+                      linkedEntityIds: current.linkedEntityIds.includes(entity.id)
+                        ? current.linkedEntityIds.filter((item) => item !== entity.id)
+                        : [...current.linkedEntityIds, entity.id].slice(0, 10),
+                    }))
+                  }
+                >
+                  {entity.name}
+                </Button>
+              ))}
+            </div>
+            <Button asChild variant="outline" className="mt-4 w-full justify-between border-white/10 bg-white/5">
+              <Link href={`/app/worlds/${campaign.world.id}/codex`}>
+                Abrir Codex
+                <Users2 className="h-4 w-4" />
+              </Link>
+            </Button>
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
+            <p className="section-eyebrow">Passagem para a mesa</p>
+            <div className="mt-4 grid gap-3">
+              <Button asChild className="justify-between">
+                <Link href={`/app/play/${campaign.id}`}>
+                  Abrir modo sessao
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
+                <Link href={`/app/worlds/${campaign.world.id}/visual-library`}>
+                  Biblioteca visual
+                  <Eye className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
+                <Link href={`/app/worlds/${campaign.world.id}/compendium`}>
+                  Compendio
+                  <BookOpenText className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}

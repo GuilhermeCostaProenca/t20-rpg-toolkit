@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { SessionUpdateSchema } from "@/lib/validators";
 import { ZodError } from "zod";
@@ -34,6 +35,7 @@ export async function PUT(req: Request, { params }: Context) {
         title: parsed.title,
         description: parsed.description ?? null,
         coverUrl: parsed.coverUrl ?? null,
+        metadata: parsed.metadata as Prisma.InputJsonValue | undefined,
         scheduledAt: parsed.scheduledAt ? new Date(parsed.scheduledAt) : null,
         status: parsed.status ?? "planned",
       },

@@ -409,7 +409,7 @@ export default function PlayPage() {
 
     return (
         <div className="flex h-screen w-full bg-background overflow-hidden flex-row relative supports-[height:100dvh]:h-[100dvh]">
-            {/* C.O.R.T.E.X. Visual Layer */}
+            {/* Jarvis visual layer */}
             <CortexOverlay events={events} />
 
             {/* Fullscreen Physics Layer (Z-50) */}

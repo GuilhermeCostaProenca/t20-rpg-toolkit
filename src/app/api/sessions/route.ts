@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { SessionCreateSchema } from "@/lib/validators";
 import { ZodError } from "zod";
@@ -7,7 +8,7 @@ export async function GET(req: Request) {
     const worldId = searchParams.get("worldId") || undefined;
     const campaignId = searchParams.get("campaignId") || undefined;
 
-    const where: Record<string, any> = {};
+    const where: Prisma.SessionWhereInput = {};
     if (worldId) where.worldId = worldId;
     if (campaignId) where.campaignId = campaignId;
 
@@ -36,9 +37,14 @@ export async function POST(req: Request) {
 
         const session = await prisma.session.create({
             data: {
-                ...parsed,
                 worldId: body.worldId,
                 campaignId: body.campaignId,
+                title: parsed.title,
+                description: parsed.description,
+                coverUrl: parsed.coverUrl,
+                metadata: parsed.metadata as Prisma.InputJsonValue | undefined,
+                scheduledAt: parsed.scheduledAt ? new Date(parsed.scheduledAt) : null,
+                status: parsed.status ?? "planned",
             },
         });
 

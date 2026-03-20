@@ -9,7 +9,29 @@ export type SessionSummaryPayload = {
   hooks: string[];
 };
 
-export function summarizeSession(rawEvents: any[]): SessionSummaryPayload {
+function asOptionalString(value: unknown) {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function getBreakdownTotal(
+  breakdown: unknown,
+  key: "toHit" | "damage"
+): string | number | undefined {
+  if (!breakdown || typeof breakdown !== "object" || !(key in breakdown)) {
+    return undefined;
+  }
+
+  const record = breakdown as Record<string, unknown>;
+  const bucket = record[key];
+  if (!bucket || typeof bucket !== "object" || !("total" in bucket)) {
+    return undefined;
+  }
+
+  const total = bucket.total;
+  return typeof total === "number" || typeof total === "string" ? total : undefined;
+}
+
+export function summarizeSession(rawEvents: unknown[]): SessionSummaryPayload {
   const events: EventPayload[] = rawEvents.map((ev) => normalizeEvent(ev));
 
   if (!events.length) {
@@ -29,24 +51,29 @@ export function summarizeSession(rawEvents: any[]): SessionSummaryPayload {
   const highlights: string[] = [];
 
   events.slice(0, 200).forEach((ev) => {
-    if (ev.actorName) actors.add(ev.actorName);
-    if (ev.targetName) targets.add(ev.targetName);
-    const breakdown = ev.breakdown ?? {};
-    const note = ev.note ?? ev.message;
+    const actorName = asOptionalString(ev.actorName);
+    const targetName = asOptionalString((ev as EventPayload & { targetName?: unknown }).targetName);
+    const targetId = asOptionalString((ev as EventPayload & { targetId?: unknown }).targetId);
+    const note = asOptionalString((ev as EventPayload & { note?: unknown }).note) ?? asOptionalString(ev.message);
+    const damageTotal = getBreakdownTotal(ev.breakdown, "damage");
+    const toHitTotal = getBreakdownTotal(ev.breakdown, "toHit");
+
+    if (actorName) actors.add(actorName);
+    if (targetName) targets.add(targetName);
 
     if (ev.type === "NPC_MENTION" && note) npcsMentioned.add(note);
     if (ev.type === "ITEM_MENTION" && note) itemsFound.add(note);
     if (ev.type === "NOTE" && note) highlights.push(`Nota: ${note}`);
 
-    if (breakdown.damage?.total) {
+    if (damageTotal) {
       highlights.push(
-        `${ev.actorName ?? "Ator"} causou ${breakdown.damage.total} em ${ev.targetName ?? ev.targetId ?? "alvo"}`
+        `${actorName ?? "Ator"} causou ${damageTotal} em ${targetName ?? targetId ?? "alvo"}`
       );
     }
 
-    if (breakdown.toHit?.total) {
+    if (toHitTotal) {
       highlights.push(
-        `${ev.actorName ?? "Jogador"} rolou ${breakdown.toHit.total}${breakdown.damage?.total ? ` e dano ${breakdown.damage.total}` : ""
+        `${actorName ?? "Jogador"} rolou ${toHitTotal}${damageTotal ? ` e dano ${damageTotal}` : ""
         }`
       );
     }

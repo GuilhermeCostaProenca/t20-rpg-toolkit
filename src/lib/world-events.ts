@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { normalizeEvent } from "@/lib/events/normalize";
-import { CombatEvent, WorldEventScope, WorldEventType, WorldEventVisibility } from "@prisma/client";
+import { CombatEvent, Prisma, WorldEventScope, WorldEventType, WorldEventVisibility } from "@prisma/client";
 
 const worldEventTypes = new Set(Object.values(WorldEventType));
 
@@ -26,6 +26,14 @@ function toDate(value?: string | Date | null) {
   if (value instanceof Date) return value;
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+function asRecord(value: unknown) {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
+}
+
+function asOptionalString(value: unknown) {
+  return typeof value === "string" ? value : undefined;
 }
 
 async function resolveWorldId({
@@ -81,25 +89,28 @@ export async function appendWorldEventFromCombatEvent(
 
   if (!worldId) return null;
 
-  const meta = normalized.meta && Object.values(normalized.meta).some(Boolean)
-    ? normalized.meta
+  const normalizedMeta = asRecord(normalized.meta);
+  const meta = normalizedMeta && Object.values(normalizedMeta).some(Boolean)
+    ? (normalizedMeta as Prisma.InputJsonValue)
     : undefined;
+  const normalizedSessionId =
+    typeof normalizedMeta?.sessionId === "string" ? normalizedMeta.sessionId : undefined;
 
   return prisma.worldEvent.create({
     data: {
       worldId,
       campaignId: context.campaignId,
       combatId: context.combatId ?? event.combatId,
-      sessionId: context.sessionId ?? normalized.meta?.sessionId,
+      sessionId: context.sessionId ?? normalizedSessionId,
       type: resolveWorldEventType(normalized.type),
       scope: WorldEventScope.MICRO,
       ts: toDate(normalized.ts) ?? event.ts,
-      actorId: normalized.actorId,
-      targetId: normalized.targetId,
+      actorId: asOptionalString(normalized.actorId),
+      targetId: asOptionalString(normalized.targetId),
       visibility: resolveVisibility(normalized.visibility) ?? WorldEventVisibility.PLAYERS,
       breakdown: normalized.breakdown ?? undefined,
       meta,
-      text: normalized.message ?? normalized.note ?? undefined,
+      text: asOptionalString(normalized.message) ?? asOptionalString(normalized.note) ?? undefined,
     },
   });
 }
@@ -107,7 +118,7 @@ export async function appendWorldEventFromCombatEvent(
 export async function appendWorldEventFromSessionEvent(
   event: {
     type?: string | null;
-    payloadJson?: any;
+    payloadJson?: unknown;
     ts?: string | Date | null;
     message?: string | null;
     visibility?: string | null;
@@ -131,8 +142,9 @@ export async function appendWorldEventFromSessionEvent(
 
   if (!worldId) return null;
 
-  const meta = normalized.meta && Object.values(normalized.meta).some(Boolean)
-    ? normalized.meta
+  const normalizedMeta = asRecord(normalized.meta);
+  const meta = normalizedMeta && Object.values(normalizedMeta).some(Boolean)
+    ? (normalizedMeta as Prisma.InputJsonValue)
     : undefined;
 
   return prisma.worldEvent.create({
@@ -143,12 +155,12 @@ export async function appendWorldEventFromSessionEvent(
       type: resolveWorldEventType(normalized.type),
       scope: WorldEventScope.MICRO,
       ts: toDate(normalized.ts) ?? new Date(),
-      actorId: normalized.actorId,
-      targetId: normalized.targetId,
+      actorId: asOptionalString(normalized.actorId),
+      targetId: asOptionalString(normalized.targetId),
       visibility: resolveVisibility(normalized.visibility) ?? WorldEventVisibility.PLAYERS,
       breakdown: normalized.breakdown ?? undefined,
       meta,
-      text: normalized.message ?? normalized.note ?? undefined,
+      text: asOptionalString(normalized.message) ?? asOptionalString(normalized.note) ?? undefined,
     },
   });
 }

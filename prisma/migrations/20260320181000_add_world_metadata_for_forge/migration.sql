@@ -1,0 +1,2 @@
+ALTER TABLE "World"
+ADD COLUMN "metadata" JSONB;

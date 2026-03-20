@@ -1,13 +1,13 @@
 import { WorldEventScope, WorldEventVisibility, WorldEventType } from "@prisma/client";
 
-export type BaseEventPayload = Record<string, any>;
+export type BaseEventPayload = Record<string, unknown>;
 export interface EventPayload extends BaseEventPayload {
   type: EventType;
   visibility?: EventVisibility;
   ts?: string;
-  payload?: any;
-  breakdown?: any;
-  meta?: any;
+  payload?: unknown;
+  breakdown?: unknown;
+  meta?: unknown;
   actorId?: string;
   actorName?: string;
   message?: string;
@@ -16,7 +16,7 @@ export interface EventPayload extends BaseEventPayload {
 export type EventType = WorldEventType | string;
 export type EventVisibility = WorldEventVisibility | string;
 
-export interface CreateEventParams<TPayload extends BaseEventPayload = any> {
+export interface CreateEventParams<TPayload extends BaseEventPayload = BaseEventPayload> {
   type: WorldEventType;
   worldId: string;
   campaignId?: string;
@@ -32,6 +32,7 @@ export interface WorldCreatedPayload {
   title: string;
   description?: string;
   coverImage?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface CampaignCreatedPayload {
@@ -55,7 +56,7 @@ export interface CharacterCreatedPayload {
 export interface RollPayload {
   expression: string; // e.g. "1d20+5"
   result: number;
-  breakdown?: any; // Individual die results
+  breakdown?: unknown; // Individual die results
   label?: string; // Reason for roll
   isPrivate?: boolean;
 }

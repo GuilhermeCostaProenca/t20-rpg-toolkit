@@ -1,23 +1,32 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
-  CalendarClock, Plus, RefreshCw, Trash, MapPin,
-  Book, Users, Activity, Globe, ChevronRight, Settings,
-  Sword, Scroll, LayoutDashboard, Map as MapIcon
+  Activity,
+  BookOpenText,
+  CalendarClock,
+  ChevronRight,
+  Crown,
+  Flame,
+  Globe2,
+  Images,
+  LayoutGrid,
+  Map as MapIcon,
+  MapPin,
+  RefreshCw,
+  Settings2,
+  Sparkles,
+  Swords,
+  Trash,
+  Users2,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 import {
   Dialog,
   DialogContent,
@@ -25,11 +34,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/empty-state";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CampaignCreateSchema } from "@/lib/validators";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  inferLoreCampaignIds,
+  inferLorePrepContexts,
+  parseLoreTextIndex,
+  type LorePrepContext,
+  type LorePrepFocus,
+} from "@/lib/lore";
+import { CampaignCreateSchema } from "@/lib/validators";
 
 const initialForm = {
   name: "",
@@ -40,6 +56,7 @@ type WorldCampaign = {
   id: string;
   name: string;
   updatedAt: string;
+  roomCode?: string;
 };
 
 type WorldStats = {
@@ -53,7 +70,7 @@ type NextSession = {
   id: string;
   title: string;
   scheduledAt: string;
-  campaign: { name: string };
+  campaign: { id: string; name: string };
 };
 
 type World = {
@@ -61,7 +78,7 @@ type World = {
   title: string;
   description?: string | null;
   coverImage?: string | null;
-  status: 'ACTIVE' | 'ARCHIVED' | 'DELETED';
+  status: "ACTIVE" | "ARCHIVED" | "DELETED";
   createdAt: string;
   updatedAt: string;
   campaigns: WorldCampaign[];
@@ -76,8 +93,164 @@ type WorldEvent = {
   ts: string;
   text?: string | null;
   visibility: string;
-  payload?: any;
+  payload?: Record<string, unknown> | null;
 };
+
+type PoliticalCodexEntity = {
+  id: string;
+  name: string;
+  type: string;
+  campaign?: { id: string; name: string } | null;
+  metadata?: Record<string, unknown> | null;
+  outgoingRelations?: Array<{
+    id: string;
+    type: string;
+    metadata?: Record<string, unknown> | null;
+  }>;
+  incomingRelations?: Array<{
+    id: string;
+    type: string;
+    metadata?: Record<string, unknown> | null;
+  }>;
+};
+
+type LoreDoc = {
+  id: string;
+  title: string;
+  textIndex?: string | null;
+  createdAt: string;
+};
+
+type PrepBriefingItem = {
+  id: string;
+  title: string;
+  summary: string;
+  contexts: LorePrepContext[];
+  focuses: LorePrepFocus[];
+  campaignNames: string[];
+  visibility: "MASTER" | "PLAYERS";
+  href: string;
+};
+
+type PoliticalSummary = {
+  institutions: number;
+  offices: number;
+  activeTensions: number;
+  fragilities: string[];
+};
+
+function parsePoliticsMetadata(metadata: unknown) {
+  const meta = metadata && typeof metadata === "object" ? (metadata as Record<string, unknown>) : undefined;
+  const politics =
+    meta?.politics && typeof meta.politics === "object"
+      ? (meta.politics as Record<string, unknown>)
+      : undefined;
+
+  return {
+    fragilities: Array.isArray(politics?.fragilities)
+      ? politics.fragilities.filter((item): item is string => typeof item === "string")
+      : [],
+  };
+}
+
+type InspectItem =
+  | { type: "campaign"; title: string; subtitle: string; body: string; href: string }
+  | { type: "event"; title: string; subtitle: string; body: string; href?: string };
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatEvent(event: WorldEvent) {
+  if (event.text) return event.text;
+
+  const payload = event.payload ?? {};
+  switch (event.type) {
+    case "WORLD_CREATED":
+      return `Mundo criado: ${String(payload["title"] ?? "Sem titulo")}`;
+    case "CAMPAIGN_CREATED":
+      return `Nova campanha: ${String(payload["name"] ?? "Sem nome")}`;
+    case "CHARACTER_CREATED":
+      return `Novo personagem: ${String(payload["name"] ?? "Sem nome")}`;
+    case "NPC_DEATH":
+      return "Uma morte importante entrou para a memoria do mundo.";
+    case "COMBAT_STARTED":
+      return "Um novo confronto foi iniciado.";
+    default:
+      return event.type.replaceAll("_", " ");
+  }
+}
+
+function formatPrepFocus(focus: LorePrepFocus) {
+  switch (focus) {
+    case "foco_de_mesa":
+      return "Foco de mesa";
+    case "gancho":
+      return "Gancho";
+    case "arco":
+      return "Arco";
+    case "segredo":
+      return "Segredo";
+    case "referencia":
+      return "Referencia";
+    default:
+      return focus;
+  }
+}
+
+function formatPrepContext(context: LorePrepContext) {
+  switch (context) {
+    case "politica":
+      return "Politica";
+    case "casas":
+      return "Casas";
+    case "lugares":
+      return "Lugares";
+    case "figuras":
+      return "Figuras";
+    case "geral":
+      return "Base";
+    default:
+      return context;
+  }
+}
+
+function getPrepScore(
+  doc: LoreDoc,
+  entities: PoliticalCodexEntity[],
+  nextCampaignId?: string
+) {
+  const meta = parseLoreTextIndex(doc.textIndex);
+  const linked = meta.linkedEntityIds
+    .map((id) => entities.find((entity) => entity.id === id))
+    .filter((entity): entity is PoliticalCodexEntity => Boolean(entity));
+  const campaigns = inferLoreCampaignIds(linked);
+
+  let score = 0;
+  if (nextCampaignId && campaigns.includes(nextCampaignId)) score += 60;
+  if (!nextCampaignId && campaigns.length === 0) score += 20;
+  if (meta.prepFocuses.includes("foco_de_mesa")) score += 30;
+  if (meta.prepFocuses.includes("gancho")) score += 20;
+  if (meta.prepFocuses.includes("arco")) score += 12;
+  if (meta.prepFocuses.includes("referencia")) score += 6;
+  if (meta.prepFocuses.includes("segredo")) score += 4;
+  if (meta.visibility === "MASTER") score += 4;
+  score += Math.min(meta.linkedEntityIds.length, 4);
+  return score;
+}
 
 export default function WorldDetailPage() {
   const params = useParams();
@@ -86,322 +259,775 @@ export default function WorldDetailPage() {
 
   const [world, setWorld] = useState<World | null>(null);
   const [events, setEvents] = useState<WorldEvent[]>([]);
+  const [loreDocs, setLoreDocs] = useState<LoreDoc[]>([]);
+  const [codexEntities, setCodexEntities] = useState<PoliticalCodexEntity[]>([]);
+  const [politics, setPolitics] = useState<PoliticalSummary>({
+    institutions: 0,
+    offices: 0,
+    activeTensions: 0,
+    fragilities: [],
+  });
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
+  const [inspectItem, setInspectItem] = useState<InspectItem | null>(null);
 
-  useEffect(() => {
-    if (worldId) loadWorld();
-  }, [worldId]);
-
-  async function loadWorld() {
+  const loadWorld = useCallback(async () => {
     setLoading(true);
     try {
-      const [worldRes, eventsRes] = await Promise.all([
+      const [worldRes, eventsRes, codexRes, loreRes] = await Promise.all([
         fetch(`/api/worlds/${worldId}`, { cache: "no-store" }),
-        fetch(`/api/worlds/${worldId}/events?limit=10`, { cache: "no-store" }),
+        fetch(`/api/worlds/${worldId}/events?limit=12`, { cache: "no-store" }),
+        fetch(`/api/worlds/${worldId}/codex?limit=240`, { cache: "no-store" }),
+        fetch(`/api/ruleset-docs?worldId=${worldId}&type=LORE`, { cache: "no-store" }),
       ]);
 
-      const wPayload = await worldRes.json();
-      const ePayload = await eventsRes.json();
+      const worldPayload = await worldRes.json().catch(() => ({}));
+      const eventPayload = await eventsRes.json().catch(() => ({}));
+      const codexPayload = await codexRes.json().catch(() => ({}));
+      const lorePayload = await loreRes.json().catch(() => ({}));
 
-      if (worldRes.ok) setWorld(wPayload.data);
-      if (eventsRes.ok) setEvents(ePayload.data);
-    } catch (e) {
-      console.error(e);
+      if (worldRes.ok && worldPayload.data) setWorld(worldPayload.data as World);
+      if (eventsRes.ok && eventPayload.data) setEvents(eventPayload.data as WorldEvent[]);
+      if (loreRes.ok && Array.isArray(lorePayload.data)) setLoreDocs(lorePayload.data as LoreDoc[]);
+      if (codexPayload?.data?.entities) {
+        const entities = codexPayload.data.entities as PoliticalCodexEntity[];
+        setCodexEntities(entities);
+        const institutions = entities.filter((entity) => entity.type === "institution").length;
+        const offices = entities.filter((entity) => entity.type === "office").length;
+        const activeTensions = entities.reduce((count, entity) => {
+          const relations = [...(entity.outgoingRelations ?? []), ...(entity.incomingRelations ?? [])];
+          return (
+            count +
+            relations.filter((relation) =>
+              ["rivals_with", "bound_by_pact", "owes_allegiance_to", "pressures", "undermines"].includes(relation.type)
+            ).length
+          );
+        }, 0);
+        const fragilities = Array.from(
+          new Set(
+            entities.flatMap((entity) => parsePoliticsMetadata(entity.metadata).fragilities)
+          )
+        ).slice(0, 4);
+        setPolitics({
+          institutions,
+          offices,
+          activeTensions: Math.ceil(activeTensions / 2),
+          fragilities,
+        });
+      }
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
-  }
+  }, [worldId]);
 
-  async function handleCreateCampaign(e: FormEvent) {
-    e.preventDefault();
+  useEffect(() => {
+    if (worldId) void loadWorld();
+  }, [loadWorld, worldId]);
+
+  async function handleCreateCampaign(event: FormEvent) {
+    event.preventDefault();
     try {
       const parsed = CampaignCreateSchema.parse({ ...form, worldId });
-      const res = await fetch("/api/campaigns", {
+      const response = await fetch("/api/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(parsed),
       });
-      if (!res.ok) throw new Error("Erro ao criar campanha");
+      if (!response.ok) throw new Error("Erro ao criar campanha");
       setForm(initialForm);
       setDialogOpen(false);
       await loadWorld();
-    } catch (err) {
+    } catch (error) {
       const message =
-        err instanceof Error
-          ? err.message
-          : "Erro inesperado ao salvar campanha";
+        error instanceof Error ? error.message : "Erro inesperado ao salvar campanha";
       alert(message);
-    }
-  }
-
-  function formatEvent(evt: WorldEvent) {
-    if (evt.text) return evt.text;
-
-    const p = evt.payload || {};
-    switch (evt.type) {
-      case 'WORLD_CREATED': return `Mundo criado: ${p.title || 'Sem título'}`;
-      case 'CAMPAIGN_CREATED': return `Nova campanha: ${p.name || 'Sem nome'}`;
-      case 'CHARACTER_CREATED': return `Novo personagem: ${p.name || 'Sem nome'}`;
-      case 'NOTE': return "Anotação silenciosa";
-      case 'ROLL_DICE': return "Rolagem de dados";
-      case 'ATTACK': return "Registro de combate";
-      default: return `${evt.type.replace(/_/g, " ")} (Sistema)`;
     }
   }
 
   async function handleArchiveWorld() {
     if (!confirm("Arquivar mundo?")) return;
-    await fetch(`/api/worlds/${worldId}`, { method: 'DELETE' });
-    router.push("/app");
+    await fetch(`/api/worlds/${worldId}`, { method: "DELETE" });
+    router.push("/app/worlds");
   }
 
-  if (loading) return <div className="p-8"><Skeleton className="h-64 w-full rounded-xl" /></div>;
-  if (!world) return <div className="p-8">Mundo não encontrado</div>;
+  const spotlightCampaign = useMemo(() => world?.campaigns?.[0] ?? null, [world]);
+  const recentEvents = useMemo(() => events.slice(0, 8), [events]);
+  const inspectHref = inspectItem?.type === "campaign" ? inspectItem.href : null;
+  const prepBriefing = useMemo<PrepBriefingItem[]>(() => {
+    const nextCampaignId = world?.nextSession?.campaign?.id;
+    return [...loreDocs]
+      .sort((left, right) => {
+        const scoreDiff =
+          getPrepScore(right, codexEntities, nextCampaignId) -
+          getPrepScore(left, codexEntities, nextCampaignId);
+        if (scoreDiff !== 0) return scoreDiff;
+        return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+      })
+      .slice(0, 4)
+      .map((doc) => {
+        const meta = parseLoreTextIndex(doc.textIndex);
+        const linked = meta.linkedEntityIds
+          .map((id) => codexEntities.find((entity) => entity.id === id))
+          .filter((entity): entity is PoliticalCodexEntity => Boolean(entity));
+        const contexts = inferLorePrepContexts(linked);
+        const campaignNames = inferLoreCampaignIds(linked)
+          .map((campaignId) => world?.campaigns.find((campaign) => campaign.id === campaignId)?.name)
+          .filter((name): name is string => Boolean(name));
 
-  return (
-    <div className="space-y-8 pb-10">
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-r from-red-950/50 to-black p-8 sm:p-12">
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10"></div>
-        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="border-red-500/50 text-red-400 bg-red-950/30 backdrop-blur-sm">
-                {world.status}
-              </Badge>
-              <span className="text-xs text-white/40 font-mono tracking-widest uppercase">ID: {world.id.slice(0, 8)}</span>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-2">
-              {world.title}
-            </h1>
-            <p className="text-white/60 max-w-2xl leading-relaxed">
-              {world.description || "Um universo esperando para ser explorado..."}
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10" onClick={loadWorld}>
-              <RefreshCw className="mr-2 h-4 w-4" /> Atualizar
-            </Button>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-900/20">
-                  <Plus className="mr-2 h-4 w-4" /> Nova Campanha
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Iniciar Nova Campanha</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleCreateCampaign} className="space-y-4">
-                  <Input placeholder="Nome da Campanha" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-                  <Input placeholder="Descrição Curta" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-                  <Button type="submit" className="w-full">Criar Jornada</Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
+        return {
+          id: doc.id,
+          title: doc.title,
+          summary: meta.summary || "Bloco do corpus pronto para consulta no prep da mesa.",
+          contexts,
+          focuses: meta.prepFocuses,
+          campaignNames,
+          visibility: meta.visibility,
+          href: `/app/worlds/${worldId}/forge/lore?docId=${doc.id}`,
+        };
+      });
+  }, [codexEntities, loreDocs, world, worldId]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-[340px] w-full rounded-[32px]" />
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.8fr)_minmax(320px,0.8fr)]">
+          <Skeleton className="h-[640px] rounded-[30px]" />
+          <Skeleton className="h-[640px] rounded-[30px]" />
         </div>
       </div>
+    );
+  }
 
-      <Tabs defaultValue="cockpit" className="space-y-6">
-        <TabsList className="bg-black/40 border border-white/10 p-1">
-          <TabsTrigger value="cockpit" className="gap-2"><LayoutDashboard className="h-4 w-4" /> Visão Geral</TabsTrigger>
-          <TabsTrigger value="ledger" className="gap-2"><Activity className="h-4 w-4" /> Linha do Tempo</TabsTrigger>
-          <TabsTrigger value="settings" className="gap-2"><Settings className="h-4 w-4" /> Configurações</TabsTrigger>
-        </TabsList>
+  if (!world) {
+    return (
+      <EmptyState
+        title="Mundo nao encontrado"
+        description="O cockpit nao conseguiu localizar este mundo. Volte para a biblioteca e tente novamente."
+        icon={<Globe2 className="h-6 w-6" />}
+        action={
+          <Button onClick={() => router.push("/app/worlds")}>
+            Voltar para mundos
+          </Button>
+        }
+      />
+    );
+  }
 
-        <TabsContent value="cockpit" className="space-y-6 animate-in fade-in-50 slide-in-from-bottom-2">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-white/5 border-white/10 hover:border-red-500/30 transition-colors">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Campanhas</CardTitle>
-                <Globe className="h-4 w-4 text-red-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">{world.campaigns?.length || 0}</div>
-                <p className="text-xs text-muted-foreground">Mundos ativos</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-white/5 border-white/10 hover:border-blue-500/30 transition-colors">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">NPCs</CardTitle>
-                <Users className="h-4 w-4 text-blue-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">{world.stats?.npcs || 0}</div>
-                <p className="text-xs text-muted-foreground">Habitantes</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-white/5 border-white/10 hover:border-green-500/30 transition-colors">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Locais</CardTitle>
-                <MapPin className="h-4 w-4 text-green-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">{world.stats?.locations || 0}</div>
-                <p className="text-xs text-muted-foreground">Pontos de interesse</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-white/5 border-white/10 hover:border-amber-500/30 transition-colors">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Sessões</CardTitle>
-                <Book className="h-4 w-4 text-amber-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">{world.stats?.sessions || 0}</div>
-                <p className="text-xs text-muted-foreground">Histórias contadas</p>
-              </CardContent>
-            </Card>
+  return (
+    <div className="space-y-8 pb-8">
+      <section
+        className="world-hero rounded-[32px] px-6 py-7 sm:px-8 xl:px-10"
+        style={{
+          backgroundImage: world.coverImage
+            ? `linear-gradient(120deg, rgba(8,8,13,0.92), rgba(12,10,13,0.8)), url(${world.coverImage})`
+            : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.78fr)]">
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className="border-primary/20 bg-primary/10 text-primary">{world.status}</Badge>
+              <Badge className="border-amber-300/20 bg-amber-300/8 text-amber-100">
+                {world.campaigns.length} campanhas
+              </Badge>
+            </div>
+
+            <div className="space-y-3">
+              <p className="section-eyebrow">Cockpit do mundo</p>
+              <h1 className="max-w-4xl text-4xl font-black uppercase tracking-[0.04em] text-foreground sm:text-5xl xl:text-6xl">
+                {world.title}
+              </h1>
+              <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
+                {world.description || "Este mundo ainda nao tem descricao registrada, mas o cockpit ja esta pronto para operar campanhas, memoria e contexto."}
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-4">
+              <div className="cinematic-frame rounded-2xl p-4">
+                <p className="section-eyebrow">Campanhas</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <span className="text-3xl font-black text-foreground">{world.campaigns.length}</span>
+                  <Swords className="h-5 w-5 text-amber-300/80" />
+                </div>
+              </div>
+              <div className="cinematic-frame rounded-2xl p-4">
+                <p className="section-eyebrow">NPCs</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <span className="text-3xl font-black text-foreground">{world.stats.npcs}</span>
+                  <Users2 className="h-5 w-5 text-primary/80" />
+                </div>
+              </div>
+              <div className="cinematic-frame rounded-2xl p-4">
+                <p className="section-eyebrow">Locais</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <span className="text-3xl font-black text-foreground">{world.stats.locations}</span>
+                  <MapPin className="h-5 w-5 text-sky-200/80" />
+                </div>
+              </div>
+              <div className="cinematic-frame rounded-2xl p-4">
+                <p className="section-eyebrow">Sessoes</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <span className="text-3xl font-black text-foreground">{world.stats.sessions}</span>
+                  <Activity className="h-5 w-5 text-emerald-300/80" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="lg">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Nova campanha
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="chrome-panel border-white/10 bg-card/85">
+                  <DialogHeader>
+                    <DialogTitle>Iniciar nova campanha</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleCreateCampaign} className="space-y-4">
+                    <Input
+                      placeholder="Nome da campanha"
+                      value={form.name}
+                      onChange={(currentEvent) =>
+                        setForm((prev) => ({ ...prev, name: currentEvent.target.value }))
+                      }
+                      required
+                    />
+                    <Textarea
+                      placeholder="Descricao curta"
+                      value={form.description}
+                      onChange={(currentEvent) =>
+                        setForm((prev) => ({ ...prev, description: currentEvent.target.value }))
+                      }
+                    />
+                    <Button type="submit" className="w-full">
+                      Criar jornada
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+
+              <Button variant="outline" size="lg" className="border-white/10 bg-white/5" onClick={loadWorld}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Atualizar
+              </Button>
+            </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Main Column */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Next Session Hero */}
-              {world.nextSession && (
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-950/40 to-black border border-amber-900/30 p-6 flex items-center justify-between shadow-lg shadow-amber-900/5 group hover:border-amber-500/40 transition-all">
-
-                  <div className="z-10 space-y-1">
-                    <div className="text-amber-500 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                      <CalendarClock className="h-3 w-3" /> Próxima Sessão
-                    </div>
-                    <h3 className="text-xl font-bold text-white group-hover:text-amber-100 transition-colors">
-                      {world.nextSession.title}
-                    </h3>
-                    <p className="text-white/60 text-sm">
-                      {new Date(world.nextSession.scheduledAt).toLocaleString()} • {world.nextSession.campaign.name}
-                    </p>
+          <div className="space-y-4">
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Proxima batida</p>
+              {world.nextSession ? (
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-amber-100">
+                    <CalendarClock className="h-4 w-4 text-amber-300/80" />
+                    Sessao agendada
                   </div>
-                  <Button size="sm" className="z-10 bg-amber-600/20 hover:bg-amber-600/40 text-amber-200 border border-amber-500/30">
-                    Ver Detalhes
-                  </Button>
+                  <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                    {world.nextSession.title}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDateTime(world.nextSession.scheduledAt)} · {world.nextSession.campaign.name}
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-4 rounded-2xl border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                  Nenhuma sessao futura agendada para este mundo.
                 </div>
               )}
+            </div>
 
-              {/* Campaigns Grid */}
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Acesso rapido</p>
+              <div className="mt-4 grid gap-3">
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/forge`)}
+                >
+                  Forja do Mundo
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/codex`)}
+                >
+                  Codex
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/campaigns`)}
+                >
+                  Campanhas
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/npcs`)}
+                >
+                  NPCs
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/locations`)}
+                >
+                  Locais
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/visual-library`)}
+                >
+                  Biblioteca visual
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/forge/politics`)}
+                >
+                  Politica
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/forge/timeline`)}
+                >
+                  Cronologia
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/forge/lore`)}
+                >
+                  Lore-base
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5"
+                  onClick={() => router.push(`/app/worlds/${worldId}/compendium`)}
+                >
+                  Compendio
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="cinematic-frame rounded-[28px] p-5">
+              <p className="section-eyebrow">Zona de decisao</p>
+              <div className="mt-4 space-y-3">
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Flame className="h-4 w-4 text-amber-300/80" />
+                    Forja do mundo
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Entre na oficina para fechar conceito, tom, pilares e o proximo foco criativo.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="mt-3 w-full justify-between border-white/10 bg-white/5"
+                    onClick={() => router.push(`/app/worlds/${worldId}/forge`)}
+                  >
+                    Abrir forja
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Settings2 className="h-4 w-4 text-primary/80" />
+                    Estado do mundo
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Criado em {formatDate(world.createdAt)} e atualizado em {formatDate(world.updatedAt)}.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Crown className="h-4 w-4 text-amber-300/80" />
+                    Leitura politica
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {politics.institutions} instituicoes, {politics.offices} cargos e{" "}
+                    {politics.activeTensions} tensoes estruturais ativas.
+                  </p>
+                  {politics.fragilities.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {politics.fragilities.map((fragility) => (
+                        <Badge
+                          key={fragility}
+                          className="border-red-300/20 bg-red-300/10 text-red-100"
+                        >
+                          {fragility}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
+                  <Button
+                    variant="outline"
+                    className="mt-3 w-full justify-between border-white/10 bg-white/5"
+                    onClick={() => router.push(`/app/worlds/${worldId}/forge/politics`)}
+                  >
+                    Abrir politica
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button variant="destructive" className="w-full" onClick={handleArchiveWorld}>
+                  <Trash className="mr-2 h-4 w-4" />
+                  Arquivar mundo
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid-shell">
+        <div className="space-y-6">
+          <section className="chrome-panel rounded-[30px] p-6">
+            <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Sword className="h-4 w-4 text-primary" /> Campanhas Ativas
-                </h3>
-                {world.campaigns?.length === 0 ? (
-                  <div className="text-center py-12 border border-dashed border-white/10 rounded-xl bg-white/5">
-                    <p className="text-muted-foreground mb-2">O mundo está silencioso.</p>
-                    <Button variant="outline" size="sm" onClick={() => setDialogOpen(true)}>Criar Primeira Campanha</Button>
+                <p className="section-eyebrow">Continuar a operar</p>
+                <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                  Campanhas em campo
+                </h2>
+              </div>
+              <Button asChild variant="outline" className="border-white/10 bg-white/5">
+                <Link href={`/app/worlds/${worldId}/campaigns`}>Ver todas</Link>
+              </Button>
+            </div>
+
+            {world.campaigns.length === 0 ? (
+              <EmptyState
+                title="Nenhuma campanha"
+                description="Crie a primeira campanha para transformar este mundo em operacao ativa."
+                icon={<Swords className="h-6 w-6" />}
+                action={
+                  <Button onClick={() => setDialogOpen(true)}>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Criar campanha
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="grid gap-4 lg:grid-cols-2">
+                {world.campaigns.map((campaign, index) => (
+                  <Card
+                    key={campaign.id}
+                    className="overflow-hidden rounded-[28px] border-white/10 bg-black/20 transition hover:border-primary/25"
+                  >
+                    <CardContent className="p-0">
+                      <div
+                        className="flex min-h-[220px] flex-col justify-between p-5"
+                        style={{
+                          background:
+                            index % 2 === 0
+                              ? "linear-gradient(135deg, rgba(188,74,63,0.18), rgba(9,9,14,0.88))"
+                              : "linear-gradient(135deg, rgba(213,162,64,0.12), rgba(9,9,14,0.88))",
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <Badge className="border-white/10 bg-black/30 text-white">Campanha</Badge>
+                          <span className="text-xs uppercase tracking-[0.18em] text-white/55">
+                            {formatDate(campaign.updatedAt)}
+                          </span>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-2xl font-black uppercase tracking-[0.04em] text-white">
+                              {campaign.name}
+                            </h3>
+                            <p className="mt-2 text-sm text-white/66">
+                              Sala: {campaign.roomCode || "sem codigo publico"}
+                            </p>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button
+                              className="flex-1 justify-between bg-white text-black hover:bg-white/90"
+                              onClick={() => router.push(`/app/campaign/${campaign.id}`)}
+                            >
+                              Abrir campanha
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              className="border-white/10 bg-white/5"
+                              onClick={() =>
+                                setInspectItem({
+                                  type: "campaign",
+                                  title: campaign.name,
+                                  subtitle: "Leitura rapida da campanha",
+                                  body: `Atualizada em ${formatDateTime(campaign.updatedAt)}.\nCodigo de sala: ${campaign.roomCode || "nao definido"}.`,
+                                  href: `/app/campaign/${campaign.id}`,
+                                })
+                              }
+                            >
+                              <LayoutGrid className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="chrome-panel rounded-[30px] p-6">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="section-eyebrow">Cadencia do mundo</p>
+                <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                  Linha viva de eventos
+                </h2>
+              </div>
+              <Button asChild variant="outline" className="border-white/10 bg-white/5">
+                <Link href={`/app/worlds/${worldId}/diary`}>Abrir diario</Link>
+              </Button>
+            </div>
+
+            {recentEvents.length === 0 ? (
+              <EmptyState
+                title="Nenhum evento ainda"
+                description="Assim que o mundo registrar fatos, a memoria viva passa a aparecer aqui."
+                icon={<Activity className="h-6 w-6" />}
+              />
+            ) : (
+              <div className="space-y-3">
+                {recentEvents.map((event) => (
+                  <button
+                    key={event.id}
+                    type="button"
+                    className="w-full rounded-[24px] border border-white/8 bg-white/4 p-4 text-left transition hover:border-primary/20 hover:bg-white/6"
+                    onClick={() =>
+                      setInspectItem({
+                        type: "event",
+                        title: formatEvent(event),
+                        subtitle: `${event.type} · ${event.scope}`,
+                        body: `Registrado em ${formatDateTime(event.ts)}.\nVisibilidade: ${event.visibility}.`,
+                      })
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Badge className="border-white/10 bg-black/30 text-white">{event.type}</Badge>
+                          <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                            {formatDateTime(event.ts)}
+                          </span>
+                        </div>
+                        <p className="text-sm leading-6 text-foreground">{formatEvent(event)}</p>
+                      </div>
+                      <ChevronRight className="mt-1 h-4 w-4 text-white/35" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        <div className="space-y-6">
+          <section className="chrome-panel rounded-[30px] p-6">
+            <p className="section-eyebrow">Painel tatico</p>
+            <div className="mt-4 space-y-4">
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Crown className="h-4 w-4 text-primary/80" />
+                  Proximo passo forte
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  O Codex do Mundo entrou no shell como a nova camada estrutural de entidades e consulta.
+                </p>
+              </div>
+
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <BookOpenText className="h-4 w-4 text-amber-300/80" />
+                  Camada atual
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Campanhas, eventos, atalhos e memoria recente integrados em uma superficie unica.
+                </p>
+              </div>
+
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Sparkles className="h-4 w-4 text-violet-200/80" />
+                  Prep imediato
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {world.nextSession?.campaign?.name
+                    ? `Lore priorizado para a proxima mesa de ${world.nextSession.campaign.name}.`
+                    : "Lore priorizado para a proxima batida criativa deste mundo."}
+                </p>
+                {prepBriefing.length > 0 ? (
+                  <div className="mt-4 space-y-3">
+                    {prepBriefing.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => router.push(item.href)}
+                        className="w-full rounded-2xl border border-white/8 bg-black/20 p-3 text-left transition hover:border-primary/25 hover:bg-black/30"
+                      >
+                        <div className="flex flex-wrap items-center gap-2">
+                          {item.focuses.slice(0, 2).map((focus) => (
+                            <Badge key={focus} className="border-violet-300/20 bg-violet-300/10 text-violet-100">
+                              {formatPrepFocus(focus)}
+                            </Badge>
+                          ))}
+                          {item.contexts.slice(0, 2).map((context) => (
+                            <Badge key={context} className="border-white/10 bg-white/5 text-white/75">
+                              {formatPrepContext(context)}
+                            </Badge>
+                          ))}
+                          <Badge
+                            className={
+                              item.visibility === "MASTER"
+                                ? "border-red-300/20 bg-red-300/10 text-red-100"
+                                : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+                            }
+                          >
+                            {item.visibility === "MASTER" ? "Mestre" : "Revelavel"}
+                          </Badge>
+                        </div>
+                        <h4 className="mt-3 text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
+                          {item.title}
+                        </h4>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.summary}</p>
+                        {item.campaignNames.length > 0 ? (
+                          <p className="mt-2 text-xs uppercase tracking-[0.14em] text-amber-100/80">
+                            {item.campaignNames.slice(0, 2).join(" · ")}
+                          </p>
+                        ) : (
+                          <p className="mt-2 text-xs uppercase tracking-[0.14em] text-white/45">
+                            Base do mundo
+                          </p>
+                        )}
+                      </button>
+                    ))}
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between border-white/10 bg-white/5"
+                      onClick={() => router.push(`/app/worlds/${worldId}/forge/lore`)}
+                    >
+                      Abrir corpus completo
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 ) : (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {world.campaigns?.map(c => (
-                      <div key={c.id}
-                        onClick={() => router.push(`/app/campaign/${c.id}`)}
-                        className="group relative flex flex-col p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/[0.07] hover:border-primary/40 transition-all cursor-pointer overflow-hidden">
-                        <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <ChevronRight className="h-4 w-4 text-white/50" />
-                        </div>
-                        <span className="font-bold text-white text-lg mb-1">{c.name}</span>
-                        <span className="text-xs text-white/40">Atualizado: {new Date(c.updatedAt).toLocaleDateString()}</span>
-                      </div>
-                    ))}
+                  <div className="mt-3 rounded-2xl border border-white/8 bg-black/20 p-3 text-sm text-muted-foreground">
+                    Ainda nao existe lore priorizado para a proxima mesa.
                   </div>
                 )}
               </div>
 
-              {/* Recent Activity Mini */}
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-emerald-500" /> Atividade Recente
-                </h3>
-                <div className="space-y-2">
-                  {events.slice(0, 5).map(evt => (
-                    <div key={evt.id} className="flex items-center gap-3 p-3 rounded-lg bg-black/20 border border-white/5 text-sm">
-                      <div className="h-2 w-2 rounded-full bg-slate-500/50" />
-                      <span className="font-mono text-white/30 text-xs">
-                        {new Date(evt.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                      <span className="flex-1 text-white/80 truncate">
-                        {formatEvent(evt)}
-                      </span>
-                      <Badge variant="outline" className="text-[10px] bg-white/5 text-white/30 border-none">{evt.type}</Badge>
-                    </div>
-                  ))}
+              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <MapIcon className="h-4 w-4 text-sky-200/80" />
+                  Areas ligadas
+                </div>
+                <div className="mt-3 grid gap-2">
+                  <Button
+                    variant="outline"
+                    className="justify-between border-white/10 bg-white/5"
+                    onClick={() => router.push(`/app/worlds/${worldId}/map`)}
+                  >
+                    Atlas do mundo
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="justify-between border-white/10 bg-white/5"
+                    onClick={() => router.push(`/app/worlds/${worldId}/visual-library`)}
+                  >
+                    Biblioteca visual
+                    <Images className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="justify-between border-white/10 bg-white/5"
+                    onClick={() => router.push(`/app/worlds/${worldId}/forge/lore`)}
+                  >
+                    Lore-base
+                    <BookOpenText className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="justify-between border-white/10 bg-white/5"
+                    onClick={() => router.push(`/app/worlds/${worldId}/characters`)}
+                  >
+                    Personagens
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </div>
+          </section>
 
-            {/* Sidebar Column */}
-            <div className="space-y-6">
-              <Card className="bg-zinc-950 border-white/10">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Mundo</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-white" onClick={() => router.push(`/app/worlds/${worldId}/map`)}>
-                    <MapIcon className="mr-2 h-4 w-4" /> Atlas Interativo
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-white" onClick={() => router.push(`/app/worlds/${worldId}/npcs`)}>
-                    <Users className="mr-2 h-4 w-4" /> Bestiário
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-white" onClick={() => router.push(`/app/worlds/${worldId}/locations`)}>
-                    <MapPin className="mr-2 h-4 w-4" /> Locais
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-white" onClick={() => router.push(`/app/worlds/${worldId}/compendium`)}>
-                    <Book className="mr-2 h-4 w-4" /> Compêndio
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-white" onClick={() => router.push(`/app/worlds/${worldId}/diary`)}>
-                    <CalendarClock className="mr-2 h-4 w-4" /> Diário
-                  </Button>
-                </CardContent>
-              </Card>
+          {spotlightCampaign ? (
+            <section className="chrome-panel rounded-[30px] p-6">
+              <p className="section-eyebrow">Campanha em destaque</p>
+              <div className="mt-4 space-y-4">
+                <h3 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                  {spotlightCampaign.name}
+                </h3>
+                <p className="text-sm leading-6 text-muted-foreground">
+                  Ultima atualizacao em {formatDateTime(spotlightCampaign.updatedAt)}.
+                </p>
+                <Button className="w-full justify-between" onClick={() => router.push(`/app/campaign/${spotlightCampaign.id}`)}>
+                  Entrar na campanha
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </section>
+          ) : null}
+        </div>
+      </div>
 
-              <Card className="bg-gradient-to-b from-blue-950/20 to-transparent border-blue-900/20">
-                <CardHeader>
-                  <CardTitle className="text-sm text-blue-400">Dica do Mestre</CardTitle>
-                </CardHeader>
-                <CardContent className="text-xs text-blue-200/60 leading-relaxed">
-                  Mantenha o diário atualizado para que a IA possa gerar resumos precisos das sessões anteriores.
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="ledger">
-          <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-            <p className="text-sm text-muted-foreground mb-4">Registro completo de eventos do mundo.</p>
-            <div className="space-y-2">
-              {events.map(evt => (
-                <div key={evt.id} className="flex gap-4 p-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
-                  <div className="font-mono text-xs text-white/40 min-w-[50px]">{new Date(evt.ts).toLocaleTimeString()}</div>
-                  <div className="flex-1">
-                    <div className="text-sm text-white/90">{formatEvent(evt)}</div>
-                    <div className="text-xs text-white/30 mt-1 flex gap-2">
-                      <span>{evt.type}</span>
-                      <span>•</span>
-                      <span>{evt.scope}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="settings">
-          <Card className="border-red-900/30 bg-red-950/10">
-            <CardHeader>
-              <CardTitle className="text-red-400">Zona de Perigo</CardTitle>
-              <CardDescription>Ações irreversíveis.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="destructive" onClick={handleArchiveWorld}>
-                <Trash className="mr-2 h-4 w-4" /> Arquivar Mundo
+      {inspectItem ? (
+        <CockpitDetailSheet
+          open={inspectItem !== null}
+          onOpenChange={(open) => !open && setInspectItem(null)}
+          badge={inspectItem.type === "campaign" ? "Quick inspect" : "Memoria do mundo"}
+          title={inspectItem.title}
+          description={inspectItem.subtitle}
+          footer={
+            inspectHref ? (
+              <Button className="w-full justify-between" onClick={() => router.push(inspectHref)}>
+                Abrir superficie completa
+                <ChevronRight className="h-4 w-4" />
               </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            ) : undefined
+          }
+        >
+          <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+            <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">
+              {inspectItem.body}
+            </p>
+          </div>
+        </CockpitDetailSheet>
+      ) : null}
     </div>
   );
 }

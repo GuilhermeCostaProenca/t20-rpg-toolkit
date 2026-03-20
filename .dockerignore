@@ -7,3 +7,9 @@ Dockerfile
 .dockerignore
 docker-compose.yml
 README.md
+.claude
+docs
+references
+*.pdf
+smoke-output.txt
+tsc_errors.log

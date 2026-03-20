@@ -1,5 +1,28 @@
 import { z } from "zod";
 
+export const WorldForgeSchema = z.object({
+  concept: z.string().trim().max(300, "Conceito muito longo").optional().or(z.literal("").transform(() => undefined)),
+  tone: z.string().trim().max(220, "Tom muito longo").optional().or(z.literal("").transform(() => undefined)),
+  scope: z.string().trim().max(220, "Escopo muito longo").optional().or(z.literal("").transform(() => undefined)),
+  scale: z.string().trim().max(40, "Escala muito longa").optional().or(z.literal("").transform(() => undefined)),
+  currentFocus: z.string().trim().max(220, "Foco atual muito longo").optional().or(z.literal("").transform(() => undefined)),
+  stage: z.string().trim().max(40, "Etapa muito longa").optional().or(z.literal("").transform(() => undefined)),
+  pillars: z.array(z.string().trim().min(1).max(60)).max(8, "Use ate 8 pilares").optional(),
+});
+
+export const WorldChronologySchema = z.object({
+  calendarName: z.string().trim().max(120, "Nome do calendario muito longo").optional().or(z.literal("").transform(() => undefined)),
+  currentYearLabel: z.string().trim().max(80, "Ano atual muito longo").optional().or(z.literal("").transform(() => undefined)),
+  currentEraLabel: z.string().trim().max(120, "Era atual muito longa").optional().or(z.literal("").transform(() => undefined)),
+  datingRule: z.string().trim().max(220, "Regra de datacao muito longa").optional().or(z.literal("").transform(() => undefined)),
+  toneOfHistory: z.string().trim().max(220, "Tom historico muito longo").optional().or(z.literal("").transform(() => undefined)),
+});
+
+export const WorldMetadataSchema = z.object({
+  forge: WorldForgeSchema.optional(),
+  chronology: WorldChronologySchema.optional(),
+});
+
 export const CampaignCreateSchema = z.object({
   name: z.string().trim().min(2, "Nome precisa de pelo menos 2 caracteres"),
   description: z
@@ -26,9 +49,50 @@ export const WorldCreateSchema = z.object({
     .max(500, "URL muito longa")
     .optional()
     .or(z.literal("").transform(() => undefined)),
+  metadata: WorldMetadataSchema.optional(),
 });
 
 export const WorldUpdateSchema = WorldCreateSchema.partial();
+
+export const EntityCreateSchema = z.object({
+  campaignId: z.string().trim().optional().or(z.literal("").transform(() => undefined)),
+  name: z.string().trim().min(2, "Nome precisa de pelo menos 2 caracteres"),
+  slug: z.string().trim().max(180, "Slug muito longo").optional().or(z.literal("").transform(() => undefined)),
+  type: z.string().trim().min(2, "Tipo obrigatorio").max(40, "Tipo muito longo"),
+  subtype: z.string().trim().max(60, "Subtipo muito longo").optional().or(z.literal("").transform(() => undefined)),
+  summary: z.string().trim().max(220, "Resumo muito longo").optional().or(z.literal("").transform(() => undefined)),
+  description: z.string().trim().max(4000, "Descricao muito longa").optional().or(z.literal("").transform(() => undefined)),
+  status: z.string().trim().max(30, "Status muito longo").optional().or(z.literal("").transform(() => undefined)),
+  visibility: z.string().trim().max(20, "Visibilidade muito longa").optional().or(z.literal("").transform(() => undefined)),
+  tags: z.array(z.string().trim().min(1).max(50)).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  coverImageUrl: z.string().trim().max(500, "URL muito longa").optional().or(z.literal("").transform(() => undefined)),
+  portraitImageUrl: z.string().trim().max(500, "URL muito longa").optional().or(z.literal("").transform(() => undefined)),
+});
+
+export const EntityUpdateSchema = EntityCreateSchema.partial();
+
+export const EntityRelationshipCreateSchema = z.object({
+  fromEntityId: z.string().trim().min(1, "Origem obrigatoria"),
+  toEntityId: z.string().trim().min(1, "Destino obrigatorio"),
+  type: z.string().trim().min(2, "Tipo obrigatorio").max(60, "Tipo muito longo"),
+  directionality: z.string().trim().max(20, "Direcionalidade muito longa").optional().or(z.literal("").transform(() => undefined)),
+  weight: z.coerce.number().int().min(1).max(10).optional(),
+  notes: z.string().trim().max(1000, "Notas muito longas").optional().or(z.literal("").transform(() => undefined)),
+  visibility: z.string().trim().max(20, "Visibilidade muito longa").optional().or(z.literal("").transform(() => undefined)),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const EntityRelationshipUpdateSchema = EntityRelationshipCreateSchema.partial();
+
+export const EntityImageCreateSchema = z.object({
+  url: z.string().trim().min(1, "URL obrigatoria").max(500, "URL muito longa"),
+  kind: z.string().trim().max(30, "Tipo de imagem muito longo").optional().or(z.literal("").transform(() => undefined)),
+  caption: z.string().trim().max(240, "Legenda muito longa").optional().or(z.literal("").transform(() => undefined)),
+  sortOrder: z.coerce.number().int().min(0).max(9999).optional(),
+});
+
+export const EntityImageUpdateSchema = EntityImageCreateSchema.partial();
 
 export const CharacterCreateSchema = z.object({
   name: z.string().trim().min(2, "Nome precisa de pelo menos 2 caracteres"),
@@ -260,6 +324,7 @@ export const SessionCreateSchema = z.object({
     .max(500, "URL muito longa")
     .optional()
     .or(z.literal("").transform(() => undefined)),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const SessionUpdateSchema = SessionCreateSchema;
