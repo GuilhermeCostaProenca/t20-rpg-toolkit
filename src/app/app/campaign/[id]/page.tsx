@@ -45,6 +45,11 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { normalizeSessionForgeState } from "@/lib/session-forge";
 import {
+  analyzeT20Encounter,
+  formatBalanceConfidence,
+  formatEncounterRating,
+} from "@/lib/t20-balance";
+import {
   formatMemoryEventTemporalLabel,
   formatMemoryEventKind,
   formatMemoryEventText,
@@ -367,6 +372,24 @@ export default function CampaignPage() {
   const threatCount = useMemo(
     () => sortedNpcs.filter((npc) => npc.type === "enemy").length,
     [sortedNpcs]
+  );
+  const encounterBalance = useMemo(
+    () =>
+      analyzeT20Encounter(
+        sortedCharacters.map((character) => ({
+          level: character.level,
+          role: character.role,
+          className: character.className,
+        })),
+        sortedNpcs.map((npc) => ({
+          type: npc.type,
+          hpMax: npc.hpMax,
+          defenseFinal: npc.defenseFinal,
+          damageFormula: npc.damageFormula,
+          name: npc.name,
+        }))
+      ),
+    [sortedCharacters, sortedNpcs]
   );
 
   async function uploadImage(file: File) {
@@ -858,6 +881,35 @@ export default function CampaignPage() {
                     Use a aba de combate para operar a cena sem sair desta estacao.
                   </p>
                 </div>
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Balanceamento T20
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge
+                      className={
+                        encounterBalance.rating === "deadly"
+                          ? "border-red-300/20 bg-red-300/10 text-red-100"
+                          : encounterBalance.rating === "risky"
+                            ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                            : encounterBalance.rating === "trivial"
+                              ? "border-sky-300/20 bg-sky-300/10 text-sky-100"
+                              : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+                      }
+                    >
+                      {formatEncounterRating(encounterBalance.rating)}
+                    </Badge>
+                    <Badge className="border-white/10 bg-black/25 text-white/75">
+                      Confianca {formatBalanceConfidence(encounterBalance.confidence)}
+                    </Badge>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-foreground">
+                    Razao de pressao {encounterBalance.pressureRatio}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {encounterBalance.recommendation}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -942,6 +994,75 @@ export default function CampaignPage() {
                       ? `Proxima entrada marcada para ${formatDateTime(nextSession.scheduledAt)}.`
                       : "Sem proxima sessao definida."}
                   </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4 md:col-span-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                        Balanceamento T20
+                      </p>
+                      <p className="mt-2 text-sm text-foreground">
+                        Leitura heuristica do encontro com base no nivel do grupo e nas ameacas hostis cadastradas.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge
+                        className={
+                          encounterBalance.rating === "deadly"
+                            ? "border-red-300/20 bg-red-300/10 text-red-100"
+                            : encounterBalance.rating === "risky"
+                              ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                              : encounterBalance.rating === "trivial"
+                                ? "border-sky-300/20 bg-sky-300/10 text-sky-100"
+                                : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+                        }
+                      >
+                        {formatEncounterRating(encounterBalance.rating)}
+                      </Badge>
+                      <Badge className="border-white/10 bg-black/25 text-white/75">
+                        Confianca {formatBalanceConfidence(encounterBalance.confidence)}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                    <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Grupo</p>
+                      <p className="mt-2 text-sm font-semibold text-foreground">
+                        {characters.length} personagens · nivel medio {encounterBalance.avgPartyLevel || 0}
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Score de grupo {encounterBalance.partyScore}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Ameacas</p>
+                      <p className="mt-2 text-sm font-semibold text-foreground">
+                        {encounterBalance.enemyCount} hostis consideradas
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Score de pressao {encounterBalance.threatScore}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Leitura</p>
+                      <p className="mt-2 text-sm font-semibold text-foreground">
+                        Razao {encounterBalance.pressureRatio}
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {encounterBalance.recommendation}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-2">
+                    {encounterBalance.factors.map((factor) => (
+                      <div
+                        key={factor}
+                        className="rounded-2xl border border-white/8 bg-white/4 px-3 py-2 text-sm text-muted-foreground"
+                      >
+                        {factor}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 

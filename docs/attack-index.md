@@ -148,8 +148,8 @@ Racional:
 - [-] A8. Fechar Memoria do Mundo
   Notas: `RPG-20` abriu o primeiro slice real da frente em cima da propria `Session`: a Forja de Sessao agora consolida resumo publico, resumo do mestre, presencas, ausencias, mortes e mudancas persistentes em `Session.metadata.memory`, e o `PUT /api/sessions/[id]` ja sincroniza isso para `WorldEvent` com visibilidade e vinculo por sessao/campanha/mundo. `RPG-21` aprofundou a frente com timeline da entidade no Codex, painel de memoria consolidada no cockpit do mundo e sincronizacao de mudancas persistentes por entidade ligada. `RPG-22` abriu memoria por campanha na estacao de campanha, com `recentMemoryEvents` no `GET /api/campaigns/[id]` e bloco de fechamento consolidado no inspect de sessao. `RPG-23` aprofundou a consulta com filtros leves de memoria e quick inspect dedicado em mundo e campanha. `RPG-24` trouxe leitura temporal melhor e contexto cruzado no inspect, com links rapidos para campanha, sessao e entidades quando possivel. Ainda falta busca transversal mais forte e derivacao temporal mais profunda.
 
-- [ ] A9. Fechar Balanceamento T20
-  Notas:
+- [-] A9. Fechar Balanceamento T20
+  Notas: `RPG-25` abriu o primeiro slice real da frente com um helper heuristico em `src/lib/t20-balance.ts` e um painel de leitura de risco/encontro na estacao da campanha. O app agora classifica a composicao como `Trivial`, `Jogavel`, `Arriscado` ou `Punitivo`, explicita a confianca e mostra os fatores que influenciam a leitura. Ainda faltam integracao com preparo de encontro e apoio ao vivo.
 
 ---
 

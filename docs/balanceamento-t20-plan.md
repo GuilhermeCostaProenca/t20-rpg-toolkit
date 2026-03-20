@@ -55,14 +55,14 @@ Pode iniciar modelagem antes, mas a experiencia final depende dessas frentes.
 
 ## Checklist Mestre
 
-- [ ] T1. Definir a base de calculo de encontro T20
-  Notas:
+- [-] T1. Definir a base de calculo de encontro T20
+  Notas: `RPG-25` abriu uma base heuristica inicial em `src/lib/t20-balance.ts`, usando nivel do grupo e estatisticas minimas das ameacas (`hpMax`, `defenseFinal`, `damageFormula`).
 
-- [ ] T2. Definir leitura de poder do grupo
-  Notas:
+- [-] T2. Definir leitura de poder do grupo
+  Notas: O slice inicial usa nivel medio, quantidade de personagens e peso leve por funcao para evitar leitura puramente cega.
 
-- [ ] T3. Criar superficie de analise de dificuldade
-  Notas:
+- [-] T3. Criar superficie de analise de dificuldade
+  Notas: `RPG-25` abriu o primeiro painel de leitura na estacao da campanha, com classificacao, confianca, score de grupo, score de pressao e fatores explicitos.
 
 - [ ] T4. Criar apoio para preparo de encontro
   Notas:
@@ -77,20 +77,20 @@ Pode iniciar modelagem antes, mas a experiencia final depende dessas frentes.
 Contexto tecnico:
 Sem fundacao clara, a frente vira sugestao vaga.
 
-- [ ] T1.1 Definir modelo de entrada do grupo
-  Notas:
+- [-] T1.1 Definir modelo de entrada do grupo
+  Notas: O modelo inicial usa `level`, `role` e `className` dos personagens da campanha.
 
-- [ ] T1.2 Definir modelo de entrada das ameacas
-  Notas:
+- [-] T1.2 Definir modelo de entrada das ameacas
+  Notas: O modelo inicial usa apenas NPCs do tipo `enemy` e considera `hpMax`, `defenseFinal` e `damageFormula`.
 
-- [ ] T1.3 Definir calculo de dificuldade e risco
-  Notas:
+- [-] T1.3 Definir calculo de dificuldade e risco
+  Notas: O primeiro recorte usa `partyScore`, `threatScore` e `pressureRatio`, mapeando para `trivial`, `manageable`, `risky` e `deadly`.
 
 - [ ] T1.4 Definir como lidar com composicoes nao triviais
   Notas:
 
-- [ ] T1.5 Definir limites e mensagens de confianca
-  Notas:
+- [-] T1.5 Definir limites e mensagens de confianca
+  Notas: O painel ja expõe confianca `alta`, `media` ou `baixa` e fatores de incerteza quando faltam dados do grupo ou das ameacas.
 
 ### Criterios de aceite da Frente T1
 - a base de calculo e previsivel;
@@ -110,11 +110,11 @@ Nivel puro nem sempre representa a forca real da mesa.
 - [ ] T2.2 Integrar dados disponiveis de personagens e sheets
   Notas:
 
-- [ ] T2.3 Expor leitura resumida do grupo
-  Notas:
+- [-] T2.3 Expor leitura resumida do grupo
+  Notas: A campanha agora exibe nivel medio do grupo e `partyScore` no painel de balanceamento.
 
-- [ ] T2.4 Definir como o app lida com dados incompletos
-  Notas:
+- [-] T2.4 Definir como o app lida com dados incompletos
+  Notas: O helper reduz a confianca e expõe fatores quando faltam `role`, `hpMax`, `defenseFinal` ou `damageFormula`.
 
 - [ ] T2.5 Garantir que a leitura nao seja caixa-preta
   Notas:
@@ -131,20 +131,20 @@ Nivel puro nem sempre representa a forca real da mesa.
 Contexto tecnico:
 O mestre precisa ler rapidamente se o encontro esta facil, medio, dificil ou perigoso.
 
-- [ ] T3.1 Criar tela ou painel de analise de encontro
-  Notas:
+- [-] T3.1 Criar tela ou painel de analise de encontro
+  Notas: `RPG-25` abriu o primeiro painel dentro da estacao da campanha, sem abrir uma frente isolada ainda.
 
-- [ ] T3.2 Exibir dificuldade resumida e risco
-  Notas:
+- [-] T3.2 Exibir dificuldade resumida e risco
+  Notas: O painel exibe classificacao de risco e `pressureRatio`.
 
-- [ ] T3.3 Exibir fatores que empurram o risco para cima ou para baixo
-  Notas:
+- [-] T3.3 Exibir fatores que empurram o risco para cima ou para baixo
+  Notas: O painel ja lista fatores como quantidade de personagens, nivel medio, ameacas hostis e dados ausentes.
 
-- [ ] T3.4 Exibir sinais de incerteza quando houver dados fracos
-  Notas:
+- [-] T3.4 Exibir sinais de incerteza quando houver dados fracos
+  Notas: A confianca e os fatores deixam explicito quando a leitura esta fraca.
 
-- [ ] T3.5 Garantir leitura rapida em preparacao
-  Notas:
+- [-] T3.5 Garantir leitura rapida em preparacao
+  Notas: O primeiro painel foi colocado na estacao da campanha para funcionar durante o preparo sem sair do cockpit.
 
 ### Criterios de aceite da Frente T3
 - a analise e rapida de entender;
