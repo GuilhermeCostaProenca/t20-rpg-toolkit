@@ -18,7 +18,19 @@ export async function GET(_req: Request, { params }: RouteContext) {
       return Response.json({ error: message, message }, { status: 404 });
     }
 
-    return Response.json({ data: campaign });
+    const recentMemoryEvents = await prisma.worldEvent.findMany({
+      where: {
+        campaignId: id,
+        meta: {
+          path: ["memorySource"],
+          equals: "session-closeout",
+        },
+      },
+      orderBy: { ts: "desc" },
+      take: 8,
+    });
+
+    return Response.json({ data: { ...campaign, recentMemoryEvents } });
   } catch (error) {
     console.error("GET /api/campaigns/[id]", error);
     const message = "Nao foi possivel carregar a campanha.";

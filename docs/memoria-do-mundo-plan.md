@@ -108,7 +108,7 @@ Memoria sem entidade ligada perde valor.
   Notas: Mudancas persistentes agora geram eventos por entidade ligada, permitindo historico no Codex.
 
 - [-] W2.2 Permitir contextualizacao por campanha
-  Notas: Os eventos de memoria ja nascem ligados a `sessionId` e `campaignId`; ainda falta leitura dedicada por campanha.
+  Notas: `RPG-22` abriu leitura dedicada por campanha usando `recentMemoryEvents` no `GET /api/campaigns/[id]` e painel proprio na estacao da campanha. Ainda faltam filtros temporais mais profundos.
 
 - [ ] W2.3 Permitir referencia cruzada com relacoes
   Notas:
@@ -143,8 +143,8 @@ O mestre precisa abrir uma entidade e ver "o que aconteceu com ela".
 - [x] W3.4 Integrar timeline ao workspace da entidade
   Notas: A timeline substituiu a antiga memoria recente no workspace da entidade.
 
-- [ ] W3.5 Definir filtros temporais e por campanha
-  Notas:
+- [-] W3.5 Definir filtros temporais e por campanha
+  Notas: O recorte de campanha ja existe na estacao de campanha e o inspect de sessao ja mostra o fechamento consolidado; ainda faltam filtros dedicados dentro da timeline da entidade.
 
 ### Criterios de aceite da Frente W3
 - a entidade possui historico proprio;
@@ -162,7 +162,7 @@ Sessao jogada precisa alimentar memoria do mundo.
   Notas: O primeiro recorte formalizou resumo publico, resumo do mestre, presencas, ausencias, mortes e mudancas persistentes.
 
 - [-] W4.2 Definir como a forja e a sessao geram consequencias
-  Notas: A consolidacao agora nasce na Forja de Sessao e desagua automaticamente em `WorldEvent`.
+  Notas: A consolidacao agora nasce na Forja de Sessao, desagua automaticamente em `WorldEvent` e ja reaparece no inspect da sessao dentro da estacao da campanha.
 
 - [-] W4.3 Permitir registrar morte, descoberta, alianca, ruptura e eventos chave
   Notas: O slice inicial cobre morte e mudanca persistente com tipos como `discovery`, `alliance`, `rupture`, `status`, `world_change`, `secret` e `other`.
@@ -191,17 +191,17 @@ Memoria so vale se puder ser consultada sem friccao.
 - [x] W5.1 Expor memoria no workspace de entidade
   Notas: A timeline da entidade agora consome a memoria consolidada.
 
-- [ ] W5.2 Expor memoria em contexto de campanha
-  Notas:
+- [-] W5.2 Expor memoria em contexto de campanha
+  Notas: `RPG-22` abriu o painel `Memoria da campanha` na estacao de campanha e o resumo consolidado no inspect de sessao. Ainda faltam filtros e quick inspect mais profundos.
 
 - [x] W5.3 Expor eventos recentes no cockpit do mundo
   Notas: O cockpit do mundo agora tem painel proprio de memoria consolidada.
 
-- [ ] W5.4 Integrar memoria a busca e inspect
-  Notas:
+- [-] W5.4 Integrar memoria a busca e inspect
+  Notas: O inspect de sessao dentro da campanha ja mostra o fechamento consolidado; ainda falta inspect dedicado de evento de memoria e busca transversal.
 
 - [-] W5.5 Garantir leitura clara do que mudou
-  Notas: O cockpit e a timeline ja diferenciam morte, mudanca e fechamento, mas ainda faltam filtros mais ricos.
+  Notas: O cockpit, a timeline da entidade e agora a estacao da campanha ja diferenciam morte, mudanca e fechamento; ainda faltam filtros mais ricos e leitura temporal melhor.
 
 ### Criterios de aceite da Frente W5
 - a memoria do mundo participa do uso diario;
@@ -228,7 +228,7 @@ Depois da sessao, o sistema precisa transformar o caos do jogo em memoria util d
   Notas: Cada item consolidado aceita `MASTER` ou `PLAYERS`.
 
 - [-] W6.5 Garantir que isso alimente entidades, campanha e mundo corretamente
-  Notas: O fluxo agora alimenta mundo, campanha, sessao e tambem a entidade no workspace do Codex. Ainda faltam filtros dedicados por campanha.
+  Notas: O fluxo agora alimenta mundo, campanha, sessao e tambem a entidade no workspace do Codex. `RPG-22` fechou a superficie inicial de campanha; ainda faltam filtros dedicados e quick inspect de memoria.
 
 ### Criterios de aceite da Frente W6
 - a sessao pode ser consolidada sem reensino manual massivo;

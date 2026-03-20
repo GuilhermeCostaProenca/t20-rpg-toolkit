@@ -27,6 +27,19 @@ export async function GET(_req: Request, { params }: Context) {
     const sessions = await prisma.session.findMany({
       where: { campaignId: id },
       orderBy: { updatedAt: "desc" },
+      select: {
+        id: true,
+        campaignId: true,
+        worldId: true,
+        title: true,
+        description: true,
+        coverUrl: true,
+        metadata: true,
+        scheduledAt: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     return Response.json({ data: sessions });

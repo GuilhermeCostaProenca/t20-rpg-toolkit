@@ -43,6 +43,13 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { normalizeSessionForgeState } from "@/lib/session-forge";
+import {
+  formatMemoryEventText,
+  formatMemoryEventType,
+  getMemoryEventTone,
+  isMemoryWorldEvent,
+} from "@/lib/world-memory";
 import {
   CharacterCreateSchema,
   NpcCreateSchema,
@@ -58,6 +65,7 @@ type Campaign = {
   createdAt: string;
   updatedAt: string;
   world: { id: string; title: string };
+  recentMemoryEvents?: WorldEvent[];
 };
 
 type Character = {
@@ -80,6 +88,7 @@ type Session = {
   title: string;
   description?: string | null;
   coverUrl?: string | null;
+  metadata?: Record<string, unknown> | null;
   scheduledAt?: string | null;
   status?: "planned" | "active" | "finished";
   createdAt: string;
@@ -113,6 +122,16 @@ type InspectItem =
   | { type: "character"; item: Character }
   | { type: "session"; item: Session }
   | { type: "npc"; item: Npc };
+
+type WorldEvent = {
+  id: string;
+  type: string;
+  scope: string;
+  ts: string;
+  text?: string | null;
+  visibility: string;
+  meta?: Record<string, unknown> | null;
+};
 
 const initialCharacter = {
   name: "",
@@ -289,6 +308,10 @@ export default function CampaignPage() {
         (session) => session.status !== "finished" && session.scheduledAt
       ) ?? sortedSessions[0] ?? null,
     [sortedSessions]
+  );
+  const campaignMemoryEvents = useMemo(
+    () => (campaign?.recentMemoryEvents ?? []).filter((event) => isMemoryWorldEvent(event)),
+    [campaign?.recentMemoryEvents]
   );
   const threatCount = useMemo(
     () => sortedNpcs.filter((npc) => npc.type === "enemy").length,
@@ -895,10 +918,10 @@ export default function CampaignPage() {
                   </p>
                 </div>
 
-                <div className="rounded-[24px] border border-white/8 bg-black/20 p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="section-eyebrow">Pressao narrativa</p>
+              <div className="rounded-[24px] border border-white/8 bg-black/20 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="section-eyebrow">Pressao narrativa</p>
                       <h3 className="mt-2 text-lg font-bold text-foreground">
                         Combate e elenco no mesmo eixo
                       </h3>
@@ -911,6 +934,53 @@ export default function CampaignPage() {
                     Personagens, NPCs e sessao ao vivo agora ficam amarrados dentro da mesma superficie de campanha.
                   </p>
                 </div>
+              </div>
+
+              <div className="mt-4 rounded-[24px] border border-white/8 bg-black/20 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="section-eyebrow">Memoria da campanha</p>
+                    <h3 className="mt-2 text-lg font-bold text-foreground">
+                      O que ficou das ultimas mesas
+                    </h3>
+                  </div>
+                  <Badge className="border-primary/20 bg-primary/10 text-primary">
+                    {campaignMemoryEvents.length} marcos
+                  </Badge>
+                </div>
+                {campaignMemoryEvents.length > 0 ? (
+                  <div className="mt-4 space-y-3">
+                    {campaignMemoryEvents.slice(0, 4).map((event) => (
+                      <div
+                        key={event.id}
+                        className="w-full rounded-2xl border border-white/8 bg-white/4 p-4"
+                      >
+                        <div className="flex flex-wrap gap-2">
+                          <Badge
+                            className={
+                              getMemoryEventTone(event) === "death"
+                                ? "border-red-300/20 bg-red-300/10 text-red-100"
+                                : getMemoryEventTone(event) === "change"
+                                  ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                                  : "border-primary/20 bg-primary/10 text-primary"
+                            }
+                          >
+                            {formatMemoryEventType(event.type)}
+                          </Badge>
+                          <Badge className="border-white/10 bg-black/25 text-white/75">{event.visibility}</Badge>
+                        </div>
+                        <p className="mt-3 text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
+                        <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                          {formatDateTime(event.ts)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    Ainda nao existe memoria consolidada para esta campanha.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1468,6 +1538,27 @@ export default function CampaignPage() {
                   {inspectItem.item.description || "Sem briefing registrado."}
                 </p>
               </div>
+              {(() => {
+                const memory = normalizeSessionForgeState(inspectItem.item.metadata).memory;
+                if (!memory.publicSummary && !memory.masterSummary) return null;
+                return (
+                  <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Fechamento consolidado</p>
+                    {memory.publicSummary ? (
+                      <div className="mt-3 space-y-2">
+                        <Badge className="border-emerald-300/20 bg-emerald-300/10 text-emerald-100">Publico</Badge>
+                        <p className="text-sm leading-7 text-foreground">{memory.publicSummary}</p>
+                      </div>
+                    ) : null}
+                    {memory.masterSummary ? (
+                      <div className="mt-3 space-y-2">
+                        <Badge className="border-red-300/20 bg-red-300/10 text-red-100">Mestre</Badge>
+                        <p className="text-sm leading-7 text-muted-foreground">{memory.masterSummary}</p>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })()}
             </div>
           ) : (
             <div className="space-y-4">
