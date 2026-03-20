@@ -60,8 +60,8 @@ Esta frente depende de:
 - [-] M1. Reestruturar cockpit da sessao ao vivo
   Notas: `RPG-19` abriu o primeiro pacote de preparo dentro de `/app/play/[campaignId]`, puxando a sessao ativa ou proxima sessao da campanha para o cockpit ao vivo com objetivo de mesa, contagem operacional e proximas cenas.
 
-- [ ] M2. Fechar consulta rapida de entidades durante a mesa
-  Notas:
+- [-] M2. Fechar consulta rapida de entidades durante a mesa
+  Notas: `RPG-19` agora abre quick inspect world-scoped dentro de `/app/play/[campaignId]`, com busca curta, atalhos para entidades em foco da sessao e drawer de detalhe reaproveitando o padrao do Codex.
 
 - [ ] M3. Integrar combate ao cockpit de forma mais fluida
   Notas:
@@ -109,17 +109,17 @@ Hoje a base ja existe, mas precisa consolidacao como cockpit do mestre.
 Contexto tecnico:
 Consultar informacao sem travar a narracao e requisito central.
 
-- [ ] M2.1 Integrar quick inspect de entidade a sessao
-  Notas:
+- [x] M2.1 Integrar quick inspect de entidade a sessao
+  Notas: O sidebar da mesa ja abre quick inspect para entidades do mundo sem sair do cockpit.
 
-- [ ] M2.2 Permitir acesso rapido a relacoes e imagens
-  Notas:
+- [x] M2.2 Permitir acesso rapido a relacoes e imagens
+  Notas: O drawer ja mostra imagem principal, relacoes e memoria recente da entidade.
 
-- [ ] M2.3 Permitir consulta por busca rapida
-  Notas:
+- [-] M2.3 Permitir consulta por busca rapida
+  Notas: A mesa agora aceita busca curta por nome/tipo/subtipo e prioriza entidades em foco da sessao; ainda falta busca mais profunda e atalho global melhor.
 
-- [ ] M2.4 Garantir abertura sem perder combate/mapa
-  Notas:
+- [x] M2.4 Garantir abertura sem perder combate/mapa
+  Notas: O quick inspect abre em drawer lateral sem desmontar mapa, combate ou historico.
 
 - [ ] M2.5 Definir atalhos de uso frequente
   Notas:

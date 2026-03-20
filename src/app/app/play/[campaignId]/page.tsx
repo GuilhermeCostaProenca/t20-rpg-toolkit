@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef, FormEvent } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { RefreshCw, Send, Shield, Sparkles, BookOpen, Map as MapIcon, Clapperboard, Eye, Target, Users2 } from "lucide-react";
+import { RefreshCw, Send, Shield, Sparkles, BookOpen, Map as MapIcon, Clapperboard, Eye, Target, Users2, Search, ArrowRight } from "lucide-react";
 import { QuickSheet } from "./quick-sheet";
 import { CombatTracker } from "@/components/play/combat-tracker";
 import { SquadMonitor } from "@/components/overseer/squad-monitor";
@@ -24,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { normalizeSessionForgeState, type SessionForgeState } from "@/lib/session-forge";
+import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 
 // --- Types ---
 type GameEvent = {
@@ -47,6 +49,27 @@ type SessionRecord = {
 type PrepSessionPacket = {
     session: SessionRecord;
     forge: SessionForgeState;
+};
+
+type LiveCodexEntity = {
+    id: string;
+    name: string;
+    type: string;
+    subtype?: string | null;
+    status?: string | null;
+    summary?: string | null;
+    portraitImageUrl?: string | null;
+    coverImageUrl?: string | null;
+};
+
+type LiveEntityDetail = LiveCodexEntity & {
+    description?: string | null;
+    visibility?: string | null;
+    tags?: string[];
+    campaign?: { id: string; name: string } | null;
+    outgoingRelations: { id: string; type: string; toEntity?: { id: string; name: string } | null }[];
+    incomingRelations: { id: string; type: string; fromEntity?: { id: string; name: string } | null }[];
+    recentEvents: { id: string; type: string; text?: string | null; ts: string; visibility?: string | null }[];
 };
 
 // --- Components ---
@@ -176,6 +199,11 @@ export default function PlayPage() {
     const [pinnedEventIds, setPinnedEventIds] = useState<Set<string>>(new Set());
     const [timelineFilter, setTimelineFilter] = useState<'ALL' | 'COMBAT' | 'CHAT' | 'CASE'>('ALL'); // Added CASE
     const [prepPacket, setPrepPacket] = useState<PrepSessionPacket | null>(null);
+    const [liveCodexEntities, setLiveCodexEntities] = useState<LiveCodexEntity[]>([]);
+    const [inspectQuery, setInspectQuery] = useState("");
+    const [inspectId, setInspectId] = useState<string | null>(null);
+    const [inspectEntity, setInspectEntity] = useState<LiveEntityDetail | null>(null);
+    const [inspectLoading, setInspectLoading] = useState(false);
 
     // Auto-remove Pings after 3s
     useEffect(() => {
@@ -403,6 +431,47 @@ export default function PlayPage() {
         void loadPrepPacket();
     }, [campaignId]);
 
+    useEffect(() => {
+        if (!context?.worldId) return;
+
+        const loadCodexEntities = async () => {
+            try {
+                const res = await fetch(`/api/worlds/${context.worldId}/codex?limit=120`, { cache: "no-store" });
+                const json = await res.json();
+                setLiveCodexEntities((json.data?.entities as LiveCodexEntity[] | undefined) ?? []);
+            } catch (error) {
+                console.error("Live codex load failed", error);
+            }
+        };
+
+        void loadCodexEntities();
+    }, [context?.worldId]);
+
+    useEffect(() => {
+        if (!inspectId || !context?.worldId) {
+            setInspectEntity(null);
+            return;
+        }
+
+        const loadInspectEntity = async () => {
+            setInspectLoading(true);
+            try {
+                const res = await fetch(`/api/worlds/${context.worldId}/entities/${inspectId}`, {
+                    cache: "no-store",
+                });
+                const json = await res.json();
+                setInspectEntity((json.data as LiveEntityDetail | undefined) ?? null);
+            } catch (error) {
+                console.error("Live inspect load failed", error);
+                setInspectEntity(null);
+            } finally {
+                setInspectLoading(false);
+            }
+        };
+
+        void loadInspectEntity();
+    }, [context?.worldId, inspectId]);
+
 
     async function handleAction(type: string, payload: any) {
         if (!context) return;
@@ -459,7 +528,23 @@ export default function PlayPage() {
 
     if (!context) return <div className="flex h-screen items-center justify-center">Carregando Jogo...</div>;
 
+    const focusedLiveEntities = liveCodexEntities.filter((entity) =>
+        prepPacket?.forge.linkedEntityIds.includes(entity.id)
+    );
 
+    const inspectCandidates = (inspectQuery.trim()
+        ? liveCodexEntities.filter((entity) => {
+            const term = inspectQuery.trim().toLowerCase();
+            return (
+                entity.name.toLowerCase().includes(term) ||
+                entity.type.toLowerCase().includes(term) ||
+                (entity.subtype || "").toLowerCase().includes(term)
+            );
+        })
+        : focusedLiveEntities.length > 0
+            ? focusedLiveEntities
+            : liveCodexEntities
+    ).slice(0, 10);
 
     return (
         <div className="flex h-screen w-full bg-background overflow-hidden flex-row relative supports-[height:100dvh]:h-[100dvh]">
@@ -673,6 +758,58 @@ export default function PlayPage() {
                     </div>
                 </div>
 
+                <div className="px-3 pt-3">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                    Quick inspect
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-foreground">
+                                    Consulta world-scoped
+                                </p>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-muted-foreground hover:text-primary"
+                                onClick={() => setSearchOpen(true)}
+                                title="Abrir busca completa"
+                            >
+                                <Search className="h-4 w-4" />
+                            </Button>
+                        </div>
+
+                        <div className="mt-4 space-y-3">
+                            <Input
+                                value={inspectQuery}
+                                onChange={(event) => setInspectQuery(event.target.value)}
+                                placeholder="Buscar entidade, casa, faccao, lugar..."
+                                className="bg-white/5 border-white/10"
+                            />
+                            <div className="flex flex-wrap gap-2">
+                                {inspectCandidates.length > 0 ? (
+                                    inspectCandidates.map((entity) => (
+                                        <Button
+                                            key={entity.id}
+                                            type="button"
+                                            variant="outline"
+                                            className="border-white/10 bg-white/5"
+                                            onClick={() => setInspectId(entity.id)}
+                                        >
+                                            {entity.name}
+                                        </Button>
+                                    ))
+                                ) : (
+                                    <div className="rounded-xl border border-white/8 bg-white/5 px-3 py-2 text-sm text-muted-foreground">
+                                        Nenhuma entidade encontrada para este filtro.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="flex items-center justify-between px-4 py-2 bg-black/20 border-b border-white/5">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Histórico</span>
                     <div className="flex gap-1">
@@ -740,6 +877,107 @@ export default function PlayPage() {
                     </form>
                 </div>
             </div>
+
+            <CockpitDetailSheet
+                open={inspectId !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setInspectId(null);
+                        setInspectEntity(null);
+                    }
+                }}
+                badge="Quick inspect"
+                title={inspectEntity?.name || "Carregando entidade"}
+                description={
+                    inspectEntity
+                        ? `${inspectEntity.type}${inspectEntity.subtype ? ` • ${inspectEntity.subtype}` : ""} • ${inspectEntity.status || "sem status"}`
+                        : "Lendo detalhes do mundo"
+                }
+                footer={
+                    inspectEntity ? (
+                        <Button variant="outline" className="w-full justify-between border-white/10 bg-white/5" asChild>
+                            <Link href={`/app/worlds/${context.worldId}/codex/${inspectEntity.id}`}>
+                                Abrir no Codex
+                                <ArrowRight className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                    ) : undefined
+                }
+            >
+                {inspectLoading || !inspectEntity ? (
+                    <div className="space-y-3">
+                        <div className="h-24 animate-pulse rounded-[24px] border border-white/8 bg-white/4" />
+                        <div className="h-24 animate-pulse rounded-[24px] border border-white/8 bg-white/4" />
+                        <div className="h-24 animate-pulse rounded-[24px] border border-white/8 bg-white/4" />
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {inspectEntity.portraitImageUrl || inspectEntity.coverImageUrl ? (
+                            <div
+                                className="min-h-[180px] rounded-[24px] border border-white/8 bg-cover bg-center"
+                                style={{
+                                    backgroundImage: `linear-gradient(180deg, rgba(8,8,13,0.16), rgba(8,8,13,0.82)), url(${inspectEntity.portraitImageUrl || inspectEntity.coverImageUrl})`,
+                                }}
+                            />
+                        ) : null}
+
+                        <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Resumo</p>
+                            <p className="mt-2 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+                                {inspectEntity.summary || inspectEntity.description || "Sem resumo registrado."}
+                            </p>
+                        </div>
+
+                        {Array.isArray(inspectEntity.tags) && inspectEntity.tags.length ? (
+                            <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Tags</p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {inspectEntity.tags.map((tag) => (
+                                        <Badge key={tag} className="border-white/10 bg-black/24 text-foreground">{tag}</Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
+
+                        <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Relacoes</p>
+                            <div className="mt-3 space-y-2">
+                                {inspectEntity.outgoingRelations.slice(0, 4).map((relation) => (
+                                    <div key={relation.id} className="rounded-2xl border border-white/8 bg-black/20 p-3 text-sm text-foreground">
+                                        {relation.type} → {relation.toEntity?.name || "Destino"}
+                                    </div>
+                                ))}
+                                {inspectEntity.incomingRelations.slice(0, 4).map((relation) => (
+                                    <div key={relation.id} className="rounded-2xl border border-white/8 bg-black/20 p-3 text-sm text-foreground">
+                                        {relation.fromEntity?.name || "Origem"} → {relation.type}
+                                    </div>
+                                ))}
+                                {!inspectEntity.outgoingRelations.length && !inspectEntity.incomingRelations.length ? (
+                                    <p className="text-sm text-muted-foreground">Nenhuma relacao registrada ainda.</p>
+                                ) : null}
+                            </div>
+                        </div>
+
+                        <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Memoria recente</p>
+                            <div className="mt-3 space-y-2">
+                                {inspectEntity.recentEvents.length ? (
+                                    inspectEntity.recentEvents.map((event) => (
+                                        <div key={event.id} className="rounded-2xl border border-white/8 bg-black/20 p-3">
+                                            <p className="text-sm font-semibold text-foreground">{event.text || event.type}</p>
+                                            <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                                                {new Date(event.ts).toLocaleDateString("pt-BR")} • {event.visibility || "MASTER"}
+                                            </p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">Nenhum evento recente ligado a esta entidade.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </CockpitDetailSheet>
         </div>
     );
 }
