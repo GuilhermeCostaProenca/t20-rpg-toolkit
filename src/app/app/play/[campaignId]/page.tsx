@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { RefreshCw, Send, Shield, Sparkles, BookOpen, Map as MapIcon } from "lucide-react";
+import { RefreshCw, Send, Shield, Sparkles, BookOpen, Map as MapIcon, Clapperboard, Eye, Target, Users2 } from "lucide-react";
 import { QuickSheet } from "./quick-sheet";
 import { CombatTracker } from "@/components/play/combat-tracker";
 import { SquadMonitor } from "@/components/overseer/squad-monitor";
@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { normalizeSessionForgeState, type SessionForgeState } from "@/lib/session-forge";
 
 // --- Types ---
 type GameEvent = {
@@ -33,6 +34,19 @@ type GameEvent = {
     payload: any;
     actorName?: string;
     visibility: string;
+};
+
+type SessionRecord = {
+    id: string;
+    title: string;
+    status?: "planned" | "active" | "finished";
+    scheduledAt?: string | null;
+    metadata?: Record<string, unknown> | null;
+};
+
+type PrepSessionPacket = {
+    session: SessionRecord;
+    forge: SessionForgeState;
 };
 
 // --- Components ---
@@ -161,6 +175,7 @@ export default function PlayPage() {
     const [pins, setPins] = useState<any[]>([]);
     const [pinnedEventIds, setPinnedEventIds] = useState<Set<string>>(new Set());
     const [timelineFilter, setTimelineFilter] = useState<'ALL' | 'COMBAT' | 'CHAT' | 'CASE'>('ALL'); // Added CASE
+    const [prepPacket, setPrepPacket] = useState<PrepSessionPacket | null>(null);
 
     // Auto-remove Pings after 3s
     useEffect(() => {
@@ -348,6 +363,45 @@ export default function PlayPage() {
         const interval = setInterval(poll, 2000);
         return () => clearInterval(interval);
     }, [context, campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+
+        const loadPrepPacket = async () => {
+            try {
+                const res = await fetch(`/api/campaigns/${campaignId}/sessions`, { cache: "no-store" });
+                const json = await res.json();
+                const sessions = (json.data as SessionRecord[] | undefined) ?? [];
+                const ordered = [...sessions].sort((left, right) => {
+                    const leftPriority = left.status === "active" ? 0 : left.status === "planned" ? 1 : 2;
+                    const rightPriority = right.status === "active" ? 0 : right.status === "planned" ? 1 : 2;
+                    if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+
+                    const leftDate = left.scheduledAt ? new Date(left.scheduledAt).getTime() : Number.MAX_SAFE_INTEGER;
+                    const rightDate = right.scheduledAt ? new Date(right.scheduledAt).getTime() : Number.MAX_SAFE_INTEGER;
+                    return leftDate - rightDate;
+                });
+
+                const target = ordered.find((session) => session.status === "active")
+                    ?? ordered.find((session) => session.status === "planned")
+                    ?? null;
+
+                if (!target) {
+                    setPrepPacket(null);
+                    return;
+                }
+
+                setPrepPacket({
+                    session: target,
+                    forge: normalizeSessionForgeState(target.metadata),
+                });
+            } catch (error) {
+                console.error("Prep packet load failed", error);
+            }
+        };
+
+        void loadPrepPacket();
+    }, [campaignId]);
 
 
     async function handleAction(type: string, payload: any) {
@@ -540,6 +594,83 @@ export default function PlayPage() {
                 {/* Combat Tracker */}
                 <div className="px-3 pt-3">
                     <CombatTracker campaignId={campaignId} />
+                </div>
+
+                <div className="px-3 pt-3">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                    Pacote de preparo
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-foreground">
+                                    {prepPacket?.session.title ?? "Nenhuma sessao preparada"}
+                                </p>
+                            </div>
+                            <Badge variant="outline" className="border-primary/20 text-primary">
+                                {prepPacket?.session.status ?? "sem sessao"}
+                            </Badge>
+                        </div>
+
+                        {prepPacket ? (
+                            <div className="mt-4 space-y-4">
+                                {prepPacket.forge.tableObjective ? (
+                                    <div className="rounded-xl border border-white/8 bg-white/5 p-3">
+                                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary/80">
+                                            <Target className="h-3 w-3" />
+                                            Objetivo de mesa
+                                        </div>
+                                        <p className="mt-2 text-sm text-foreground/90">{prepPacket.forge.tableObjective}</p>
+                                    </div>
+                                ) : null}
+
+                                <div className="grid gap-2 text-xs text-muted-foreground">
+                                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-3 py-2">
+                                        <span className="inline-flex items-center gap-2"><Clapperboard className="h-3 w-3" /> Cenas prontas</span>
+                                        <span className="font-semibold text-foreground">{prepPacket.forge.scenes.filter((scene) => scene.status !== "discarded").length}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-3 py-2">
+                                        <span className="inline-flex items-center gap-2"><Eye className="h-3 w-3" /> Reveals ativos</span>
+                                        <span className="font-semibold text-foreground">{prepPacket.forge.reveals.filter((item) => item.status !== "canceled").length}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-3 py-2">
+                                        <span className="inline-flex items-center gap-2"><Users2 className="h-3 w-3" /> Entidades em foco</span>
+                                        <span className="font-semibold text-foreground">{prepPacket.forge.linkedEntityIds.length}</span>
+                                    </div>
+                                </div>
+
+                                {prepPacket.forge.scenes.length > 0 ? (
+                                    <div className="space-y-2">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                            Proximas cenas
+                                        </p>
+                                        {prepPacket.forge.scenes
+                                            .filter((scene) => scene.status !== "discarded")
+                                            .slice(0, 3)
+                                            .map((scene) => (
+                                                <div key={scene.id} className="rounded-xl border border-white/8 bg-white/5 p-3">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <p className="text-sm font-semibold text-foreground">
+                                                            {scene.title || "Cena sem titulo"}
+                                                        </p>
+                                                        <Badge variant="outline" className="border-white/10 text-white/70">
+                                                            {scene.status}
+                                                        </Badge>
+                                                    </div>
+                                                    {scene.objective ? (
+                                                        <p className="mt-2 text-sm text-muted-foreground">{scene.objective}</p>
+                                                    ) : null}
+                                                </div>
+                                            ))}
+                                    </div>
+                                ) : null}
+                            </div>
+                        ) : (
+                            <p className="mt-3 text-sm text-muted-foreground">
+                                Crie uma sessao na campanha e use a Forja de Sessao para trazer briefing, cenas e reveals para a mesa.
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex items-center justify-between px-4 py-2 bg-black/20 border-b border-white/5">

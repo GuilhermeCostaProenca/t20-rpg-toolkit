@@ -142,8 +142,8 @@ Racional:
 - [-] A6. Fechar Forja de Sessao
   Notas: `GUI-40` abriu a superficie real em `/app/campaign/[id]/forge/[sessionId]`, reaproveitando a propria `Session` como fonte de verdade, com briefing, objetivo de mesa, beats, ganchos, segredos, revelacoes, notas operacionais, entidades em foco, lore priorizado da campanha, `cenas` + `subcenas` com reordenacao, ligacao a beats e reveals, envio direto de `reveals` para a mesa usando `roomCode`, reveals visuais com `imageUrl` reaproveitado de entidades do Codex e agora `pacote visual da mesa` + `pacote operacional` dentro da propria forja. Ainda faltam integracao mais forte com a biblioteca visual completa e passagem mais ampla da forja para a operacao ao vivo.
 
-- [ ] A7. Fechar Mesa ao Vivo
-  Notas:
+- [-] A7. Fechar Mesa ao Vivo
+  Notas: `RPG-19` abriu o primeiro consumo real da `Forja de Sessao` dentro de `/app/play/[campaignId]`, puxando sessao ativa ou proxima sessao para o cockpit ao vivo com objetivo de mesa, contagem operacional e proximas cenas. Ainda faltam quick inspect forte em mesa, integracao visual mais profunda e encaixe melhor entre narracao, combate e reveal.
 
 - [ ] A8. Fechar Memoria do Mundo
   Notas:

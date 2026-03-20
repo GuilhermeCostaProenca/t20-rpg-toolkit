@@ -57,8 +57,8 @@ Esta frente depende de:
 
 ## Checklist Mestre
 
-- [ ] M1. Reestruturar cockpit da sessao ao vivo
-  Notas:
+- [-] M1. Reestruturar cockpit da sessao ao vivo
+  Notas: `RPG-19` abriu o primeiro pacote de preparo dentro de `/app/play/[campaignId]`, puxando a sessao ativa ou proxima sessao da campanha para o cockpit ao vivo com objetivo de mesa, contagem operacional e proximas cenas.
 
 - [ ] M2. Fechar consulta rapida de entidades durante a mesa
   Notas:
@@ -66,8 +66,8 @@ Esta frente depende de:
 - [ ] M3. Integrar combate ao cockpit de forma mais fluida
   Notas:
 
-- [ ] M4. Fechar reveal e referencia visual em operacao
-  Notas:
+- [-] M4. Fechar reveal e referencia visual em operacao
+  Notas: A mesa agora consome o pacote de preparo da sessao, inclusive reveals planejados e proximas cenas, mas ainda falta integrar consulta visual mais profunda e disparo por cena direto do cockpit.
 
 - [ ] M5. Fechar trilha, estado de ficha e suporte de mesa
   Notas:
@@ -85,11 +85,11 @@ Hoje a base ja existe, mas precisa consolidacao como cockpit do mestre.
 - [ ] M1.1 Definir layout final da sessao ao vivo
   Notas:
 
-- [ ] M1.2 Definir paines principais e secundarios
-  Notas:
+- [-] M1.2 Definir paines principais e secundarios
+  Notas: O sidebar da mesa agora combina combate, historico e pacote de preparo da sessao; ainda falta consolidar melhor estados narrativos versus taticos.
 
-- [ ] M1.3 Definir estados de foco narrativo versus foco tatico
-  Notas:
+- [-] M1.3 Definir estados de foco narrativo versus foco tatico
+  Notas: O pacote de preparo puxa briefing, objetivo e proximas cenas para o modo ao vivo, mas a alternancia formal entre narracao e tatica ainda nao esta fechada.
 
 - [ ] M1.4 Integrar mapa, timeline e consulta rapida sem poluicao
   Notas:
