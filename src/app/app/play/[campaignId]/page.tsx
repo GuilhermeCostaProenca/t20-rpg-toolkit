@@ -205,6 +205,7 @@ export default function PlayPage() {
     const [inspectEntity, setInspectEntity] = useState<LiveEntityDetail | null>(null);
     const [inspectLoading, setInspectLoading] = useState(false);
     const [revealingId, setRevealingId] = useState<string | null>(null);
+    const [focusedSceneId, setFocusedSceneId] = useState<string | null>(null);
 
     // Auto-remove Pings after 3s
     useEffect(() => {
@@ -573,9 +574,21 @@ export default function PlayPage() {
 
     if (!context) return <div className="flex h-screen items-center justify-center">Carregando Jogo...</div>;
 
+    const activeScene = prepPacket?.forge.scenes.find((scene) => scene.id === focusedSceneId)
+        ?? prepPacket?.forge.scenes.find((scene) => scene.status !== "discarded")
+        ?? null;
+
+    const activeSceneEntityIds = activeScene?.linkedEntityIds ?? prepPacket?.forge.linkedEntityIds ?? [];
+
     const focusedLiveEntities = liveCodexEntities.filter((entity) =>
-        prepPacket?.forge.linkedEntityIds.includes(entity.id)
+        activeSceneEntityIds.includes(entity.id)
     );
+
+    const activeSceneReveals = activeScene
+        ? prepPacket?.forge.reveals.filter((item) =>
+            item.status !== "canceled" && activeScene.linkedRevealIds.includes(item.id)
+        ) ?? []
+        : prepPacket?.forge.reveals.filter((item) => item.status !== "canceled") ?? [];
 
     const inspectCandidates = (inspectQuery.trim()
         ? liveCodexEntities.filter((entity) => {
@@ -772,13 +785,22 @@ export default function PlayPage() {
                                 {prepPacket.forge.scenes.length > 0 ? (
                                     <div className="space-y-2">
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                                            Proximas cenas
+                                            Foco de cena
                                         </p>
                                         {prepPacket.forge.scenes
                                             .filter((scene) => scene.status !== "discarded")
                                             .slice(0, 3)
                                             .map((scene) => (
-                                                <div key={scene.id} className="rounded-xl border border-white/8 bg-white/5 p-3">
+                                                <button
+                                                    key={scene.id}
+                                                    type="button"
+                                                    className={`w-full rounded-xl border p-3 text-left transition ${
+                                                        activeScene?.id === scene.id
+                                                            ? "border-primary/25 bg-primary/10"
+                                                            : "border-white/8 bg-white/5 hover:border-white/15"
+                                                    }`}
+                                                    onClick={() => setFocusedSceneId(scene.id)}
+                                                >
                                                     <div className="flex items-center justify-between gap-2">
                                                         <p className="text-sm font-semibold text-foreground">
                                                             {scene.title || "Cena sem titulo"}
@@ -790,18 +812,31 @@ export default function PlayPage() {
                                                     {scene.objective ? (
                                                         <p className="mt-2 text-sm text-muted-foreground">{scene.objective}</p>
                                                     ) : null}
-                                                </div>
+                                                </button>
                                             ))}
                                     </div>
                                 ) : null}
 
-                                {prepPacket.forge.reveals.filter((item) => item.status !== "canceled").length > 0 ? (
+                                {activeScene ? (
+                                    <div className="rounded-xl border border-white/8 bg-white/5 p-3">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                                            Cena em foco
+                                        </p>
+                                        <p className="mt-2 text-sm font-semibold text-foreground">
+                                            {activeScene.title || "Cena sem titulo"}
+                                        </p>
+                                        {activeScene.objective ? (
+                                            <p className="mt-2 text-sm text-muted-foreground">{activeScene.objective}</p>
+                                        ) : null}
+                                    </div>
+                                ) : null}
+
+                                {activeSceneReveals.length > 0 ? (
                                     <div className="space-y-2">
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                                            Reveals prontos
+                                            {activeScene ? "Reveals da cena" : "Reveals prontos"}
                                         </p>
-                                        {prepPacket.forge.reveals
-                                            .filter((item) => item.status !== "canceled")
+                                        {activeSceneReveals
                                             .slice(0, 3)
                                             .map((item) => (
                                                 <div key={item.id} className="rounded-xl border border-white/8 bg-white/5 p-3">

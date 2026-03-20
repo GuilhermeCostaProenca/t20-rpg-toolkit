@@ -89,7 +89,7 @@ Hoje a base ja existe, mas precisa consolidacao como cockpit do mestre.
   Notas: O sidebar da mesa agora combina combate, historico e pacote de preparo da sessao; ainda falta consolidar melhor estados narrativos versus taticos.
 
 - [-] M1.3 Definir estados de foco narrativo versus foco tatico
-  Notas: O pacote de preparo puxa briefing, objetivo e proximas cenas para o modo ao vivo, mas a alternancia formal entre narracao e tatica ainda nao esta fechada.
+  Notas: O pacote de preparo puxa briefing, objetivo e proximas cenas para o modo ao vivo, e agora ja sustenta `cena em foco`, que contextualiza o que aparece no cockpit. Ainda falta uma alternancia mais formal entre narracao e tatica.
 
 - [ ] M1.4 Integrar mapa, timeline e consulta rapida sem poluicao
   Notas:
@@ -170,7 +170,7 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
   Notas:
 
 - [ ] M4.2 Permitir disparar visual a partir de entidade ou cena
-  Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao; ainda falta amarrar isso melhor a cena selecionada e a entidades em foco.
+  Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao, e a `cena em foco` agora contextualiza quais reveals aparecem primeiro. Ainda falta amarrar isso mais profundamente a entidades em foco e assets da cena.
 
 - [ ] M4.3 Definir fluxo rapido para mostrar referencia sem friccao
   Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit.
