@@ -285,6 +285,40 @@ function getPublicAdvanceCue(
   };
 }
 
+function getPublicScenePhase(
+  currentCandidate: PublicQueueCandidate | null,
+  nextCandidate: PublicQueueCandidate | null,
+  publicPacing: ReturnType<typeof suggestPublicScenePacing>,
+) {
+  if (!currentCandidate && !nextCandidate) return null;
+
+  if (!currentCandidate && nextCandidate) {
+    return {
+      label: "Abertura",
+      detail: "A cena esta pedindo a primeira camada publica forte.",
+    };
+  }
+
+  if (publicPacing?.posture === "hold") {
+    return {
+      label: "Sustentacao",
+      detail: "A cena ainda pede permanencia e leitura antes da proxima virada visual.",
+    };
+  }
+
+  if (currentCandidate && nextCandidate && currentCandidate.kind !== nextCandidate.kind) {
+    return {
+      label: "Virada",
+      detail: "A proxima exposicao muda a camada publica e empurra a cena para outro momento.",
+    };
+  }
+
+  return {
+    label: "Continuacao",
+    detail: "A cena segue na mesma linha visual antes da proxima ruptura mais forte.",
+  };
+}
+
 export function LivePrepCockpit({
   prepPacket,
   activeScene,
@@ -428,6 +462,11 @@ export function LivePrepCockpit({
     nextPublicCandidate,
     publicPacing,
   );
+  const publicScenePhase = getPublicScenePhase(
+    currentDisplayedCandidate,
+    nextPublicCandidate,
+    publicPacing,
+  );
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -526,6 +565,20 @@ export function LivePrepCockpit({
                   </Badge>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">{publicPacing.guidance}</p>
+              </div>
+            ) : null}
+
+            {publicScenePhase ? (
+              <div className="rounded-xl border border-primary/20 bg-black/20 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                    Fase da cena
+                  </p>
+                  <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
+                    {publicScenePhase.label}
+                  </Badge>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{publicScenePhase.detail}</p>
               </div>
             ) : null}
 
