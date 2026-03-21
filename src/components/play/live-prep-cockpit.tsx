@@ -65,6 +65,7 @@ type PublicQueueCandidate = {
   imageUrl?: string;
   objectiveHint?: string;
   sceneCue?: string;
+  subsceneHint?: string;
 };
 
 type LivePrepCockpitProps = {
@@ -189,19 +190,31 @@ function getPublicQueuePriority(
   }
 
   if (candidate.sceneCue) score += 4;
+  if (candidate.subsceneHint) score += 3;
   if (candidate.objectiveHint) score += 2;
 
   return score;
 }
 
-function describeSceneCue(sceneObjective: string, beats: SessionForgeBeat[]) {
+function describeSceneCue(
+  sceneObjective: string,
+  beats: SessionForgeBeat[],
+  activeSubscene: SessionForgeScene["subscenes"][number] | null,
+) {
   const objectiveHint = sceneObjective.trim();
   const firstBeat = beats.find((beat) => beat.status !== "discarded");
   const beatCue = firstBeat?.title?.trim() || firstBeat?.summary?.trim() || "";
+  const subsceneTitle = activeSubscene?.title?.trim() || "";
+  const subsceneObjective = activeSubscene?.objective?.trim() || "";
 
   return {
     objectiveHint: objectiveHint ? `Objetivo: ${objectiveHint}` : "",
     beatCue: beatCue ? `Beat em foco: ${beatCue}` : "",
+    subsceneHint: subsceneTitle
+      ? `Subcena: ${subsceneTitle}`
+      : subsceneObjective
+        ? `Subobjetivo: ${subsceneObjective}`
+        : "",
   };
 }
 
@@ -244,7 +257,13 @@ export function LivePrepCockpit({
   const activeSceneBeats = activeScene && prepPacket
     ? prepPacket.forge.beats.filter((beat) => activeScene.linkedBeatIds.includes(beat.id))
     : [];
-  const sceneCue = describeSceneCue(activeScene?.objective || "", activeSceneBeats);
+  const activeSubscene =
+    activeScene?.subscenes.find((subscene) => subscene.status !== "discarded") ?? null;
+  const sceneCue = describeSceneCue(
+    activeScene?.objective || "",
+    activeSceneBeats,
+    activeSubscene,
+  );
   const portraitRefs = sceneVisualEntities.filter((item) => item.role === "portrait");
   const locationRefs = sceneVisualEntities.filter((item) => item.role === "location");
   const publicRevealCount = [
@@ -264,15 +283,19 @@ export function LivePrepCockpit({
         imageUrl: item.imageUrl || undefined,
         objectiveHint: sceneCue.objectiveHint || undefined,
         sceneCue: sceneCue.beatCue || undefined,
+        subsceneHint: sceneCue.subsceneHint || undefined,
       })),
     ...locationRefs.map((item) => ({
       id: item.id,
       title: item.name,
       description:
-        sceneCue.objectiveHint || "Lugar sugerido para aprofundar a leitura espacial da cena.",
+        sceneCue.subsceneHint ||
+        sceneCue.objectiveHint ||
+        "Lugar sugerido para aprofundar a leitura espacial da cena.",
       kind: "location" as const,
       imageUrl: item.imageUrl,
       objectiveHint: sceneCue.objectiveHint || undefined,
+      subsceneHint: sceneCue.subsceneHint || undefined,
     })),
     ...portraitRefs.map((item) => ({
       id: item.id,
@@ -288,6 +311,17 @@ export function LivePrepCockpit({
     .sort(
       (left, right) =>
         getPublicQueuePriority(right, publicPacing) - getPublicQueuePriority(left, publicPacing),
+    )
+    .map((item) =>
+      item.kind === "portrait"
+        ? {
+            ...item,
+            description:
+              sceneCue.subsceneHint ||
+              "Rosto sugerido para aprofundar a leitura dramatica da cena.",
+            subsceneHint: sceneCue.subsceneHint || undefined,
+          }
+        : item,
     );
   const nextPublicCandidate = publicSceneQueue[0] ?? null;
   const reservePublicCandidate = publicSceneQueue[1] ?? null;
@@ -397,6 +431,11 @@ export function LivePrepCockpit({
                     {nextPublicCandidate.objectiveHint}
                   </p>
                 ) : null}
+                {nextPublicCandidate.subsceneHint ? (
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-primary/70">
+                    {nextPublicCandidate.subsceneHint}
+                  </p>
+                ) : null}
                 <div className="mt-2 flex items-center gap-2">
                   <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
                     Proxima
@@ -464,6 +503,11 @@ export function LivePrepCockpit({
                     {reservePublicCandidate.objectiveHint ? (
                       <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/60">
                         {reservePublicCandidate.objectiveHint}
+                      </p>
+                    ) : null}
+                    {reservePublicCandidate.subsceneHint ? (
+                      <p className="mt-1 text-xs uppercase tracking-[0.16em] text-primary/70">
+                        {reservePublicCandidate.subsceneHint}
                       </p>
                     ) : null}
                   </div>
