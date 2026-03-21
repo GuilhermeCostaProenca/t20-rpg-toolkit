@@ -228,6 +228,9 @@ function pickReservePublicCandidate(
   queue: PublicQueueCandidate[],
   nextCandidate: PublicQueueCandidate | null,
   currentCandidate: PublicQueueCandidate | null,
+  nextSubsceneEntityIds: Set<string>,
+  nextSubsceneRevealIds: Set<string>,
+  subsceneIsConsumed: boolean,
 ) {
   if (!nextCandidate) return null;
 
@@ -236,6 +239,14 @@ function pickReservePublicCandidate(
       candidate.id !== nextCandidate.id && candidate.id !== currentCandidate?.id,
   );
   if (remaining.length === 0) return null;
+
+  // When current subscene is consumed, prefer content from the next subscene
+  if (subsceneIsConsumed && (nextSubsceneEntityIds.size > 0 || nextSubsceneRevealIds.size > 0)) {
+    const nextSubCandidate = remaining.find(
+      (c) => nextSubsceneRevealIds.has(c.id) || nextSubsceneEntityIds.has(c.id),
+    );
+    if (nextSubCandidate) return nextSubCandidate;
+  }
 
   if (nextCandidate.kind === "reveal") {
     return remaining.find((candidate) => candidate.kind !== "reveal") ?? remaining[0];
@@ -541,6 +552,21 @@ export function LivePrepCockpit({
     activeSubsceneRevealIds.size,
     activeSubsceneEntityIds.size,
   );
+  const nonDiscardedSubscenes = activeScene?.subscenes.filter((s) => s.status !== "discarded") ?? [];
+  const activeSubsceneIdx = activeSubscene
+    ? nonDiscardedSubscenes.findIndex((s) => s.id === activeSubscene.id)
+    : -1;
+  const nextSubscene =
+    activeSubsceneIdx >= 0 && activeSubsceneIdx < nonDiscardedSubscenes.length - 1
+      ? nonDiscardedSubscenes[activeSubsceneIdx + 1]
+      : null;
+  const subsceneIsConsumed = Boolean(
+    activeSubscene &&
+      (activeSubscene.linkedRevealIds.length === 0 || subsceneCueConsumption.revealSatisfied) &&
+      (activeSubscene.linkedEntityIds.length === 0 || subsceneCueConsumption.entitySatisfied),
+  );
+  const nextSubsceneEntityIds = new Set(nextSubscene?.linkedEntityIds ?? []);
+  const nextSubsceneRevealIds = new Set(nextSubscene?.linkedRevealIds ?? []);
   const publicScenePhase = getDesiredPublicPhase(
     currentDisplayedCandidate,
     publicPacing,
@@ -557,6 +583,9 @@ export function LivePrepCockpit({
     publicSceneQueue,
     nextPublicCandidate,
     currentDisplayedCandidate,
+    nextSubsceneEntityIds,
+    nextSubsceneRevealIds,
+    subsceneIsConsumed,
   );
   const publicAdvanceCue = getPublicAdvanceCue(
     currentDisplayedCandidate,
@@ -1139,9 +1168,16 @@ export function LivePrepCockpit({
                 ) : null}
                 {activeSubscene ? (
                   <div className="mt-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-2">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
-                      Subcena ativa
-                    </p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                        Subcena ativa
+                      </p>
+                      {nonDiscardedSubscenes.length > 1 ? (
+                        <Badge variant="outline" className="border-primary/20 text-primary/80">
+                          {activeSubsceneIdx + 1} / {nonDiscardedSubscenes.length}
+                        </Badge>
+                      ) : null}
+                    </div>
                     <p className="mt-1 text-sm font-medium text-foreground">
                       {activeSubscene.title || "Subcena sem titulo"}
                     </p>
@@ -1149,6 +1185,43 @@ export function LivePrepCockpit({
                       <p className="mt-1 text-sm text-muted-foreground">
                         {activeSubscene.objective}
                       </p>
+                    ) : null}
+                    {subsceneIsConsumed ? (
+                      <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">
+                        Cues absorvidos — subcena pronta para avancar
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {subsceneIsConsumed && nextSubscene ? (
+                  <div className="mt-2 rounded-xl border border-white/8 bg-sidebar/50 px-3 py-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                      Proxima subcena
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-foreground">
+                      {nextSubscene.title || "Subcena sem titulo"}
+                    </p>
+                    {nextSubscene.objective ? (
+                      <p className="mt-1 text-sm text-muted-foreground">{nextSubscene.objective}</p>
+                    ) : null}
+                    {nextSubscene.linkedRevealIds.length > 0 || nextSubscene.linkedEntityIds.length > 0 ? (
+                      <div className="mt-2 flex gap-3 text-xs text-muted-foreground">
+                        {nextSubscene.linkedRevealIds.length > 0 ? (
+                          <span className="inline-flex items-center gap-1">
+                            <Eye className="h-3 w-3" />
+                            {nextSubscene.linkedRevealIds.length}{" "}
+                            {nextSubscene.linkedRevealIds.length > 1 ? "reveals" : "reveal"}
+                          </span>
+                        ) : null}
+                        {nextSubscene.linkedEntityIds.length > 0 ? (
+                          <span className="inline-flex items-center gap-1">
+                            <Users2 className="h-3 w-3" />
+                            {nextSubscene.linkedEntityIds.length}{" "}
+                            {nextSubscene.linkedEntityIds.length > 1 ? "entidades" : "entidade"}
+                          </span>
+                        ) : null}
+                      </div>
                     ) : null}
                   </div>
                 ) : null}
