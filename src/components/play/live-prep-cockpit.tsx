@@ -244,11 +244,60 @@ function pickReservePublicCandidate(
   return remaining.find((candidate) => candidate.kind === "reveal") ?? remaining[0];
 }
 
+function getDesiredPublicPhase(
+  currentCandidate: PublicQueueCandidate | null,
+  publicPacing: ReturnType<typeof suggestPublicScenePacing>,
+) {
+  if (!currentCandidate) {
+    return {
+      label: "Abertura",
+      detail: "A cena esta pedindo a primeira camada publica forte.",
+      preferredKind: "location" as PublicQueueCandidate["kind"],
+    };
+  }
+
+  if (publicPacing?.posture === "hold") {
+    return {
+      label: "Sustentacao",
+      detail: "A cena ainda pede permanencia e leitura antes da proxima virada visual.",
+      preferredKind: currentCandidate.kind,
+    };
+  }
+
+  if (currentCandidate.kind === "location") {
+    return {
+      label: "Virada",
+      detail: "A cena pede sair da base espacial e abrir uma camada mais dramatica ou revelatoria.",
+      preferredKind: "reveal" as PublicQueueCandidate["kind"],
+    };
+  }
+
+  if (currentCandidate.kind === "reveal") {
+    return {
+      label: "Virada",
+      detail: "A revelacao ja entrou; agora a cena pede um rosto ou um lugar para sustentar o impacto.",
+      preferredKind: "portrait" as PublicQueueCandidate["kind"],
+    };
+  }
+
+  return {
+    label: "Continuacao",
+    detail: "A cena segue na mesma linha visual antes da proxima ruptura mais forte.",
+    preferredKind: "location" as PublicQueueCandidate["kind"],
+  };
+}
+
 function pickNextPublicCandidate(
   queue: PublicQueueCandidate[],
   currentCandidate: PublicQueueCandidate | null,
+  desiredKind: PublicQueueCandidate["kind"] | null,
 ) {
   if (queue.length === 0) return null;
+  if (desiredKind) {
+    const preferred = queue.find((candidate) => candidate.kind === desiredKind);
+    if (preferred) return preferred;
+  }
+
   if (!currentCandidate) return queue[0];
 
   if (currentCandidate.kind === "reveal") {
@@ -282,40 +331,6 @@ function getPublicAdvanceCue(
   return {
     label: "Hora de virar a camada",
     detail: "A proxima exposicao complementa o que ja esta na tela e ajuda a cena a avancar.",
-  };
-}
-
-function getPublicScenePhase(
-  currentCandidate: PublicQueueCandidate | null,
-  nextCandidate: PublicQueueCandidate | null,
-  publicPacing: ReturnType<typeof suggestPublicScenePacing>,
-) {
-  if (!currentCandidate && !nextCandidate) return null;
-
-  if (!currentCandidate && nextCandidate) {
-    return {
-      label: "Abertura",
-      detail: "A cena esta pedindo a primeira camada publica forte.",
-    };
-  }
-
-  if (publicPacing?.posture === "hold") {
-    return {
-      label: "Sustentacao",
-      detail: "A cena ainda pede permanencia e leitura antes da proxima virada visual.",
-    };
-  }
-
-  if (currentCandidate && nextCandidate && currentCandidate.kind !== nextCandidate.kind) {
-    return {
-      label: "Virada",
-      detail: "A proxima exposicao muda a camada publica e empurra a cena para outro momento.",
-    };
-  }
-
-  return {
-    label: "Continuacao",
-    detail: "A cena segue na mesma linha visual antes da proxima ruptura mais forte.",
   };
 }
 
@@ -448,9 +463,11 @@ export function LivePrepCockpit({
   const publicSceneQueue = fullPublicSceneQueue.filter(
     (item) => item.title !== currentPublicAsset?.title,
   );
+  const publicScenePhase = getDesiredPublicPhase(currentDisplayedCandidate, publicPacing);
   const nextPublicCandidate = pickNextPublicCandidate(
     publicSceneQueue,
     currentDisplayedCandidate,
+    publicScenePhase?.preferredKind ?? null,
   );
   const reservePublicCandidate = pickReservePublicCandidate(
     publicSceneQueue,
@@ -458,11 +475,6 @@ export function LivePrepCockpit({
     currentDisplayedCandidate,
   );
   const publicAdvanceCue = getPublicAdvanceCue(
-    currentDisplayedCandidate,
-    nextPublicCandidate,
-    publicPacing,
-  );
-  const publicScenePhase = getPublicScenePhase(
     currentDisplayedCandidate,
     nextPublicCandidate,
     publicPacing,
