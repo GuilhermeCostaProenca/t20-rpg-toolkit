@@ -53,6 +53,7 @@ type LivePrepCockpitProps = {
   }[];
   liveCombat: LiveCombat | null;
   revealingId: string | null;
+  activeInspectEntityId: string | null;
   onFocusScene: (sceneId: string) => void;
   onInspectEntity: (entityId: string) => void;
   onReveal: (revealId: string) => void | Promise<void>;
@@ -66,6 +67,7 @@ export function LivePrepCockpit({
   sceneVisualEntities,
   liveCombat,
   revealingId,
+  activeInspectEntityId,
   onFocusScene,
   onInspectEntity,
   onReveal,
@@ -447,7 +449,11 @@ export function LivePrepCockpit({
                     {portraitRefs.slice(0, 2).map((entity) => (
                       <div
                         key={entity.id}
-                        className="overflow-hidden rounded-xl border border-white/8 bg-white/5"
+                        className={`overflow-hidden rounded-xl border bg-white/5 ${
+                          activeInspectEntityId === entity.id
+                            ? "border-primary/30 shadow-[0_0_0_1px_rgba(201,161,74,0.25)]"
+                            : "border-white/8"
+                        }`}
                       >
                         <div
                           className="h-28 bg-cover bg-center"
@@ -466,7 +472,7 @@ export function LivePrepCockpit({
                               </p>
                             </div>
                             <Badge variant="outline" className="border-white/10 text-white/70">
-                              Retrato
+                              {activeInspectEntityId === entity.id ? "Em consulta" : "Retrato"}
                             </Badge>
                           </div>
                           <div className="mt-3 flex gap-2">
@@ -503,7 +509,11 @@ export function LivePrepCockpit({
                     {locationRefs.slice(0, 2).map((entity) => (
                       <div
                         key={entity.id}
-                        className="overflow-hidden rounded-xl border border-white/8 bg-white/5"
+                        className={`overflow-hidden rounded-xl border bg-white/5 ${
+                          activeInspectEntityId === entity.id
+                            ? "border-primary/30 shadow-[0_0_0_1px_rgba(201,161,74,0.25)]"
+                            : "border-white/8"
+                        }`}
                       >
                         <div
                           className="h-24 bg-cover bg-center"
@@ -522,7 +532,7 @@ export function LivePrepCockpit({
                               </p>
                             </div>
                             <Badge variant="outline" className="border-white/10 text-white/70">
-                              Cenario
+                              {activeInspectEntityId === entity.id ? "Em consulta" : "Cenario"}
                             </Badge>
                           </div>
                           <div className="mt-3 flex gap-2">

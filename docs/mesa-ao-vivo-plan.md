@@ -122,7 +122,7 @@ Consultar informacao sem travar a narracao e requisito central.
   Notas: O quick inspect abre em drawer lateral sem desmontar mapa, combate ou historico.
 
 - [ ] M2.5 Definir atalhos de uso frequente
-  Notas:
+  Notas: `RPG-41` sincronizou o pacote visual da `cena em foco` com o `quick inspect`, destacando no cockpit quando uma entidade visual da cena ja esta em consulta e permitindo abrir esse inspect direto dos cards de retrato/lugar.
 
 ### Criterios de aceite da Frente M2
 - o mestre consegue descobrir "quem e quem" em segundos;
@@ -173,7 +173,7 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
   Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao, e a `cena em foco` agora contextualiza quais reveals aparecem primeiro. `RPG-39` aprofundou isso separando `reveal principal da cena`, `reveals secundarios` e `reveals gerais da sessao`, e `RPG-40` passou a sugerir referencias visuais de entidades em foco da cena, com retratos e lugares ligados ao contexto atual.
 
 - [ ] M4.3 Definir fluxo rapido para mostrar referencia sem friccao
-  Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit.
+  Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit. `RPG-41` aproximou isso do fluxo de consulta, sincronizando cards visuais da cena com o `quick inspect`.
 
 - [ ] M4.4 Garantir consistencia com TV/segunda tela
   Notas:

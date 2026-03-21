@@ -71,6 +71,7 @@ type LiveOperationsSidebarProps = {
     }[];
     liveCombat: LiveCombat | null;
     revealingId: string | null;
+    activeInspectEntityId: string | null;
     inspectQuery: string;
     inspectCandidates: LiveCodexEntity[];
     inspectId: string | null;
@@ -107,6 +108,7 @@ export function LiveOperationsSidebar({
     sceneVisualEntities,
     liveCombat,
     revealingId,
+    activeInspectEntityId,
     inspectQuery,
     inspectCandidates,
     inspectId,
@@ -168,6 +170,7 @@ export function LiveOperationsSidebar({
                     sceneVisualEntities={sceneVisualEntities}
                     liveCombat={liveCombat}
                     revealingId={revealingId}
+                    activeInspectEntityId={activeInspectEntityId}
                     onFocusScene={onFocusScene}
                     onInspectEntity={onInspectEntity}
                     onReveal={onReveal}

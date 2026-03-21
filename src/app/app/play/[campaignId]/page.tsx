@@ -596,6 +596,7 @@ export default function PlayPage() {
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
                 revealingId={revealingId}
+                activeInspectEntityId={inspectId}
                 inspectQuery={inspectQuery}
                 inspectCandidates={inspectCandidates}
                 inspectId={inspectId}
