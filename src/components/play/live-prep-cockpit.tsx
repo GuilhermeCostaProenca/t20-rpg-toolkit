@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  type SessionForgeBeat,
   type SessionForgeDramaticItem,
   type SessionForgeEncounter,
   type SessionForgeScene,
@@ -62,6 +63,8 @@ type PublicQueueCandidate = {
   description: string;
   kind: "reveal" | "portrait" | "location";
   imageUrl?: string;
+  objectiveHint?: string;
+  sceneCue?: string;
 };
 
 type LivePrepCockpitProps = {
@@ -165,21 +168,41 @@ function getPublicQueuePriority(
   candidate: PublicQueueCandidate,
   publicPacing: ReturnType<typeof suggestPublicScenePacing>,
 ) {
+  let score = 0;
+
   if (candidate.kind === "reveal") {
-    if (publicPacing?.posture === "ease") return 34;
-    if (publicPacing?.posture === "hold") return 38;
-    return 42;
+    if (publicPacing?.posture === "ease") score = 34;
+    else if (publicPacing?.posture === "hold") score = 38;
+    else score = 42;
   }
 
   if (candidate.kind === "location") {
-    if (publicPacing?.posture === "ease") return 18;
-    if (publicPacing?.posture === "hold") return 28;
-    return 34;
+    if (publicPacing?.posture === "ease") score = 18;
+    else if (publicPacing?.posture === "hold") score = 28;
+    else score = 34;
   }
 
-  if (publicPacing?.posture === "ease") return 32;
-  if (publicPacing?.posture === "hold") return 26;
-  return 22;
+  if (candidate.kind === "portrait") {
+    if (publicPacing?.posture === "ease") score = 32;
+    else if (publicPacing?.posture === "hold") score = 26;
+    else score = 22;
+  }
+
+  if (candidate.sceneCue) score += 4;
+  if (candidate.objectiveHint) score += 2;
+
+  return score;
+}
+
+function describeSceneCue(sceneObjective: string, beats: SessionForgeBeat[]) {
+  const objectiveHint = sceneObjective.trim();
+  const firstBeat = beats.find((beat) => beat.status !== "discarded");
+  const beatCue = firstBeat?.title?.trim() || firstBeat?.summary?.trim() || "";
+
+  return {
+    objectiveHint: objectiveHint ? `Objetivo: ${objectiveHint}` : "",
+    beatCue: beatCue ? `Beat em foco: ${beatCue}` : "",
+  };
 }
 
 export function LivePrepCockpit({
@@ -218,6 +241,10 @@ export function LivePrepCockpit({
   const secondarySceneReveals = primarySceneReveal
     ? activeSceneReveals.filter((item) => item.id !== primarySceneReveal.id)
     : activeSceneReveals;
+  const activeSceneBeats = activeScene && prepPacket
+    ? prepPacket.forge.beats.filter((beat) => activeScene.linkedBeatIds.includes(beat.id))
+    : [];
+  const sceneCue = describeSceneCue(activeScene?.objective || "", activeSceneBeats);
   const portraitRefs = sceneVisualEntities.filter((item) => item.role === "portrait");
   const locationRefs = sceneVisualEntities.filter((item) => item.role === "location");
   const publicRevealCount = [
@@ -232,16 +259,20 @@ export function LivePrepCockpit({
       .map((item) => ({
         id: item.id,
         title: item.title || "Reveal da cena",
-        description: "Reveal sugerido para a proxima camada visual da cena.",
+        description: sceneCue.beatCue || "Reveal sugerido para a proxima camada visual da cena.",
         kind: "reveal" as const,
         imageUrl: item.imageUrl || undefined,
+        objectiveHint: sceneCue.objectiveHint || undefined,
+        sceneCue: sceneCue.beatCue || undefined,
       })),
     ...locationRefs.map((item) => ({
       id: item.id,
       title: item.name,
-      description: "Lugar sugerido para aprofundar a leitura espacial da cena.",
+      description:
+        sceneCue.objectiveHint || "Lugar sugerido para aprofundar a leitura espacial da cena.",
       kind: "location" as const,
       imageUrl: item.imageUrl,
+      objectiveHint: sceneCue.objectiveHint || undefined,
     })),
     ...portraitRefs.map((item) => ({
       id: item.id,
@@ -249,6 +280,8 @@ export function LivePrepCockpit({
       description: "Rosto sugerido para aprofundar a leitura dramática da cena.",
       kind: "portrait" as const,
       imageUrl: item.imageUrl,
+      objectiveHint: sceneCue.objectiveHint || undefined,
+      sceneCue: sceneCue.beatCue || undefined,
     })),
   ]
     .filter((item) => item.title !== currentPublicAsset?.title)
@@ -359,6 +392,11 @@ export function LivePrepCockpit({
                 </div>
                 <p className="mt-2 text-sm font-semibold text-foreground">{nextPublicCandidate.title}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{nextPublicCandidate.description}</p>
+                {nextPublicCandidate.objectiveHint ? (
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/60">
+                    {nextPublicCandidate.objectiveHint}
+                  </p>
+                ) : null}
                 <div className="mt-2 flex items-center gap-2">
                   <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
                     Proxima
@@ -423,6 +461,11 @@ export function LivePrepCockpit({
                     <p className="mt-1 text-sm text-muted-foreground">
                       {reservePublicCandidate.description}
                     </p>
+                    {reservePublicCandidate.objectiveHint ? (
+                      <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/60">
+                        {reservePublicCandidate.objectiveHint}
+                      </p>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
