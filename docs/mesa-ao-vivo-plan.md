@@ -86,13 +86,13 @@ Hoje a base ja existe, mas precisa consolidacao como cockpit do mestre.
   Notas:
 
 - [-] M1.2 Definir paines principais e secundarios
-  Notas: O sidebar da mesa agora combina combate, historico e pacote de preparo da sessao; `RPG-33` extraiu esse bloco para `live-prep-cockpit` e `RPG-35` fez o mesmo com historico/chat em `live-history-chat-stack`, reduzindo o acoplamento de `play` sem mudar a experiencia.
+  Notas: O sidebar da mesa agora combina combate, historico e pacote de preparo da sessao; `RPG-33` extraiu esse bloco para `live-prep-cockpit`, `RPG-35` fez o mesmo com historico/chat em `live-history-chat-stack` e `RPG-36` tirou o centro tatico para `live-war-room`, reduzindo o acoplamento de `play` sem mudar a experiencia.
 
 - [-] M1.3 Definir estados de foco narrativo versus foco tatico
   Notas: O pacote de preparo puxa briefing, objetivo e proximas cenas para o modo ao vivo, e agora ja sustenta `cena em foco`, que contextualiza o que aparece no cockpit. Ainda falta uma alternancia mais formal entre narracao e tatica.
 
-- [ ] M1.4 Integrar mapa, timeline e consulta rapida sem poluicao
-  Notas:
+- [-] M1.4 Integrar mapa, timeline e consulta rapida sem poluicao
+  Notas: `RPG-36` extraiu o bloco central de mapa/war room para `live-war-room`, isolando `InteractiveMap`, monitor de esquadra e bandeja de dados em um componente proprio.
 
 - [ ] M1.5 Garantir leitura clara em monitor de mesa
   Notas:

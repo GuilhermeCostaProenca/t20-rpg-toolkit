@@ -12,18 +12,16 @@ import {
 } from "@/components/play/live-codex-inspect";
 import { LiveHistoryChatStack } from "@/components/play/live-history-chat-stack";
 import { LivePrepCockpit } from "@/components/play/live-prep-cockpit";
-import { SquadMonitor } from "@/components/overseer/squad-monitor";
+import { LiveWarRoom } from "@/components/play/live-war-room";
 import { OmniSearch } from "@/components/archives/omni-search";
 import { GrimoireDetailView } from "@/components/archives/grimoire-detail-view";
 import { DiceCanvas, DiceCanvasRef } from "@/components/dice/dice-canvas";
 import { DieType } from "@/components/dice/die";
 import { RevealOverlay } from "@/components/reveal-overlay";
 import { cn } from "@/lib/utils";
-import { InteractiveMap } from "@/components/map/interactive-map";
 import { CortexOverlay } from "@/components/cortex/cortex-overlay";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { normalizeSessionForgeState, type SessionForgeState } from "@/lib/session-forge";
@@ -65,47 +63,6 @@ type LiveCombat = {
         hpMax: number;
     }[];
 };
-
-// --- Components ---
-
-function DiceTray({ onRoll }: { onRoll: (expression: string) => void }) {
-    const dice = [
-        { label: "d4", value: "1d4" },
-        { label: "d6", value: "1d6" },
-        { label: "d8", value: "1d8" },
-        { label: "d10", value: "1d10" },
-        { label: "d12", value: "1d12" },
-        { label: "d20", value: "1d20" },
-    ];
-
-    return (
-        <div className="flex gap-2 p-2 bg-white/5 rounded-lg border border-white/10 items-center">
-            <span className="text-xs font-bold text-muted-foreground uppercase mr-2">Dados</span>
-            {dice.map((d) => (
-                <Button
-                    key={d.label}
-                    size="sm"
-                    variant="secondary"
-                    className="h-8 min-w-[3rem] font-bold text-primary hover:bg-primary/20"
-                    onClick={() => onRoll(d.value)}
-                >
-                    {d.label}
-                </Button>
-            ))}
-            <div className="w-px h-6 bg-white/10 mx-2" />
-            <Input
-                placeholder="Ex: 2d8+4"
-                className="h-8 w-24 text-xs font-mono bg-black/20 border-white/10"
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        onRoll(e.currentTarget.value);
-                        e.currentTarget.value = '';
-                    }
-                }}
-            />
-        </div>
-    );
-}
 
 function EventBubble({ event }: { event: GameEvent }) {
     const isRoll = event.type === 'ROLL';
@@ -700,51 +657,18 @@ export default function PlayPage() {
                 </div>
             )}
 
-            {/* CENTER: Game Board */}
-            {/* CENTER: Game Board (War Room) */}
-            <div className="flex-1 bg-neutral-900 relative flex flex-col justify-center items-center text-muted-foreground overflow-hidden">
-                {/* Squad Monitor (Overseer) - Centered in Game Board */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-3xl pt-2 pointer-events-none px-4">
-                    <SquadMonitor campaignId={campaignId} />
-                </div>
-
-                <InteractiveMap
-                    className="absolute inset-0 z-0"
-                    tokens={mapTokens}
-                    pins={pins}
-                    onTokenMove={handleTokenMove}
-                    onPinCreate={handlePinCreate}
-                />
-
-                <div className="z-10 text-center pointer-events-none mb-20 opacity-30 select-none">
-                    <p className="text-[10px] tracking-[0.2em] font-light uppercase shadow-black drop-shadow-md">Simulação Tática: {context?.campaign?.name}</p>
-                </div>
-
-                {/* Absolute Bottom Dice Tray */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 shadow-2xl z-20">
-                    <DiceTray onRoll={(expr) => {
-                        // Parse: "2d20+5"
-                        const parts = expr.split('+');
-                        const dicePart = parts[0]; // "2d20"
-                        const modifier = parseInt(parts[1]) || 0;
-
-                        const count = parseInt(dicePart.split('d')[0]) || 1;
-                        const typePart = dicePart.split('d')[1] || '20';
-                        const type = `d${typePart}` as DieType;
-
-                        const diceArray = Array(Math.min(count, 10)).fill(type); // Limit 10
-
-                        // 1. Storage Context
-                        setPendingRoll({ expression: expr, modifier, count });
-
-                        // 2. Trigger Physics
-                        diceRef.current?.roll(diceArray);
-
-                        // 3. DO NOT trigger handleAction('ROLL_DICE') immediately.
-                        // We wait for onResult.
-                    }} />
-                </div>
-            </div>
+            <LiveWarRoom
+                campaignId={campaignId}
+                campaignName={context?.campaign?.name}
+                mapTokens={mapTokens}
+                pins={pins}
+                onTokenMove={handleTokenMove}
+                onPinCreate={handlePinCreate}
+                onRollDice={({ expression, modifier, count, diceArray }) => {
+                    setPendingRoll({ expression, modifier, count });
+                    diceRef.current?.roll(diceArray);
+                }}
+            />
 
             {/* RIGHT: Sidebar (Chat & Logs) */}
             <div className="w-full md:w-[350px] border-l border-white/10 bg-sidebar flex flex-col z-[60]">

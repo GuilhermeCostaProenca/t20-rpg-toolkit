@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 
 import { MapContextMenu } from "./map-context-menu";
 
-type Token = {
+export type Token = {
     id: string;
     name: string;
     avatarUrl?: string;
@@ -25,7 +25,7 @@ type Token = {
     color?: string;
 };
 
-type Pin = {
+export type Pin = {
     id: string;
     x: number;
     y: number;
