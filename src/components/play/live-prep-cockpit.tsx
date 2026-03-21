@@ -247,11 +247,24 @@ function pickReservePublicCandidate(
 function getDesiredPublicPhase(
   currentCandidate: PublicQueueCandidate | null,
   publicPacing: ReturnType<typeof suggestPublicScenePacing>,
+  subsceneRevealCount: number,
+  subsceneEntityCount: number,
 ) {
   if (!currentCandidate) {
+    if (subsceneRevealCount > 0) {
+      return {
+        label: "Abertura",
+        detail: "A subcena ja pede uma revelacao inicial para abrir a camada publica.",
+        preferredKind: "reveal" as PublicQueueCandidate["kind"],
+      };
+    }
+
     return {
       label: "Abertura",
-      detail: "A cena esta pedindo a primeira camada publica forte.",
+      detail:
+        subsceneEntityCount > 0
+          ? "A subcena pede primeiro uma base visual para situar personagens e lugar."
+          : "A cena esta pedindo a primeira camada publica forte.",
       preferredKind: "location" as PublicQueueCandidate["kind"],
     };
   }
@@ -267,15 +280,24 @@ function getDesiredPublicPhase(
   if (currentCandidate.kind === "location") {
     return {
       label: "Virada",
-      detail: "A cena pede sair da base espacial e abrir uma camada mais dramatica ou revelatoria.",
-      preferredKind: "reveal" as PublicQueueCandidate["kind"],
+      detail:
+        subsceneRevealCount > 0
+          ? "A base espacial ja entrou; a subcena pede agora uma revelacao para virar o momento."
+          : "A cena pede sair da base espacial e abrir uma camada mais dramatica ou revelatoria.",
+      preferredKind:
+        subsceneRevealCount > 0
+          ? ("reveal" as PublicQueueCandidate["kind"])
+          : ("portrait" as PublicQueueCandidate["kind"]),
     };
   }
 
   if (currentCandidate.kind === "reveal") {
     return {
-      label: "Virada",
-      detail: "A revelacao ja entrou; agora a cena pede um rosto ou um lugar para sustentar o impacto.",
+      label: subsceneEntityCount > 0 ? "Sustentacao" : "Virada",
+      detail:
+        subsceneEntityCount > 0
+          ? "A revelacao ja entrou; agora a subcena pede um rosto ou lugar para sustentar o impacto."
+          : "A revelacao ja entrou; agora a cena pede um rosto ou um lugar para sustentar o impacto.",
       preferredKind: "portrait" as PublicQueueCandidate["kind"],
     };
   }
@@ -463,7 +485,12 @@ export function LivePrepCockpit({
   const publicSceneQueue = fullPublicSceneQueue.filter(
     (item) => item.title !== currentPublicAsset?.title,
   );
-  const publicScenePhase = getDesiredPublicPhase(currentDisplayedCandidate, publicPacing);
+  const publicScenePhase = getDesiredPublicPhase(
+    currentDisplayedCandidate,
+    publicPacing,
+    activeSubsceneRevealIds.size,
+    activeSubsceneEntityIds.size,
+  );
   const nextPublicCandidate = pickNextPublicCandidate(
     publicSceneQueue,
     currentDisplayedCandidate,
