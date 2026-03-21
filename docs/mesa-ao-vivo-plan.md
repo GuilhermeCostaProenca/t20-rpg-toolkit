@@ -179,7 +179,7 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
   Notas: `RPG-42` passou a marcar `pronto para segunda tela` nos reveals e assets visuais da cena, e o cockpit agora consegue exibir retratos/lugares direto para os jogadores usando o mesmo fluxo de `roomCode` dos reveals.
 
 - [ ] M4.5 Evitar que reveal dependa de fluxo improvisado
-  Notas: `RPG-43` separou explicitamente no cockpit o que e `Para jogadores` e o que e `Apenas mestre`, agrupando reveals e assets prontos para TV/segunda tela em uma superficie publica e mantendo objetivo, encontro, pressao e ajuste rapido no bloco privado do mestre. `RPG-44` acrescentou o estado `Na tela agora`, para o mestre saber qual asset ou reveal ja esta efetivamente em exibicao para os jogadores. `RPG-46` acrescentou `Proxima exposicao sugerida`, reduzindo improviso na progressao visual da cena.
+  Notas: `RPG-43` separou explicitamente no cockpit o que e `Para jogadores` e o que e `Apenas mestre`, agrupando reveals e assets prontos para TV/segunda tela em uma superficie publica e mantendo objetivo, encontro, pressao e ajuste rapido no bloco privado do mestre. `RPG-44` acrescentou o estado `Na tela agora`, para o mestre saber qual asset ou reveal ja esta efetivamente em exibicao para os jogadores. `RPG-46` acrescentou `Proxima exposicao sugerida`, reduzindo improviso na progressao visual da cena, e `RPG-47` evoluiu isso para uma fila curta com `Proxima` e `Depois`.
 
 ### Criterios de aceite da Frente M4
 - mostrar referencias na mesa e rapido;
