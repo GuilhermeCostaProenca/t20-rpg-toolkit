@@ -464,6 +464,23 @@ export default function PlayPage() {
     const focusedLiveEntities = liveCodexEntities.filter((entity) =>
         activeSceneEntityIds.includes(entity.id)
     );
+    const sceneVisualEntities: {
+        id: string;
+        name: string;
+        type: string;
+        subtype?: string | null;
+        imageUrl: string;
+        role: "portrait" | "location";
+    }[] = focusedLiveEntities
+        .filter((entity) => entity.portraitImageUrl || entity.coverImageUrl)
+        .map((entity) => ({
+            id: entity.id,
+            name: entity.name,
+            type: entity.type,
+            subtype: entity.subtype,
+            imageUrl: entity.portraitImageUrl || entity.coverImageUrl || "",
+            role: entity.type === "character" || entity.type === "npc" ? "portrait" : "location",
+        }));
 
     const activeSceneReveals = activeScene
         ? prepPacket?.forge.reveals.filter((item) =>
@@ -576,6 +593,7 @@ export default function PlayPage() {
                 activeScene={activeScene}
                 activeEncounter={activeEncounter}
                 activeSceneReveals={activeSceneReveals}
+                sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
                 revealingId={revealingId}
                 inspectQuery={inspectQuery}
@@ -591,6 +609,7 @@ export default function PlayPage() {
                 onOpenAtlas={() => router.push(`/app/worlds/${context.worldId}/map`)}
                 onSummarize={handleSummarize}
                 onFocusScene={setFocusedSceneId}
+                onInspectEntity={setInspectId}
                 onReveal={(revealId) => void handleLiveReveal(revealId)}
                 onInspectQueryChange={setInspectQuery}
                 onInspectIdChange={(value) => {

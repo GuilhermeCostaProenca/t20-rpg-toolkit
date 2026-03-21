@@ -61,6 +61,14 @@ type LiveOperationsSidebarProps = {
     activeScene: SessionForgeScene | null;
     activeEncounter: SessionForgeEncounter | null;
     activeSceneReveals: SessionForgeDramaticItem[];
+    sceneVisualEntities: {
+        id: string;
+        name: string;
+        type: string;
+        subtype?: string | null;
+        imageUrl: string;
+        role: "portrait" | "location";
+    }[];
     liveCombat: LiveCombat | null;
     revealingId: string | null;
     inspectQuery: string;
@@ -76,6 +84,7 @@ type LiveOperationsSidebarProps = {
     onOpenAtlas: () => void;
     onSummarize: () => void;
     onFocusScene: (sceneId: string) => void;
+    onInspectEntity: (entityId: string) => void;
     onReveal: (revealId: string) => void | Promise<void>;
     onInspectQueryChange: (value: string) => void;
     onInspectIdChange: (value: string | null) => void;
@@ -95,6 +104,7 @@ export function LiveOperationsSidebar({
     activeScene,
     activeEncounter,
     activeSceneReveals,
+    sceneVisualEntities,
     liveCombat,
     revealingId,
     inspectQuery,
@@ -110,6 +120,7 @@ export function LiveOperationsSidebar({
     onOpenAtlas,
     onSummarize,
     onFocusScene,
+    onInspectEntity,
     onReveal,
     onInspectQueryChange,
     onInspectIdChange,
@@ -154,9 +165,11 @@ export function LiveOperationsSidebar({
                     activeScene={activeScene}
                     activeEncounter={activeEncounter}
                     activeSceneReveals={activeSceneReveals}
+                    sceneVisualEntities={sceneVisualEntities}
                     liveCombat={liveCombat}
                     revealingId={revealingId}
                     onFocusScene={onFocusScene}
+                    onInspectEntity={onInspectEntity}
                     onReveal={onReveal}
                 />
             </div>

@@ -43,9 +43,18 @@ type LivePrepCockpitProps = {
   activeScene: SessionForgeScene | null;
   activeEncounter: SessionForgeEncounter | null;
   activeSceneReveals: SessionForgeDramaticItem[];
+  sceneVisualEntities: {
+    id: string;
+    name: string;
+    type: string;
+    subtype?: string | null;
+    imageUrl: string;
+    role: "portrait" | "location";
+  }[];
   liveCombat: LiveCombat | null;
   revealingId: string | null;
   onFocusScene: (sceneId: string) => void;
+  onInspectEntity: (entityId: string) => void;
   onReveal: (revealId: string) => void | Promise<void>;
 };
 
@@ -54,9 +63,11 @@ export function LivePrepCockpit({
   activeScene,
   activeEncounter,
   activeSceneReveals,
+  sceneVisualEntities,
   liveCombat,
   revealingId,
   onFocusScene,
+  onInspectEntity,
   onReveal,
 }: LivePrepCockpitProps) {
   const livePressure =
@@ -78,6 +89,8 @@ export function LivePrepCockpit({
   const secondarySceneReveals = primarySceneReveal
     ? activeSceneReveals.filter((item) => item.id !== primarySceneReveal.id)
     : activeSceneReveals;
+  const portraitRefs = sceneVisualEntities.filter((item) => item.role === "portrait");
+  const locationRefs = sceneVisualEntities.filter((item) => item.role === "location");
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -416,6 +429,126 @@ export function LivePrepCockpit({
                   </div>
                 </div>
               ))}
+            </div>
+          ) : null}
+
+          {sceneVisualEntities.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Referencias da cena
+              </p>
+
+              {portraitRefs.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-primary/80">
+                    Rostos em foco
+                  </p>
+                  <div className="grid gap-2">
+                    {portraitRefs.slice(0, 2).map((entity) => (
+                      <div
+                        key={entity.id}
+                        className="overflow-hidden rounded-xl border border-white/8 bg-white/5"
+                      >
+                        <div
+                          className="h-28 bg-cover bg-center"
+                          style={{
+                            backgroundImage: `linear-gradient(180deg, rgba(8,8,13,0.08), rgba(8,8,13,0.72)), url(${entity.imageUrl})`,
+                          }}
+                        />
+                        <div className="p-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-foreground">
+                                {entity.name}
+                              </p>
+                              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                                {entity.subtype || entity.type}
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="border-white/10 text-white/70">
+                              Retrato
+                            </Badge>
+                          </div>
+                          <div className="mt-3 flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 border-white/10 bg-white/5"
+                              onClick={() => onInspectEntity(entity.id)}
+                            >
+                              Consultar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-white/10 bg-white/5"
+                              onClick={() => window.open(entity.imageUrl, "_blank", "noopener,noreferrer")}
+                            >
+                              Asset
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {locationRefs.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-primary/80">
+                    Lugares em foco
+                  </p>
+                  <div className="grid gap-2">
+                    {locationRefs.slice(0, 2).map((entity) => (
+                      <div
+                        key={entity.id}
+                        className="overflow-hidden rounded-xl border border-white/8 bg-white/5"
+                      >
+                        <div
+                          className="h-24 bg-cover bg-center"
+                          style={{
+                            backgroundImage: `linear-gradient(180deg, rgba(8,8,13,0.08), rgba(8,8,13,0.78)), url(${entity.imageUrl})`,
+                          }}
+                        />
+                        <div className="p-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-foreground">
+                                {entity.name}
+                              </p>
+                              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                                {entity.subtype || entity.type}
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="border-white/10 text-white/70">
+                              Cenario
+                            </Badge>
+                          </div>
+                          <div className="mt-3 flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 border-white/10 bg-white/5"
+                              onClick={() => onInspectEntity(entity.id)}
+                            >
+                              Consultar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-white/10 bg-white/5"
+                              onClick={() => window.open(entity.imageUrl, "_blank", "noopener,noreferrer")}
+                            >
+                              Asset
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>
