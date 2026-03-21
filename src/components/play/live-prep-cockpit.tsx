@@ -244,11 +244,40 @@ function pickReservePublicCandidate(
   return remaining.find((candidate) => candidate.kind === "reveal") ?? remaining[0];
 }
 
+function getSubsceneCueConsumption(
+  currentCandidate: PublicQueueCandidate | null,
+  subsceneRevealCount: number,
+  subsceneEntityCount: number,
+) {
+  const revealSatisfied = Boolean(
+    currentCandidate &&
+      subsceneRevealCount > 0 &&
+      currentCandidate.kind === "reveal" &&
+      currentCandidate.subsceneRevealLinked,
+  );
+
+  const entitySatisfied = Boolean(
+    currentCandidate &&
+      subsceneEntityCount > 0 &&
+      currentCandidate.kind !== "reveal" &&
+      currentCandidate.subsceneLinked,
+  );
+
+  return {
+    revealSatisfied,
+    entitySatisfied,
+  };
+}
+
 function getDesiredPublicPhase(
   currentCandidate: PublicQueueCandidate | null,
   publicPacing: ReturnType<typeof suggestPublicScenePacing>,
   subsceneRevealCount: number,
   subsceneEntityCount: number,
+  cueConsumption: {
+    revealSatisfied: boolean;
+    entitySatisfied: boolean;
+  },
 ) {
   if (!currentCandidate) {
     if (subsceneRevealCount > 0) {
@@ -278,14 +307,26 @@ function getDesiredPublicPhase(
   }
 
   if (currentCandidate.kind === "location") {
+    if (cueConsumption.entitySatisfied && cueConsumption.revealSatisfied) {
+      return {
+        label: "Continuacao",
+        detail:
+          "A subcena ja esta situada e a revelacao principal ja foi absorvida; agora vale aprofundar sem forcar outra virada imediata.",
+        preferredKind: "portrait" as PublicQueueCandidate["kind"],
+      };
+    }
+
     return {
-      label: "Virada",
+      label:
+        subsceneRevealCount > 0 && !cueConsumption.revealSatisfied ? "Virada" : "Sustentacao",
       detail:
-        subsceneRevealCount > 0
+        subsceneRevealCount > 0 && !cueConsumption.revealSatisfied
           ? "A base espacial ja entrou; a subcena pede agora uma revelacao para virar o momento."
-          : "A cena pede sair da base espacial e abrir uma camada mais dramatica ou revelatoria.",
+          : cueConsumption.entitySatisfied
+            ? "A base espacial da subcena ja foi estabelecida; agora vale aprofundar personagens ou detalhes sem repetir a mesma camada."
+            : "A cena pede sair da base espacial e abrir uma camada mais dramatica ou revelatoria.",
       preferredKind:
-        subsceneRevealCount > 0
+        subsceneRevealCount > 0 && !cueConsumption.revealSatisfied
           ? ("reveal" as PublicQueueCandidate["kind"])
           : ("portrait" as PublicQueueCandidate["kind"]),
     };
@@ -293,12 +334,22 @@ function getDesiredPublicPhase(
 
   if (currentCandidate.kind === "reveal") {
     return {
-      label: subsceneEntityCount > 0 ? "Sustentacao" : "Virada",
+      label:
+        subsceneEntityCount > 0 && !cueConsumption.entitySatisfied
+          ? "Sustentacao"
+          : cueConsumption.revealSatisfied
+            ? "Continuacao"
+            : "Virada",
       detail:
-        subsceneEntityCount > 0
+        subsceneEntityCount > 0 && !cueConsumption.entitySatisfied
           ? "A revelacao ja entrou; agora a subcena pede um rosto ou lugar para sustentar o impacto."
+          : cueConsumption.revealSatisfied
+            ? "A revelacao principal desta subcena ja foi absorvida; agora a cena pede continuidade visual em vez de repetir outra virada."
           : "A revelacao ja entrou; agora a cena pede um rosto ou um lugar para sustentar o impacto.",
-      preferredKind: "portrait" as PublicQueueCandidate["kind"],
+      preferredKind:
+        subsceneEntityCount > 0 && !cueConsumption.entitySatisfied
+          ? ("portrait" as PublicQueueCandidate["kind"])
+          : ("location" as PublicQueueCandidate["kind"]),
     };
   }
 
@@ -485,11 +536,17 @@ export function LivePrepCockpit({
   const publicSceneQueue = fullPublicSceneQueue.filter(
     (item) => item.title !== currentPublicAsset?.title,
   );
+  const subsceneCueConsumption = getSubsceneCueConsumption(
+    currentDisplayedCandidate,
+    activeSubsceneRevealIds.size,
+    activeSubsceneEntityIds.size,
+  );
   const publicScenePhase = getDesiredPublicPhase(
     currentDisplayedCandidate,
     publicPacing,
     activeSubsceneRevealIds.size,
     activeSubsceneEntityIds.size,
+    subsceneCueConsumption,
   );
   const nextPublicCandidate = pickNextPublicCandidate(
     publicSceneQueue,
