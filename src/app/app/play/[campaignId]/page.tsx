@@ -2,16 +2,13 @@
 
 import { useEffect, useState, useRef, FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { RefreshCw, Sparkles, BookOpen, Map as MapIcon } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { QuickSheet } from "./quick-sheet";
-import { CombatTracker } from "@/components/play/combat-tracker";
 import {
-    LiveCodexInspect,
     type LiveCodexEntity,
     type LiveEntityDetail,
 } from "@/components/play/live-codex-inspect";
-import { LiveHistoryChatStack } from "@/components/play/live-history-chat-stack";
-import { LivePrepCockpit } from "@/components/play/live-prep-cockpit";
+import { LiveOperationsSidebar } from "@/components/play/live-operations-sidebar";
 import { LiveWarRoom } from "@/components/play/live-war-room";
 import { OmniSearch } from "@/components/archives/omni-search";
 import { GrimoireDetailView } from "@/components/archives/grimoire-detail-view";
@@ -22,8 +19,6 @@ import { cn } from "@/lib/utils";
 import { CortexOverlay } from "@/components/cortex/cortex-overlay";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { normalizeSessionForgeState, type SessionForgeState } from "@/lib/session-forge";
 
 // --- Types ---
@@ -670,84 +665,54 @@ export default function PlayPage() {
                 }}
             />
 
-            {/* RIGHT: Sidebar (Chat & Logs) */}
-            <div className="w-full md:w-[350px] border-l border-white/10 bg-sidebar flex flex-col z-[60]">
-                <div className="p-3 border-b border-white/10 flex justify-between items-center bg-black/20">
-                    <div className="flex flex-col">
-                        <span className="font-bold text-sm tracking-wider uppercase text-primary/80 truncate max-w-[150px]">{context.campaign.name}</span>
-                        <Badge variant="outline" className="text-[10px] h-4 w-fit border-green-500/30 text-green-500">Online</Badge>
-                    </div>
-                    <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" title="Abrir Atlas" onClick={() => router.push(`/app/worlds/${context.worldId}/map`)}>
-                            <MapIcon className="h-4 w-4 text-blue-400" />
-                        </Button>
-                        <Button variant="ghost" size="icon" title="Invocar O Escriba" onClick={handleSummarize}>
-                            <BookOpen className="h-4 w-4 text-amber-500" />
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Combat Tracker */}
-                <div className="px-3 pt-3">
-                    <CombatTracker campaignId={campaignId} />
-                </div>
-
-                <div className="px-3 pt-3">
-                    <LivePrepCockpit
-                        prepPacket={prepPacket}
-                        activeScene={activeScene}
-                        activeEncounter={activeEncounter}
-                        activeSceneReveals={activeSceneReveals}
-                        liveCombat={liveCombat}
-                        revealingId={revealingId}
-                        onFocusScene={setFocusedSceneId}
-                        onReveal={(revealId) => void handleLiveReveal(revealId)}
-                    />
-                </div>
-
-                <div className="px-3 pt-3">
-                    <LiveCodexInspect
-                        worldId={context.worldId}
-                        inspectQuery={inspectQuery}
-                        inspectCandidates={inspectCandidates}
-                        inspectId={inspectId}
-                        inspectEntity={inspectEntity}
-                        inspectLoading={inspectLoading}
-                        onInspectQueryChange={setInspectQuery}
-                        onInspectIdChange={(value) => {
-                            setInspectId(value);
-                            if (value === null) {
-                                setInspectEntity(null);
-                            }
-                        }}
-                        onOpenSearch={() => setSearchOpen(true)}
-                    />
-                </div>
-
-                <LiveHistoryChatStack
-                    events={events}
-                    pinnedEventIds={pinnedEventIds}
-                    timelineFilter={timelineFilter}
-                    chatInput={chatInput}
-                    scrollRef={scrollRef}
-                    onTimelineFilterChange={setTimelineFilter}
-                    onPinToggle={(id) => {
-                        setPinnedEventIds((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(id)) next.delete(id);
-                            else next.add(id);
-                            return next;
-                        });
-                    }}
-                    onChatInputChange={setChatInput}
-                    onChatSubmit={sendChat}
-                    onVoiceTranscription={(text) => {
-                        handleAction('CHAT', { text, author: 'Mestre (Voz)' });
-                        processVoiceCommand(text);
-                    }}
-                />
-
-            </div>
+            <LiveOperationsSidebar
+                campaignId={campaignId}
+                campaignName={context.campaign.name}
+                worldId={context.worldId}
+                prepPacket={prepPacket}
+                activeScene={activeScene}
+                activeEncounter={activeEncounter}
+                activeSceneReveals={activeSceneReveals}
+                liveCombat={liveCombat}
+                revealingId={revealingId}
+                inspectQuery={inspectQuery}
+                inspectCandidates={inspectCandidates}
+                inspectId={inspectId}
+                inspectEntity={inspectEntity}
+                inspectLoading={inspectLoading}
+                events={events}
+                pinnedEventIds={pinnedEventIds}
+                timelineFilter={timelineFilter}
+                chatInput={chatInput}
+                scrollRef={scrollRef}
+                onOpenAtlas={() => router.push(`/app/worlds/${context.worldId}/map`)}
+                onSummarize={handleSummarize}
+                onFocusScene={setFocusedSceneId}
+                onReveal={(revealId) => void handleLiveReveal(revealId)}
+                onInspectQueryChange={setInspectQuery}
+                onInspectIdChange={(value) => {
+                    setInspectId(value);
+                    if (value === null) {
+                        setInspectEntity(null);
+                    }
+                }}
+                onOpenSearch={() => setSearchOpen(true)}
+                onTimelineFilterChange={setTimelineFilter}
+                onPinToggle={(id) => {
+                    setPinnedEventIds((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(id)) next.delete(id);
+                        else next.add(id);
+                        return next;
+                    });
+                }}
+                onChatInputChange={setChatInput}
+                onChatSubmit={sendChat}
+                onVoiceTranscription={(text) => {
+                    handleAction('CHAT', { text, author: 'Mestre (Voz)' });
+                    processVoiceCommand(text);
+                }}
+            />
         </div>
     );
 }
