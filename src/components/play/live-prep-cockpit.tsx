@@ -258,6 +258,33 @@ function pickNextPublicCandidate(
   return queue.find((candidate) => candidate.kind === "reveal") ?? queue[0];
 }
 
+function getPublicAdvanceCue(
+  currentCandidate: PublicQueueCandidate | null,
+  nextCandidate: PublicQueueCandidate | null,
+  publicPacing: ReturnType<typeof suggestPublicScenePacing>,
+) {
+  if (!currentCandidate || !nextCandidate) return null;
+
+  if (publicPacing?.posture === "hold") {
+    return {
+      label: "Segure mais um pouco",
+      detail: "A cena ainda comporta manter a camada atual antes de trocar a exposicao.",
+    };
+  }
+
+  if (currentCandidate.kind === nextCandidate.kind) {
+    return {
+      label: "Avanco suave",
+      detail: "A proxima troca mantem a mesma leitura visual e pode entrar sem ruptura forte.",
+    };
+  }
+
+  return {
+    label: "Hora de virar a camada",
+    detail: "A proxima exposicao complementa o que ja esta na tela e ajuda a cena a avancar.",
+  };
+}
+
 export function LivePrepCockpit({
   prepPacket,
   activeScene,
@@ -396,6 +423,11 @@ export function LivePrepCockpit({
     nextPublicCandidate,
     currentDisplayedCandidate,
   );
+  const publicAdvanceCue = getPublicAdvanceCue(
+    currentDisplayedCandidate,
+    nextPublicCandidate,
+    publicPacing,
+  );
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -463,6 +495,14 @@ export function LivePrepCockpit({
                   {currentPublicAsset.title}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">{currentPublicAsset.detail}</p>
+                {publicAdvanceCue ? (
+                  <div className="mt-3 rounded-xl border border-white/8 bg-sidebar/50 px-3 py-2">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary/80">
+                      {publicAdvanceCue.label}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">{publicAdvanceCue.detail}</p>
+                  </div>
+                ) : null}
               </div>
             ) : null}
 
