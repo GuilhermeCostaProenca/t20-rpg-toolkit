@@ -86,7 +86,7 @@ Hoje a base ja existe, mas precisa consolidacao como cockpit do mestre.
   Notas:
 
 - [-] M1.2 Definir paines principais e secundarios
-  Notas: O sidebar da mesa agora combina combate, historico e pacote de preparo da sessao; `RPG-33` extraiu esse bloco para `live-prep-cockpit`, reduzindo o acoplamento de `play` sem mudar a experiencia.
+  Notas: O sidebar da mesa agora combina combate, historico e pacote de preparo da sessao; `RPG-33` extraiu esse bloco para `live-prep-cockpit` e `RPG-35` fez o mesmo com historico/chat em `live-history-chat-stack`, reduzindo o acoplamento de `play` sem mudar a experiencia.
 
 - [-] M1.3 Definir estados de foco narrativo versus foco tatico
   Notas: O pacote de preparo puxa briefing, objetivo e proximas cenas para o modo ao vivo, e agora ja sustenta `cena em foco`, que contextualiza o que aparece no cockpit. Ainda falta uma alternancia mais formal entre narracao e tatica.
@@ -224,7 +224,7 @@ Essa frente mede o sucesso operacional da mesa.
   Notas:
 
 - [ ] M6.2 Consolidar acessos rapidos mais frequentes
-  Notas: `RPG-33` consolidou o pacote de preparo em um componente proprio e `RPG-34` fez o mesmo com o quick inspect da mesa, reduzindo a concentracao de responsabilidade dentro de `page.tsx`.
+  Notas: `RPG-33` consolidou o pacote de preparo em um componente proprio, `RPG-34` fez o mesmo com o quick inspect e `RPG-35` isolou o historico/chat. O cockpit agora esta mais modular sem mudar o fluxo do mestre.
 
 - [ ] M6.3 Reduzir rotas e modais desnecessarios durante sessao
   Notas:

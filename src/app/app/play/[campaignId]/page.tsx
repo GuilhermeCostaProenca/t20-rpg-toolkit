@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { RefreshCw, Send, Sparkles, BookOpen, Map as MapIcon } from "lucide-react";
+import { RefreshCw, Sparkles, BookOpen, Map as MapIcon } from "lucide-react";
 import { QuickSheet } from "./quick-sheet";
 import { CombatTracker } from "@/components/play/combat-tracker";
 import {
@@ -10,6 +10,7 @@ import {
     type LiveCodexEntity,
     type LiveEntityDetail,
 } from "@/components/play/live-codex-inspect";
+import { LiveHistoryChatStack } from "@/components/play/live-history-chat-stack";
 import { LivePrepCockpit } from "@/components/play/live-prep-cockpit";
 import { SquadMonitor } from "@/components/overseer/squad-monitor";
 import { OmniSearch } from "@/components/archives/omni-search";
@@ -17,17 +18,13 @@ import { GrimoireDetailView } from "@/components/archives/grimoire-detail-view";
 import { DiceCanvas, DiceCanvasRef } from "@/components/dice/dice-canvas";
 import { DieType } from "@/components/dice/die";
 import { RevealOverlay } from "@/components/reveal-overlay";
-import { AudioRecorder } from "@/components/audio-recorder";
 import { cn } from "@/lib/utils";
-import { Timeline } from "@/components/timeline/timeline";
-import { groupEvents } from "@/lib/timeline/grouper";
 import { InteractiveMap } from "@/components/map/interactive-map";
 import { CortexOverlay } from "@/components/cortex/cortex-overlay";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { normalizeSessionForgeState, type SessionForgeState } from "@/lib/session-forge";
 
@@ -803,74 +800,30 @@ export default function PlayPage() {
                     />
                 </div>
 
-                <div className="flex items-center justify-between px-4 py-2 bg-black/20 border-b border-white/5">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Histórico</span>
-                    <div className="flex gap-1">
-                        {['ALL', 'COMBAT', 'CHAT', 'CASE'].map(f => (
-                            <button
-                                key={f}
-                                onClick={() => setTimelineFilter(f as any)}
-                                className={cn(
-                                    "text-[10px] px-2 py-1 rounded transition-colors",
-                                    timelineFilter === f
-                                        ? (f === 'CASE' ? "bg-amber-500/20 text-amber-500 border border-amber-500/50" : "bg-white/10 text-primary")
-                                        : "text-muted-foreground hover:text-foreground"
-                                )}
-                            >
-                                {f === 'ALL' ? 'Tudo' : f === 'COMBAT' ? 'Combate' : f === 'CHAT' ? 'Chat' : 'Evidências'}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                <LiveHistoryChatStack
+                    events={events}
+                    pinnedEventIds={pinnedEventIds}
+                    timelineFilter={timelineFilter}
+                    chatInput={chatInput}
+                    scrollRef={scrollRef}
+                    onTimelineFilterChange={setTimelineFilter}
+                    onPinToggle={(id) => {
+                        setPinnedEventIds((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(id)) next.delete(id);
+                            else next.add(id);
+                            return next;
+                        });
+                    }}
+                    onChatInputChange={setChatInput}
+                    onChatSubmit={sendChat}
+                    onVoiceTranscription={(text) => {
+                        handleAction('CHAT', { text, author: 'Mestre (Voz)' });
+                        processVoiceCommand(text);
+                    }}
+                />
 
-                <ScrollArea ref={scrollRef} className="flex-1 bg-black/40 backdrop-blur-sm">
-                    <div className="min-h-full">
-                        <Timeline
-                            groups={[...groupEvents(events.filter(e => {
-                                if (timelineFilter === 'ALL') return true;
-                                if (timelineFilter === 'COMBAT') return e.type.includes('COMBAT') || e.type.includes('ATTACK') || e.type.includes('INITIATIVE') || e.type.includes('TURN');
-                                if (timelineFilter === 'CHAT') return e.type === 'CHAT' || e.type === 'NOTE' || e.type === 'ROLL';
-                                if (timelineFilter === 'CASE') return pinnedEventIds.has(e.id);
-                                return true;
-                            }).map(e => ({
-                                ...e,
-                                ts: new Date(e.ts),
-                                type: e.type as string
-                            })))].reverse()}
-                            pinnedIds={pinnedEventIds}
-                            onPin={(id) => {
-                                setPinnedEventIds(prev => {
-                                    const next = new Set(prev);
-                                    if (next.has(id)) next.delete(id);
-                                    else next.add(id);
-                                    return next;
-                                });
-                            }}
-                        />
-                    </div>
-                </ScrollArea>
-
-                <div className="p-3 border-t border-white/10 bg-black/20">
-                    <form onSubmit={sendChat} className="flex gap-2">
-                        <Input
-                            value={chatInput}
-                            onChange={e => setChatInput(e.target.value)}
-                            placeholder="Diga algo..."
-                            className="bg-white/5 border-white/10 focus-visible:ring-primary/50"
-                        />
-                        <Button size="icon" type="submit" variant="default">
-                            <Send className="w-4 h-4" />
-                        </Button>
-                        <AudioRecorder
-                            onTranscriptionComplete={(text) => {
-                                handleAction('CHAT', { text, author: 'Mestre (Voz)' });
-                                processVoiceCommand(text);
-                            }}
-                        />
-                    </form>
-                </div>
             </div>
-
         </div>
     );
 }
