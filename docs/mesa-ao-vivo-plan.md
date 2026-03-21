@@ -122,7 +122,7 @@ Consultar informacao sem travar a narracao e requisito central.
   Notas: O quick inspect abre em drawer lateral sem desmontar mapa, combate ou historico.
 
 - [ ] M2.5 Definir atalhos de uso frequente
-  Notas: `RPG-41` sincronizou o pacote visual da `cena em foco` com o `quick inspect`, destacando no cockpit quando uma entidade visual da cena ja esta em consulta e permitindo abrir esse inspect direto dos cards de retrato/lugar.
+  Notas: `RPG-41` sincronizou o pacote visual da `cena em foco` com o `quick inspect`, destacando no cockpit quando uma entidade visual da cena ja esta em consulta e permitindo abrir esse inspect direto dos cards de retrato/lugar. `RPG-51` acrescentou um bloco curto de `Consulta do mestre` para referencias visuais que ficam fora da fila publica da subcena, reduzindo ruido na superficie dos jogadores sem perder acesso rapido.
 
 ### Criterios de aceite da Frente M2
 - o mestre consegue descobrir "quem e quem" em segundos;
@@ -179,7 +179,7 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
   Notas: `RPG-42` passou a marcar `pronto para segunda tela` nos reveals e assets visuais da cena, e o cockpit agora consegue exibir retratos/lugares direto para os jogadores usando o mesmo fluxo de `roomCode` dos reveals.
 
 - [ ] M4.5 Evitar que reveal dependa de fluxo improvisado
-  Notas: `RPG-43` separou explicitamente no cockpit o que e `Para jogadores` e o que e `Apenas mestre`, agrupando reveals e assets prontos para TV/segunda tela em uma superficie publica e mantendo objetivo, encontro, pressao e ajuste rapido no bloco privado do mestre. `RPG-44` acrescentou o estado `Na tela agora`, para o mestre saber qual asset ou reveal ja esta efetivamente em exibicao para os jogadores. `RPG-46` acrescentou `Proxima exposicao sugerida`, reduzindo improviso na progressao visual da cena, `RPG-47` evoluiu isso para uma fila curta com `Proxima` e `Depois`, `RPG-48` tornou essa fila sensivel ao contexto da cena, priorizando melhor `reveal`, `lugar` e `rosto` conforme o momento narrativo, `RPG-49` conectou a fila ao `objective` e aos beats da cena em foco, e `RPG-50` passou a usar pistas de subcena para priorizar e explicar melhor a progressao publica da cena.
+  Notas: `RPG-43` separou explicitamente no cockpit o que e `Para jogadores` e o que e `Apenas mestre`, agrupando reveals e assets prontos para TV/segunda tela em uma superficie publica e mantendo objetivo, encontro, pressao e ajuste rapido no bloco privado do mestre. `RPG-44` acrescentou o estado `Na tela agora`, para o mestre saber qual asset ou reveal ja esta efetivamente em exibicao para os jogadores. `RPG-46` acrescentou `Proxima exposicao sugerida`, reduzindo improviso na progressao visual da cena, `RPG-47` evoluiu isso para uma fila curta com `Proxima` e `Depois`, `RPG-48` tornou essa fila sensivel ao contexto da cena, priorizando melhor `reveal`, `lugar` e `rosto` conforme o momento narrativo, `RPG-49` conectou a fila ao `objective` e aos beats da cena em foco, `RPG-50` passou a usar pistas de subcena para priorizar e explicar melhor a progressao publica da cena, e `RPG-51` passou a usar tambem as entidades ligadas a subcenas para decidir melhor o que fica na superficie publica e o que permanece como apoio privado do mestre.
 
 ### Criterios de aceite da Frente M4
 - mostrar referencias na mesa e rapido;

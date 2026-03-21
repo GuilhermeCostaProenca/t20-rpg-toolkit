@@ -66,6 +66,7 @@ type PublicQueueCandidate = {
   objectiveHint?: string;
   sceneCue?: string;
   subsceneHint?: string;
+  subsceneLinked?: boolean;
 };
 
 type LivePrepCockpitProps = {
@@ -191,6 +192,7 @@ function getPublicQueuePriority(
 
   if (candidate.sceneCue) score += 4;
   if (candidate.subsceneHint) score += 3;
+  if (candidate.subsceneLinked) score += 4;
   if (candidate.objectiveHint) score += 2;
 
   return score;
@@ -259,19 +261,28 @@ export function LivePrepCockpit({
     : [];
   const activeSubscene =
     activeScene?.subscenes.find((subscene) => subscene.status !== "discarded") ?? null;
+  const activeSubsceneEntityIds = new Set(activeSubscene?.linkedEntityIds ?? []);
   const sceneCue = describeSceneCue(
     activeScene?.objective || "",
     activeSceneBeats,
     activeSubscene,
   );
-  const portraitRefs = sceneVisualEntities.filter((item) => item.role === "portrait");
-  const locationRefs = sceneVisualEntities.filter((item) => item.role === "location");
+  const prioritizedSceneVisualEntities =
+    activeSubsceneEntityIds.size > 0
+      ? sceneVisualEntities.filter((item) => activeSubsceneEntityIds.has(item.id))
+      : sceneVisualEntities;
+  const gmSupportVisualEntities =
+    activeSubsceneEntityIds.size > 0
+      ? sceneVisualEntities.filter((item) => !activeSubsceneEntityIds.has(item.id))
+      : [];
+  const portraitRefs = prioritizedSceneVisualEntities.filter((item) => item.role === "portrait");
+  const locationRefs = prioritizedSceneVisualEntities.filter((item) => item.role === "location");
   const publicRevealCount = [
     primarySceneReveal,
     ...secondarySceneReveals,
     ...generalReveals,
   ].filter((item): item is SessionForgeDramaticItem => Boolean(item?.imageUrl)).length;
-  const publicAssetCount = portraitRefs.length + locationRefs.length;
+  const publicAssetCount = prioritizedSceneVisualEntities.length;
   const publicSceneQueue = [
     ...[primarySceneReveal, ...secondarySceneReveals, ...generalReveals]
       .filter((item): item is SessionForgeDramaticItem => Boolean(item?.imageUrl))
@@ -284,6 +295,7 @@ export function LivePrepCockpit({
         objectiveHint: sceneCue.objectiveHint || undefined,
         sceneCue: sceneCue.beatCue || undefined,
         subsceneHint: sceneCue.subsceneHint || undefined,
+        subsceneLinked: true,
       })),
     ...locationRefs.map((item) => ({
       id: item.id,
@@ -296,6 +308,7 @@ export function LivePrepCockpit({
       imageUrl: item.imageUrl,
       objectiveHint: sceneCue.objectiveHint || undefined,
       subsceneHint: sceneCue.subsceneHint || undefined,
+      subsceneLinked: activeSubsceneEntityIds.has(item.id),
     })),
     ...portraitRefs.map((item) => ({
       id: item.id,
@@ -305,6 +318,7 @@ export function LivePrepCockpit({
       imageUrl: item.imageUrl,
       objectiveHint: sceneCue.objectiveHint || undefined,
       sceneCue: sceneCue.beatCue || undefined,
+      subsceneLinked: activeSubsceneEntityIds.has(item.id),
     })),
   ]
     .filter((item) => item.title !== currentPublicAsset?.title)
@@ -850,6 +864,56 @@ export function LivePrepCockpit({
                 {activeScene.objective ? (
                   <p className="mt-2 text-sm text-muted-foreground">{activeScene.objective}</p>
                 ) : null}
+                {activeSubscene ? (
+                  <div className="mt-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                      Subcena ativa
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-foreground">
+                      {activeSubscene.title || "Subcena sem titulo"}
+                    </p>
+                    {activeSubscene.objective ? (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {activeSubscene.objective}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {gmSupportVisualEntities.length > 0 ? (
+              <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                  Consulta do mestre
+                </p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Referencias fora da vitrine publica desta subcena, mantidas como apoio rapido de
+                  consulta privada.
+                </p>
+                <div className="mt-3 space-y-2">
+                  {gmSupportVisualEntities.slice(0, 3).map((entity) => (
+                    <div
+                      key={entity.id}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-sidebar/60 px-3 py-2"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-foreground">{entity.name}</p>
+                        <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                          {entity.subtype || entity.type}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        onClick={() => onInspectEntity(entity.id)}
+                      >
+                        Consultar
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : null}
 
