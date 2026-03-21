@@ -57,6 +57,12 @@ export type LiveAdjustmentGuide = {
   actions: string[];
 };
 
+export type PublicScenePacingGuide = {
+  label: string;
+  posture: "hold" | "ease" | "escalate";
+  guidance: string;
+};
+
 function normalizeRole(role?: string | null) {
   return role?.trim().toLowerCase() ?? "";
 }
@@ -365,6 +371,46 @@ export function suggestLiveAdjustment(
         : "Mesmo sob controle, preserve o peso do encontro e escale em camadas pequenas.",
       "Prefira revelar uma complicacao de cena ou reforco pontual em vez de mudar tudo de uma vez.",
     ],
+  };
+}
+
+export function suggestPublicScenePacing(
+  pressure: LivePressureSnapshot | null,
+  hasActiveScene: boolean
+): PublicScenePacingGuide | null {
+  if (!hasActiveScene) return null;
+
+  if (!pressure) {
+    return {
+      label: "Ritmo em montagem",
+      posture: "hold",
+      guidance: "Sem combate ativo. A cena comporta exposicao gradual e reveal controlado.",
+    };
+  }
+
+  if (pressure.state === "critical") {
+    return {
+      label: "Segure a exposicao",
+      posture: "ease",
+      guidance:
+        "A mesa ja esta sob pressao. Evite empilhar novos estimulos visuais e preserve a leitura da cena.",
+    };
+  }
+
+  if (pressure.state === "rising") {
+    return {
+      label: "Escalada com cuidado",
+      posture: "hold",
+      guidance:
+        "A cena suporta revelacao pontual, mas ainda pede controle. Mostre o essencial antes de abrir mais camadas.",
+    };
+  }
+
+  return {
+    label: "Espaco para escalar",
+    posture: "escalate",
+    guidance:
+      "A mesa esta sob controle. Ha espaco para um reveal forte ou para abrir a proxima camada visual da cena.",
   };
 }
 

@@ -23,6 +23,7 @@ import {
   formatBalanceConfidence,
   formatEncounterRating,
   formatLivePressureState,
+  suggestPublicScenePacing,
   suggestLiveAdjustment,
 } from "@/lib/t20-balance";
 
@@ -175,6 +176,7 @@ export function LivePrepCockpit({
   const liveAdjustment = livePressure
     ? suggestLiveAdjustment(livePressure, activeEncounter?.rating ?? null)
     : null;
+  const publicPacing = suggestPublicScenePacing(livePressure, Boolean(activeScene));
   const generalReveals = prepPacket
     ? prepPacket.forge.reveals.filter(
         (item) =>
@@ -262,6 +264,29 @@ export function LivePrepCockpit({
                   {currentPublicAsset.title}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">{currentPublicAsset.detail}</p>
+              </div>
+            ) : null}
+
+            {publicPacing ? (
+              <div className="rounded-xl border border-primary/20 bg-black/20 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                    Ritmo da cena
+                  </p>
+                  <Badge
+                    variant="outline"
+                    className={`${
+                      publicPacing.posture === "ease"
+                        ? "border-red-500/30 text-red-300"
+                        : publicPacing.posture === "escalate"
+                          ? "border-emerald-500/30 text-emerald-300"
+                          : "border-amber-500/30 text-amber-300"
+                    }`}
+                  >
+                    {publicPacing.label}
+                  </Badge>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{publicPacing.guidance}</p>
               </div>
             ) : null}
 
