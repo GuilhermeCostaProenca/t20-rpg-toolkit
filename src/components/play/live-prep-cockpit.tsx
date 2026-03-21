@@ -224,6 +224,22 @@ function describeSceneCue(
   };
 }
 
+function pickReservePublicCandidate(
+  queue: PublicQueueCandidate[],
+  nextCandidate: PublicQueueCandidate | null,
+) {
+  if (!nextCandidate) return null;
+
+  const remaining = queue.filter((candidate) => candidate.id !== nextCandidate.id);
+  if (remaining.length === 0) return null;
+
+  if (nextCandidate.kind === "reveal") {
+    return remaining.find((candidate) => candidate.kind !== "reveal") ?? remaining[0];
+  }
+
+  return remaining.find((candidate) => candidate.kind === "reveal") ?? remaining[0];
+}
+
 export function LivePrepCockpit({
   prepPacket,
   activeScene,
@@ -350,7 +366,10 @@ export function LivePrepCockpit({
         : item,
     );
   const nextPublicCandidate = publicSceneQueue[0] ?? null;
-  const reservePublicCandidate = publicSceneQueue[1] ?? null;
+  const reservePublicCandidate = pickReservePublicCandidate(
+    publicSceneQueue,
+    nextPublicCandidate,
+  );
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
