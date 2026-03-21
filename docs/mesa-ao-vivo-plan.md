@@ -116,7 +116,7 @@ Consultar informacao sem travar a narracao e requisito central.
   Notas: O drawer ja mostra imagem principal, relacoes e memoria recente da entidade.
 
 - [-] M2.3 Permitir consulta por busca rapida
-  Notas: A mesa agora aceita busca curta por nome/tipo/subtipo e prioriza entidades em foco da sessao; ainda falta busca mais profunda e atalho global melhor.
+  Notas: A mesa agora aceita busca curta por nome/tipo/subtipo e prioriza entidades em foco da sessao; `RPG-34` extraiu esse fluxo para `live-codex-inspect`, reduzindo o acoplamento do `play` e preparando a busca para aprofundamento posterior.
 
 - [x] M2.4 Garantir abertura sem perder combate/mapa
   Notas: O quick inspect abre em drawer lateral sem desmontar mapa, combate ou historico.
@@ -224,7 +224,7 @@ Essa frente mede o sucesso operacional da mesa.
   Notas:
 
 - [ ] M6.2 Consolidar acessos rapidos mais frequentes
-  Notas: `RPG-33` nao adiciona nova capacidade, mas consolida o bloco mais carregado do sidebar em um componente proprio, preparando o cockpit para novos acessos rapidos sem continuar inchando `page.tsx`.
+  Notas: `RPG-33` consolidou o pacote de preparo em um componente proprio e `RPG-34` fez o mesmo com o quick inspect da mesa, reduzindo a concentracao de responsabilidade dentro de `page.tsx`.
 
 - [ ] M6.3 Reduzir rotas e modais desnecessarios durante sessao
   Notas:
