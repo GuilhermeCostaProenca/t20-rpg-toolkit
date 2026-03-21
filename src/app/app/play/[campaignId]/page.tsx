@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef, FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { BookOpen } from "lucide-react";
 import { QuickSheet } from "./quick-sheet";
 import {
     type LiveCodexEntity,
@@ -11,11 +10,11 @@ import {
 import { LiveOperationsSidebar } from "@/components/play/live-operations-sidebar";
 import { LiveWarRoom } from "@/components/play/live-war-room";
 import { OmniSearch } from "@/components/archives/omni-search";
-import { GrimoireDetailView } from "@/components/archives/grimoire-detail-view";
+import { GrimoireDetailView, type GrimoireItem } from "@/components/archives/grimoire-detail-view";
 import { DiceCanvas, DiceCanvasRef } from "@/components/dice/dice-canvas";
 import { DieType } from "@/components/dice/die";
 import { RevealOverlay } from "@/components/reveal-overlay";
-import { cn } from "@/lib/utils";
+import { type Pin, type Token } from "@/components/map/interactive-map";
 import { CortexOverlay } from "@/components/cortex/cortex-overlay";
 
 import { Button } from "@/components/ui/button";
@@ -27,9 +26,10 @@ type GameEvent = {
     type: string;
     scope: string;
     ts: string;
-    payload: any;
+    payload: Record<string, unknown>;
     actorName?: string;
     visibility: string;
+    campaignId?: string | null;
 };
 
 type SessionRecord = {
@@ -58,79 +58,17 @@ type LiveCombat = {
         hpMax: number;
     }[];
 };
-
-function EventBubble({ event }: { event: GameEvent }) {
-    const isRoll = event.type === 'ROLL';
-    const isAttack = event.type === 'ATTACK';
-    const isNote = event.type === 'NOTE';
-    const isScribe = event.payload?.isSummary;
-
-    if (isScribe) {
-        return (
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-amber-900/20 border border-amber-500/30 animate-in fade-in slide-in-from-bottom-2">
-                <div className="flex items-center gap-2 text-amber-500 mb-1">
-                    <BookOpen className="h-4 w-4" />
-                    <span className="font-bold text-sm uppercase tracking-wider">O Escriba</span>
-                    <span className="ml-auto text-[10px] opacity-70">{new Date(event.ts).toLocaleTimeString()}</span>
-                </div>
-                <div className="text-sm text-foreground/90 whitespace-pre-wrap font-serif leading-relaxed">
-                    {event.payload.text}
-                </div>
-            </div>
-        )
-    }
-
-    return (
-        <div className="flex flex-col gap-1 p-3 rounded-lg bg-black/20 border border-white/5 animate-in fade-in slide-in-from-bottom-2">
-            <div className="flex justify-between items-center text-xs text-muted-foreground">
-                <span className="font-bold text-primary/80">{event.actorName || event.payload?.author || "Sistema"}</span>
-                <span>{new Date(event.ts).toLocaleTimeString()}</span>
-            </div>
-
-            {(isRoll || isAttack) && (
-                <div className="flex flex-col gap-2 mt-1">
-                    <div className="flex items-center gap-3">
-                        <div className={cn(
-                            "flex flex-col items-center justify-center w-10 h-10 rounded text-primary font-bold text-lg border",
-                            event.payload.isHit !== undefined
-                                ? (event.payload.isHit ? "bg-green-500/20 border-green-500/50 text-green-400" : "bg-red-500/20 border-red-500/50 text-red-400")
-                                : "bg-primary/20 border-primary/30"
-                        )}>
-                            {event.payload.roll?.result ?? event.payload.result}
-                        </div>
-                        <div>
-                            <div className="text-xs font-mono text-muted-foreground">{event.payload.roll?.expression ?? event.payload.expression}</div>
-                            <div className="text-sm font-medium">{event.payload.weaponName ?? event.payload.label}</div>
-                        </div>
-                    </div>
-                    {event.payload.message && (
-                        <div className="text-xs font-bold text-center bg-black/40 py-1 rounded text-foreground/80">
-                            {event.payload.message}
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {isNote && (
-                <p className="text-sm text-foreground/90">{event.payload.text || "..."}</p>
-            )}
-
-            {!isRoll && !isNote && !isAttack && (
-                <div className="text-xs font-mono text-muted-foreground">
-                    [{event.type}] {JSON.stringify(event.payload)}
-                </div>
-            )}
-        </div>
-    )
-}
-
+type CampaignContext = {
+    id: string;
+    name: string;
+    roomCode?: string | null;
+};
 
 export default function PlayPage() {
     const params = useParams();
     const router = useRouter();
     const campaignId = params?.campaignId as string;
     const [events, setEvents] = useState<GameEvent[]>([]);
-    const [loading, setLoading] = useState(false);
     const [chatInput, setChatInput] = useState("");
     const [sheetCollapsed, setSheetCollapsed] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -139,9 +77,8 @@ export default function PlayPage() {
     const [pendingRoll, setPendingRoll] = useState<{ expression: string, modifier: number, count: number } | null>(null);
     const processedEventsRef = useRef<Set<string>>(new Set());
     const [searchOpen, setSearchOpen] = useState(false);
-    const [viewingGrimoireItem, setViewingGrimoireItem] = useState<any>(null);
-    const [characters, setCharacters] = useState<any[]>([]);
-    const [pins, setPins] = useState<any[]>([]);
+    const [viewingGrimoireItem, setViewingGrimoireItem] = useState<GrimoireItem | null>(null);
+    const [pins, setPins] = useState<Pin[]>([]);
     const [pinnedEventIds, setPinnedEventIds] = useState<Set<string>>(new Set());
     const [timelineFilter, setTimelineFilter] = useState<'ALL' | 'COMBAT' | 'CHAT' | 'CASE'>('ALL'); // Added CASE
     const [prepPacket, setPrepPacket] = useState<PrepSessionPacket | null>(null);
@@ -153,24 +90,7 @@ export default function PlayPage() {
     const [revealingId, setRevealingId] = useState<string | null>(null);
     const [focusedSceneId, setFocusedSceneId] = useState<string | null>(null);
     const [liveCombat, setLiveCombat] = useState<LiveCombat | null>(null);
-
-    // Auto-remove Pings after 3s
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setPins(current => {
-                const now = Date.now();
-                // Filter out PINGS older than 3s? 
-                // Since I didn't store timestamp, I'll just filter out PINGS if I assume they are added recently?
-                // Better: When adding ping, set a timeout to remove it.
-                return current;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-
-
-
-    const [mapTokens, setMapTokens] = useState<any[]>([]);
+    const [mapTokens, setMapTokens] = useState<Token[]>([]);
 
     // Initial Map Load
     useEffect(() => {
@@ -199,7 +119,7 @@ export default function PlayPage() {
     };
 
     // Pin Sync
-    const handlePinCreate = async (pin: any) => {
+    const handlePinCreate = async (pin: Pin) => {
         setPins(prev => [...prev, pin]);
 
         if (pin.type === 'PING') {
@@ -216,25 +136,6 @@ export default function PlayPage() {
             });
         }
     };
-
-    // Fetch Characters (and auto-create MapTokens if missing)
-    useEffect(() => {
-        if (campaignId) {
-            fetch(`/api/characters?campaignId=${campaignId}&withSheet=true`)
-                .then(res => res.json())
-                .then(json => {
-                    if (json.data) {
-                        setCharacters(json.data);
-                        // Optional: Check if we need to sync characters to map tokens
-                        // For now, we assume tokens are independent or created explicitly. 
-                        // But for "Living World", dragging a character to map should create token.
-                        // We'll leave that for a "Roster" drag-drop later.
-                        // Current logic: If mapTokens is empty, maybe auto-populate? 
-                        // Let's keep it clean for now.
-                    }
-                });
-        }
-    }, [campaignId]);
 
     // Polling Effect for Events
     useEffect(() => {
@@ -303,7 +204,7 @@ export default function PlayPage() {
     }
 
     // NOTE: We need to fetch the Campaign first to get the WorldID.
-    const [context, setContext] = useState<{ worldId: string, campaign: any } | null>(null);
+    const [context, setContext] = useState<{ worldId: string; campaign: CampaignContext } | null>(null);
 
     useEffect(() => {
         if (campaignId) {
@@ -325,7 +226,9 @@ export default function PlayPage() {
                 const json = await res.json();
                 if (json.data) {
                     // Filter client side for MVP or use query param
-                    const campaignEvents = json.data.filter((e: any) => e.campaignId === campaignId || e.scope === 'MACRO');
+                    const campaignEvents = (json.data as GameEvent[]).filter(
+                        (event) => event.campaignId === campaignId || event.scope === "MACRO",
+                    );
                     // Simple dedup needed? React state set handles replace.
                     setEvents(prev => {
                         // Only update if length changed to avoid jitter, or deep compare
@@ -453,7 +356,7 @@ export default function PlayPage() {
     }, [context?.worldId, inspectId]);
 
 
-    async function handleAction(type: string, payload: any) {
+    async function handleAction(type: string, payload: Record<string, unknown>) {
         if (!context) return;
 
         // Optimistic UI could go here
