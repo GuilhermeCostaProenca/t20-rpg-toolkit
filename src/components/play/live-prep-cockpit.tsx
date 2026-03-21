@@ -66,6 +66,18 @@ export function LivePrepCockpit({
   const liveAdjustment = livePressure
     ? suggestLiveAdjustment(livePressure, activeEncounter?.rating ?? null)
     : null;
+  const generalReveals = prepPacket
+    ? prepPacket.forge.reveals.filter(
+        (item) =>
+          item.status !== "canceled" &&
+          !activeSceneReveals.some((sceneItem) => sceneItem.id === item.id),
+      )
+    : [];
+  const primarySceneReveal =
+    activeSceneReveals.find((item) => item.status === "planned") ?? activeSceneReveals[0] ?? null;
+  const secondarySceneReveals = primarySceneReveal
+    ? activeSceneReveals.filter((item) => item.id !== primarySceneReveal.id)
+    : activeSceneReveals;
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -282,12 +294,60 @@ export function LivePrepCockpit({
             </div>
           ) : null}
 
-          {activeSceneReveals.length > 0 ? (
+          {primarySceneReveal ? (
             <div className="space-y-2">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                {activeScene ? "Reveals da cena" : "Reveals prontos"}
+                Reveal principal da cena
               </p>
-              {activeSceneReveals.slice(0, 3).map((item) => (
+              <div className="rounded-xl border border-primary/20 bg-primary/10 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">
+                      {primarySceneReveal.title || "Revelacao sem titulo"}
+                    </p>
+                    {primarySceneReveal.notes ? (
+                      <p className="mt-1 line-clamp-3 text-sm text-foreground/80">
+                        {primarySceneReveal.notes}
+                      </p>
+                    ) : null}
+                  </div>
+                  <Badge variant="outline" className="border-primary/30 text-primary">
+                    {primarySceneReveal.status}
+                  </Badge>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => void onReveal(primarySceneReveal.id)}
+                    disabled={revealingId === primarySceneReveal.id}
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    {revealingId === primarySceneReveal.id ? "Enviando..." : "Revelar agora"}
+                  </Button>
+                  {primarySceneReveal.imageUrl ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={() =>
+                        window.open(primarySceneReveal.imageUrl, "_blank", "noopener,noreferrer")
+                      }
+                    >
+                      Ver asset
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {secondarySceneReveals.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Reveals secundarios da cena
+              </p>
+              {secondarySceneReveals.slice(0, 2).map((item) => (
                 <div key={item.id} className="rounded-xl border border-white/8 bg-white/5 p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -314,16 +374,45 @@ export function LivePrepCockpit({
                       <Eye className="mr-2 h-4 w-4" />
                       {revealingId === item.id ? "Enviando..." : "Revelar"}
                     </Button>
-                    {item.imageUrl ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-white/10 bg-white/5"
-                        onClick={() => window.open(item.imageUrl, "_blank", "noopener,noreferrer")}
-                      >
-                        Ver asset
-                      </Button>
-                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {generalReveals.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Reveals gerais da sessao
+              </p>
+              {generalReveals.slice(0, activeScene ? 2 : 3).map((item) => (
+                <div key={item.id} className="rounded-xl border border-white/8 bg-white/5 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground">
+                        {item.title || "Revelacao sem titulo"}
+                      </p>
+                      {item.notes ? (
+                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                          {item.notes}
+                        </p>
+                      ) : null}
+                    </div>
+                    <Badge variant="outline" className="border-white/10 text-white/70">
+                      {item.status}
+                    </Badge>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 border-white/10 bg-white/5"
+                      onClick={() => void onReveal(item.id)}
+                      disabled={revealingId === item.id}
+                    >
+                      <Eye className="mr-2 h-4 w-4" />
+                      {revealingId === item.id ? "Enviando..." : "Revelar"}
+                    </Button>
                   </div>
                 </div>
               ))}

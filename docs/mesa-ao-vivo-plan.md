@@ -170,7 +170,7 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
   Notas:
 
 - [ ] M4.2 Permitir disparar visual a partir de entidade ou cena
-  Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao, e a `cena em foco` agora contextualiza quais reveals aparecem primeiro. Ainda falta amarrar isso mais profundamente a entidades em foco e assets da cena.
+  Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao, e a `cena em foco` agora contextualiza quais reveals aparecem primeiro. `RPG-39` aprofundou isso separando `reveal principal da cena`, `reveals secundarios` e `reveals gerais da sessao`, reduzindo improviso visual durante a mesa.
 
 - [ ] M4.3 Definir fluxo rapido para mostrar referencia sem friccao
   Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit.
