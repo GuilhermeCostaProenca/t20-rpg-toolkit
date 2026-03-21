@@ -197,6 +197,12 @@ export function LivePrepCockpit({
     ...generalReveals,
   ].filter((item): item is SessionForgeDramaticItem => Boolean(item?.imageUrl)).length;
   const publicAssetCount = portraitRefs.length + locationRefs.length;
+  const nextSuggestedReveal =
+    [primarySceneReveal, ...secondarySceneReveals, ...generalReveals].find(
+      (item) => item?.imageUrl && item.title !== currentPublicAsset?.title,
+    ) ?? null;
+  const nextSuggestedAsset =
+    [...portraitRefs, ...locationRefs].find((item) => item.name !== currentPublicAsset?.title) ?? null;
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -287,6 +293,87 @@ export function LivePrepCockpit({
                   </Badge>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">{publicPacing.guidance}</p>
+              </div>
+            ) : null}
+
+            {nextSuggestedReveal || nextSuggestedAsset ? (
+              <div className="rounded-xl border border-primary/20 bg-black/20 p-3">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                  <Eye className="h-3 w-3" />
+                  Proxima exposicao sugerida
+                </div>
+                {nextSuggestedReveal ? (
+                  <>
+                    <p className="mt-2 text-sm font-semibold text-foreground">
+                      {nextSuggestedReveal.title || "Reveal da cena"}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Reveal sugerido para a proxima camada visual da cena.
+                    </p>
+                    <div className="mt-3 flex gap-2">
+                      <Button
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => void onReveal(nextSuggestedReveal.id)}
+                        disabled={revealingId === nextSuggestedReveal.id}
+                      >
+                        <Eye className="mr-2 h-4 w-4" />
+                        {revealingId === nextSuggestedReveal.id ? "Enviando..." : "Revelar"}
+                      </Button>
+                      {secondScreenReady && nextSuggestedReveal.imageUrl ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-primary/20 bg-primary/10 text-primary"
+                          onClick={() =>
+                            void onPresentAsset(
+                              nextSuggestedReveal.id,
+                              nextSuggestedReveal.imageUrl!,
+                              nextSuggestedReveal.title || "Reveal da cena",
+                            )
+                          }
+                        >
+                          TV
+                        </Button>
+                      ) : null}
+                    </div>
+                  </>
+                ) : nextSuggestedAsset ? (
+                  <>
+                    <p className="mt-2 text-sm font-semibold text-foreground">
+                      {nextSuggestedAsset.name}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Asset visual sugerido para aprofundar a proxima leitura da cena.
+                    </p>
+                    <div className="mt-3 flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 border-white/10 bg-white/5"
+                        onClick={() => onInspectEntity(nextSuggestedAsset.id)}
+                      >
+                        Consultar
+                      </Button>
+                      {secondScreenReady ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-primary/20 bg-primary/10 text-primary"
+                          onClick={() =>
+                            void onPresentAsset(
+                              nextSuggestedAsset.id,
+                              nextSuggestedAsset.imageUrl,
+                              nextSuggestedAsset.name,
+                            )
+                          }
+                        >
+                          Exibir na TV
+                        </Button>
+                      ) : null}
+                    </div>
+                  </>
+                ) : null}
               </div>
             ) : null}
 
