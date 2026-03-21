@@ -56,6 +56,14 @@ type SceneVisualEntity = {
   role: "portrait" | "location";
 };
 
+type PublicQueueCandidate = {
+  id: string;
+  title: string;
+  description: string;
+  kind: "reveal" | "portrait" | "location";
+  imageUrl?: string;
+};
+
 type LivePrepCockpitProps = {
   prepPacket: PrepSessionPacket | null;
   activeScene: SessionForgeScene | null;
@@ -153,6 +161,27 @@ function PlayerFacingAssetCard({
   );
 }
 
+function getPublicQueuePriority(
+  candidate: PublicQueueCandidate,
+  publicPacing: ReturnType<typeof suggestPublicScenePacing>,
+) {
+  if (candidate.kind === "reveal") {
+    if (publicPacing?.posture === "ease") return 34;
+    if (publicPacing?.posture === "hold") return 38;
+    return 42;
+  }
+
+  if (candidate.kind === "location") {
+    if (publicPacing?.posture === "ease") return 18;
+    if (publicPacing?.posture === "hold") return 28;
+    return 34;
+  }
+
+  if (publicPacing?.posture === "ease") return 32;
+  if (publicPacing?.posture === "hold") return 26;
+  return 22;
+}
+
 export function LivePrepCockpit({
   prepPacket,
   activeScene,
@@ -221,7 +250,12 @@ export function LivePrepCockpit({
       kind: "portrait" as const,
       imageUrl: item.imageUrl,
     })),
-  ].filter((item) => item.title !== currentPublicAsset?.title);
+  ]
+    .filter((item) => item.title !== currentPublicAsset?.title)
+    .sort(
+      (left, right) =>
+        getPublicQueuePriority(right, publicPacing) - getPublicQueuePriority(left, publicPacing),
+    );
   const nextPublicCandidate = publicSceneQueue[0] ?? null;
   const reservePublicCandidate = publicSceneQueue[1] ?? null;
 
