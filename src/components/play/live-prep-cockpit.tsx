@@ -60,6 +60,10 @@ type LivePrepCockpitProps = {
   activeScene: SessionForgeScene | null;
   activeEncounter: SessionForgeEncounter | null;
   activeSceneReveals: SessionForgeDramaticItem[];
+  currentPublicAsset: {
+    title: string;
+    detail: string;
+  } | null;
   sceneVisualEntities: SceneVisualEntity[];
   liveCombat: LiveCombat | null;
   revealingId: string | null;
@@ -153,6 +157,7 @@ export function LivePrepCockpit({
   activeScene,
   activeEncounter,
   activeSceneReveals,
+  currentPublicAsset,
   sceneVisualEntities,
   liveCombat,
   revealingId,
@@ -244,6 +249,19 @@ export function LivePrepCockpit({
               <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs text-muted-foreground">
                 Sem `roomCode` ativo. O pacote continua visivel para o mestre, mas ainda nao ha
                 superficie publica pronta para os jogadores.
+              </div>
+            ) : null}
+
+            {currentPublicAsset ? (
+              <div className="rounded-xl border border-primary/20 bg-black/20 p-3">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                  <MonitorPlay className="h-3 w-3" />
+                  Na tela agora
+                </div>
+                <p className="mt-2 text-sm font-semibold text-foreground">
+                  {currentPublicAsset.title}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">{currentPublicAsset.detail}</p>
               </div>
             ) : null}
 

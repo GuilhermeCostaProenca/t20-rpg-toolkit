@@ -61,6 +61,10 @@ type LiveOperationsSidebarProps = {
     activeScene: SessionForgeScene | null;
     activeEncounter: SessionForgeEncounter | null;
     activeSceneReveals: SessionForgeDramaticItem[];
+    currentPublicAsset: {
+        title: string;
+        detail: string;
+    } | null;
     sceneVisualEntities: {
         id: string;
         name: string;
@@ -107,6 +111,7 @@ export function LiveOperationsSidebar({
     activeScene,
     activeEncounter,
     activeSceneReveals,
+    currentPublicAsset,
     sceneVisualEntities,
     liveCombat,
     revealingId,
@@ -167,11 +172,12 @@ export function LiveOperationsSidebar({
 
             <div className="px-3 pt-3">
                 <LivePrepCockpit
-                    prepPacket={prepPacket}
-                    activeScene={activeScene}
-                    activeEncounter={activeEncounter}
-                    activeSceneReveals={activeSceneReveals}
-                    sceneVisualEntities={sceneVisualEntities}
+                prepPacket={prepPacket}
+                activeScene={activeScene}
+                activeEncounter={activeEncounter}
+                activeSceneReveals={activeSceneReveals}
+                currentPublicAsset={currentPublicAsset}
+                sceneVisualEntities={sceneVisualEntities}
                     liveCombat={liveCombat}
                     revealingId={revealingId}
                     secondScreenReady={secondScreenReady}

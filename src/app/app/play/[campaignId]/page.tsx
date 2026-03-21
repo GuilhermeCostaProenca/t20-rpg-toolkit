@@ -64,6 +64,11 @@ type CampaignContext = {
     roomCode?: string | null;
 };
 
+type LivePublicAsset = {
+    title: string;
+    detail: string;
+};
+
 export default function PlayPage() {
     const params = useParams();
     const router = useRouter();
@@ -91,6 +96,7 @@ export default function PlayPage() {
     const [focusedSceneId, setFocusedSceneId] = useState<string | null>(null);
     const [liveCombat, setLiveCombat] = useState<LiveCombat | null>(null);
     const [mapTokens, setMapTokens] = useState<Token[]>([]);
+    const [currentPublicAsset, setCurrentPublicAsset] = useState<LivePublicAsset | null>(null);
 
     // Initial Map Load
     useEffect(() => {
@@ -439,6 +445,12 @@ export default function PlayPage() {
                     },
                 };
             });
+            setCurrentPublicAsset({
+                title: reveal.title || "Reveal da sessao",
+                detail: activeScene
+                    ? `Reveal publico da cena ${activeScene.title || "em foco"}`
+                    : "Reveal publico da sessao",
+            });
         } catch (error) {
             console.error(error);
         } finally {
@@ -467,6 +479,13 @@ export default function PlayPage() {
             if (!response.ok) {
                 throw new Error('Falha ao enviar asset para a mesa');
             }
+
+            setCurrentPublicAsset({
+                title,
+                detail: activeScene
+                    ? `Asset publico da cena ${activeScene.title || "em foco"}`
+                    : "Asset publico enviado para os jogadores",
+            });
         } catch (error) {
             console.error(error);
         } finally {
@@ -621,6 +640,7 @@ export default function PlayPage() {
                 activeScene={activeScene}
                 activeEncounter={activeEncounter}
                 activeSceneReveals={activeSceneReveals}
+                currentPublicAsset={currentPublicAsset}
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
                 revealingId={revealingId}
