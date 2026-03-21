@@ -68,6 +68,7 @@ type PublicQueueCandidate = {
   subsceneHint?: string;
   subsceneLinked?: boolean;
   inspectLinked?: boolean;
+  subsceneRevealLinked?: boolean;
 };
 
 type LivePrepCockpitProps = {
@@ -195,6 +196,7 @@ function getPublicQueuePriority(
   if (candidate.subsceneHint) score += 3;
   if (candidate.subsceneLinked) score += 4;
   if (candidate.inspectLinked) score += 5;
+  if (candidate.subsceneRevealLinked) score += 6;
   if (candidate.objectiveHint) score += 2;
 
   return score;
@@ -264,6 +266,7 @@ export function LivePrepCockpit({
   const activeSubscene =
     activeScene?.subscenes.find((subscene) => subscene.status !== "discarded") ?? null;
   const activeSubsceneEntityIds = new Set(activeSubscene?.linkedEntityIds ?? []);
+  const activeSubsceneRevealIds = new Set(activeSubscene?.linkedRevealIds ?? []);
   const sceneCue = describeSceneCue(
     activeScene?.objective || "",
     activeSceneBeats,
@@ -299,6 +302,7 @@ export function LivePrepCockpit({
         subsceneHint: sceneCue.subsceneHint || undefined,
         subsceneLinked: true,
         inspectLinked: false,
+        subsceneRevealLinked: activeSubsceneRevealIds.has(item.id),
       })),
     ...locationRefs.map((item) => ({
       id: item.id,
@@ -313,6 +317,7 @@ export function LivePrepCockpit({
       subsceneHint: sceneCue.subsceneHint || undefined,
       subsceneLinked: activeSubsceneEntityIds.has(item.id),
       inspectLinked: item.id === activeInspectEntityId,
+      subsceneRevealLinked: false,
     })),
     ...portraitRefs.map((item) => ({
       id: item.id,
@@ -324,6 +329,7 @@ export function LivePrepCockpit({
       sceneCue: sceneCue.beatCue || undefined,
       subsceneLinked: activeSubsceneEntityIds.has(item.id),
       inspectLinked: item.id === activeInspectEntityId,
+      subsceneRevealLinked: false,
     })),
   ]
     .filter((item) => item.title !== currentPublicAsset?.title)
@@ -456,6 +462,11 @@ export function LivePrepCockpit({
                     {nextPublicCandidate.subsceneHint}
                   </p>
                 ) : null}
+                {nextPublicCandidate.subsceneRevealLinked ? (
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-primary">
+                    Reveal ligado diretamente a subcena
+                  </p>
+                ) : null}
                 {nextPublicCandidate.inspectLinked ? (
                   <p className="mt-1 text-xs uppercase tracking-[0.16em] text-emerald-300">
                     Ja em consulta pelo mestre
@@ -533,6 +544,11 @@ export function LivePrepCockpit({
                     {reservePublicCandidate.subsceneHint ? (
                       <p className="mt-1 text-xs uppercase tracking-[0.16em] text-primary/70">
                         {reservePublicCandidate.subsceneHint}
+                      </p>
+                    ) : null}
+                    {reservePublicCandidate.subsceneRevealLinked ? (
+                      <p className="mt-1 text-xs uppercase tracking-[0.16em] text-primary">
+                        Reveal ligado diretamente a subcena
                       </p>
                     ) : null}
                     {reservePublicCandidate.inspectLinked ? (
