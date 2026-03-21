@@ -67,6 +67,7 @@ type PublicQueueCandidate = {
   sceneCue?: string;
   subsceneHint?: string;
   subsceneLinked?: boolean;
+  inspectLinked?: boolean;
 };
 
 type LivePrepCockpitProps = {
@@ -193,6 +194,7 @@ function getPublicQueuePriority(
   if (candidate.sceneCue) score += 4;
   if (candidate.subsceneHint) score += 3;
   if (candidate.subsceneLinked) score += 4;
+  if (candidate.inspectLinked) score += 5;
   if (candidate.objectiveHint) score += 2;
 
   return score;
@@ -296,6 +298,7 @@ export function LivePrepCockpit({
         sceneCue: sceneCue.beatCue || undefined,
         subsceneHint: sceneCue.subsceneHint || undefined,
         subsceneLinked: true,
+        inspectLinked: false,
       })),
     ...locationRefs.map((item) => ({
       id: item.id,
@@ -309,6 +312,7 @@ export function LivePrepCockpit({
       objectiveHint: sceneCue.objectiveHint || undefined,
       subsceneHint: sceneCue.subsceneHint || undefined,
       subsceneLinked: activeSubsceneEntityIds.has(item.id),
+      inspectLinked: item.id === activeInspectEntityId,
     })),
     ...portraitRefs.map((item) => ({
       id: item.id,
@@ -319,6 +323,7 @@ export function LivePrepCockpit({
       objectiveHint: sceneCue.objectiveHint || undefined,
       sceneCue: sceneCue.beatCue || undefined,
       subsceneLinked: activeSubsceneEntityIds.has(item.id),
+      inspectLinked: item.id === activeInspectEntityId,
     })),
   ]
     .filter((item) => item.title !== currentPublicAsset?.title)
@@ -334,6 +339,7 @@ export function LivePrepCockpit({
               sceneCue.subsceneHint ||
               "Rosto sugerido para aprofundar a leitura dramatica da cena.",
             subsceneHint: sceneCue.subsceneHint || undefined,
+            inspectLinked: item.id === activeInspectEntityId,
           }
         : item,
     );
@@ -450,6 +456,11 @@ export function LivePrepCockpit({
                     {nextPublicCandidate.subsceneHint}
                   </p>
                 ) : null}
+                {nextPublicCandidate.inspectLinked ? (
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-emerald-300">
+                    Ja em consulta pelo mestre
+                  </p>
+                ) : null}
                 <div className="mt-2 flex items-center gap-2">
                   <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
                     Proxima
@@ -522,6 +533,11 @@ export function LivePrepCockpit({
                     {reservePublicCandidate.subsceneHint ? (
                       <p className="mt-1 text-xs uppercase tracking-[0.16em] text-primary/70">
                         {reservePublicCandidate.subsceneHint}
+                      </p>
+                    ) : null}
+                    {reservePublicCandidate.inspectLinked ? (
+                      <p className="mt-1 text-xs uppercase tracking-[0.16em] text-emerald-300">
+                        Ja em consulta pelo mestre
                       </p>
                     ) : null}
                   </div>
