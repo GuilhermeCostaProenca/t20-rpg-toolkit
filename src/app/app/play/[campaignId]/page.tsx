@@ -446,6 +446,34 @@ export default function PlayPage() {
         }
     }
 
+    async function handlePresentSceneAsset(entityId: string, imageUrl: string, title: string) {
+        if (!context?.campaign?.roomCode || !imageUrl) return;
+
+        setRevealingId(`asset:${entityId}`);
+        try {
+            const response = await fetch('/api/reveal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    roomCode: context.campaign.roomCode,
+                    type: 'image',
+                    title,
+                    imageUrl,
+                    visibility: 'players',
+                    expiresAt: new Date(Date.now() + 1000 * 60 * 10).toISOString(),
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha ao enviar asset para a mesa');
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setRevealingId(null);
+        }
+    }
+
     const sendChat = (e: FormEvent) => {
         e.preventDefault();
         if (!chatInput.trim()) return;
@@ -596,6 +624,7 @@ export default function PlayPage() {
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
                 revealingId={revealingId}
+                secondScreenReady={Boolean(context.campaign.roomCode)}
                 activeInspectEntityId={inspectId}
                 inspectQuery={inspectQuery}
                 inspectCandidates={inspectCandidates}
@@ -612,6 +641,9 @@ export default function PlayPage() {
                 onFocusScene={setFocusedSceneId}
                 onInspectEntity={setInspectId}
                 onReveal={(revealId) => void handleLiveReveal(revealId)}
+                onPresentAsset={(entityId, imageUrl, title) =>
+                    void handlePresentSceneAsset(entityId, imageUrl, title)
+                }
                 onInspectQueryChange={setInspectQuery}
                 onInspectIdChange={(value) => {
                     setInspectId(value);

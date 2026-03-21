@@ -53,10 +53,12 @@ type LivePrepCockpitProps = {
   }[];
   liveCombat: LiveCombat | null;
   revealingId: string | null;
+  secondScreenReady: boolean;
   activeInspectEntityId: string | null;
   onFocusScene: (sceneId: string) => void;
   onInspectEntity: (entityId: string) => void;
   onReveal: (revealId: string) => void | Promise<void>;
+  onPresentAsset: (entityId: string, imageUrl: string, title: string) => void | Promise<void>;
 };
 
 export function LivePrepCockpit({
@@ -67,10 +69,12 @@ export function LivePrepCockpit({
   sceneVisualEntities,
   liveCombat,
   revealingId,
+  secondScreenReady,
   activeInspectEntityId,
   onFocusScene,
   onInspectEntity,
   onReveal,
+  onPresentAsset,
 }: LivePrepCockpitProps) {
   const livePressure =
     liveCombat?.isActive && liveCombat.combatants.length > 0
@@ -330,6 +334,11 @@ export function LivePrepCockpit({
                     {primarySceneReveal.status}
                   </Badge>
                 </div>
+                {secondScreenReady && primarySceneReveal.imageUrl ? (
+                  <p className="mt-2 text-xs uppercase tracking-[0.16em] text-primary/80">
+                    Pronto para segunda tela
+                  </p>
+                ) : null}
                 <div className="mt-3 flex gap-2">
                   <Button
                     size="sm"
@@ -350,6 +359,22 @@ export function LivePrepCockpit({
                       }
                     >
                       Ver asset
+                    </Button>
+                  ) : null}
+                  {secondScreenReady && primarySceneReveal.imageUrl ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-primary/20 bg-primary/10 text-primary"
+                      onClick={() =>
+                        void onPresentAsset(
+                          primarySceneReveal.id,
+                          primarySceneReveal.imageUrl!,
+                          primarySceneReveal.title || "Reveal da cena",
+                        )
+                      }
+                    >
+                      Exibir na TV
                     </Button>
                   ) : null}
                 </div>
@@ -379,6 +404,11 @@ export function LivePrepCockpit({
                       {item.status}
                     </Badge>
                   </div>
+                  {secondScreenReady && item.imageUrl ? (
+                    <p className="mt-2 text-xs uppercase tracking-[0.16em] text-primary/80">
+                      Pronto para segunda tela
+                    </p>
+                  ) : null}
                   <div className="mt-3 flex gap-2">
                     <Button
                       size="sm"
@@ -389,6 +419,22 @@ export function LivePrepCockpit({
                       <Eye className="mr-2 h-4 w-4" />
                       {revealingId === item.id ? "Enviando..." : "Revelar"}
                     </Button>
+                    {secondScreenReady && item.imageUrl ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-primary/20 bg-primary/10 text-primary"
+                        onClick={() =>
+                          void onPresentAsset(
+                            item.id,
+                            item.imageUrl!,
+                            item.title || "Reveal da cena",
+                          )
+                        }
+                      >
+                        TV
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -417,6 +463,11 @@ export function LivePrepCockpit({
                       {item.status}
                     </Badge>
                   </div>
+                  {secondScreenReady && item.imageUrl ? (
+                    <p className="mt-2 text-xs uppercase tracking-[0.16em] text-primary/80">
+                      Pronto para segunda tela
+                    </p>
+                  ) : null}
                   <div className="mt-3 flex gap-2">
                     <Button
                       size="sm"
@@ -428,6 +479,22 @@ export function LivePrepCockpit({
                       <Eye className="mr-2 h-4 w-4" />
                       {revealingId === item.id ? "Enviando..." : "Revelar"}
                     </Button>
+                    {secondScreenReady && item.imageUrl ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-primary/20 bg-primary/10 text-primary"
+                        onClick={() =>
+                          void onPresentAsset(
+                            item.id,
+                            item.imageUrl!,
+                            item.title || "Reveal da sessao",
+                          )
+                        }
+                      >
+                        TV
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -475,6 +542,11 @@ export function LivePrepCockpit({
                               {activeInspectEntityId === entity.id ? "Em consulta" : "Retrato"}
                             </Badge>
                           </div>
+                          {secondScreenReady ? (
+                            <p className="mt-2 text-xs uppercase tracking-[0.16em] text-primary/80">
+                              Asset pronto para segunda tela
+                            </p>
+                          ) : null}
                           <div className="mt-3 flex gap-2">
                             <Button
                               size="sm"
@@ -492,6 +564,16 @@ export function LivePrepCockpit({
                             >
                               Asset
                             </Button>
+                            {secondScreenReady ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-primary/20 bg-primary/10 text-primary"
+                                onClick={() => void onPresentAsset(entity.id, entity.imageUrl, entity.name)}
+                              >
+                                Exibir na TV
+                              </Button>
+                            ) : null}
                           </div>
                         </div>
                       </div>
@@ -535,6 +617,11 @@ export function LivePrepCockpit({
                               {activeInspectEntityId === entity.id ? "Em consulta" : "Cenario"}
                             </Badge>
                           </div>
+                          {secondScreenReady ? (
+                            <p className="mt-2 text-xs uppercase tracking-[0.16em] text-primary/80">
+                              Asset pronto para segunda tela
+                            </p>
+                          ) : null}
                           <div className="mt-3 flex gap-2">
                             <Button
                               size="sm"
@@ -552,6 +639,16 @@ export function LivePrepCockpit({
                             >
                               Asset
                             </Button>
+                            {secondScreenReady ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-primary/20 bg-primary/10 text-primary"
+                                onClick={() => void onPresentAsset(entity.id, entity.imageUrl, entity.name)}
+                              >
+                                Exibir na TV
+                              </Button>
+                            ) : null}
                           </div>
                         </div>
                       </div>

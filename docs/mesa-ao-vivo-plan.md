@@ -176,7 +176,7 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
   Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit. `RPG-41` aproximou isso do fluxo de consulta, sincronizando cards visuais da cena com o `quick inspect`.
 
 - [ ] M4.4 Garantir consistencia com TV/segunda tela
-  Notas:
+  Notas: `RPG-42` passou a marcar `pronto para segunda tela` nos reveals e assets visuais da cena, e o cockpit agora consegue exibir retratos/lugares direto para os jogadores usando o mesmo fluxo de `roomCode` dos reveals.
 
 - [ ] M4.5 Evitar que reveal dependa de fluxo improvisado
   Notas:

@@ -71,6 +71,7 @@ type LiveOperationsSidebarProps = {
     }[];
     liveCombat: LiveCombat | null;
     revealingId: string | null;
+    secondScreenReady: boolean;
     activeInspectEntityId: string | null;
     inspectQuery: string;
     inspectCandidates: LiveCodexEntity[];
@@ -87,6 +88,7 @@ type LiveOperationsSidebarProps = {
     onFocusScene: (sceneId: string) => void;
     onInspectEntity: (entityId: string) => void;
     onReveal: (revealId: string) => void | Promise<void>;
+    onPresentAsset: (entityId: string, imageUrl: string, title: string) => void | Promise<void>;
     onInspectQueryChange: (value: string) => void;
     onInspectIdChange: (value: string | null) => void;
     onOpenSearch: () => void;
@@ -108,6 +110,7 @@ export function LiveOperationsSidebar({
     sceneVisualEntities,
     liveCombat,
     revealingId,
+    secondScreenReady,
     activeInspectEntityId,
     inspectQuery,
     inspectCandidates,
@@ -124,6 +127,7 @@ export function LiveOperationsSidebar({
     onFocusScene,
     onInspectEntity,
     onReveal,
+    onPresentAsset,
     onInspectQueryChange,
     onInspectIdChange,
     onOpenSearch,
@@ -170,10 +174,12 @@ export function LiveOperationsSidebar({
                     sceneVisualEntities={sceneVisualEntities}
                     liveCombat={liveCombat}
                     revealingId={revealingId}
+                    secondScreenReady={secondScreenReady}
                     activeInspectEntityId={activeInspectEntityId}
                     onFocusScene={onFocusScene}
                     onInspectEntity={onInspectEntity}
                     onReveal={onReveal}
+                    onPresentAsset={onPresentAsset}
                 />
             </div>
 
