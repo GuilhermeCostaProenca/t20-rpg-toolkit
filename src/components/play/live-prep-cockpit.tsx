@@ -227,10 +227,14 @@ function describeSceneCue(
 function pickReservePublicCandidate(
   queue: PublicQueueCandidate[],
   nextCandidate: PublicQueueCandidate | null,
+  currentCandidate: PublicQueueCandidate | null,
 ) {
   if (!nextCandidate) return null;
 
-  const remaining = queue.filter((candidate) => candidate.id !== nextCandidate.id);
+  const remaining = queue.filter(
+    (candidate) =>
+      candidate.id !== nextCandidate.id && candidate.id !== currentCandidate?.id,
+  );
   if (remaining.length === 0) return null;
 
   if (nextCandidate.kind === "reveal") {
@@ -238,6 +242,20 @@ function pickReservePublicCandidate(
   }
 
   return remaining.find((candidate) => candidate.kind === "reveal") ?? remaining[0];
+}
+
+function pickNextPublicCandidate(
+  queue: PublicQueueCandidate[],
+  currentCandidate: PublicQueueCandidate | null,
+) {
+  if (queue.length === 0) return null;
+  if (!currentCandidate) return queue[0];
+
+  if (currentCandidate.kind === "reveal") {
+    return queue.find((candidate) => candidate.kind !== "reveal") ?? queue[0];
+  }
+
+  return queue.find((candidate) => candidate.kind === "reveal") ?? queue[0];
 }
 
 export function LivePrepCockpit({
@@ -304,7 +322,7 @@ export function LivePrepCockpit({
     ...generalReveals,
   ].filter((item): item is SessionForgeDramaticItem => Boolean(item?.imageUrl)).length;
   const publicAssetCount = prioritizedSceneVisualEntities.length;
-  const publicSceneQueue = [
+  const fullPublicSceneQueue = [
     ...[primarySceneReveal, ...secondarySceneReveals, ...generalReveals]
       .filter((item): item is SessionForgeDramaticItem => Boolean(item?.imageUrl))
       .map((item) => ({
@@ -348,7 +366,6 @@ export function LivePrepCockpit({
       subsceneRevealLinked: false,
     })),
   ]
-    .filter((item) => item.title !== currentPublicAsset?.title)
     .sort(
       (left, right) =>
         getPublicQueuePriority(right, publicPacing) - getPublicQueuePriority(left, publicPacing),
@@ -365,10 +382,19 @@ export function LivePrepCockpit({
           }
         : item,
     );
-  const nextPublicCandidate = publicSceneQueue[0] ?? null;
+  const currentDisplayedCandidate =
+    fullPublicSceneQueue.find((item) => item.title === currentPublicAsset?.title) ?? null;
+  const publicSceneQueue = fullPublicSceneQueue.filter(
+    (item) => item.title !== currentPublicAsset?.title,
+  );
+  const nextPublicCandidate = pickNextPublicCandidate(
+    publicSceneQueue,
+    currentDisplayedCandidate,
+  );
   const reservePublicCandidate = pickReservePublicCandidate(
     publicSceneQueue,
     nextPublicCandidate,
+    currentDisplayedCandidate,
   );
 
   return (
@@ -489,6 +515,13 @@ export function LivePrepCockpit({
                 {nextPublicCandidate.inspectLinked ? (
                   <p className="mt-1 text-xs uppercase tracking-[0.16em] text-emerald-300">
                     Ja em consulta pelo mestre
+                  </p>
+                ) : null}
+                {currentDisplayedCandidate ? (
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/60">
+                    {currentDisplayedCandidate.kind === nextPublicCandidate.kind
+                      ? "Mantem a camada visual atual"
+                      : "Complementa o que ja esta na tela"}
                   </p>
                 ) : null}
                 <div className="mt-2 flex items-center gap-2">
