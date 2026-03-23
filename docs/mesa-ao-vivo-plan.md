@@ -140,7 +140,7 @@ O app ja possui fundacao de combate, mas a experiencia precisa se alinhar ao pro
   Notas: `RPG-31` acrescentou `Sinais ao vivo` dentro do cockpit da mesa, lendo round, HP medio, contagem viva e quedas a partir do combate ativo sem abrir superficie paralela.
 
 - [ ] M3.2 Garantir transicao clara entre narracao e combate
-  Notas: O pacote narrativo e o pacote tatico agora convivem lado a lado no mesmo sidebar; ainda falta refino estrutural do arquivo `play`, mas o fluxo ja comeca a alternar entre cena em foco, encontro preparado e pressao ao vivo. `RPG-45` acrescentou `Ritmo da cena` na superficie publica, conectando pressao ao vivo com a exposicao de reveals e assets para jogadores.
+  Notas: O pacote narrativo e o pacote tatico agora convivem lado a lado no mesmo sidebar; ainda falta refino estrutural do arquivo `play`, mas o fluxo ja comeca a alternar entre cena em foco, encontro preparado e pressao ao vivo. `RPG-45` acrescentou `Ritmo da cena` na superficie publica, conectando pressao ao vivo com a exposicao de reveals e assets para jogadores. `GUI-44` acrescentou um badge de modo (`Modo Tatico — combate ativo` vs `Modo Narrativo`) no bloco privado do mestre e passou a elevar os blocos de `Sinais ao vivo` e `Ajuste rapido` para o topo da secao privada quando o combate esta ativo, eliminando a rolagem ate o fundo para acessar informacao critica durante encontros.
 
 - [ ] M3.3 Integrar consulta de entidades ao combate
   Notas:

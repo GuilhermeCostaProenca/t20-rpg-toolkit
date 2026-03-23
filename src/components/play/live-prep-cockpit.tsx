@@ -6,6 +6,7 @@ import {
   Lock,
   MonitorPlay,
   Shield,
+  Swords,
   Target,
   Users2,
 } from "lucide-react";
@@ -1075,6 +1076,97 @@ export function LivePrepCockpit({
               </Badge>
             </div>
 
+            <div className="flex items-center gap-2">
+              {liveCombat?.isActive ? (
+                <Badge className="border-red-500/30 bg-red-500/10 text-red-300">
+                  <Swords className="mr-1 h-3 w-3" />
+                  Modo Tatico — combate ativo
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="border-primary/20 text-primary/80">
+                  Modo Narrativo
+                </Badge>
+              )}
+            </div>
+
+            {liveCombat?.isActive && livePressure ? (
+              <>
+                <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge
+                      className={`${
+                        livePressure.state === "critical"
+                          ? "border-red-500/30 bg-red-500/15 text-red-300"
+                          : livePressure.state === "rising"
+                            ? "border-amber-500/30 bg-amber-500/15 text-amber-300"
+                            : "border-emerald-500/30 bg-emerald-500/15 text-emerald-300"
+                      }`}
+                    >
+                      {formatLivePressureState(livePressure.state)}
+                    </Badge>
+                    <Badge variant="outline" className="border-white/10 text-white/70">
+                      Round {liveCombat?.round ?? 1}
+                    </Badge>
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-foreground">Sinais ao vivo</p>
+                  <p className="mt-2 text-sm text-foreground/90">{livePressure.summary}</p>
+                  <div className="mt-3 grid gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                      <span>HP medio do grupo</span>
+                      <span className="font-semibold text-foreground">
+                        {Math.round(livePressure.playerHpRatio * 100)}%
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                      <span>HP medio hostil</span>
+                      <span className="font-semibold text-foreground">
+                        {Math.round(livePressure.hostileHpRatio * 100)}%
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                      <span>Contagem viva</span>
+                      <span className="font-semibold text-foreground">
+                        {livePressure.playerCount} x {livePressure.hostileCount}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                      <span>Quedas no grupo</span>
+                      <span className="font-semibold text-foreground">{livePressure.downedPlayers}</span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm text-muted-foreground">{livePressure.recommendation}</p>
+                  {livePressure.factors.length > 0 ? (
+                    <div className="mt-3 space-y-1 text-xs text-white/60">
+                      {livePressure.factors.slice(0, 2).map((factor) => (
+                        <p key={factor}>{factor}</p>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+                {liveAdjustment ? (
+                  <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+                    <Badge
+                      className={`${
+                        liveAdjustment.posture === "ease"
+                          ? "border-red-500/30 bg-red-500/15 text-red-300"
+                          : liveAdjustment.posture === "escalate"
+                            ? "border-sky-500/30 bg-sky-500/15 text-sky-300"
+                            : "border-amber-500/30 bg-amber-500/15 text-amber-300"
+                      }`}
+                    >
+                      Ajuste rapido
+                    </Badge>
+                    <p className="mt-3 text-sm font-semibold text-foreground">{liveAdjustment.title}</p>
+                    <div className="mt-3 space-y-2 text-sm text-muted-foreground">
+                      {liveAdjustment.actions.map((action) => (
+                        <p key={action}>{action}</p>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+
             {prepPacket.forge.tableObjective ? (
               <div className="rounded-xl border border-white/8 bg-black/20 p-3">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary/80">
@@ -1287,7 +1379,7 @@ export function LivePrepCockpit({
               </div>
             ) : null}
 
-            {livePressure ? (
+            {!liveCombat?.isActive && livePressure ? (
               <div className="rounded-xl border border-white/8 bg-black/20 p-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge
@@ -1342,7 +1434,7 @@ export function LivePrepCockpit({
               </div>
             ) : null}
 
-            {liveAdjustment ? (
+            {!liveCombat?.isActive && liveAdjustment ? (
               <div className="rounded-xl border border-white/8 bg-black/20 p-3">
                 <Badge
                   className={`${
