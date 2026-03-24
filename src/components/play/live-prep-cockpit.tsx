@@ -1164,6 +1164,80 @@ export function LivePrepCockpit({
                     </div>
                   </div>
                 ) : null}
+
+                {liveCombat && liveCombat.combatants.length > 0 ? (
+                  <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                      Combatentes
+                    </p>
+                    <div className="mt-3 space-y-2">
+                      {liveCombat.combatants.map((combatant) => {
+                        const hpRatio =
+                          combatant.hpMax > 0 ? combatant.hpCurrent / combatant.hpMax : 0;
+                        const isPlayer = combatant.kind === "player";
+                        const linkedEnemy = activeEncounter?.enemies.find(
+                          (e) =>
+                            e.npcId &&
+                            (e.npcId === combatant.id ||
+                              e.label.toLowerCase() === combatant.name.toLowerCase()),
+                        );
+                        return (
+                          <div
+                            key={combatant.id}
+                            className="rounded-xl border border-white/8 bg-sidebar/60 p-2"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <p className="truncate text-sm font-medium text-foreground">
+                                    {combatant.name}
+                                  </p>
+                                  <Badge
+                                    variant="outline"
+                                    className={
+                                      isPlayer
+                                        ? "border-emerald-500/30 text-emerald-300"
+                                        : "border-red-500/30 text-red-300"
+                                    }
+                                  >
+                                    {isPlayer ? "PC" : "Hostil"}
+                                  </Badge>
+                                </div>
+                                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                                  <div
+                                    className={`h-full rounded-full transition-all ${
+                                      hpRatio > 0.5
+                                        ? "bg-emerald-500"
+                                        : hpRatio > 0.25
+                                          ? "bg-amber-500"
+                                          : "bg-red-500"
+                                    }`}
+                                    style={{
+                                      width: `${Math.max(0, Math.min(100, hpRatio * 100))}%`,
+                                    }}
+                                  />
+                                </div>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  {combatant.hpCurrent} / {combatant.hpMax} HP
+                                </p>
+                              </div>
+                              {linkedEnemy?.npcId ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-white/10 bg-white/5"
+                                  onClick={() => onInspectEntity(linkedEnemy.npcId!)}
+                                >
+                                  Consultar
+                                </Button>
+                              ) : null}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
               </>
             ) : null}
 
