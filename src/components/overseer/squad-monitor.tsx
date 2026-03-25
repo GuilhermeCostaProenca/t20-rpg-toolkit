@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Lock, Skull } from "lucide-react";
+import { Skull } from "lucide-react";
 import { getCampaignCombatPath, SQUAD_MONITOR_POLL_MS } from "@/lib/live-combat";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +18,7 @@ type CharacterStatus = {
     avatarUrl?: string;
     hp: { current: number; max: number };
     pm: { current: number; max: number };
+    san: { current: number; max: number };
     def: number;
     conditions: string[];
 };
@@ -31,6 +32,8 @@ type FetchedCharacter = {
         pvMax?: number;
         pmCurrent?: number;
         pmMax?: number;
+        sanCurrent?: number;
+        sanMax?: number;
         defenseFinal?: number;
     };
 };
@@ -46,6 +49,7 @@ type LiveCombatSnapshot = {
 type PendingSheetOverride = {
     hp?: number;
     pm?: number;
+    san?: number;
 };
 
 export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
@@ -86,6 +90,7 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                     avatarUrl: character.avatarUrl,
                     hp: { current: character.sheet?.pvCurrent || 0, max: character.sheet?.pvMax || 1 },
                     pm: { current: character.sheet?.pmCurrent || 0, max: character.sheet?.pmMax || 1 },
+                    san: { current: character.sheet?.sanCurrent || 0, max: character.sheet?.sanMax || 1 },
                     def: character.sheet?.defenseFinal || 10,
                     conditions: conditionByRefId.get(character.id) ?? [],
                 }));
@@ -103,6 +108,10 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                             ...agent.pm,
                             current: typeof pending.pm === "number" ? pending.pm : agent.pm.current,
                         },
+                        san: {
+                            ...agent.san,
+                            current: typeof pending.san === "number" ? pending.san : agent.san.current,
+                        },
                     };
                 });
 
@@ -117,7 +126,14 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                     if (typeof pending.pm === "number" && serverAgent.pm.current !== pending.pm) {
                         remaining.pm = pending.pm;
                     }
-                    if (typeof remaining.hp === "number" || typeof remaining.pm === "number") {
+                    if (typeof pending.san === "number" && serverAgent.san.current !== pending.san) {
+                        remaining.san = pending.san;
+                    }
+                    if (
+                        typeof remaining.hp === "number" ||
+                        typeof remaining.pm === "number" ||
+                        typeof remaining.san === "number"
+                    ) {
                         nextPendingSheetOverrides[agentId] = remaining;
                     }
                 }
@@ -143,12 +159,22 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
 
     const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
-    const handleGrant = async (id: string, type: "hp" | "pm", amount: number) => {
+    const handleGrant = async (id: string, type: "hp" | "pm" | "san", amount: number) => {
         const target = agents.find((agent) => agent.id === id);
         if (!target) return;
 
-        const current = type === "hp" ? target.hp.current : target.pm.current;
-        const max = type === "hp" ? target.hp.max : target.pm.max;
+        const current =
+            type === "hp"
+                ? target.hp.current
+                : type === "pm"
+                    ? target.pm.current
+                    : target.san.current;
+        const max =
+            type === "hp"
+                ? target.hp.max
+                : type === "pm"
+                    ? target.pm.max
+                    : target.san.max;
         const nextValue = clamp(current + amount, 0, max);
 
         setAgents((prev) =>
@@ -157,7 +183,10 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                 if (type === "hp") {
                     return { ...agent, hp: { ...agent.hp, current: nextValue } };
                 }
-                return { ...agent, pm: { ...agent.pm, current: nextValue } };
+                if (type === "pm") {
+                    return { ...agent, pm: { ...agent.pm, current: nextValue } };
+                }
+                return { ...agent, san: { ...agent.san, current: nextValue } };
             }),
         );
         const currentPending = pendingSheetOverridesRef.current[id] ?? {};
@@ -173,13 +202,23 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
             await fetch(`/api/characters/${id}/sheet`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(type === "hp" ? { pvCurrent: nextValue } : { pmCurrent: nextValue }),
+                body: JSON.stringify(
+                    type === "hp"
+                        ? { pvCurrent: nextValue }
+                        : type === "pm"
+                            ? { pmCurrent: nextValue }
+                            : { sanCurrent: nextValue },
+                ),
             });
         } catch (error) {
             const current = pendingSheetOverridesRef.current[id] ?? {};
             const next: PendingSheetOverride = { ...current };
             delete next[type];
-            if (typeof next.hp !== "number" && typeof next.pm !== "number") {
+            if (
+                typeof next.hp !== "number" &&
+                typeof next.pm !== "number" &&
+                typeof next.san !== "number"
+            ) {
                 const cloned = { ...pendingSheetOverridesRef.current };
                 delete cloned[id];
                 pendingSheetOverridesRef.current = cloned;
@@ -198,10 +237,7 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
             {agents.map(agent => {
                 const hpPct = (agent.hp.current / agent.hp.max) * 100;
                 const pmPct = (agent.pm.current / agent.pm.max) * 100;
-                // Mock Sanity for now
-                const sanCurrent = 50;
-                const sanMax = 100;
-                const sanPct = (sanCurrent / sanMax) * 100;
+                const sanPct = (agent.san.current / agent.san.max) * 100;
 
                 const isDying = agent.hp.current <= 0;
 
@@ -262,14 +298,14 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                                         </div>
                                     </div>
 
-                                    {/* Sanity Bar (visual-only while no persisted SAN field exists) */}
+                                    {/* SAN Bar */}
                                     <div className="group/bar relative h-1.5 w-full bg-black/50 rounded-full overflow-hidden mt-1">
                                         <div className="h-full bg-purple-500 transition-all" style={{ width: `${sanPct}%` }} />
+                                        <div className="absolute inset-0 flex opacity-0 group-hover/bar:opacity-100 bg-black/60 items-center justify-center gap-4 transition-opacity">
+                                            <button onClick={(e) => { e.stopPropagation(); handleGrant(agent.id, 'san', -2) }} className="text-red-500 font-bold text-[10px] hover:scale-125">-</button>
+                                            <button onClick={(e) => { e.stopPropagation(); handleGrant(agent.id, 'san', 2) }} className="text-purple-500 font-bold text-[10px] hover:scale-125">+</button>
+                                        </div>
                                     </div>
-                                    <p className="mt-1 inline-flex items-center gap-1 text-[9px] uppercase tracking-[0.12em] text-white/50">
-                                        <Lock className="h-2.5 w-2.5" />
-                                        SAN visual apenas
-                                    </p>
                                 </div>
                                 {agent.conditions.length > 0 ? (
                                     <div className="mt-1 flex flex-wrap gap-1">

@@ -289,6 +289,8 @@ model CharacterSheet {
   pvMax          Int     @default(0)
   pmCurrent      Int     @default(0)
   pmMax          Int     @default(0)
+  sanCurrent     Int     @default(0)
+  sanMax         Int     @default(0)
   attackBonus    Int     @default(0)
   damageFormula  String  @default("1d6")
   critRange      Int     @default(20)

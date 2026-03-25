@@ -148,11 +148,11 @@ O app ja possui fundacao de combate, mas a experiencia precisa se alinhar ao pro
 - [-] M3.4 Melhorar acoes rapidas do mestre
   Notas: `RPG-32` acrescentou `Ajuste rapido` no proprio cockpit da mesa, com opcoes curtas para aliviar, segurar ou escalar a tensao a partir do estado real do combate. O `CombatTracker` agora permite aplicar/remover condicoes por combatente sem sair da mesa, com feedback de operacao por item, reconciliacao otimista e sugestoes de `conditionKey` puxadas de `/api/campaigns/[id]/conditions` conforme o ruleset da campanha.
 
-- [-] M3.5 Garantir que o combate nao monopolize a tela inteira sem necessidade
+- [x] M3.5 Garantir que o combate nao monopolize a tela inteira sem necessidade
   Notas: O `LiveWarRoom` agora distingue modo narrativo e tatico no mesmo mapa: em narrativo as barras de squad ficam ocultas e o mapa permanece livre com overlay de cena/subcena; em tatico o monitor de squad volta ao topo, o watermark muda para simulacao tatica e o overlay de turno fica no canto com avancar/voltar turno sem abrir outra superficie.
 
-- [-] M3.6 Garantir leitura de ficha viva para PCs e NPCs durante a mesa
-  Notas: `SquadMonitor` passou a operar HP/PM em tempo real com update otimista + persistencia na sheet API e reconciliacao no polling; condicoes aplicadas em combate agora aparecem no monitor por personagem. No `CombatTracker`, o mestre aplica/remove condicoes por combatente com feedback por item e sugestao de chaves de condicao do ruleset. Ainda resta formalizar SAN persistente (campo dedicado na ficha/API) para encerrar este item como concluido.
+- [x] M3.6 Garantir leitura de ficha viva para PCs e NPCs durante a mesa
+  Notas: `SquadMonitor` passou a operar HP/PM/SAN em tempo real com update otimista + persistencia na sheet API e reconciliacao no polling; condicoes aplicadas em combate aparecem por personagem. No `CombatTracker`, o mestre aplica/remove condicoes por combatente com feedback por item e sugestao de chaves de condicao do ruleset.
 
 ### Criterios de aceite da Frente M3
 - combate e parte do cockpit, nao uma experiencia apartada;

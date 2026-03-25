@@ -210,6 +210,8 @@ export const CharacterSheetUpdateSchema = z.object({
   pvMax: z.number().int().min(0).optional(),
   pmCurrent: z.number().int().min(0).optional(),
   pmMax: z.number().int().min(0).optional(),
+  sanCurrent: z.number().int().min(0).optional(),
+  sanMax: z.number().int().min(0).optional(),
   defenseFinal: z.number().int().min(0).optional(),
   defenseRef: z.number().int().min(0).optional(),
   defenseFort: z.number().int().min(0).optional(),

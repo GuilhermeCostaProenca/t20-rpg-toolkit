@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "CharacterSheet" ADD COLUMN "sanCurrent" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "CharacterSheet" ADD COLUMN "sanMax" INTEGER NOT NULL DEFAULT 0;

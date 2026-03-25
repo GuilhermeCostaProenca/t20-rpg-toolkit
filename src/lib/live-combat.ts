@@ -38,6 +38,8 @@ export type CampaignCharacterSheet = {
   pvMax?: number;
   pmCurrent?: number;
   pmMax?: number;
+  sanCurrent?: number;
+  sanMax?: number;
 };
 
 export type CampaignCharacter = {
