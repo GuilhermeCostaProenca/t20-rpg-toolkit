@@ -83,9 +83,17 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                         for (const applied of combat.conditions) {
                             const refId = applied.target?.refId;
                             if (!refId) continue;
-                            const label = applied.condition?.name || applied.condition?.key || "Condicao";
+                            const rawLabel = applied.condition?.name ?? applied.condition?.key ?? "";
+                            const label = rawLabel.trim() || "Condicao";
                             const existing = conditionByRefId.get(refId) ?? [];
-                            conditionByRefId.set(refId, [...existing, label]);
+                            const uniqueLabels = new Set(existing);
+                            uniqueLabels.add(label);
+                            conditionByRefId.set(
+                                refId,
+                                Array.from(uniqueLabels).sort((left, right) =>
+                                    left.localeCompare(right, "pt-BR", { sensitivity: "base" }),
+                                ),
+                            );
                         }
                     }
                 }
