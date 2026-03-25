@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { SquadMonitor } from "@/components/overseer/squad-monitor";
 import { InteractiveMap, type Pin, type Token } from "@/components/map/interactive-map";
 import { type DieType } from "@/components/dice/die";
+import { isPlayerCombatantKind } from "@/lib/live-combat";
 
 function DiceTray({
     onRoll,
@@ -182,7 +183,7 @@ export function LiveWarRoom({
                         {combatTurn.currentName}
                     </p>
                     <p className={`${monitorMode ? "text-xs" : "text-[10px]"} mt-1 uppercase tracking-[0.16em] text-red-200/80`}>
-                        {combatTurn.currentKind === "CHARACTER" ? "PC" : "Hostil"}
+                        {isPlayerCombatantKind(combatTurn.currentKind) ? "PC" : "Hostil"}
                     </p>
                 </div>
             ) : null}

@@ -13,7 +13,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { LiveCombat, LiveOpsStatusMessage } from "@/lib/live-combat";
+import { isPlayerCombatantKind, type LiveCombat, type LiveOpsStatusMessage } from "@/lib/live-combat";
 import {
   type SessionForgeBeat,
   type SessionForgeDramaticItem,
@@ -420,11 +420,6 @@ function getPublicAdvanceCue(
     label: "Hora de virar a camada",
     detail: "A proxima exposicao complementa o que ja esta na tela e ajuda a cena a avancar.",
   };
-}
-
-function isPlayerCombatantKind(kind?: string | null) {
-  const normalized = (kind ?? "").trim().toUpperCase();
-  return normalized === "CHARACTER" || normalized === "PLAYER" || normalized === "PC";
 }
 
 export function LivePrepCockpit({
