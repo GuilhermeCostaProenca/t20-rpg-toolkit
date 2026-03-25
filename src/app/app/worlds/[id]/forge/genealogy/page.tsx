@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { Crown, RefreshCw, Sparkles, Trash2, Users2, Waypoints } from "lucide-react";
+import { ArrowLeft, ArrowRight, Crown, RefreshCw, Sparkles, Trash2, Users2, Waypoints } from "lucide-react";
 
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 import { EmptyState } from "@/components/empty-state";
@@ -56,6 +56,7 @@ type EntityDetail = {
   subtype?: string | null;
   summary?: string | null;
   description?: string | null;
+  metadata?: Record<string, unknown> | null;
   portraitImageUrl?: string | null;
   coverImageUrl?: string | null;
   outgoingRelations: Array<{
@@ -99,6 +100,7 @@ export default function WorldForgeGenealogyPage() {
     notes: "",
   });
   const [relationshipDeletingId, setRelationshipDeletingId] = useState<string | null>(null);
+  const [orderingSubmitting, setOrderingSubmitting] = useState(false);
 
   const loadGraph = useCallback(async () => {
     if (!worldId) return;
@@ -204,6 +206,23 @@ export default function WorldForgeGenealogyPage() {
     [genealogyGraph.nodes, inspectEntity?.id]
   );
 
+  const genealogyLaneNodes = useMemo(() => {
+    if (!inspectEntity) return [] as NarrativeGraphNode[];
+    return genealogyGraph.nodes
+      .filter((node) => node.type === inspectEntity.type)
+      .sort((a, b) => {
+        const leftOrder = typeof a.orderHint === "number" ? a.orderHint : Number.MAX_SAFE_INTEGER;
+        const rightOrder = typeof b.orderHint === "number" ? b.orderHint : Number.MAX_SAFE_INTEGER;
+        if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+        return b.relationCount - a.relationCount || a.name.localeCompare(b.name);
+      });
+  }, [genealogyGraph.nodes, inspectEntity]);
+
+  const inspectLaneIndex = useMemo(
+    () => genealogyLaneNodes.findIndex((node) => node.id === inspectEntity?.id),
+    [genealogyLaneNodes, inspectEntity?.id]
+  );
+
   useEffect(() => {
     setDraft((current) => ({
       ...current,
@@ -274,6 +293,76 @@ export default function WorldForgeGenealogyPage() {
       setError(message);
     } finally {
       setRelationshipDeletingId(null);
+    }
+  }
+
+  function mergeGenealogyOrderMetadata(base: Record<string, unknown> | null | undefined, order: number) {
+    const metadata =
+      base && typeof base === "object" ? ({ ...base } as Record<string, unknown>) : ({} as Record<string, unknown>);
+    const genealogyRaw = metadata.genealogy;
+    const genealogy =
+      genealogyRaw && typeof genealogyRaw === "object"
+        ? ({ ...(genealogyRaw as Record<string, unknown>) } as Record<string, unknown>)
+        : ({} as Record<string, unknown>);
+    genealogy.order = order;
+    metadata.genealogy = genealogy;
+    return metadata;
+  }
+
+  async function handleReorderGenealogyNode(direction: "backward" | "forward") {
+    if (!inspectEntity) return;
+    const isGenealogyType = inspectEntity.type === "house" || inspectEntity.type === "character" || inspectEntity.type === "npc";
+    if (!isGenealogyType) return;
+    if (inspectLaneIndex < 0) return;
+
+    const targetIndex = direction === "backward" ? inspectLaneIndex - 1 : inspectLaneIndex + 1;
+    if (targetIndex < 0 || targetIndex >= genealogyLaneNodes.length) return;
+
+    const currentNode = genealogyLaneNodes[inspectLaneIndex];
+    const targetNode = genealogyLaneNodes[targetIndex];
+    const currentOrder =
+      typeof currentNode.orderHint === "number" ? currentNode.orderHint : inspectLaneIndex * 10;
+    const targetOrder = typeof targetNode.orderHint === "number" ? targetNode.orderHint : targetIndex * 10;
+
+    setOrderingSubmitting(true);
+    setError(null);
+    try {
+      const [currentRes, targetRes] = await Promise.all([
+        fetch(`/api/worlds/${worldId}/entities/${currentNode.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            metadata: mergeGenealogyOrderMetadata(currentNode.metadata, targetOrder),
+          }),
+        }),
+        fetch(`/api/worlds/${worldId}/entities/${targetNode.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            metadata: mergeGenealogyOrderMetadata(targetNode.metadata, currentOrder),
+          }),
+        }),
+      ]);
+
+      if (!currentRes.ok || !targetRes.ok) {
+        const currentJson = await currentRes.json().catch(() => ({}));
+        const targetJson = await targetRes.json().catch(() => ({}));
+        throw new Error(
+          (currentJson.error as string | undefined) ||
+            (targetJson.error as string | undefined) ||
+            "Falha ao reorganizar ramo genealogico"
+        );
+      }
+
+      await Promise.all([loadGraph(), loadEntity(inspectEntity.id)]);
+    } catch (reorderError) {
+      const message =
+        reorderError instanceof Error
+          ? reorderError.message
+          : "Erro inesperado ao reorganizar ramo genealogico";
+      setError(message);
+    } finally {
+      setOrderingSubmitting(false);
     }
   }
 
@@ -463,6 +552,39 @@ export default function WorldForgeGenealogyPage() {
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
                 {inspectEntity.summary || inspectEntity.description || "Sem contexto textual ainda."}
               </p>
+              {(inspectEntity.type === "house" || inspectEntity.type === "character" || inspectEntity.type === "npc") &&
+              inspectLaneIndex >= 0 ? (
+                <div className="mt-4 rounded-2xl border border-white/8 bg-white/4 p-3">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Ordem do ramo
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Posicao {inspectLaneIndex + 1} de {genealogyLaneNodes.length} neste eixo genealogico.
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      disabled={orderingSubmitting || inspectLaneIndex <= 0}
+                      onClick={() => void handleReorderGenealogyNode("backward")}
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Trazer para frente
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      disabled={orderingSubmitting || inspectLaneIndex >= genealogyLaneNodes.length - 1}
+                      onClick={() => void handleReorderGenealogyNode("forward")}
+                    >
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                      Enviar para tras
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="rounded-[28px] border border-white/10 bg-white/4 p-5">

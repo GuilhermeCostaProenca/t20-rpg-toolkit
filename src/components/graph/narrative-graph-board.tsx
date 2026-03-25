@@ -10,6 +10,8 @@ export type NarrativeGraphNode = {
   name: string;
   type: string;
   status: string;
+  orderHint?: number | null;
+  metadata?: Record<string, unknown> | null;
   summary?: string | null;
   campaignName?: string | null;
   portraitImageUrl?: string | null;
@@ -79,7 +81,12 @@ export function NarrativeGraphBoard({
         type,
         items: nodes
           .filter((node) => node.type === type)
-          .sort((a, b) => b.relationCount - a.relationCount || a.name.localeCompare(b.name)),
+          .sort((a, b) => {
+            const leftOrder = typeof a.orderHint === "number" ? a.orderHint : Number.MAX_SAFE_INTEGER;
+            const rightOrder = typeof b.orderHint === "number" ? b.orderHint : Number.MAX_SAFE_INTEGER;
+            if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+            return b.relationCount - a.relationCount || a.name.localeCompare(b.name);
+          }),
       }))
       .filter((group) => group.items.length > 0);
 
