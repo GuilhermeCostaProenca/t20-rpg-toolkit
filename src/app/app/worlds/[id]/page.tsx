@@ -123,11 +123,13 @@ type PoliticalCodexEntity = {
     id: string;
     type: string;
     metadata?: Record<string, unknown> | null;
+    toEntity?: { id: string; name: string; type: string } | null;
   }>;
   incomingRelations?: Array<{
     id: string;
     type: string;
     metadata?: Record<string, unknown> | null;
+    fromEntity?: { id: string; name: string; type: string } | null;
   }>;
 };
 
@@ -432,6 +434,53 @@ export default function WorldDetailPage() {
     () => new Map(codexEntities.map((entity) => [entity.id, entity.name])),
     [codexEntities]
   );
+  const memoryInspectRelations = useMemo(() => {
+    if (inspectItem?.type !== "memory") return [];
+    const linked = new Set(getMemoryEventLinkedEntityIds(inspectItem.item));
+    if (linked.size === 0) return [];
+
+    const byId = new Map<
+      string,
+      {
+        id: string;
+        type: string;
+        fromEntityId: string;
+        fromEntityName: string;
+        toEntityId: string;
+        toEntityName: string;
+      }
+    >();
+
+    for (const entity of codexEntities) {
+      if (!linked.has(entity.id)) continue;
+
+      for (const relation of entity.outgoingRelations ?? []) {
+        if (!relation.toEntity) continue;
+        byId.set(relation.id, {
+          id: relation.id,
+          type: relation.type,
+          fromEntityId: entity.id,
+          fromEntityName: entity.name,
+          toEntityId: relation.toEntity.id,
+          toEntityName: relation.toEntity.name,
+        });
+      }
+
+      for (const relation of entity.incomingRelations ?? []) {
+        if (!relation.fromEntity) continue;
+        byId.set(relation.id, {
+          id: relation.id,
+          type: relation.type,
+          fromEntityId: relation.fromEntity.id,
+          fromEntityName: relation.fromEntity.name,
+          toEntityId: entity.id,
+          toEntityName: entity.name,
+        });
+      }
+    }
+
+    return Array.from(byId.values()).slice(0, 6);
+  }, [codexEntities, inspectItem]);
   const inspectHref = inspectItem?.type === "campaign" ? inspectItem.href : null;
   const activeInspectHref = inspectItem?.type === "memory" ? inspectItem.href : inspectHref;
   const prepBriefing = useMemo<PrepBriefingItem[]>(() => {
@@ -1244,38 +1293,70 @@ export default function WorldDetailPage() {
                 : inspectItem.body}
             </p>
             {inspectItem.type === "memory" ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {inspectItem.item.campaignId ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-white/10 bg-white/5"
-                    onClick={() => router.push(`/app/campaign/${inspectItem.item.campaignId}`)}
-                  >
-                    Abrir campanha
-                  </Button>
+              <div className="mt-4 space-y-4">
+                {memoryInspectRelations.length > 0 ? (
+                  <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      Relacoes ligadas ao evento
+                    </p>
+                    <div className="mt-2 space-y-2">
+                      {memoryInspectRelations.map((relation) => (
+                        <p key={relation.id} className="text-sm text-foreground">
+                          <span className="font-semibold">{relation.fromEntityName}</span>
+                          {" -> "}
+                          <span className="text-amber-100/90">
+                            {relation.type.replaceAll("_", " ")}
+                          </span>
+                          {" -> "}
+                          <span className="font-semibold">{relation.toEntityName}</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
                 ) : null}
-                {inspectItem.item.campaignId && inspectItem.item.sessionId ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-white/10 bg-white/5"
-                    onClick={() => router.push(`/app/campaign/${inspectItem.item.campaignId}/forge/${inspectItem.item.sessionId}`)}
-                  >
-                    Abrir sessao
-                  </Button>
-                ) : null}
-                {getMemoryEventLinkedEntityIds(inspectItem.item).slice(0, 2).map((entityId) => (
-                  <Button
-                    key={entityId}
-                    size="sm"
-                    variant="outline"
-                    className="border-white/10 bg-white/5"
-                    onClick={() => router.push(`/app/worlds/${worldId}/codex/${entityId}`)}
-                  >
-                    {entityNameById.get(entityId) || "Abrir entidade"}
-                  </Button>
-                ))}
+                <div className="flex flex-wrap gap-2">
+                  {inspectItem.item.campaignId ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={() => router.push(`/app/campaign/${inspectItem.item.campaignId}`)}
+                    >
+                      Abrir campanha
+                    </Button>
+                  ) : null}
+                  {inspectItem.item.campaignId && inspectItem.item.sessionId ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={() => router.push(`/app/campaign/${inspectItem.item.campaignId}/forge/${inspectItem.item.sessionId}`)}
+                    >
+                      Abrir sessao
+                    </Button>
+                  ) : null}
+                  {memoryInspectRelations.length > 0 ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={() => router.push(`/app/worlds/${worldId}/graph`)}
+                    >
+                      Abrir grafo de relacoes
+                    </Button>
+                  ) : null}
+                  {getMemoryEventLinkedEntityIds(inspectItem.item).slice(0, 2).map((entityId) => (
+                    <Button
+                      key={entityId}
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={() => router.push(`/app/worlds/${worldId}/codex/${entityId}`)}
+                    >
+                      {entityNameById.get(entityId) || "Abrir entidade"}
+                    </Button>
+                  ))}
+                </div>
               </div>
             ) : null}
           </div>

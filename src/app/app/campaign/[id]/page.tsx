@@ -57,6 +57,7 @@ import {
   formatMemoryEventText,
   formatMemoryEventType,
   formatMemoryEventVisibility,
+  getMemoryEventLinkedEntityIds,
   getMemoryEventLinkedEntityCount,
   getMemoryEventSearchText,
   getMemoryEventTone,
@@ -148,6 +149,13 @@ type WorldEvent = {
   text?: string | null;
   visibility: string;
   meta?: Record<string, unknown> | null;
+};
+
+type EntityRelationshipPreview = {
+  id: string;
+  type: string;
+  fromEntity: { id: string; name: string; type: string };
+  toEntity: { id: string; name: string; type: string };
 };
 
 const initialCharacter = {
@@ -289,6 +297,7 @@ export default function CampaignPage() {
   const [encounterSaving, setEncounterSaving] = useState(false);
   const [encounterSaveMessage, setEncounterSaveMessage] = useState<string | null>(null);
   const [encounterSaveError, setEncounterSaveError] = useState<string | null>(null);
+  const [worldRelationships, setWorldRelationships] = useState<EntityRelationshipPreview[]>([]);
 
   const loadData = useCallback(async (id: string) => {
     setLoading(true);
@@ -314,11 +323,24 @@ export default function CampaignPage() {
       if (!sessionRes.ok) throw new Error(sessionPayload.error ?? "Erro ao buscar sessoes");
       if (!npcRes.ok) throw new Error(npcPayload.error ?? "Erro ao buscar NPCs");
 
+      const worldId = campaignPayload?.data?.world?.id as string | undefined;
+      let relationshipItems: EntityRelationshipPreview[] = [];
+      if (worldId) {
+        const relationshipRes = await fetch(`/api/worlds/${worldId}/relationships`, {
+          cache: "no-store",
+        });
+        const relationshipPayload = await relationshipRes.json().catch(() => ({}));
+        if (relationshipRes.ok && Array.isArray(relationshipPayload?.data)) {
+          relationshipItems = relationshipPayload.data as EntityRelationshipPreview[];
+        }
+      }
+
       setCampaign(campaignPayload.data ?? null);
       setCharacters(characterPayload.data ?? []);
       setSessions(sessionPayload.data ?? []);
       setNpcs(npcPayload.data ?? []);
       setCombat(combatRes.ok ? (combatPayload.data ?? null) : null);
+      setWorldRelationships(relationshipItems);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro inesperado ao carregar");
     } finally {
@@ -382,6 +404,14 @@ export default function CampaignPage() {
     () => new Map(sessions.map((session) => [session.id, session.title])),
     [sessions]
   );
+  const memoryInspectRelations = useMemo(() => {
+    if (inspectItem?.type !== "memory") return [];
+    const linked = new Set(getMemoryEventLinkedEntityIds(inspectItem.item));
+    if (linked.size === 0) return [];
+    return worldRelationships
+      .filter((relation) => linked.has(relation.fromEntity.id) || linked.has(relation.toEntity.id))
+      .slice(0, 6);
+  }, [inspectItem, worldRelationships]);
   const threatCount = useMemo(
     () => sortedNpcs.filter((npc) => npc.type === "enemy").length,
     [sortedNpcs]
@@ -2108,6 +2138,26 @@ export default function CampaignPage() {
                       : undefined,
                   })}
                 </p>
+                {memoryInspectRelations.length > 0 ? (
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      Relacoes ligadas ao evento
+                    </p>
+                    <div className="mt-2 space-y-2">
+                      {memoryInspectRelations.map((relation) => (
+                        <p key={relation.id} className="text-sm text-foreground">
+                          <span className="font-semibold">{relation.fromEntity.name}</span>
+                          {" -> "}
+                          <span className="text-amber-100/90">
+                            {relation.type.replaceAll("_", " ")}
+                          </span>
+                          {" -> "}
+                          <span className="font-semibold">{relation.toEntity.name}</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="mt-4 flex flex-wrap gap-2">
                   {inspectItem.item.sessionId ? (
                     <Button
@@ -2131,6 +2181,18 @@ export default function CampaignPage() {
                     >
                       <Link href={`/app/campaign/${campaignId}/forge/${inspectItem.item.sessionId}`}>
                         Abrir forja da sessao
+                      </Link>
+                    </Button>
+                  ) : null}
+                  {memoryInspectRelations.length > 0 && campaign?.world?.id ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      asChild
+                    >
+                      <Link href={`/app/worlds/${campaign.world.id}/graph`}>
+                        Abrir grafo de relacoes
                       </Link>
                     </Button>
                   ) : null}

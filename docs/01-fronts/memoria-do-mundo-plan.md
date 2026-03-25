@@ -110,8 +110,8 @@ Memoria sem entidade ligada perde valor.
 - [-] W2.2 Permitir contextualizacao por campanha
   Notas: `RPG-22` abriu leitura dedicada por campanha usando `recentMemoryEvents` no `GET /api/campaigns/[id]` e painel proprio na estacao da campanha. Ainda faltam filtros temporais mais profundos.
 
-- [ ] W2.3 Permitir referencia cruzada com relacoes
-  Notas:
+- [x] W2.3 Permitir referencia cruzada com relacoes
+  Notas: O inspect de memoria em campanha e mundo agora cruza as entidades ligadas ao evento com `EntityRelationship`, exibindo relacoes conectadas e atalho direto para o grafo.
 
 - [x] W2.4 Definir comportamento de consulta no workspace da entidade
   Notas: O workspace da entidade agora mostra timeline de memoria consolidada.
