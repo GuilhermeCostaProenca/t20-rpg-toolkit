@@ -55,11 +55,11 @@ Pode iniciar modelagem antes, mas a experiencia final depende dessas frentes.
 
 ## Checklist Mestre
 
-- [-] T1. Definir a base de calculo de encontro T20
-  Notas: `RPG-25` abriu uma base heuristica inicial em `src/lib/t20-balance.ts`, usando nivel do grupo e estatisticas minimas das ameacas (`hpMax`, `defenseFinal`, `damageFormula`).
+- [x] T1. Definir a base de calculo de encontro T20
+  Notas: Consolidado em `master` com base heuristica + composicoes nao triviais + limites de confianca (RPG-25, RPG-61, RPG-62).
 
-- [-] T2. Definir leitura de poder do grupo
-  Notas: O slice inicial usa nivel medio, quantidade de personagens e peso leve por funcao para evitar leitura puramente cega.
+- [x] T2. Definir leitura de poder do grupo
+  Notas: Consolidado em `master` com perfil por eixos, prontidao de ficha, resumo curto, tratamento de lacunas e breakdown explicito (RPG-61, RPG-62, RPG-63).
 
 - [-] T3. Criar superficie de analise de dificuldade
   Notas: `RPG-25` abriu o primeiro painel de leitura na estacao da campanha, com classificacao, confianca, score de grupo, score de pressao e fatores explicitos.
@@ -77,14 +77,14 @@ Pode iniciar modelagem antes, mas a experiencia final depende dessas frentes.
 Contexto tecnico:
 Sem fundacao clara, a frente vira sugestao vaga.
 
-- [-] T1.1 Definir modelo de entrada do grupo
-  Notas: O modelo inicial usa `level`, `role` e `className` dos personagens da campanha.
+- [x] T1.1 Definir modelo de entrada do grupo
+  Notas: Modelo de entrada estabilizado com `level`, `role`, `className` e leitura opcional de ficha (`pv/pm`) no motor.
 
-- [-] T1.2 Definir modelo de entrada das ameacas
-  Notas: O modelo inicial usa apenas NPCs do tipo `enemy` e considera `hpMax`, `defenseFinal` e `damageFormula`.
+- [x] T1.2 Definir modelo de entrada das ameacas
+  Notas: Modelo de ameacas estabilizado via NPC `enemy` com `hpMax`, `defenseFinal` e `damageFormula`.
 
-- [-] T1.3 Definir calculo de dificuldade e risco
-  Notas: O primeiro recorte usa `partyScore`, `threatScore` e `pressureRatio`, mapeando para `trivial`, `manageable`, `risky` e `deadly`.
+- [x] T1.3 Definir calculo de dificuldade e risco
+  Notas: Calculo consolidado em `master` com `partyScore`, `threatScore`, `pressureRatio`, recomendacao e fatores explicitos.
 
 - [x] T1.4 Definir como lidar com composicoes nao triviais
   Notas: `codex/t20-balance-t1-4` introduziu heuristicas para composicoes de enxame, elite, mista e boss solo no motor de risco (`src/lib/t20-balance.ts`), com impacto em fatores, confianca e recomendacao.
@@ -131,20 +131,20 @@ Nivel puro nem sempre representa a forca real da mesa.
 Contexto tecnico:
 O mestre precisa ler rapidamente se o encontro esta facil, medio, dificil ou perigoso.
 
-- [-] T3.1 Criar tela ou painel de analise de encontro
-  Notas: `RPG-25` abriu o primeiro painel dentro da estacao da campanha, sem abrir uma frente isolada ainda.
+- [x] T3.1 Criar tela ou painel de analise de encontro
+  Notas: Painel de analise de encontro consolidado na estacao da campanha e evoluido nos slices seguintes.
 
-- [-] T3.2 Exibir dificuldade resumida e risco
-  Notas: O painel exibe classificacao de risco e `pressureRatio`.
+- [x] T3.2 Exibir dificuldade resumida e risco
+  Notas: Painel exibe rating, confianca, pressure ratio e recomendacao curta.
 
-- [-] T3.3 Exibir fatores que empurram o risco para cima ou para baixo
-  Notas: O painel ja lista fatores como quantidade de personagens, nivel medio, ameacas hostis e dados ausentes.
+- [x] T3.3 Exibir fatores que empurram o risco para cima ou para baixo
+  Notas: Fatores e breakdown numerico estao visiveis no painel para leitura de causa.
 
-- [-] T3.4 Exibir sinais de incerteza quando houver dados fracos
-  Notas: A confianca e os fatores deixam explicito quando a leitura esta fraca.
+- [x] T3.4 Exibir sinais de incerteza quando houver dados fracos
+  Notas: `confidenceScore`, `uncertaintySignals` e `dataGaps` estruturados estao expostos no painel.
 
-- [-] T3.5 Garantir leitura rapida em preparacao
-  Notas: O primeiro painel foi colocado na estacao da campanha para funcionar durante o preparo sem sair do cockpit.
+- [x] T3.5 Garantir leitura rapida em preparacao
+  Notas: Leitura permanece no cockpit da campanha com cards de resumo e callouts acionaveis.
 
 ### Criterios de aceite da Frente T3
 - a analise e rapida de entender;
