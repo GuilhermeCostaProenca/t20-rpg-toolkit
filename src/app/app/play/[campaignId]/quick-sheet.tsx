@@ -57,6 +57,12 @@ export function QuickSheet({
                     const nextCharacters = data.data as Character[];
                     setCharacters(nextCharacters);
                     setSelectedId((current) => {
+                        if (
+                            requestedCharacterId &&
+                            nextCharacters.some((character) => character.id === requestedCharacterId)
+                        ) {
+                            return requestedCharacterId;
+                        }
                         if (current && nextCharacters.some((character) => character.id === current)) {
                             return current;
                         }
@@ -67,11 +73,7 @@ export function QuickSheet({
             .catch(console.error);
     }, [campaignId, requestedCharacterId]);
 
-    const resolvedSelectedId =
-        requestedCharacterId && characters.some((character) => character.id === requestedCharacterId)
-            ? requestedCharacterId
-            : selectedId;
-    const activeChar = characters.find(c => c.id === resolvedSelectedId);
+    const activeChar = characters.find(c => c.id === selectedId);
 
     const terminalChar = activeChar ? {
         name: activeChar.name,
@@ -114,7 +116,7 @@ export function QuickSheet({
                         {characters.length > 1 && (
                             <select
                                 className="bg-black/50 border border-white/10 text-xs text-white rounded p-1"
-                                value={resolvedSelectedId || ""}
+                                value={selectedId || ""}
                                 onChange={(e) => setSelectedId(e.target.value)}
                             >
                                 {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
