@@ -50,6 +50,7 @@ export function QuickSheet({
 }: QuickSheetProps) {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const selectedStorageKey = `t20.live.quick-sheet.selected.${campaignId}`;
 
     useEffect(() => {
         fetch(`/api/characters?campaignId=${campaignId}&withSheet=true`)
@@ -57,17 +58,38 @@ export function QuickSheet({
             .then(data => {
                 if (data.data) {
                     const nextCharacters = data.data as Character[];
+                    let persistedSelectedId: string | null = null;
+                    try {
+                        persistedSelectedId = window.localStorage.getItem(selectedStorageKey);
+                    } catch (error) {
+                        console.error("Failed to load quick sheet selected character", error);
+                    }
                     setCharacters(nextCharacters);
                     setSelectedId((current) => {
                         if (current && nextCharacters.some((character) => character.id === current)) {
                             return current;
+                        }
+                        if (
+                            persistedSelectedId &&
+                            nextCharacters.some((character) => character.id === persistedSelectedId)
+                        ) {
+                            return persistedSelectedId;
                         }
                         return nextCharacters[0]?.id ?? null;
                     });
                 }
             })
             .catch(console.error);
-    }, [campaignId]);
+    }, [campaignId, selectedStorageKey]);
+
+    useEffect(() => {
+        if (!selectedId) return;
+        try {
+            window.localStorage.setItem(selectedStorageKey, selectedId);
+        } catch (error) {
+            console.error("Failed to persist quick sheet selected character", error);
+        }
+    }, [selectedId, selectedStorageKey]);
 
     const resolvedSelectedId =
         requestedCharacterId && characters.some((character) => character.id === requestedCharacterId)
