@@ -92,6 +92,7 @@ type LivePrepCockpitProps = {
     enemy: SessionForgeEncounter["enemies"][number],
     enemyIndex: number,
   ) => void | Promise<void>;
+  onSpawnEncounterRemaining: () => void | Promise<void>;
   onMarkActiveSceneExecuted: () => void | Promise<void>;
   onMarkActiveSubsceneExecuted: () => void | Promise<void>;
   onMarkDramaticExecuted: (
@@ -453,6 +454,7 @@ export function LivePrepCockpit({
   onReveal,
   onPresentAsset,
   onSpawnEncounterEnemy,
+  onSpawnEncounterRemaining,
   onMarkActiveSceneExecuted,
   onMarkActiveSubsceneExecuted,
   onMarkDramaticExecuted,
@@ -650,6 +652,16 @@ export function LivePrepCockpit({
     publicPacing,
   );
   const isSpawnBusy = Boolean(spawningEncounterEnemyId);
+  const isBatchSpawning = spawningEncounterEnemyId === "__encounter_batch__";
+  const remainingEncounterSpawnCount = liveCombat?.isActive
+    ? (activeEncounter?.enemies.reduce((total, enemy) => {
+        if (!enemy.npcId) return total;
+        const spawnedCount =
+          liveCombat.combatants.filter((combatant) => combatant.refId === enemy.npcId).length ?? 0;
+        const targetCount = Math.max(1, enemy.quantity || 1);
+        return total + Math.max(0, targetCount - spawnedCount);
+      }, 0) ?? 0)
+    : 0;
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -1611,6 +1623,26 @@ export function LivePrepCockpit({
                 <p className="mt-3 text-sm font-semibold text-foreground">
                   {activeEncounter.title || "Encontro preparado"}
                 </p>
+                {liveCombat?.isActive ? (
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/60">
+                      Restantes para convocar: {remainingEncounterSpawnCount}
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5 text-xs"
+                      disabled={isSpawnBusy || remainingEncounterSpawnCount === 0}
+                      onClick={() => void onSpawnEncounterRemaining()}
+                    >
+                      {isBatchSpawning
+                        ? "Convocando restantes..."
+                        : remainingEncounterSpawnCount > 1
+                          ? `Convocar restantes (${remainingEncounterSpawnCount})`
+                          : "Convocar restante"}
+                    </Button>
+                  </div>
+                ) : null}
                 <div className="mt-3 grid gap-1 text-sm text-muted-foreground">
                   {activeEncounter.enemies.map((enemy, enemyIndex) => {
                     const enemyKey = `${activeEncounter.id}:${enemy.npcId ?? enemy.label}:${enemyIndex}`;

@@ -90,6 +90,15 @@ type LivePublicAsset = {
     detail: string;
 };
 
+type EncounterSpawnAttemptSummary = {
+    baseName: string;
+    successCount: number;
+    failureCount: number;
+    lastFailureMessage: string;
+    targetCount: number;
+    existingCount: number;
+};
+
 type SessionSoundtrack = {
     ambientUrl: string;
     combatUrl: string;
@@ -920,6 +929,97 @@ export default function PlayPage() {
         }
     }
 
+    async function spawnEncounterEnemyAttempt(
+        enemy: SessionForgeEncounterEnemy,
+        npcById: Map<string, CampaignNpc>,
+        spawnedOffsetByNpcId: Map<string, number>,
+    ): Promise<EncounterSpawnAttemptSummary> {
+        const npcId = enemy.npcId;
+        if (!campaignId || !npcId) {
+            return {
+                baseName: enemy.label?.trim() || "Ameaca",
+                successCount: 0,
+                failureCount: 0,
+                lastFailureMessage: "",
+                targetCount: Math.max(1, enemy.quantity || 1),
+                existingCount: 0,
+            };
+        }
+
+        const npc = npcById.get(npcId);
+        if (!npc) {
+            throw new Error("NPC do encontro nao encontrado na campanha.");
+        }
+
+        const quantity = Math.max(1, enemy.quantity || 1);
+        const baseName = enemy.label?.trim() || npc.name || "Ameaca";
+        const hpMax = Math.max(1, npc.hpMax ?? 1);
+        const kind = npc.type?.toLowerCase() === "monster" ? "MONSTER" : "NPC";
+        const alreadySpawnedOffset = spawnedOffsetByNpcId.get(npc.id) ?? 0;
+        const existingFromSameNpc =
+            (liveCombat?.combatants.filter((combatant) => combatant.refId === npc.id).length ?? 0) +
+            alreadySpawnedOffset;
+        const remainingToSpawn = Math.max(0, quantity - existingFromSameNpc);
+
+        if (remainingToSpawn === 0) {
+            return {
+                baseName,
+                successCount: 0,
+                failureCount: 0,
+                lastFailureMessage: "",
+                targetCount: quantity,
+                existingCount: existingFromSameNpc,
+            };
+        }
+
+        let successCount = 0;
+        let failureCount = 0;
+        let lastFailureMessage = "";
+
+        for (let idx = 0; idx < remainingToSpawn; idx += 1) {
+            const sequence = existingFromSameNpc + idx + 1;
+            const shouldSuffix = quantity > 1 || existingFromSameNpc > 0;
+            const combatantName = shouldSuffix ? `${baseName} ${sequence}` : baseName;
+            const spawnResponse = await fetch(getCampaignCombatantsPath(campaignId), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: combatantName,
+                    refId: npc.id,
+                    kind,
+                    hpMax,
+                    hpCurrent: hpMax,
+                    defenseFinal: npc.defenseFinal ?? 10,
+                    damageFormula: npc.damageFormula ?? "1d6",
+                }),
+            });
+
+            if (!spawnResponse.ok) {
+                const spawnJson = await spawnResponse.json().catch(() => null);
+                const message =
+                    (spawnJson?.error as string | undefined) ??
+                    "Falha ao convocar inimigo para o combate.";
+                lastFailureMessage = message;
+                failureCount += 1;
+                continue;
+            }
+            successCount += 1;
+        }
+
+        if (successCount > 0) {
+            spawnedOffsetByNpcId.set(npc.id, alreadySpawnedOffset + successCount);
+        }
+
+        return {
+            baseName,
+            successCount,
+            failureCount,
+            lastFailureMessage,
+            targetCount: quantity,
+            existingCount: existingFromSameNpc,
+        };
+    }
+
     async function handleSpawnEncounterEnemy(enemy: SessionForgeEncounterEnemy, enemyIndex: number) {
         if (spawningEncounterEnemyId) return;
         if (!campaignId || !liveCombat?.isActive || !enemy.npcId) return;
@@ -936,77 +1036,37 @@ export default function PlayPage() {
 
             const npcJson = await npcResponse.json();
             const npcs = (npcJson.data as CampaignNpc[] | undefined) ?? [];
-            const npc = npcs.find((entry) => entry.id === enemy.npcId);
-            if (!npc) {
-                throw new Error("NPC do encontro nao encontrado na campanha.");
-            }
-
-            const quantity = Math.max(1, enemy.quantity || 1);
-            const baseName = enemy.label?.trim() || npc.name || "Ameaca";
-            const hpMax = Math.max(1, npc.hpMax ?? 1);
-            const kind = npc.type?.toLowerCase() === "monster" ? "MONSTER" : "NPC";
-            const existingFromSameNpc =
-                liveCombat?.combatants.filter((combatant) => combatant.refId === npc.id).length ?? 0;
-            const remainingToSpawn = Math.max(0, quantity - existingFromSameNpc);
-            if (remainingToSpawn === 0) {
+            const npcById = new Map(npcs.map((npc) => [npc.id, npc] as const));
+            const result = await spawnEncounterEnemyAttempt(
+                enemy,
+                npcById,
+                new Map<string, number>(),
+            );
+            if (result.successCount === 0 && result.failureCount === 0) {
                 setSpawnStatusMessage({
                     kind: "info",
-                    message: `${baseName} ja esta completo em campo (${existingFromSameNpc}/${quantity}).`,
+                    message: `${result.baseName} ja esta completo em campo (${result.existingCount}/${result.targetCount}).`,
                 });
                 return;
             }
 
-            let successCount = 0;
-            let failureCount = 0;
-            let lastFailureMessage = "";
-
-            for (let idx = 0; idx < remainingToSpawn; idx += 1) {
-                const sequence = existingFromSameNpc + idx + 1;
-                const shouldSuffix = quantity > 1 || existingFromSameNpc > 0;
-                const combatantName = shouldSuffix ? `${baseName} ${sequence}` : baseName;
-                const spawnResponse = await fetch(getCampaignCombatantsPath(campaignId), {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        name: combatantName,
-                        refId: npc.id,
-                        kind,
-                        hpMax,
-                        hpCurrent: hpMax,
-                        defenseFinal: npc.defenseFinal ?? 10,
-                        damageFormula: npc.damageFormula ?? "1d6",
-                    }),
-                });
-
-                if (!spawnResponse.ok) {
-                    const spawnJson = await spawnResponse.json().catch(() => null);
-                    const message =
-                        (spawnJson?.error as string | undefined) ??
-                        "Falha ao convocar inimigo para o combate.";
-                    lastFailureMessage = message;
-                    failureCount += 1;
-                    continue;
-                }
-                successCount += 1;
-            }
-
             await refreshLiveCombatNow();
-            if (successCount > 0 && failureCount === 0) {
+            if (result.successCount > 0 && result.failureCount === 0) {
                 setSpawnStatusMessage({
                     kind: "success",
                     message:
-                        successCount > 1
-                            ? `${successCount} unidades de ${baseName} convocadas para o combate.`
-                            : `${baseName} convocado para o combate.`,
+                        result.successCount > 1
+                            ? `${result.successCount} unidades de ${result.baseName} convocadas para o combate.`
+                            : `${result.baseName} convocado para o combate.`,
                 });
-            } else if (successCount > 0) {
-                const failureSuffix = lastFailureMessage ? ` Ultima falha: ${lastFailureMessage}` : "";
+            } else if (result.successCount > 0) {
+                const failureSuffix = result.lastFailureMessage ? ` Ultima falha: ${result.lastFailureMessage}` : "";
                 setSpawnStatusMessage({
                     kind: "error",
-                    message: `${successCount} convocado(s) e ${failureCount} falha(s).${failureSuffix}`,
+                    message: `${result.successCount} convocado(s) e ${result.failureCount} falha(s).${failureSuffix}`,
                 });
             } else {
-                throw new Error(lastFailureMessage || "Falha ao convocar inimigo para o combate.");
+                throw new Error(result.lastFailureMessage || "Falha ao convocar inimigo para o combate.");
             }
         } catch (error) {
             console.error("Encounter spawn failed", error);
@@ -1016,6 +1076,80 @@ export default function PlayPage() {
                     error instanceof Error
                         ? error.message
                         : "Falha ao convocar inimigo para o combate.",
+            });
+        } finally {
+            setSpawningEncounterEnemyId(null);
+        }
+    }
+
+    async function handleSpawnEncounterRemaining() {
+        if (spawningEncounterEnemyId) return;
+        if (!campaignId || !liveCombat?.isActive || !activeEncounter) return;
+
+        setSpawningEncounterEnemyId("__encounter_batch__");
+        setSpawnStatusMessage(null);
+
+        try {
+            const npcResponse = await fetch(getCampaignNpcsPath(campaignId), { cache: "no-store" });
+            if (!npcResponse.ok) {
+                throw new Error("Falha ao carregar NPCs da campanha.");
+            }
+
+            const npcJson = await npcResponse.json();
+            const npcs = (npcJson.data as CampaignNpc[] | undefined) ?? [];
+            const npcById = new Map(npcs.map((npc) => [npc.id, npc] as const));
+            const spawnedOffsetByNpcId = new Map<string, number>();
+            let totalSuccess = 0;
+            let totalFailure = 0;
+            let totalAttempted = 0;
+            let lastFailureMessage = "";
+
+            for (const enemy of activeEncounter.enemies) {
+                if (!enemy.npcId) continue;
+                const result = await spawnEncounterEnemyAttempt(
+                    enemy,
+                    npcById,
+                    spawnedOffsetByNpcId,
+                );
+                totalSuccess += result.successCount;
+                totalFailure += result.failureCount;
+                totalAttempted += result.successCount + result.failureCount;
+                if (result.lastFailureMessage) {
+                    lastFailureMessage = result.lastFailureMessage;
+                }
+            }
+
+            await refreshLiveCombatNow();
+            if (totalSuccess > 0 && totalFailure === 0) {
+                setSpawnStatusMessage({
+                    kind: "success",
+                    message:
+                        totalSuccess > 1
+                            ? `${totalSuccess} unidades convocadas para o combate.`
+                            : "1 unidade convocada para o combate.",
+                });
+            } else if (totalSuccess > 0) {
+                const failureSuffix = lastFailureMessage ? ` Ultima falha: ${lastFailureMessage}` : "";
+                setSpawnStatusMessage({
+                    kind: "error",
+                    message: `${totalSuccess} convocado(s) e ${totalFailure} falha(s).${failureSuffix}`,
+                });
+            } else if (totalAttempted === 0) {
+                setSpawnStatusMessage({
+                    kind: "info",
+                    message: "Todos os inimigos do encontro ja estao em campo.",
+                });
+            } else {
+                throw new Error(lastFailureMessage || "Falha ao convocar inimigos do encontro.");
+            }
+        } catch (error) {
+            console.error("Encounter batch spawn failed", error);
+            setSpawnStatusMessage({
+                kind: "error",
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : "Falha ao convocar inimigos do encontro.",
             });
         } finally {
             setSpawningEncounterEnemyId(null);
@@ -1645,6 +1779,7 @@ export default function PlayPage() {
                 onSpawnEncounterEnemy={(enemy, enemyIndex) =>
                     void handleSpawnEncounterEnemy(enemy, enemyIndex)
                 }
+                onSpawnEncounterRemaining={() => void handleSpawnEncounterRemaining()}
                 onMarkActiveSceneExecuted={() => void handleMarkActiveExecuted("scene")}
                 onMarkActiveSubsceneExecuted={() => void handleMarkActiveExecuted("subscene")}
                 onMarkDramaticExecuted={(collection, itemId) =>
