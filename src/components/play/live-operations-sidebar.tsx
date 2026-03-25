@@ -104,6 +104,8 @@ type LiveOperationsSidebarProps = {
     spawnStatusMessage?: LiveOpsStatusMessage | null;
     executionStatusMessage?: LiveOpsStatusMessage | null;
     executingScope?: "scene" | "subscene" | null;
+    dramaticExecutionStatusMessage?: LiveOpsStatusMessage | null;
+    executingDramaticId?: string | null;
     inspectQuery: string;
     inspectCandidates: LiveCodexEntity[];
     inspectId: string | null;
@@ -132,6 +134,10 @@ type LiveOperationsSidebarProps = {
     ) => void | Promise<void>;
     onMarkActiveSceneExecuted: () => void | Promise<void>;
     onMarkActiveSubsceneExecuted: () => void | Promise<void>;
+    onMarkDramaticExecuted: (
+        collection: "hooks" | "secrets",
+        itemId: string,
+    ) => void | Promise<void>;
     onInspectQueryChange: (value: string) => void;
     onInspectIdChange: (value: string | null) => void;
     onOpenSearch: () => void;
@@ -180,6 +186,8 @@ export function LiveOperationsSidebar({
     spawnStatusMessage,
     executionStatusMessage,
     executingScope,
+    dramaticExecutionStatusMessage,
+    executingDramaticId,
     inspectQuery,
     inspectCandidates,
     inspectId,
@@ -205,6 +213,7 @@ export function LiveOperationsSidebar({
     onSpawnEncounterEnemy,
     onMarkActiveSceneExecuted,
     onMarkActiveSubsceneExecuted,
+    onMarkDramaticExecuted,
     onInspectQueryChange,
     onInspectIdChange,
     onOpenSearch,
@@ -289,6 +298,8 @@ export function LiveOperationsSidebar({
                 spawnStatusMessage={spawnStatusMessage}
                 executionStatusMessage={executionStatusMessage}
                 executingScope={executingScope}
+                dramaticExecutionStatusMessage={dramaticExecutionStatusMessage}
+                executingDramaticId={executingDramaticId}
                 publicLayerLocked={publicLayerLocked}
                 onFocusScene={onFocusScene}
                 onInspectEntity={onInspectEntity}
@@ -297,6 +308,7 @@ export function LiveOperationsSidebar({
                 onSpawnEncounterEnemy={onSpawnEncounterEnemy}
                 onMarkActiveSceneExecuted={onMarkActiveSceneExecuted}
                 onMarkActiveSubsceneExecuted={onMarkActiveSubsceneExecuted}
+                onMarkDramaticExecuted={onMarkDramaticExecuted}
                 onTogglePublicLayerLock={onTogglePublicLayerLock}
             />
         </div>
