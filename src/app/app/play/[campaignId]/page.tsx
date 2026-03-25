@@ -1081,6 +1081,8 @@ export default function PlayPage() {
                 linkedEntityIds: executionLinkedEntityIds,
                 visibility: "MASTER" as const,
             }];
+        let nextSceneFocusId: string | null = activeScene?.id ?? null;
+        let nextSubsceneFocusId: string | null = activeSubscene?.id ?? null;
 
         const nextForge: SessionForgeState = {
             ...previousPacket.forge,
@@ -1103,6 +1105,37 @@ export default function PlayPage() {
                 changes: [...previousPacket.forge.memory.changes, ...executionMemoryEntry],
             },
         };
+        if (scope === "subscene") {
+            const updatedScene = nextForge.scenes.find((scene) => scene.id === activeScene?.id) ?? null;
+            const orderedSubscenes = updatedScene?.subscenes.filter((subscene) => subscene.status !== "discarded") ?? [];
+            const currentSubsceneIndex = orderedSubscenes.findIndex((subscene) => subscene.id === activeSubscene?.id);
+            const nextSubscene =
+                orderedSubscenes.find(
+                    (subscene, index) => index > currentSubsceneIndex && subscene.status !== "executed"
+                ) ??
+                orderedSubscenes.find((subscene) => subscene.status !== "executed") ??
+                null;
+            nextSubsceneFocusId = nextSubscene?.id ?? null;
+        } else {
+            const orderedScenes = nextForge.scenes.filter((scene) => scene.status !== "discarded");
+            const currentSceneIndex = orderedScenes.findIndex((scene) => scene.id === activeScene?.id);
+            const nextScene =
+                orderedScenes.find(
+                    (scene, index) => index > currentSceneIndex && scene.status !== "executed"
+                ) ??
+                orderedScenes.find((scene) => scene.status !== "executed") ??
+                null;
+
+            if (nextScene) {
+                nextSceneFocusId = nextScene.id;
+                nextSubsceneFocusId =
+                    nextScene.subscenes.find(
+                        (subscene) => subscene.status !== "discarded" && subscene.status !== "executed"
+                    )?.id ?? null;
+            } else {
+                nextSubsceneFocusId = null;
+            }
+        }
         const nextMetadata = buildSessionMetadata(nextForge, previousPacket.session.metadata);
         const targetLabel = scope === "scene" ? "Cena" : "Subcena";
 
@@ -1152,6 +1185,8 @@ export default function PlayPage() {
                 kind: "success",
                 message: `${targetLabel} marcada como executada.`,
             });
+            setFocusedSceneId(nextSceneFocusId);
+            setFocusedSubsceneId(nextSubsceneFocusId);
         } catch (error) {
             console.error("Mark executed failed", error);
             setPrepPacket(previousPacket);
