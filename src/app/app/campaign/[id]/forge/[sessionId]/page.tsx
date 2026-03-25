@@ -2702,12 +2702,16 @@ export default function SessionForgePage() {
                       return haystack.includes(normalizedDramaticSearch);
                     })
                   : statusItems;
+                const totalItems = forge[column.key].length;
                 return (
                 <div key={column.key} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
                         {column.title}
+                      </p>
+                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                        Visiveis {visibleItems.length}/{totalItems}
                       </p>
                       <p className="mt-1 text-sm text-muted-foreground">{column.description}</p>
                     </div>
