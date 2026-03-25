@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Skull } from "lucide-react";
+import { Lock, Skull } from "lucide-react";
 import { getCampaignCombatPath, SQUAD_MONITOR_POLL_MS } from "@/lib/live-combat";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -266,6 +266,10 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                                     <div className="group/bar relative h-1.5 w-full bg-black/50 rounded-full overflow-hidden mt-1">
                                         <div className="h-full bg-purple-500 transition-all" style={{ width: `${sanPct}%` }} />
                                     </div>
+                                    <p className="mt-1 inline-flex items-center gap-1 text-[9px] uppercase tracking-[0.12em] text-white/50">
+                                        <Lock className="h-2.5 w-2.5" />
+                                        SAN visual apenas
+                                    </p>
                                 </div>
                                 {agent.conditions.length > 0 ? (
                                     <div className="mt-1 flex flex-wrap gap-1">
