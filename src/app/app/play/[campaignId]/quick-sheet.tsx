@@ -1,13 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, Shield, Heart, Zap, ChevronRight, ChevronLeft, Dna, Swords, Crosshair } from "lucide-react";
+import { ChevronLeft, Dna } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 
 import { OrdemSheet } from "@/components/sheet/ordem-sheet";
 
@@ -52,8 +48,6 @@ export function QuickSheet({
 }: QuickSheetProps) {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [targetId, setTargetId] = useState<string>("none"); // "none" or uuid
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch(`/api/characters?campaignId=${campaignId}&withSheet=true`)
@@ -70,8 +64,7 @@ export function QuickSheet({
                     });
                 }
             })
-            .catch(console.error)
-            .finally(() => setLoading(false));
+            .catch(console.error);
     }, [campaignId, requestedCharacterId]);
 
     const resolvedSelectedId =
@@ -80,20 +73,6 @@ export function QuickSheet({
             : selectedId;
     const activeChar = characters.find(c => c.id === resolvedSelectedId);
 
-    // Mock Attacks if none (Standard T20)
-    // In real app, we parse activeChar.sheet.attacks
-    const attacks = [
-        { name: "Desarmado", bonus: (activeChar?.sheet?.for ?? 10) - 10, damage: "1d3", crit: "20" },
-        { name: "Espada Longa", bonus: ((activeChar?.sheet?.for ?? 10) - 10) + 2, damage: "1d8", crit: "19" }
-    ];
-
-    // Calc modifier: (Score - 10) / 2
-    const getMod = (score: number) => Math.floor((score - 10) / 2);
-
-    // Unified render with CSS transition
-    // if (collapsed) ... removed to allow animation in main return
-
-    // Map Character to AgentTerminal Props
     const terminalChar = activeChar ? {
         name: activeChar.name,
         class: activeChar.sheet?.className || "Agente",
