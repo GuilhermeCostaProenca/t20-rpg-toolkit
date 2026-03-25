@@ -106,6 +106,15 @@ export type SessionForgeMemoryState = {
   changes: SessionForgeMemoryChangeItem[];
 };
 
+export type SessionForgeCaptureStatus = "none" | "recorded" | "transcribed" | "reviewed";
+
+export type SessionForgeCaptureState = {
+  sourceUrl: string;
+  transcriptStatus: SessionForgeCaptureStatus;
+  transcriptText: string;
+  masterListeningNotes: string;
+};
+
 export type SessionForgeState = {
   briefing: string;
   tableObjective: string;
@@ -120,6 +129,7 @@ export type SessionForgeState = {
   reveals: SessionForgeDramaticItem[];
   encounters: SessionForgeEncounter[];
   memory: SessionForgeMemoryState;
+  capture: SessionForgeCaptureState;
 };
 
 function buildForgeId(prefix: string) {
@@ -146,6 +156,12 @@ export function getEmptySessionForgeState(): SessionForgeState {
       attendance: [],
       deaths: [],
       changes: [],
+    },
+    capture: {
+      sourceUrl: "",
+      transcriptStatus: "none",
+      transcriptText: "",
+      masterListeningNotes: "",
     },
   };
 }
@@ -332,6 +348,14 @@ function parseMemoryChanges(value: unknown): SessionForgeMemoryChangeItem[] {
     : [];
 }
 
+function parseCaptureStatus(value: unknown): SessionForgeCaptureStatus {
+  return value === "recorded" ||
+    value === "transcribed" ||
+    value === "reviewed"
+    ? value
+    : "none";
+}
+
 export function normalizeSessionForgeState(metadata: unknown): SessionForgeState {
   const meta = metadata && typeof metadata === "object" ? (metadata as Record<string, unknown>) : undefined;
   const forge =
@@ -341,6 +365,10 @@ export function normalizeSessionForgeState(metadata: unknown): SessionForgeState
   const memory =
     meta?.memory && typeof meta.memory === "object"
       ? (meta.memory as Record<string, unknown>)
+      : undefined;
+  const capture =
+    meta?.capture && typeof meta.capture === "object"
+      ? (meta.capture as Record<string, unknown>)
       : undefined;
 
   const beats = Array.isArray(forge?.beats)
@@ -386,6 +414,13 @@ export function normalizeSessionForgeState(metadata: unknown): SessionForgeState
       attendance: parseMemoryAttendance(memory?.attendance),
       deaths: parseMemoryDeaths(memory?.deaths),
       changes: parseMemoryChanges(memory?.changes),
+    },
+    capture: {
+      sourceUrl: typeof capture?.sourceUrl === "string" ? capture.sourceUrl : "",
+      transcriptStatus: parseCaptureStatus(capture?.transcriptStatus),
+      transcriptText: typeof capture?.transcriptText === "string" ? capture.transcriptText : "",
+      masterListeningNotes:
+        typeof capture?.masterListeningNotes === "string" ? capture.masterListeningNotes : "",
     },
   };
 }
@@ -515,6 +550,13 @@ export function buildSessionMetadata(forge: SessionForgeState, currentMetadata?:
             visibility: item.visibility,
           }))
         : undefined,
+    },
+    capture: {
+      sourceUrl: forge.capture.sourceUrl || undefined,
+      transcriptStatus:
+        forge.capture.transcriptStatus !== "none" ? forge.capture.transcriptStatus : undefined,
+      transcriptText: forge.capture.transcriptText || undefined,
+      masterListeningNotes: forge.capture.masterListeningNotes || undefined,
     },
   };
 }

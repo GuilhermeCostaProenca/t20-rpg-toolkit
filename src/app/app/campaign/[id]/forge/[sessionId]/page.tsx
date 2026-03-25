@@ -41,6 +41,7 @@ import {
   normalizeSessionForgeState,
   type SessionForgeBeat,
   type SessionForgeBeatStatus,
+  type SessionForgeCaptureStatus,
   type SessionForgeDramaticItem,
   type SessionForgeDramaticStatus,
   type SessionForgeMemoryAttendanceItem,
@@ -142,6 +143,12 @@ const sceneStatusOptions: SessionForgeSceneStatus[] = [
 ];
 
 const memoryVisibilityOptions: SessionForgeMemoryVisibility[] = ["MASTER", "PLAYERS"];
+const captureStatusOptions: SessionForgeCaptureStatus[] = [
+  "none",
+  "recorded",
+  "transcribed",
+  "reviewed",
+];
 
 const memoryChangeTypeOptions: SessionForgeMemoryChangeType[] = [
   "world_change",
@@ -218,6 +225,19 @@ function formatMemoryChangeType(type: SessionForgeMemoryChangeType) {
 
 function formatMemoryVisibility(visibility: SessionForgeMemoryVisibility) {
   return visibility === "PLAYERS" ? "Publico" : "Mestre";
+}
+
+function formatCaptureStatus(status: SessionForgeCaptureStatus) {
+  switch (status) {
+    case "recorded":
+      return "Captado";
+    case "transcribed":
+      return "Transcrito";
+    case "reviewed":
+      return "Revisado";
+    default:
+      return "Sem captacao";
+  }
 }
 
 function buildVisualAssets(entities: CodexEntity[]): SessionVisualAsset[] {
@@ -1532,6 +1552,72 @@ export default function SessionForgePage() {
             </div>
 
             <div className="grid gap-4">
+              <div className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                    Captacao e transcricao
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Prepare o suporte de escuta: origem do audio, status da transcricao e notas de revisao.
+                  </p>
+                </div>
+                <div className="mt-4 grid gap-3">
+                  <Input
+                    value={forge.capture.sourceUrl}
+                    onChange={(event) =>
+                      setForge((current) => ({
+                        ...current,
+                        capture: { ...current.capture, sourceUrl: event.target.value },
+                      }))
+                    }
+                    placeholder="Link do audio (drive, gravacao, pasta da sessao...)"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {captureStatusOptions.map((status) => (
+                      <Button
+                        key={status}
+                        type="button"
+                        variant="outline"
+                        className={
+                          forge.capture.transcriptStatus === status
+                            ? "border-primary/30 bg-primary/10 text-primary"
+                            : "border-white/10 bg-white/5"
+                        }
+                        onClick={() =>
+                          setForge((current) => ({
+                            ...current,
+                            capture: { ...current.capture, transcriptStatus: status },
+                          }))
+                        }
+                      >
+                        {formatCaptureStatus(status)}
+                      </Button>
+                    ))}
+                  </div>
+                  <Textarea
+                    rows={4}
+                    value={forge.capture.transcriptText}
+                    onChange={(event) =>
+                      setForge((current) => ({
+                        ...current,
+                        capture: { ...current.capture, transcriptText: event.target.value },
+                      }))
+                    }
+                    placeholder="Trecho transcrito, resumo da IA ou notas da escuta bruta"
+                  />
+                  <Textarea
+                    rows={3}
+                    value={forge.capture.masterListeningNotes}
+                    onChange={(event) =>
+                      setForge((current) => ({
+                        ...current,
+                        capture: { ...current.capture, masterListeningNotes: event.target.value },
+                      }))
+                    }
+                    placeholder="Notas do mestre apos revisar audio/transcricao (correcoes e confianca)"
+                  />
+                </div>
+              </div>
               <Textarea
                 rows={4}
                 value={forge.memory.publicSummary}

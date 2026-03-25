@@ -218,8 +218,8 @@ Depois da sessao, o sistema precisa transformar o caos do jogo em memoria util d
 - [x] W6.1 Definir fluxo de consolidacao pos-sessao
   Notas: O primeiro fluxo existe dentro da propria Forja de Sessao.
 
-- [ ] W6.2 Preparar suporte para captacao, transcricao ou escuta da sessao
-  Notas:
+- [x] W6.2 Preparar suporte para captacao, transcricao ou escuta da sessao
+  Notas: A Forja de Sessao agora possui camada dedicada de `capture` em `Session.metadata` (sourceUrl, transcriptStatus, transcriptText e masterListeningNotes), com superficie de preenchimento no fechamento pos-sessao.
 
 - [-] W6.3 Permitir revisar automaticamente aparicoes, mortes e eventos-chave
   Notas: A revisao existe, mas ainda e inteiramente manual; a automacao vem depois.
