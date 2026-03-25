@@ -233,7 +233,7 @@ Essa frente mede o sucesso operacional da mesa.
   Notas: Validacao operacional consolidada em `docs/99-reports/live-table-flow-validation-2026-03-25.md`, cobrindo combate, encontro preparado, consulta rapida, trilha/notas do mestre e reducao de troca de contexto; ajustes de friccao foram aplicados no poll de eventos e no acesso ao Atlas.
 
 - [-] M6.5 Fechar o criterio de "mesa inteira em um fluxo principal"
-  Notas: `M6.5` adicionou o bloco `Pronto para mesa` no cockpit ao vivo, com checklist curto persistido por campanha para validar se combate, consulta, visual e suporte operacional estao todos dentro do fluxo principal sem dependencia externa.
+  Notas: `M6.5` adicionou o bloco `Pronto para mesa` no cockpit ao vivo, com checklist curto persistido por campanha para validar se combate, consulta, visual e suporte operacional estao todos dentro do fluxo principal sem dependencia externa. O header do cockpit agora exibe indicador objetivo (`pronto X/5`) e acoes rapidas (`Marcar tudo`/`Limpar`) para uso em validacao operacional de sessao.
 
 ### Criterios de aceite da Frente M6
 - a quantidade de trocas de contexto cai visivelmente;

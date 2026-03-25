@@ -763,6 +763,27 @@ export default function PlayPage() {
         });
     }
 
+    function handleFlowChecklistSetAll(checked: boolean) {
+        const next: LiveFlowChecklistState = {
+            cockpit: checked,
+            combat: checked,
+            consult: checked,
+            visual: checked,
+            notes: checked,
+        };
+        setFlowChecklist(next);
+        if (campaignId) {
+            try {
+                window.localStorage.setItem(
+                    `t20.live.flow-checklist.${campaignId}`,
+                    JSON.stringify(next),
+                );
+            } catch (error) {
+                console.error("Failed to persist flow checklist", error);
+            }
+        }
+    }
+
     async function handleSpawnEncounterEnemy(enemy: SessionForgeEncounterEnemy, enemyIndex: number) {
         if (spawningEncounterEnemyId) return;
         if (!campaignId || !liveCombat?.isActive || !enemy.npcId) return;
@@ -1133,6 +1154,7 @@ export default function PlayPage() {
                 onSaveSoundtrack={handleSaveSoundtrack}
                 onGmScratchpadChange={handleGmScratchpadChange}
                 onFlowChecklistToggle={handleFlowChecklistToggle}
+                onFlowChecklistSetAll={handleFlowChecklistSetAll}
             />
         </div>
     );

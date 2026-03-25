@@ -137,6 +137,7 @@ type LiveOperationsSidebarProps = {
         key: "cockpit" | "combat" | "consult" | "visual" | "notes",
         checked: boolean,
     ) => void;
+    onFlowChecklistSetAll: (checked: boolean) => void;
 };
 
 export function LiveOperationsSidebar({
@@ -194,6 +195,7 @@ export function LiveOperationsSidebar({
     onSaveSoundtrack,
     onGmScratchpadChange,
     onFlowChecklistToggle,
+    onFlowChecklistSetAll,
 }: LiveOperationsSidebarProps) {
     const jumpToSection = (sectionId: string) => {
         const target = document.getElementById(sectionId);
@@ -201,6 +203,7 @@ export function LiveOperationsSidebar({
         target.scrollIntoView({ behavior: "smooth", block: "start" });
     };
     const isTacticalFocus = tableFocusMode === "tactical" || Boolean(liveCombat?.isActive);
+    const flowChecklistDoneCount = Object.values(flowChecklist).filter(Boolean).length;
 
     const combatSection = (
         <div id="live-section-combate" className="px-3 pt-3">
@@ -380,6 +383,9 @@ export function LiveOperationsSidebar({
                             combate ativo
                         </span>
                     ) : null}
+                    <span className="ml-auto rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-emerald-300">
+                        pronto {flowChecklistDoneCount}/5
+                    </span>
                 </div>
                 <div className="mb-2 flex items-center gap-2">
                     <span className="text-[10px] uppercase tracking-[0.14em] text-white/60">Secundarios:</span>
@@ -449,6 +455,22 @@ export function LiveOperationsSidebar({
                 <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-white/45">
                     Atalhos: Alt+1..4 secoes, Alt+5 chat, Ctrl/Cmd+K busca
                 </p>
+                <div className="mt-2 flex gap-2">
+                    <button
+                        type="button"
+                        className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-white/75 hover:bg-white/10"
+                        onClick={() => onFlowChecklistSetAll(true)}
+                    >
+                        Marcar tudo
+                    </button>
+                    <button
+                        type="button"
+                        className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-white/75 hover:bg-white/10"
+                        onClick={() => onFlowChecklistSetAll(false)}
+                    >
+                        Limpar
+                    </button>
+                </div>
             </div>
 
             <ScrollArea className="max-h-[56vh] border-b border-white/10">
