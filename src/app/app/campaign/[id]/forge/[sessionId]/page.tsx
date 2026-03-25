@@ -1643,9 +1643,25 @@ export default function SessionForgePage() {
                                   ))}
                                 </div>
                                 <div className="space-y-2">
-                                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
-                                    Entidades da subcena
-                                  </p>
+                                  <div className="flex items-center justify-between gap-2">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                                      Entidades da subcena
+                                    </p>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="border-white/10 bg-black/30"
+                                      disabled={subscene.linkedEntityIds.length === 0}
+                                      onClick={() =>
+                                        updateSubscene(scene.id, subscene.id, (current) => ({
+                                          ...current,
+                                          linkedEntityIds: [],
+                                        }))
+                                      }
+                                    >
+                                      Limpar entidades
+                                    </Button>
+                                  </div>
                                   <div className="flex flex-wrap gap-2">
                                     {entities.slice(0, 20).map((entity) => (
                                       <Button
@@ -1719,6 +1735,22 @@ export default function SessionForgePage() {
                                   </div>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
+                                  <div className="w-full flex items-center justify-end">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="border-white/10 bg-black/30"
+                                      disabled={subscene.linkedRevealIds.length === 0}
+                                      onClick={() =>
+                                        updateSubscene(scene.id, subscene.id, (current) => ({
+                                          ...current,
+                                          linkedRevealIds: [],
+                                        }))
+                                      }
+                                    >
+                                      Limpar reveals
+                                    </Button>
+                                  </div>
                                   {forge.reveals.length > 0 ? (
                                     forge.reveals.map((reveal) => (
                                       <Button

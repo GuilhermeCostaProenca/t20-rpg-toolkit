@@ -112,7 +112,7 @@ O mestre precisa estruturar fluxo narrativo sem ficar preso a documento externo.
   Notas: `GUI-40` agora cria `cenas` e `subcenas` em `Session.metadata.forge`.
 
 - [x] F2.3 Permitir associar entidades a cada cena
-  Notas: Cada cena ja aceita entidades em foco; ainda falta abrir o mesmo nivel de densidade para cada subcena.
+  Notas: Cada cena ja aceita entidades em foco. `RPG-123` adicionou acao de limpeza rapida de entidades e reveals no nivel de subcena, reduzindo friccao para reposicionar contexto narrativo durante o preparo.
 
 - [x] F2.4 Permitir marcar estados como planejado, opcional, improvisado ou descartado
   Notas: Beats, cenas e subcenas usam a mesma semantica de status no preparo.
