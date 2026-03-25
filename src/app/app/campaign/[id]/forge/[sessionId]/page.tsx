@@ -2928,7 +2928,7 @@ export default function SessionForgePage() {
                       ))
                     ) : (
                       <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-muted-foreground">
-                        {normalizedDramaticSearch
+                        {hasActiveDramaticFilters
                           ? "Nenhum item corresponde aos filtros."
                           : "Nenhum item ainda."}
                       </div>
