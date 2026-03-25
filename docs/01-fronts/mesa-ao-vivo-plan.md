@@ -199,8 +199,8 @@ Operar a mesa nao e so combate e reveal; envolve trilha, estado de ficha e apoio
 - [-] M5.2 Integrar o estado operacional de PCs e NPCs
   Notas: `M5.2` adicionou o card `Estado da mesa` na sidebar ao vivo, com resumo de PCs (HP/PM/SAN medio, caidos e faixas baixas) polled de `/api/characters?campaignId=...&withSheet=true`, mantendo leitura operacional tambem fora do modo tatico.
 
-- [ ] M5.3 Permitir ficha rapida e acesso a NPCs improvisados
-  Notas:
+- [-] M5.3 Permitir ficha rapida e acesso a NPCs improvisados
+  Notas: `M5.3` adicionou `Consultar` por inimigo dentro do encontro preparado no cockpit ao vivo, abrindo o inspect do Codex diretamente a partir da linha do inimigo (sem depender de combate ativo), alem do fluxo de `Convocar` quando o combate esta em curso.
 
 - [ ] M5.4 Garantir que rolagem, ficha e consulta convivam sem caos
   Notas:

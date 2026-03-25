@@ -1464,27 +1464,39 @@ export function LivePrepCockpit({
                             </span>
                           ) : null}
                         </p>
-                        {liveCombat?.isActive ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-white/10 bg-white/5 text-xs"
-                            disabled={!isSpawnable || isSpawning || isFullySpawned || isSpawnBusy}
-                            onClick={() => void onSpawnEncounterEnemy(enemy, enemyIndex)}
-                          >
-                            {isSpawning
-                              ? "Convocando..."
-                              : isSpawnBusy
-                                ? "Aguarde..."
-                                : !isSpawnable
-                                ? "Sem NPC"
-                                : isFullySpawned
-                                  ? "Em campo"
-                                  : remainingToSpawn > 1
-                                    ? `Convocar +${remainingToSpawn}`
-                                    : "Convocar"}
-                          </Button>
-                        ) : null}
+                        <div className="flex items-center gap-2">
+                          {enemy.npcId ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-white/10 bg-white/5 text-xs"
+                              onClick={() => onInspectEntity(enemy.npcId)}
+                            >
+                              Consultar
+                            </Button>
+                          ) : null}
+                          {liveCombat?.isActive ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-white/10 bg-white/5 text-xs"
+                              disabled={!isSpawnable || isSpawning || isFullySpawned || isSpawnBusy}
+                              onClick={() => void onSpawnEncounterEnemy(enemy, enemyIndex)}
+                            >
+                              {isSpawning
+                                ? "Convocando..."
+                                : isSpawnBusy
+                                  ? "Aguarde..."
+                                  : !isSpawnable
+                                  ? "Sem NPC"
+                                  : isFullySpawned
+                                    ? "Em campo"
+                                    : remainingToSpawn > 1
+                                      ? `Convocar +${remainingToSpawn}`
+                                      : "Convocar"}
+                            </Button>
+                          ) : null}
+                        </div>
                       </div>
                     );
                   })}
