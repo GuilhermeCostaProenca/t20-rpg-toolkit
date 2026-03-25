@@ -927,7 +927,22 @@ export default function CampaignPage() {
       ],
     };
 
+    await persistEncounterTargetForge(
+      nextForge,
+      linkedScene
+        ? `Encontro salvo em ${encounterTargetSession.title} e ligado a ${linkedScene.title}.`
+        : `Encontro salvo em ${encounterTargetSession.title}.`
+    );
+  }
+
+  async function persistEncounterTargetForge(
+    nextForge: ReturnType<typeof normalizeSessionForgeState>,
+    successMessage: string
+  ) {
+    if (!encounterTargetSession) return;
+
     setEncounterSaving(true);
+    setEncounterSaveError(null);
     try {
       const response = await fetch(`/api/sessions/${encounterTargetSession.id}`, {
         method: "PUT",
@@ -943,24 +958,67 @@ export default function CampaignPage() {
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.error ?? "Nao foi possivel salvar o encontro no preparo da sessao.");
+        throw new Error(payload.error ?? "Nao foi possivel atualizar o preparo da sessao.");
       }
       const saved = payload.data as Session;
       setSessions((current) => current.map((session) => (session.id === saved.id ? saved : session)));
-      setEncounterSaveMessage(
-        linkedScene
-          ? `Encontro salvo em ${saved.title} e ligado a ${linkedScene.title}.`
-          : `Encontro salvo em ${saved.title}.`
-      );
+      setEncounterSaveMessage(successMessage);
     } catch (saveError) {
       setEncounterSaveError(
-        saveError instanceof Error
-          ? saveError.message
-          : "Erro inesperado ao salvar o encontro preparado."
+        saveError instanceof Error ? saveError.message : "Erro inesperado ao atualizar o preparo."
       );
     } finally {
       setEncounterSaving(false);
     }
+  }
+
+  async function handleRemoveSavedEncounter(encounterId: string) {
+    if (!encounterTargetSession) return;
+    const targetForge = normalizeSessionForgeState(encounterTargetSession.metadata);
+    const encounter = targetForge.encounters.find((item) => item.id === encounterId);
+    if (!encounter) return;
+
+    if (typeof window !== "undefined") {
+      const ok = window.confirm(`Remover encontro salvo "${encounter.title || "sem titulo"}"?`);
+      if (!ok) return;
+    }
+
+    const nextForge = {
+      ...targetForge,
+      encounters: targetForge.encounters.filter((item) => item.id !== encounterId),
+    };
+    await persistEncounterTargetForge(
+      nextForge,
+      `Encontro removido de ${encounterTargetSession.title}.`
+    );
+  }
+
+  async function handleRelinkSavedEncounter(encounterId: string, linkedSceneId?: string) {
+    if (!encounterTargetSession) return;
+
+    const targetForge = normalizeSessionForgeState(encounterTargetSession.metadata);
+    const scene = linkedSceneId
+      ? encounterTargetScenes.find((item) => item.id === linkedSceneId)
+      : undefined;
+
+    const nextForge = {
+      ...targetForge,
+      encounters: targetForge.encounters.map((encounter) =>
+        encounter.id === encounterId
+          ? {
+              ...encounter,
+              linkedSceneId: scene?.id,
+            }
+          : encounter
+      ),
+    };
+
+    await persistEncounterTargetForge(
+      nextForge,
+      scene
+        ? `Encontro relinkado para ${scene.title || "cena sem titulo"} em ${encounterTargetSession.title}.`
+        : `Vinculo de cena removido em ${encounterTargetSession.title}.`
+    );
   }
 
   if (loading || !campaignId) {
@@ -1533,6 +1591,78 @@ export default function CampaignPage() {
                               ) : null}
                               {encounterSaveError ? (
                                 <p className="text-sm text-destructive">{encounterSaveError}</p>
+                              ) : null}
+                              {(encounterTargetForge?.encounters.length ?? 0) > 0 ? (
+                                <div className="mt-3 rounded-2xl border border-white/8 bg-black/20 p-3">
+                                  <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                                    Encontros salvos na sessao
+                                  </p>
+                                  <div className="mt-3 grid gap-2">
+                                    {encounterTargetForge?.encounters.map((savedEncounter) => {
+                                      const linkedScene = encounterTargetScenes.find(
+                                        (scene) => scene.id === savedEncounter.linkedSceneId
+                                      );
+                                      return (
+                                        <div
+                                          key={savedEncounter.id}
+                                          className="rounded-xl border border-white/8 bg-white/4 px-3 py-2"
+                                        >
+                                          <p className="text-sm font-semibold text-foreground">
+                                            {savedEncounter.title || "Encontro sem titulo"}
+                                          </p>
+                                          <p className="mt-1 text-xs text-muted-foreground">
+                                            {savedEncounter.enemies.reduce(
+                                              (total, enemy) => total + Math.max(enemy.quantity, 0),
+                                              0
+                                            )}{" "}
+                                            unidades ·{" "}
+                                            {linkedScene
+                                              ? `Cena: ${linkedScene.title || "sem titulo"}`
+                                              : "Sem cena vinculada"}
+                                          </p>
+                                          <div className="mt-2 flex flex-wrap gap-2">
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              className="border-white/10 bg-black/25"
+                                              disabled={encounterSaving || !encounterTargetSceneId}
+                                              onClick={() =>
+                                                void handleRelinkSavedEncounter(
+                                                  savedEncounter.id,
+                                                  encounterTargetSceneId || undefined
+                                                )
+                                              }
+                                            >
+                                              Vincular cena selecionada
+                                            </Button>
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              className="border-white/10 bg-black/25"
+                                              disabled={encounterSaving || !savedEncounter.linkedSceneId}
+                                              onClick={() =>
+                                                void handleRelinkSavedEncounter(savedEncounter.id)
+                                              }
+                                            >
+                                              Remover vinculo
+                                            </Button>
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              className="border-red-400/20 bg-red-400/10 text-red-100"
+                                              disabled={encounterSaving}
+                                              onClick={() =>
+                                                void handleRemoveSavedEncounter(savedEncounter.id)
+                                              }
+                                            >
+                                              Remover encontro
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
                               ) : null}
                             </div>
                           </div>
