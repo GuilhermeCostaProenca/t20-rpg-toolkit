@@ -68,8 +68,8 @@ Esta frente depende de:
 - [-] F4. Integrar entidades e referencias visuais ao preparo
   Notas: `GUI-40` agora ja permite ligar imagem real a `reveals` da sessao e reaproveitar retrato/capa de entidades do Codex sem sair da forja. `RPG-27` acrescentou `encontros preparados` vindos da campanha e ligados opcionalmente a cenas da sessao. Ainda faltam assets mais ricos da biblioteca visual e ligacao mais forte por cena.
 
-- [ ] F5. Definir transicao da forja para a mesa ao vivo
-  Notas:
+- [-] F5. Definir transicao da forja para a mesa ao vivo
+  Notas: `RPG-86` adicionou handoff direto da Forja para a Mesa com contexto de `sceneId` e `subsceneId`, incluindo atalhos `Abrir na mesa` em nivel de cena/subcena. `RPG-87` fechou o gap de contexto da sessao, adicionando `sessionId` no handoff e priorizando essa sessao no carregamento do pacote ao vivo.
 
 ---
 
@@ -186,11 +186,11 @@ A forja nao pode ser uma ilha.
 Contexto tecnico:
 Preparar e rodar precisam conversar.
 
-- [ ] F5.1 Definir o que da forja aparece na mesa ao vivo
-  Notas: `reveals` ja podem sair da forja para a mesa usando o `roomCode` da campanha; ainda falta estruturar melhor cenas, subcenas e notas operacionais como superficie de consulta da mesa.
+- [-] F5.1 Definir o que da forja aparece na mesa ao vivo
+  Notas: Alem de `reveals` via `roomCode`, a mesa agora pode ser aberta a partir da Forja com foco narrativo por `sceneId`/`subsceneId` e sessao explicita por `sessionId`, reduzindo ruptura de contexto. Ainda falta ampliar o pacote para notas operacionais e outros blocos de execucao.
 
-- [ ] F5.2 Definir o que pode ser aberto rapidamente durante a sessao
-  Notas: O recorte atual ja destaca cenas prontas, reveals preparados e assets visuais em foco, mas ainda falta transformar isso em superficie dedicada da mesa ao vivo.
+- [-] F5.2 Definir o que pode ser aberto rapidamente durante a sessao
+  Notas: A abertura rapida da mesa com foco de cena/subcena da Forja foi entregue (`RPG-86`/`RPG-87`). O proximo passo e aprofundar isso em superficie dedicada de passagem operacional dentro do cockpit ao vivo.
 
 - [ ] F5.3 Definir o que pode virar acao operacional
   Notas:
