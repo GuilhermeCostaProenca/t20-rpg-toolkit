@@ -199,7 +199,7 @@ Preparar e rodar precisam conversar.
   Notas: O registro de executado agora cobre `scenes` e `subscenes` direto na mesa, alem de `reveals` ja existentes. `RPG-112` adicionou fechamento operacional de `hooks` e `segredos` no cockpit ao vivo (marcacao `executed` com persistencia na sessao). `RPG-113` passou a gerar rastro em `memory.changes` para esses fechamentos dramaticos durante a mesa, reduzindo perda de contexto no pos-sessao. Ainda falta consolidar memoria pos-cena em camadas mais profundas.
 
 - [-] F5.5 Preparar integracao futura com memoria do mundo
-  Notas: `RPG-20` abriu o primeiro fechamento pos-sessao dentro da propria Forja, com `Session.metadata.memory` para resumo publico, resumo do mestre, presencas, mortes e mudancas persistentes, alem de sincronizacao inicial com `WorldEvent`. A mesa ao vivo agora tambem injeta `memory.changes` (tipo `status`, visibilidade `MASTER`) quando cena/subcena e marcada como `executed` (`RPG-90`), criando ponte operacional entre execucao e memoria.
+  Notas: `RPG-20` abriu o primeiro fechamento pos-sessao dentro da propria Forja, com `Session.metadata.memory` para resumo publico, resumo do mestre, presencas, mortes e mudancas persistentes, alem de sincronizacao inicial com `WorldEvent`. A mesa ao vivo agora tambem injeta `memory.changes` (tipo `status`, visibilidade `MASTER`) quando cena/subcena e marcada como `executed` (`RPG-90`), criando ponte operacional entre execucao e memoria. `RPG-115` adicionou atalho direto no cockpit para abrir a secao de memoria da sessao na Forja (`#forge-section-memory`), reduzindo friccao no fechamento pos-mesa.
 
 ### Criterios de aceite da Frente F5
 - a forja nao termina em si mesma;

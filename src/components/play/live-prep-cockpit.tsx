@@ -471,6 +471,11 @@ export function LivePrepCockpit({
     if (!sessionId) return;
     window.open(`/app/campaign/${campaignId}/forge/${sessionId}`, "_blank", "noopener,noreferrer");
   };
+  const openSessionMemory = () => {
+    const sessionId = prepPacket?.session?.id;
+    if (!sessionId) return;
+    window.open(`/app/campaign/${campaignId}/forge/${sessionId}#forge-section-memory`, "_blank", "noopener,noreferrer");
+  };
 
   const livePressure =
     liveCombat?.isActive && liveCombat.combatants.length > 0
@@ -1321,18 +1326,32 @@ export function LivePrepCockpit({
                   Objetivo de mesa
                 </div>
                 <p className="mt-2 text-sm text-foreground/90">{prepPacket.forge.tableObjective}</p>
-                {prepPacket.session.id ? (
-                  <div className="mt-3">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-white/10 bg-white/5"
-                      onClick={openSessionForge}
-                    >
-                      Abrir Forja da sessao
-                    </Button>
-                  </div>
-                ) : null}
+              </div>
+            ) : null}
+
+            {prepPacket.session.id ? (
+              <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                  Atalhos da sessao
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={openSessionForge}
+                  >
+                    Abrir Forja da sessao
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={openSessionMemory}
+                  >
+                    Abrir memoria da sessao
+                  </Button>
+                </div>
               </div>
             ) : null}
 
