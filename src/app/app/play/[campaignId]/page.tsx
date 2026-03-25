@@ -136,6 +136,7 @@ export default function PlayPage() {
         ambientUrl: "",
         combatUrl: "",
     });
+    const [gmScratchpad, setGmScratchpad] = useState("");
     const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
 
     const loadLiveCombat = useCallback(async () => {
@@ -185,6 +186,17 @@ export default function PlayPage() {
         } catch (error) {
             console.error("Failed to load soundtrack presets", error);
             setSoundtrack({ ambientUrl: "", combatUrl: "" });
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const notes = window.localStorage.getItem(`t20.live.gm-scratchpad.${campaignId}`) ?? "";
+            setGmScratchpad(notes);
+        } catch (error) {
+            console.error("Failed to load GM scratchpad", error);
+            setGmScratchpad("");
         }
     }, [campaignId]);
 
@@ -622,6 +634,16 @@ export default function PlayPage() {
         }
     }
 
+    function handleGmScratchpadChange(next: string) {
+        setGmScratchpad(next);
+        if (!campaignId) return;
+        try {
+            window.localStorage.setItem(`t20.live.gm-scratchpad.${campaignId}`, next);
+        } catch (error) {
+            console.error("Failed to persist GM scratchpad", error);
+        }
+    }
+
     async function handleSpawnEncounterEnemy(enemy: SessionForgeEncounterEnemy, enemyIndex: number) {
         if (spawningEncounterEnemyId) return;
         if (!campaignId || !liveCombat?.isActive || !enemy.npcId) return;
@@ -894,6 +916,7 @@ export default function PlayPage() {
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
                 soundtrack={soundtrack}
+                gmScratchpad={gmScratchpad}
                 partyStatus={partyStatus}
                 revealingId={revealingId}
                 secondScreenReady={Boolean(context.campaign.roomCode)}
@@ -946,6 +969,7 @@ export default function PlayPage() {
                 }}
                 onCombatChange={() => void refreshLiveCombatNow()}
                 onSaveSoundtrack={handleSaveSoundtrack}
+                onGmScratchpadChange={handleGmScratchpadChange}
             />
         </div>
     );

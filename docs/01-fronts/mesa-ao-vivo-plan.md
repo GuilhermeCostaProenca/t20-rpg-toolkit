@@ -205,8 +205,8 @@ Operar a mesa nao e so combate e reveal; envolve trilha, estado de ficha e apoio
 - [-] M5.4 Garantir que rolagem, ficha e consulta convivam sem caos
   Notas: `M5.4` adicionou atalho global `Ctrl+K`/`Cmd+K` na tela de mesa para abrir busca rapida (`OmniSearch`) sem sair do fluxo de rolagem, ficha rapida e cockpit ao vivo.
 
-- [ ] M5.5 Garantir que o mestre nao precise sair do app para controlar a sessao
-  Notas:
+- [-] M5.5 Garantir que o mestre nao precise sair do app para controlar a sessao
+  Notas: `M5.5` adicionou o `Bloco do mestre` na sidebar da mesa (anotacoes rapidas persistidas por campanha via `localStorage`) para reduzir dependencia de app externo de notas durante operacao ao vivo.
 
 ### Criterios de aceite da Frente M5
 - trilha, ficha e operacao rapida participam da mesa;
