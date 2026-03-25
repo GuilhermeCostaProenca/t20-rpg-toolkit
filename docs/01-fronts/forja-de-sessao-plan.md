@@ -190,7 +190,7 @@ Preparar e rodar precisam conversar.
   Notas: Alem de `reveals` via `roomCode`, a mesa agora pode ser aberta a partir da Forja com foco narrativo por `sceneId`/`subsceneId` e sessao explicita por `sessionId`, reduzindo ruptura de contexto. `RPG-111` ampliou o pacote textual no cockpit ao vivo com `briefing` e `notas operacionais` da Forja, reduzindo retorno manual para a tela de preparo durante execucao.
 
 - [-] F5.2 Definir o que pode ser aberto rapidamente durante a sessao
-  Notas: A abertura rapida da mesa com foco de cena/subcena da Forja foi entregue (`RPG-86`/`RPG-87`). O proximo passo e aprofundar isso em superficie dedicada de passagem operacional dentro do cockpit ao vivo.
+  Notas: A abertura rapida da mesa com foco de cena/subcena da Forja foi entregue (`RPG-86`/`RPG-87`). `RPG-114` adicionou atalho direto `Abrir Forja da sessao` no cockpit ao vivo (nova aba), reduzindo ida/volta operacional para ajustes de preparo durante execucao.
 
 - [-] F5.3 Definir o que pode virar acao operacional
   Notas: O cockpit ao vivo ganhou acao operacional direta para marcar `cena` e `subcena` em foco como `executed`, sem sair da mesa (`RPG-89`). A acao foi ligada a persistencia de `Session.metadata.forge` com update otimista e rollback em erro. `RPG-91` adicionou autoavanco de foco para a proxima cena/subcena operacional apos a marcacao, reduzindo clique manual repetitivo durante a mesa. `RPG-92` trouxe feedback de operacao em voo (`Salvando...`) nos botoes de execucao para tornar o estado transitorio explicito.
