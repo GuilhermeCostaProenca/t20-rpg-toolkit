@@ -20,6 +20,19 @@ type BalanceNpcInput = {
 type BalanceRating = "trivial" | "manageable" | "risky" | "deadly";
 type BalanceConfidence = "low" | "medium" | "high";
 type LivePressureState = "stable" | "rising" | "critical";
+type BalanceUncertaintySignal = {
+  code:
+    | "no_party"
+    | "no_enemies"
+    | "missing_enemy_stats"
+    | "missing_roles"
+    | "unclear_party_roles"
+    | "missing_sheet_data"
+    | "volatile_composition";
+  impact: "low" | "medium" | "high";
+  message: string;
+  action: string;
+};
 
 export type EncounterBalanceSnapshot = {
   rating: BalanceRating;
@@ -58,6 +71,8 @@ export type EncounterBalanceSnapshot = {
       effective: number;
     };
   };
+  confidenceScore: number;
+  uncertaintySignals: BalanceUncertaintySignal[];
   factors: string[];
   recommendation: string;
 };
@@ -158,6 +173,12 @@ function getRoleSignals(character: BalanceCharacterInput) {
 
 function weakenConfidence(confidence: BalanceConfidence): BalanceConfidence {
   if (confidence === "high") return "medium";
+  return "low";
+}
+
+function confidenceFromScore(score: number): BalanceConfidence {
+  if (score >= 75) return "high";
+  if (score >= 45) return "medium";
   return "low";
 }
 
@@ -358,19 +379,87 @@ export function analyzeT20Encounter(
     factors.push("Boss solo: leitura de risco depende fortemente da economia de acao da mesa.");
   }
 
-  let confidence: BalanceConfidence = "high";
-  if (partyCount === 0 || enemies.length === 0 || missingEnemyStats >= 2) confidence = "low";
-  else if (missingEnemyStats > 0 || lowRoleSignal > 0) confidence = "medium";
-  if (unknown >= Math.ceil(Math.max(1, partyCount) / 2)) {
-    confidence = weakenConfidence(confidence);
+  const uncertaintySignals: BalanceUncertaintySignal[] = [];
+  let confidenceScore = 100;
+
+  if (partyCount === 0) {
+    confidenceScore -= 70;
+    uncertaintySignals.push({
+      code: "no_party",
+      impact: "high",
+      message: "Nao ha personagens suficientes para ler poder real do grupo.",
+      action: "Cadastre os personagens da campanha para destravar leitura confiavel.",
+    });
   }
-  if (missingSheetSignal === partyCount && partyCount > 0) {
-    confidence = weakenConfidence(confidence);
+
+  if (enemies.length === 0) {
+    confidenceScore -= 60;
+    uncertaintySignals.push({
+      code: "no_enemies",
+      impact: "high",
+      message: "Nao ha ameacas hostis para comparar com o grupo.",
+      action: "Cadastre ao menos uma ameaca do tipo enemy para calcular risco.",
+    });
   }
-  if (hasSoloBossProfile || hasEliteProfile || hasSwarmProfile) {
-    confidence = weakenConfidence(confidence);
+
+  if (missingEnemyStats > 0) {
+    confidenceScore -= Math.min(missingEnemyStats * 12, 36);
+    uncertaintySignals.push({
+      code: "missing_enemy_stats",
+      impact: missingEnemyStats >= 2 ? "high" : "medium",
+      message: `${missingEnemyStats} ameaca(s) sem HP/DEF/dano completos.`,
+      action: "Preencha HP maximo, defesa final e formula de dano das ameacas usadas.",
+    });
   }
+
+  if (lowRoleSignal > 0) {
+    confidenceScore -= Math.min(lowRoleSignal * 8, 24);
+    uncertaintySignals.push({
+      code: "missing_roles",
+      impact: lowRoleSignal >= 2 ? "medium" : "low",
+      message: `${lowRoleSignal} personagem(ns) sem funcao registrada.`,
+      action: "Defina a funcao do personagem (frente, suporte, ofensiva ou controle).",
+    });
+  }
+
+  if (unknown >= Math.ceil(Math.max(1, partyCount) / 2) && partyCount > 0) {
+    confidenceScore -= 12;
+    uncertaintySignals.push({
+      code: "unclear_party_roles",
+      impact: "medium",
+      message: "Boa parte do grupo nao foi reconhecida no perfil atual.",
+      action: "Revise funcao e classe para o app reconhecer o perfil tatico do grupo.",
+    });
+  }
+
+  if (missingSheetSignal > 0) {
+    confidenceScore -= missingSheetSignal === partyCount ? 12 : 6;
+    uncertaintySignals.push({
+      code: "missing_sheet_data",
+      impact: missingSheetSignal === partyCount ? "medium" : "low",
+      message: `${missingSheetSignal} personagem(ns) sem dados de PV/PM para leitura de prontidao.`,
+      action: "Atualize as fichas com PV/PM atuais para refinar o score de grupo.",
+    });
+  }
+
+  if (hasMixedProfile || hasSoloBossProfile || hasEliteProfile || hasSwarmProfile) {
+    confidenceScore -= hasMixedProfile ? 12 : 8;
+    uncertaintySignals.push({
+      code: "volatile_composition",
+      impact: hasMixedProfile || hasSoloBossProfile ? "medium" : "low",
+      message: "Composicao hostil com volatilidade acima do padrao (elite, enxame, mista ou boss solo).",
+      action: "Use ajustes graduais por rodada e valide a pressao em campo durante a cena.",
+    });
+  }
+
+  confidenceScore = Math.max(0, Math.min(100, confidenceScore));
+  let confidence: BalanceConfidence = confidenceFromScore(confidenceScore);
   if (hasMixedProfile) {
+    confidence = "low";
+  } else if ((hasSwarmProfile || hasEliteProfile || hasSoloBossProfile) && confidence === "high") {
+    confidence = "medium";
+  }
+  if (confidence === "high" && uncertaintySignals.some((signal) => signal.impact === "high")) {
     confidence = weakenConfidence(confidence);
   }
 
@@ -437,6 +526,8 @@ export function analyzeT20Encounter(
         effective: Number(effectivePressureRatio.toFixed(2)),
       },
     },
+    confidenceScore,
+    uncertaintySignals,
     factors,
     recommendation,
   };
