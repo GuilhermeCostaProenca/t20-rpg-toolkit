@@ -67,6 +67,7 @@ type LiveOperationsSidebarProps = {
     }[];
     liveCombat: LiveCombat | null;
     monitorMode: boolean;
+    tableFocusMode: "narrative" | "tactical";
     soundtrack: {
         ambientUrl: string;
         combatUrl: string;
@@ -107,6 +108,7 @@ type LiveOperationsSidebarProps = {
     onOpenAtlas: () => void;
     onSummarize: () => void;
     onToggleMonitorMode: () => void;
+    onTableFocusModeChange: (next: "narrative" | "tactical") => void;
     onFocusScene: (sceneId: string) => void;
     onInspectEntity: (entityId: string) => void;
     onReveal: (revealId: string) => void | Promise<void>;
@@ -144,6 +146,7 @@ export function LiveOperationsSidebar({
     sceneVisualEntities,
     liveCombat,
     monitorMode,
+    tableFocusMode,
     soundtrack,
     gmScratchpad,
     flowChecklist,
@@ -166,6 +169,7 @@ export function LiveOperationsSidebar({
     onOpenAtlas,
     onSummarize,
     onToggleMonitorMode,
+    onTableFocusModeChange,
     onFocusScene,
     onInspectEntity,
     onReveal,
@@ -189,6 +193,87 @@ export function LiveOperationsSidebar({
         if (!target) return;
         target.scrollIntoView({ behavior: "smooth", block: "start" });
     };
+    const isTacticalFocus = tableFocusMode === "tactical" || Boolean(liveCombat?.isActive);
+
+    const combatSection = (
+        <div id="live-section-combate" className="px-3 pt-3">
+            <CombatTracker
+                campaignId={campaignId}
+                liveCombat={liveCombat}
+                onCombatChange={onCombatChange}
+            />
+        </div>
+    );
+
+    const supportSection = (
+        <>
+            <div id="live-section-suporte" className="px-3 pt-3">
+                <LivePartyStatus {...partyStatus} />
+            </div>
+
+            <div className="px-3 pt-3">
+                <LiveSessionSoundtrack
+                    isCombatActive={Boolean(liveCombat?.isActive)}
+                    soundtrack={soundtrack}
+                    onSave={onSaveSoundtrack}
+                />
+            </div>
+
+            <div className="px-3 pt-3">
+                <LiveGmScratchpad
+                    value={gmScratchpad}
+                    onChange={onGmScratchpadChange}
+                />
+            </div>
+
+            <div className="px-3 pt-3">
+                <LiveFlowChecklist
+                    state={flowChecklist}
+                    onToggle={onFlowChecklistToggle}
+                />
+            </div>
+        </>
+    );
+
+    const prepSection = (
+        <div id="live-section-preparo" className="px-3 py-3">
+            <LivePrepCockpit
+                prepPacket={prepPacket}
+                activeScene={activeScene}
+                activeEncounter={activeEncounter}
+                activeSceneReveals={activeSceneReveals}
+                currentPublicAsset={currentPublicAsset}
+                sceneVisualEntities={sceneVisualEntities}
+                liveCombat={liveCombat}
+                revealingId={revealingId}
+                secondScreenReady={secondScreenReady}
+                activeInspectEntityId={activeInspectEntityId}
+                spawningEncounterEnemyId={spawningEncounterEnemyId}
+                spawnStatusMessage={spawnStatusMessage}
+                onFocusScene={onFocusScene}
+                onInspectEntity={onInspectEntity}
+                onReveal={onReveal}
+                onPresentAsset={onPresentAsset}
+                onSpawnEncounterEnemy={onSpawnEncounterEnemy}
+            />
+        </div>
+    );
+
+    const codexSection = (
+        <div id="live-section-codex" className="px-3 pb-3">
+            <LiveCodexInspect
+                worldId={worldId}
+                inspectQuery={inspectQuery}
+                inspectCandidates={inspectCandidates}
+                inspectId={inspectId}
+                inspectEntity={inspectEntity}
+                inspectLoading={inspectLoading}
+                onInspectQueryChange={onInspectQueryChange}
+                onInspectIdChange={onInspectIdChange}
+                onOpenSearch={onOpenSearch}
+            />
+        </div>
+    );
 
     return (
         <div
@@ -230,6 +315,36 @@ export function LiveOperationsSidebar({
             </div>
 
             <div className="border-b border-white/10 bg-black/10 px-3 py-2">
+                <div className="mb-2 flex items-center gap-2">
+                    <button
+                        type="button"
+                        className={`rounded border px-2 py-1 text-[10px] uppercase tracking-[0.14em] ${
+                            !isTacticalFocus
+                                ? "border-primary/40 bg-primary/15 text-primary"
+                                : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                        }`}
+                        disabled={Boolean(liveCombat?.isActive)}
+                        onClick={() => onTableFocusModeChange("narrative")}
+                    >
+                        Narracao
+                    </button>
+                    <button
+                        type="button"
+                        className={`rounded border px-2 py-1 text-[10px] uppercase tracking-[0.14em] ${
+                            isTacticalFocus
+                                ? "border-red-500/40 bg-red-500/15 text-red-300"
+                                : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                        }`}
+                        onClick={() => onTableFocusModeChange("tactical")}
+                    >
+                        Tatica
+                    </button>
+                    {liveCombat?.isActive ? (
+                        <span className="text-[10px] uppercase tracking-[0.14em] text-red-300/90">
+                            combate ativo
+                        </span>
+                    ) : null}
+                </div>
                 <div className="flex flex-wrap gap-1">
                     <button
                         type="button"
@@ -263,75 +378,21 @@ export function LiveOperationsSidebar({
             </div>
 
             <ScrollArea className="max-h-[56vh] border-b border-white/10">
-                <div id="live-section-combate" className="px-3 pt-3">
-                    <CombatTracker
-                        campaignId={campaignId}
-                        liveCombat={liveCombat}
-                        onCombatChange={onCombatChange}
-                    />
-                </div>
-
-                <div id="live-section-suporte" className="px-3 pt-3">
-                    <LivePartyStatus {...partyStatus} />
-                </div>
-
-                <div className="px-3 pt-3">
-                    <LiveSessionSoundtrack
-                        isCombatActive={Boolean(liveCombat?.isActive)}
-                        soundtrack={soundtrack}
-                        onSave={onSaveSoundtrack}
-                    />
-                </div>
-
-                <div className="px-3 pt-3">
-                    <LiveGmScratchpad
-                        value={gmScratchpad}
-                        onChange={onGmScratchpadChange}
-                    />
-                </div>
-
-                <div className="px-3 pt-3">
-                    <LiveFlowChecklist
-                        state={flowChecklist}
-                        onToggle={onFlowChecklistToggle}
-                    />
-                </div>
-
-                <div id="live-section-preparo" className="px-3 py-3">
-                    <LivePrepCockpit
-                    prepPacket={prepPacket}
-                    activeScene={activeScene}
-                    activeEncounter={activeEncounter}
-                    activeSceneReveals={activeSceneReveals}
-                    currentPublicAsset={currentPublicAsset}
-                    sceneVisualEntities={sceneVisualEntities}
-                        liveCombat={liveCombat}
-                        revealingId={revealingId}
-                        secondScreenReady={secondScreenReady}
-                        activeInspectEntityId={activeInspectEntityId}
-                        spawningEncounterEnemyId={spawningEncounterEnemyId}
-                        spawnStatusMessage={spawnStatusMessage}
-                        onFocusScene={onFocusScene}
-                        onInspectEntity={onInspectEntity}
-                        onReveal={onReveal}
-                        onPresentAsset={onPresentAsset}
-                        onSpawnEncounterEnemy={onSpawnEncounterEnemy}
-                    />
-                </div>
-
-                <div id="live-section-codex" className="px-3 pb-3">
-                    <LiveCodexInspect
-                        worldId={worldId}
-                        inspectQuery={inspectQuery}
-                        inspectCandidates={inspectCandidates}
-                        inspectId={inspectId}
-                        inspectEntity={inspectEntity}
-                        inspectLoading={inspectLoading}
-                        onInspectQueryChange={onInspectQueryChange}
-                        onInspectIdChange={onInspectIdChange}
-                        onOpenSearch={onOpenSearch}
-                    />
-                </div>
+                {isTacticalFocus ? (
+                    <>
+                        {combatSection}
+                        {supportSection}
+                        {prepSection}
+                        {codexSection}
+                    </>
+                ) : (
+                    <>
+                        {prepSection}
+                        {codexSection}
+                        {supportSection}
+                        {combatSection}
+                    </>
+                )}
             </ScrollArea>
 
             <div className="min-h-0 flex-1">

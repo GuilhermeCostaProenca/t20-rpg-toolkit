@@ -98,6 +98,8 @@ type LiveFlowChecklistState = {
     notes: boolean;
 };
 
+type TableFocusMode = "narrative" | "tactical";
+
 const EMPTY_PARTY_STATUS: LivePartyStatusSnapshot = {
     total: 0,
     downed: 0,
@@ -154,6 +156,7 @@ export default function PlayPage() {
     });
     const [gmScratchpad, setGmScratchpad] = useState("");
     const [monitorMode, setMonitorMode] = useState(false);
+    const [tableFocusMode, setTableFocusMode] = useState<TableFocusMode>("narrative");
     const [flowChecklist, setFlowChecklist] = useState<LiveFlowChecklistState>(EMPTY_FLOW_CHECKLIST);
     const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
 
@@ -227,6 +230,17 @@ export default function PlayPage() {
         } catch (error) {
             console.error("Failed to load monitor mode", error);
             setMonitorMode(false);
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.table-focus.${campaignId}`);
+            setTableFocusMode(saved === "tactical" ? "tactical" : "narrative");
+        } catch (error) {
+            console.error("Failed to load table focus mode", error);
+            setTableFocusMode("narrative");
         }
     }, [campaignId]);
 
@@ -993,6 +1007,7 @@ export default function PlayPage() {
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
                 monitorMode={monitorMode}
+                tableFocusMode={tableFocusMode}
                 soundtrack={soundtrack}
                 gmScratchpad={gmScratchpad}
                 flowChecklist={flowChecklist}
@@ -1028,6 +1043,16 @@ export default function PlayPage() {
                         }
                         return next;
                     });
+                }}
+                onTableFocusModeChange={(next) => {
+                    setTableFocusMode(next);
+                    if (campaignId) {
+                        try {
+                            window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, next);
+                        } catch (error) {
+                            console.error("Failed to persist table focus mode", error);
+                        }
+                    }
                 }}
                 onFocusScene={setFocusedSceneId}
                 onInspectEntity={setInspectId}
