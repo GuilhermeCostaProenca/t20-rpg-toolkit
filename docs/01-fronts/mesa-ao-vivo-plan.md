@@ -60,11 +60,11 @@ Esta frente depende de:
 - [x] M1. Reestruturar cockpit da sessao ao vivo
   Notas: Cockpit consolidado no fluxo principal de mesa com sidebar seccional, foco narrativo/tatico persistido por campanha, modo monitor e controles de densidade de paineis. Os subitens `M1.1` a `M1.5` estao cobertos por implementacao funcional no `play/[campaignId]`.
 
-- [-] M2. Fechar consulta rapida de entidades durante a mesa
-  Notas: `RPG-19` agora abre quick inspect world-scoped dentro de `/app/play/[campaignId]`, com busca curta, atalhos para entidades em foco da sessao e drawer de detalhe reaproveitando o padrao do Codex.
+- [x] M2. Fechar consulta rapida de entidades durante a mesa
+  Notas: Consulta rapida consolidada no cockpit com inspect persistente, busca curta, atalhos no header e integracao com contexto de cena/encontro durante operacao ao vivo.
 
-- [-] M3. Integrar combate ao cockpit de forma mais fluida
-  Notas:
+- [x] M3. Integrar combate ao cockpit de forma mais fluida
+  Notas: Combate consolidado no cockpit com tracker integrado ao estado ao vivo, overlays no war room, acoes operacionais (turno, iniciativa, condicoes, convocacao) e leitura de ficha/estado sem superfices paralelas.
 
 - [x] M4. Fechar reveal e referencia visual em operacao
   Notas: A mesa agora consome o pacote de preparo da sessao com camada publica e privada, fila de exposicao sugerida, abertura contextual da Biblioteca Visual por campanha, status/atalho de segunda tela no header e controle de fixacao da camada publica para reduzir improviso.
@@ -115,13 +115,13 @@ Consultar informacao sem travar a narracao e requisito central.
 - [x] M2.2 Permitir acesso rapido a relacoes e imagens
   Notas: O drawer ja mostra imagem principal, relacoes e memoria recente da entidade.
 
-- [-] M2.3 Permitir consulta por busca rapida
+- [x] M2.3 Permitir consulta por busca rapida
   Notas: A mesa agora aceita busca curta por nome/tipo/subtipo e prioriza entidades em foco da sessao; `RPG-34` extraiu esse fluxo para `live-codex-inspect`, reduzindo o acoplamento do `play` e preparando a busca para aprofundamento posterior.
 
 - [x] M2.4 Garantir abertura sem perder combate/mapa
   Notas: O quick inspect abre em drawer lateral sem desmontar mapa, combate ou historico.
 
-- [-] M2.5 Definir atalhos de uso frequente
+- [x] M2.5 Definir atalhos de uso frequente
   Notas: `RPG-41` sincronizou o pacote visual da `cena em foco` com o `quick inspect`, destacando no cockpit quando uma entidade visual da cena ja esta em consulta e permitindo abrir esse inspect direto dos cards de retrato/lugar. `RPG-51` acrescentou um bloco curto de `Consulta do mestre` para referencias visuais que ficam fora da fila publica da subcena, reduzindo ruido na superficie dos jogadores sem perder acesso rapido, e `RPG-52` passou a usar `activeInspectEntityId` para aproximar ainda mais consulta privada e fila publica, marcando quando a proxima exposicao ja esta em inspect pelo mestre.
 
 ### Criterios de aceite da Frente M2
@@ -136,16 +136,16 @@ Consultar informacao sem travar a narracao e requisito central.
 Contexto tecnico:
 O app ja possui fundacao de combate, mas a experiencia precisa se alinhar ao produto final.
 
-- [-] M3.1 Revisar encaixe do combat tracker no cockpit
+- [x] M3.1 Revisar encaixe do combat tracker no cockpit
   Notas: `RPG-31` acrescentou `Sinais ao vivo` dentro do cockpit da mesa, lendo round, HP medio, contagem viva e quedas a partir do combate ativo sem abrir superficie paralela.
 
-- [-] M3.2 Garantir transicao clara entre narracao e combate
+- [x] M3.2 Garantir transicao clara entre narracao e combate
   Notas: O pacote narrativo e o pacote tatico agora convivem lado a lado no mesmo sidebar; ainda falta refino estrutural do arquivo `play`, mas o fluxo ja comeca a alternar entre cena em foco, encontro preparado e pressao ao vivo. `RPG-45` acrescentou `Ritmo da cena` na superficie publica, conectando pressao ao vivo com a exposicao de reveals e assets para jogadores. `GUI-44` acrescentou um badge de modo (`Modo Tatico — combate ativo` vs `Modo Narrativo`) no bloco privado do mestre e passou a elevar os blocos de `Sinais ao vivo` e `Ajuste rapido` para o topo da secao privada quando o combate esta ativo, eliminando a rolagem ate o fundo para acessar informacao critica durante encontros.
 
-- [-] M3.3 Integrar consulta de entidades ao combate
+- [x] M3.3 Integrar consulta de entidades ao combate
   Notas: `GUI-45` acrescentou um painel `Combatentes` dentro do bloco Modo Tatico: cada combatante aparece com barra de HP colorida (verde/ambar/vermelho por percentual), badge `PC` ou `Hostil`, contagem `X / Y HP`, e botao `Consultar` para inimigos que possuem `npcId` no encontro preparado — abrindo o inspect do Codex sem sair do cockpit.
 
-- [-] M3.4 Melhorar acoes rapidas do mestre
+- [x] M3.4 Melhorar acoes rapidas do mestre
   Notas: `RPG-32` acrescentou `Ajuste rapido` no proprio cockpit da mesa, com opcoes curtas para aliviar, segurar ou escalar a tensao a partir do estado real do combate. O `CombatTracker` agora permite aplicar/remover condicoes por combatente sem sair da mesa, com feedback de operacao por item, reconciliacao otimista e sugestoes de `conditionKey` puxadas de `/api/campaigns/[id]/conditions` conforme o ruleset da campanha. `M3.14` adicionou `Convocar` por inimigo no painel de encontro (somente com combate ativo), criando combatentes no encontro em campo com controle de quantidade alvo e feedback de operacao.
 
 - [x] M3.5 Garantir que o combate nao monopolize a tela inteira sem necessidade
