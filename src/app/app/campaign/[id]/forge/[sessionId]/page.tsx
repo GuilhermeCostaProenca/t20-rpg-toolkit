@@ -984,6 +984,35 @@ export default function SessionForgePage() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [forge.scenes.length, navigateSceneRail]);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || forge.scenes.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((left, right) => right.intersectionRatio - left.intersectionRatio);
+        const top = visible[0];
+        if (!top) return;
+        const sceneId = top.target.getAttribute("data-scene-id");
+        if (!sceneId) return;
+        setActiveSceneRailId(sceneId);
+      },
+      {
+        root: null,
+        rootMargin: "-22% 0px -45% 0px",
+        threshold: [0.15, 0.35, 0.55, 0.75],
+      }
+    );
+
+    const nodes = forge.scenes
+      .map((scene) => document.getElementById(`forge-scene-${scene.id}`))
+      .filter((node): node is HTMLElement => Boolean(node));
+    for (const node of nodes) observer.observe(node);
+
+    return () => observer.disconnect();
+  }, [forge.scenes]);
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -1315,6 +1344,7 @@ export default function SessionForgePage() {
                   return (
                   <div
                     id={`forge-scene-${scene.id}`}
+                    data-scene-id={scene.id}
                     key={scene.id}
                     className="rounded-[24px] border border-white/10 bg-white/4 p-4"
                     onClick={() => setActiveSceneRailId(scene.id)}
