@@ -496,6 +496,7 @@ export default function SessionForgePage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [dramaticStatusFilter, setDramaticStatusFilter] = useState<"all" | SessionForgeDramaticStatus>("all");
+  const [dramaticSearchQuery, setDramaticSearchQuery] = useState("");
   const [revealAssetKindFilter, setRevealAssetKindFilter] = useState<"all" | string>("all");
   const [revealAssetSearchQuery, setRevealAssetSearchQuery] = useState("");
   const [collapsedSceneIds, setCollapsedSceneIds] = useState<Set<string>>(new Set());
@@ -695,6 +696,7 @@ export default function SessionForgePage() {
     }
     return counts;
   }, [dramaticItems]);
+  const normalizedDramaticSearch = dramaticSearchQuery.trim().toLowerCase();
 
   const readyScenes = useMemo(
     () =>
@@ -2609,13 +2611,29 @@ export default function SessionForgePage() {
                   </Button>
                 ))}
               </div>
+              <Input
+                value={dramaticSearchQuery}
+                onChange={(event) => setDramaticSearchQuery(event.target.value)}
+                placeholder="Buscar por titulo ou notas (ganchos, segredos e revelacoes)"
+              />
             </div>
             <div className="grid gap-6 xl:grid-cols-3">
               {([
                 { key: "hooks", title: "Ganchos", singular: "Gancho", description: "O que deve puxar a mesa para frente." },
                 { key: "secrets", title: "Segredos", singular: "Segredo", description: "O que so o mestre ou poucos sabem." },
                 { key: "reveals", title: "Revelacoes", singular: "Revelacao", description: "O que pode explodir na sessao." },
-              ] as const).map((column) => (
+              ] as const).map((column) => {
+                const statusItems =
+                  dramaticStatusFilter === "all"
+                    ? forge[column.key]
+                    : forge[column.key].filter((item) => item.status === dramaticStatusFilter);
+                const visibleItems = normalizedDramaticSearch
+                  ? statusItems.filter((item) => {
+                      const haystack = `${item.title} ${item.notes}`.toLowerCase();
+                      return haystack.includes(normalizedDramaticSearch);
+                    })
+                  : statusItems;
+                return (
                 <div key={column.key} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
@@ -2639,12 +2657,8 @@ export default function SessionForgePage() {
                   </div>
 
                   <div className="mt-4 space-y-3">
-                    {(dramaticStatusFilter === "all"
-                      ? forge[column.key]
-                      : forge[column.key].filter((item) => item.status === dramaticStatusFilter)).length > 0 ? (
-                      (dramaticStatusFilter === "all"
-                        ? forge[column.key]
-                        : forge[column.key].filter((item) => item.status === dramaticStatusFilter)).map((item) => (
+                    {visibleItems.length > 0 ? (
+                      visibleItems.map((item) => (
                         <div key={item.id} className="rounded-2xl border border-white/8 bg-black/20 p-3">
                           <div className="flex items-center justify-between gap-3">
                             <p className="text-sm font-semibold text-foreground">{column.singular}</p>
@@ -2841,12 +2855,15 @@ export default function SessionForgePage() {
                       ))
                     ) : (
                       <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-muted-foreground">
-                        Nenhum item ainda.
+                        {normalizedDramaticSearch
+                          ? "Nenhum item corresponde aos filtros."
+                          : "Nenhum item ainda."}
                       </div>
                     )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 
