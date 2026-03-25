@@ -1,17 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ChevronRight, Dna, Shield, Sword, Sparkles } from "lucide-react";
+import { Check, ChevronRight, Shield, Sword, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 import { TORMENTA20_RACES } from "@/rulesets/tormenta20/races";
 import { TORMENTA20_CLASSES } from "@/rulesets/tormenta20/classes";
-import { Race, CharacterClass } from "@/rulesets/base/types";
+import { CharacterClass } from "@/rulesets/base/types";
 
 // --- T20 Constants (Grimoire Powered) ---
 const RACES = TORMENTA20_RACES.map(r => ({
@@ -41,9 +40,52 @@ const ATTRIBUTES = [
     { id: "cha", name: "Carisma" },
 ];
 
+type StarterSkill = {
+    id: string;
+    name: string;
+    ability: "for" | "des" | "con" | "int" | "sab" | "car";
+    trained: boolean;
+    ranks: number;
+    bonus: number;
+    misc: number;
+    type: "check";
+    cost: number;
+    formula: string;
+    cd: number;
+};
+
+function getStarterSkillsByClass(classId: string): StarterSkill[] {
+    if (classId === "guerreiro") {
+        return [
+            { id: "skill-luta", name: "Luta", ability: "for", trained: true, ranks: 1, bonus: 0, misc: 0, type: "check", cost: 0, formula: "", cd: 0 },
+            { id: "skill-atletismo", name: "Atletismo", ability: "for", trained: true, ranks: 1, bonus: 0, misc: 0, type: "check", cost: 0, formula: "", cd: 0 },
+            { id: "skill-fortitude", name: "Fortitude", ability: "con", trained: true, ranks: 1, bonus: 0, misc: 0, type: "check", cost: 0, formula: "", cd: 0 },
+        ];
+    }
+
+    if (classId === "arcanista") {
+        return [
+            { id: "skill-misticismo", name: "Misticismo", ability: "int", trained: true, ranks: 1, bonus: 0, misc: 0, type: "check", cost: 0, formula: "", cd: 0 },
+            { id: "skill-vontade", name: "Vontade", ability: "sab", trained: true, ranks: 1, bonus: 0, misc: 0, type: "check", cost: 0, formula: "", cd: 0 },
+            { id: "skill-conhecimento", name: "Conhecimento", ability: "int", trained: true, ranks: 1, bonus: 0, misc: 0, type: "check", cost: 0, formula: "", cd: 0 },
+        ];
+    }
+
+    return [];
+}
+
 interface CharacterWizardProps {
     campaigns: { id: string; name: string }[];
-    onComplete: (data: any) => void;
+    onComplete: (data: {
+        campaignId: string;
+        name: string;
+        ancestry?: string;
+        className?: string;
+        attributes?: Record<string, number>;
+        stats?: Record<string, unknown>;
+        level?: number;
+        skills?: Record<string, unknown>;
+    }) => void;
     onCancel: () => void;
 }
 
@@ -51,7 +93,7 @@ export function CharacterWizard({ campaigns, onComplete, onCancel }: CharacterWi
     const [step, setStep] = useState(1);
     const [name, setName] = useState("");
     const [selectedCampaignId, setSelectedCampaignId] = useState(campaigns[0]?.id || "");
-    const [selectedRace, setSelectedRace] = useState<any>(RACES[0]);
+    const [selectedRace, setSelectedRace] = useState<(typeof RACES)[number]>(RACES[0]);
     const [selectedClass, setSelectedClass] = useState<CharacterClass>(CLASSES[0]);
 
     // Attributes (Base 10 + Point Buy + Race Mods)
@@ -81,6 +123,7 @@ export function CharacterWizard({ campaigns, onComplete, onCancel }: CharacterWi
         // Calculate derived stats
         const finalHp = selectedClass.hp.base + Math.floor((totalStats.con - 10) / 2);
         const finalPm = selectedClass.pm.base; // Simplified
+        const starterSkills = getStarterSkillsByClass(selectedClass.id);
 
         const data = {
             campaignId: selectedCampaignId,
@@ -93,7 +136,7 @@ export function CharacterWizard({ campaigns, onComplete, onCancel }: CharacterWi
                 pm: { current: finalPm, max: finalPm },
             },
             level: 1,
-            skills: {}, // TODO
+            skills: Object.fromEntries(starterSkills.map((skill) => [skill.id, skill])),
         };
         onComplete(data);
     }
@@ -198,7 +241,7 @@ export function CharacterWizard({ campaigns, onComplete, onCancel }: CharacterWi
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {ATTRIBUTES.map(attr => {
                                 const base = attributes[attr.id as keyof typeof attributes];
-                                const mod = (currentMods as any)[attr.id] || 0;
+                                const mod = (currentMods as Record<string, number | undefined>)[attr.id] || 0;
                                 const total = base + mod;
                                 const modifier = Math.floor((total - 10) / 2);
 
@@ -234,6 +277,10 @@ export function CharacterWizard({ campaigns, onComplete, onCancel }: CharacterWi
                         <div className="bg-white/5 p-4 rounded-lg inline-block text-left text-sm font-mono border border-white/10">
                             <div>PV (Vida): {selectedClass.hp.base + Math.floor(((totalStats.con || 10) - 10) / 2)}</div>
                             <div>PM (Mana): {selectedClass.pm.base}</div>
+                            <div className="mt-2 text-xs opacity-80">
+                                Pericias iniciais:{" "}
+                                {getStarterSkillsByClass(selectedClass.id).map((skill) => skill.name).join(", ") || "Nenhuma"}
+                            </div>
                         </div>
                     </div>
                 )}
