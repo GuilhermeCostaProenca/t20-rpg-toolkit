@@ -52,4 +52,32 @@ describe("analyzeT20Encounter - non-trivial compositions", () => {
     expect(result.recommendation.includes("ajustes pequenos por rodada")).toBe(true);
     expect(result.confidence).toBe("low");
   });
+
+  it("surfaces party profile axes in factors", () => {
+    const profileParty = [
+      { level: 5, role: "tank", className: "guerreiro" },
+      { level: 5, role: "healer", className: "clerigo" },
+      { level: 5, role: "striker", className: "ladino" },
+      { level: 5, role: "controle", className: "mago" },
+    ];
+    const enemies = [
+      {
+        id: "enemy-1",
+        type: "enemy" as const,
+        hpMax: 85,
+        defenseFinal: 18,
+        damageFormula: "2d8+5",
+        name: "Capitao",
+      },
+    ];
+
+    const result = analyzeT20Encounter(profileParty, enemies);
+
+    expect(result.partyProfile.frontliners).toBeGreaterThan(0);
+    expect(result.partyProfile.sustain).toBeGreaterThan(0);
+    expect(result.partyProfile.offense).toBeGreaterThan(0);
+    expect(result.partyProfile.control).toBeGreaterThan(0);
+    expect(result.partyProfile.diversity).toBe("high");
+    expect(result.factors.some((item) => item.includes("Perfil do grupo"))).toBe(true);
+  });
 });
