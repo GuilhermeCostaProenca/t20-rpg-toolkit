@@ -52,9 +52,15 @@ type PendingSheetOverride = {
     san?: number;
 };
 
+type SheetUpdateStatus = {
+    kind: "success" | "error";
+    message: string;
+};
+
 export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
     const [agents, setAgents] = useState<CharacterStatus[]>([]);
     const [loading, setLoading] = useState(true);
+    const [sheetUpdateStatus, setSheetUpdateStatus] = useState<SheetUpdateStatus | null>(null);
     const pendingSheetOverridesRef = useRef<Record<string, PendingSheetOverride>>({});
 
     // Poll for status updates
@@ -149,6 +155,14 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
         return () => clearInterval(interval);
     }, [campaignId]);
 
+    useEffect(() => {
+        if (!sheetUpdateStatus) return;
+        const timeout = window.setTimeout(() => {
+            setSheetUpdateStatus(null);
+        }, 1800);
+        return () => window.clearTimeout(timeout);
+    }, [sheetUpdateStatus]);
+
     if (loading && agents.length === 0) {
         return (
             <div className="flex gap-2 p-2 justify-center w-full">
@@ -186,6 +200,7 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
     const handleGrant = async (id: string, type: "hp" | "pm" | "san", amount: number) => {
         const target = agents.find((agent) => agent.id === id);
         if (!target) return;
+        const typeLabel = type === "hp" ? "PV" : type === "pm" ? "PM" : "SAN";
 
         const current =
             type === "hp"
@@ -240,6 +255,10 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                 const message = (payload?.error as string | undefined) ?? "Failed to update character sheet";
                 throw new Error(message);
             }
+            setSheetUpdateStatus({
+                kind: "success",
+                message: `${target.name}: ${typeLabel} atualizado.`,
+            });
         } catch (error) {
             setAgents((prev) =>
                 prev.map((agent) => {
@@ -254,13 +273,36 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                 }),
             );
             removePendingOverride(id, type);
+            const errorMessage =
+                error instanceof Error && error.message.trim().length > 0
+                    ? error.message
+                    : "Falha ao atualizar ficha.";
+            setSheetUpdateStatus({
+                kind: "error",
+                message: `${target.name}: ${errorMessage}`,
+            });
             console.error("Failed to update character sheet", error);
         }
     };
 
     return (
-        <div className="flex items-start justify-center gap-2 p-2 w-full overflow-x-auto pointer-events-none">
-            {agents.map(agent => {
+        <div className="w-full pointer-events-none">
+            {sheetUpdateStatus ? (
+                <div className="mb-1 flex w-full justify-center px-2">
+                    <div
+                        className={cn(
+                            "rounded border px-2 py-1 text-[10px] uppercase tracking-[0.12em]",
+                            sheetUpdateStatus.kind === "error"
+                                ? "border-red-500/40 bg-red-500/15 text-red-100"
+                                : "border-emerald-500/30 bg-emerald-500/10 text-emerald-100",
+                        )}
+                    >
+                        {sheetUpdateStatus.message}
+                    </div>
+                </div>
+            ) : null}
+            <div className="flex items-start justify-center gap-2 p-2 w-full overflow-x-auto pointer-events-none">
+                {agents.map(agent => {
                 const hpPct = (agent.hp.current / agent.hp.max) * 100;
                 const pmPct = (agent.pm.current / agent.pm.max) * 100;
                 const sanPct = (agent.san.current / agent.san.max) * 100;
@@ -355,6 +397,7 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                     </div>
                 );
             })}
+            </div>
         </div>
     );
 }
