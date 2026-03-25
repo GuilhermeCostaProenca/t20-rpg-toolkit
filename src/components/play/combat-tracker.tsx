@@ -109,6 +109,16 @@ export function CombatTracker({ campaignId, liveCombat, onCombatChange }: Combat
     }, [liveCombat]);
 
     useEffect(() => {
+        if (liveCombat?.isActive) return;
+        setRemovingConditionIds(new Set());
+        setOptimisticRemovedConditionIds(new Set());
+        setApplyingConditionTargetIds(new Set());
+        setConditionKeyByTarget({});
+        setApplyCooldownUntilByTarget({});
+        setPendingApplyKeysByTarget({});
+    }, [liveCombat?.isActive]);
+
+    useEffect(() => {
         let cancelled = false;
 
         const loadConditionOptions = async () => {
@@ -139,6 +149,7 @@ export function CombatTracker({ campaignId, liveCombat, onCombatChange }: Combat
             const response = await fetch(getCampaignCombatPath(campaignId), { method: "POST" });
             await ensureOk(response, "Falha ao iniciar combate.");
             await refreshCombat();
+            setStatusMessage("Combate iniciado.");
         } catch (error) {
             setStatusMessage(error instanceof Error ? error.message : "Falha ao iniciar combate.");
         } finally {
@@ -153,6 +164,7 @@ export function CombatTracker({ campaignId, liveCombat, onCombatChange }: Combat
             const response = await fetch(getCampaignCombatPath(campaignId), { method: "DELETE" });
             await ensureOk(response, "Falha ao encerrar combate.");
             await refreshCombat();
+            setStatusMessage("Combate encerrado. Voltando para modo narrativo.");
         } catch (error) {
             setStatusMessage(error instanceof Error ? error.message : "Falha ao encerrar combate.");
         } finally {
