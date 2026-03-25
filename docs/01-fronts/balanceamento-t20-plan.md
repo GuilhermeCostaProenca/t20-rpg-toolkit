@@ -61,8 +61,8 @@ Pode iniciar modelagem antes, mas a experiencia final depende dessas frentes.
 - [x] T2. Definir leitura de poder do grupo
   Notas: Consolidado em `master` com perfil por eixos, prontidao de ficha, resumo curto, tratamento de lacunas e breakdown explicito (RPG-61, RPG-62, RPG-63).
 
-- [-] T3. Criar superficie de analise de dificuldade
-  Notas: `RPG-25` abriu o primeiro painel de leitura na estacao da campanha, com classificacao, confianca, score de grupo, score de pressao e fatores explicitos.
+- [x] T3. Criar superficie de analise de dificuldade
+  Notas: Consolidado em `master` com painel de risco, fatores, sinais de incerteza e leitura rapida em preparo (`RPG-25`, `RPG-61`, `RPG-62`, `RPG-63`).
 
 - [x] T4. Criar apoio para preparo de encontro
   Notas: Consolidado em `master` com composicao, leitura dedicada, sugestao, persistencia e manutencao do vinculo sessao/cena (RPG-26, RPG-27, RPG-66).
