@@ -167,6 +167,7 @@ export default function PlayPage() {
     const [monitorMode, setMonitorMode] = useState(false);
     const [tableFocusMode, setTableFocusMode] = useState<TableFocusMode>("narrative");
     const [cockpitPanels, setCockpitPanels] = useState<LiveCockpitPanelVisibility>(DEFAULT_COCKPIT_PANELS);
+    const [showHistoryChat, setShowHistoryChat] = useState(true);
     const [flowChecklist, setFlowChecklist] = useState<LiveFlowChecklistState>(EMPTY_FLOW_CHECKLIST);
     const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
 
@@ -270,6 +271,17 @@ export default function PlayPage() {
         } catch (error) {
             console.error("Failed to load cockpit panel visibility", error);
             setCockpitPanels(DEFAULT_COCKPIT_PANELS);
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.history-chat.${campaignId}`);
+            setShowHistoryChat(saved !== "false");
+        } catch (error) {
+            console.error("Failed to load history chat visibility", error);
+            setShowHistoryChat(true);
         }
     }, [campaignId]);
 
@@ -1059,6 +1071,7 @@ export default function PlayPage() {
                 monitorMode={monitorMode}
                 tableFocusMode={tableFocusMode}
                 panelVisibility={cockpitPanels}
+                showHistoryChat={showHistoryChat}
                 soundtrack={soundtrack}
                 gmScratchpad={gmScratchpad}
                 flowChecklist={flowChecklist}
@@ -1117,6 +1130,19 @@ export default function PlayPage() {
                             console.error("Failed to persist cockpit panel visibility", error);
                         }
                     }
+                }}
+                onToggleHistoryChat={() => {
+                    setShowHistoryChat((current) => {
+                        const next = !current;
+                        if (campaignId) {
+                            try {
+                                window.localStorage.setItem(`t20.live.history-chat.${campaignId}`, String(next));
+                            } catch (error) {
+                                console.error("Failed to persist history chat visibility", error);
+                            }
+                        }
+                        return next;
+                    });
                 }}
                 onFocusScene={setFocusedSceneId}
                 onInspectEntity={setInspectId}

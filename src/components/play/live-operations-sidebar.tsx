@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, type FormEvent, type RefObject } from "react";
-import { BookOpen, Map as MapIcon, MonitorUp, Search } from "lucide-react";
+import { BookOpen, Map as MapIcon, MessageSquare, MonitorUp, Search } from "lucide-react";
 
 import { CombatTracker } from "@/components/play/combat-tracker";
 import { LiveCodexInspect, type LiveCodexEntity, type LiveEntityDetail } from "@/components/play/live-codex-inspect";
@@ -72,6 +72,7 @@ type LiveOperationsSidebarProps = {
         showSupport: boolean;
         showCodex: boolean;
     };
+    showHistoryChat: boolean;
     soundtrack: {
         ambientUrl: string;
         combatUrl: string;
@@ -114,6 +115,7 @@ type LiveOperationsSidebarProps = {
     onToggleMonitorMode: () => void;
     onTableFocusModeChange: (next: "narrative" | "tactical") => void;
     onPanelVisibilityChange: (next: { showSupport: boolean; showCodex: boolean }) => void;
+    onToggleHistoryChat: () => void;
     onFocusScene: (sceneId: string) => void;
     onInspectEntity: (entityId: string) => void;
     onReveal: (revealId: string) => void | Promise<void>;
@@ -154,6 +156,7 @@ export function LiveOperationsSidebar({
     monitorMode,
     tableFocusMode,
     panelVisibility,
+    showHistoryChat,
     soundtrack,
     gmScratchpad,
     flowChecklist,
@@ -178,6 +181,7 @@ export function LiveOperationsSidebar({
     onToggleMonitorMode,
     onTableFocusModeChange,
     onPanelVisibilityChange,
+    onToggleHistoryChat,
     onFocusScene,
     onInspectEntity,
     onReveal,
@@ -337,6 +341,14 @@ export function LiveOperationsSidebar({
                         <Search className="h-4 w-4 text-primary/90" />
                     </Button>
                     <Button
+                        variant={showHistoryChat ? "default" : "ghost"}
+                        size="icon"
+                        title={showHistoryChat ? "Ocultar historico/chat" : "Mostrar historico/chat"}
+                        onClick={onToggleHistoryChat}
+                    >
+                        <MessageSquare className={`h-4 w-4 ${showHistoryChat ? "text-primary-foreground" : "text-white/80"}`} />
+                    </Button>
+                    <Button
                         variant={monitorMode ? "default" : "ghost"}
                         size="icon"
                         title="Alternar modo monitor"
@@ -491,20 +503,26 @@ export function LiveOperationsSidebar({
                 )}
             </ScrollArea>
 
-            <div className="min-h-0 flex-1">
-                <LiveHistoryChatStack
-                    events={events}
-                    pinnedEventIds={pinnedEventIds}
-                    timelineFilter={timelineFilter}
-                    chatInput={chatInput}
-                    scrollRef={scrollRef}
-                    onTimelineFilterChange={onTimelineFilterChange}
-                    onPinToggle={onPinToggle}
-                    onChatInputChange={onChatInputChange}
-                    onChatSubmit={onChatSubmit}
-                    onVoiceTranscription={onVoiceTranscription}
-                />
-            </div>
+            {showHistoryChat ? (
+                <div className="min-h-0 flex-1">
+                    <LiveHistoryChatStack
+                        events={events}
+                        pinnedEventIds={pinnedEventIds}
+                        timelineFilter={timelineFilter}
+                        chatInput={chatInput}
+                        scrollRef={scrollRef}
+                        onTimelineFilterChange={onTimelineFilterChange}
+                        onPinToggle={onPinToggle}
+                        onChatInputChange={onChatInputChange}
+                        onChatSubmit={onChatSubmit}
+                        onVoiceTranscription={onVoiceTranscription}
+                    />
+                </div>
+            ) : (
+                <div className="border-t border-white/10 bg-black/20 px-3 py-2 text-[10px] uppercase tracking-[0.14em] text-white/50">
+                    Historico/chat oculto para foco operacional
+                </div>
+            )}
         </div>
     );
 }
