@@ -518,6 +518,7 @@ export default function SessionForgePage() {
   const [dramaticSearchQuery, setDramaticSearchQuery] = useState("");
   const [revealAssetKindFilter, setRevealAssetKindFilter] = useState<"all" | string>("all");
   const [revealAssetSearchQuery, setRevealAssetSearchQuery] = useState("");
+  const [encounterSceneFilter, setEncounterSceneFilter] = useState<string>("all");
   const [collapsedSceneIds, setCollapsedSceneIds] = useState<Set<string>>(new Set());
   const [collapsedSubsceneIds, setCollapsedSubsceneIds] = useState<Set<string>>(new Set());
   const [activeSceneRailId, setActiveSceneRailId] = useState<string | null>(null);
@@ -696,6 +697,12 @@ export default function SessionForgePage() {
       setRevealAssetKindFilter("all");
     }
   }, [revealAssetKindFilter, revealAssetKindOptions]);
+  useEffect(() => {
+    if (encounterSceneFilter === "all" || encounterSceneFilter === "__unlinked__") return;
+    if (!forge.scenes.some((scene) => scene.id === encounterSceneFilter)) {
+      setEncounterSceneFilter("all");
+    }
+  }, [encounterSceneFilter, forge.scenes]);
 
   const dramaticItems = useMemo(
     () => [...forge.hooks, ...forge.secrets, ...forge.reveals],
@@ -759,6 +766,17 @@ export default function SessionForgePage() {
     }
     return counts;
   }, [forge.encounters]);
+  const unlinkedEncounterCount = useMemo(
+    () => forge.encounters.filter((encounter) => !encounter.linkedSceneId).length,
+    [forge.encounters]
+  );
+  const filteredEncounters = useMemo(() => {
+    if (encounterSceneFilter === "all") return forge.encounters;
+    if (encounterSceneFilter === "__unlinked__") {
+      return forge.encounters.filter((encounter) => !encounter.linkedSceneId);
+    }
+    return forge.encounters.filter((encounter) => encounter.linkedSceneId === encounterSceneFilter);
+  }, [encounterSceneFilter, forge.encounters]);
   const activeSceneRailIndex = useMemo(
     () =>
       activeSceneRailId
@@ -3872,12 +3890,63 @@ export default function SessionForgePage() {
                 </p>
               </div>
               <Badge className="border-white/10 bg-white/5 text-white/75">
-                {forge.encounters.length} encontros
+                {encounterSceneFilter === "all"
+                  ? `${forge.encounters.length} encontros`
+                  : `${filteredEncounters.length}/${forge.encounters.length} encontros`}
               </Badge>
             </div>
             <div className="mt-4 space-y-3">
               {forge.encounters.length > 0 ? (
-                forge.encounters.map((encounter) => (
+                <>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className={
+                        encounterSceneFilter === "all"
+                          ? "border-primary/30 bg-primary/10 text-primary"
+                          : "border-white/10 bg-white/5"
+                      }
+                      onClick={() => setEncounterSceneFilter("all")}
+                    >
+                      Todas ({forge.encounters.length})
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className={
+                        encounterSceneFilter === "__unlinked__"
+                          ? "border-primary/30 bg-primary/10 text-primary"
+                          : "border-white/10 bg-white/5"
+                      }
+                      onClick={() => setEncounterSceneFilter("__unlinked__")}
+                    >
+                      Sem cena ({unlinkedEncounterCount})
+                    </Button>
+                    {forge.scenes.map((scene, sceneIndex) => {
+                      const count = encounterCountBySceneId.get(scene.id) ?? 0;
+                      return (
+                        <Button
+                          key={`encounter-filter-scene-${scene.id}`}
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className={
+                            encounterSceneFilter === scene.id
+                              ? "border-primary/30 bg-primary/10 text-primary"
+                              : "border-white/10 bg-white/5"
+                          }
+                          onClick={() => setEncounterSceneFilter(scene.id)}
+                        >
+                          C{sceneIndex + 1} ({count})
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  {filteredEncounters.length > 0 ? (
+                    filteredEncounters.map((encounter) => (
                   <div key={encounter.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge className="border-primary/20 bg-primary/10 text-primary">
@@ -3906,7 +3975,13 @@ export default function SessionForgePage() {
                       {encounter.notes || encounter.recommendation || "Sem nota de ajuste registrada."}
                     </p>
                   </div>
-                ))
+                    ))
+                  ) : (
+                    <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                      Nenhum encontro corresponde ao filtro selecionado.
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
                   Salve encontros na estacao da campanha para prende-los a esta sessao e reutilizar o balanceamento no preparo.
