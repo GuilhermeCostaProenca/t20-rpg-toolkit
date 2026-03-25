@@ -899,6 +899,13 @@ export default function SessionForgePage() {
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function jumpToSceneCard(sceneId: string) {
+    if (typeof window === "undefined") return;
+    const target = document.getElementById(`forge-scene-${sceneId}`);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -1122,6 +1129,34 @@ export default function SessionForgePage() {
                 Nova cena
               </Button>
             </div>
+            {forge.scenes.length > 0 ? (
+              <div className="mb-5 rounded-2xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/65">
+                  Trilha rapida de cenas
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {forge.scenes.map((scene, sceneIndex) => (
+                    <Button
+                      key={`scene-rail-${scene.id}`}
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5 text-xs"
+                      onClick={() => jumpToSceneCard(scene.id)}
+                    >
+                      C{sceneIndex + 1}
+                      <span className="mx-1 text-white/40">-</span>
+                      <span className="max-w-[12rem] truncate">
+                        {scene.title?.trim() || "Cena sem titulo"}
+                      </span>
+                      <span className="ml-2 rounded border border-white/15 px-1 py-0.5 text-[10px] uppercase tracking-[0.12em] text-white/65">
+                        {scene.status}
+                      </span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             {forge.scenes.length === 0 ? (
               <EmptyState
@@ -1164,7 +1199,11 @@ export default function SessionForgePage() {
                 {forge.scenes.map((scene, sceneIndex) => {
                   const isSceneCollapsed = collapsedSceneIds.has(scene.id);
                   return (
-                  <div key={scene.id} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+                  <div
+                    id={`forge-scene-${scene.id}`}
+                    key={scene.id}
+                    className="rounded-[24px] border border-white/10 bg-white/4 p-4"
+                  >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
