@@ -86,8 +86,8 @@ Sem fundacao clara, a frente vira sugestao vaga.
 - [-] T1.3 Definir calculo de dificuldade e risco
   Notas: O primeiro recorte usa `partyScore`, `threatScore` e `pressureRatio`, mapeando para `trivial`, `manageable`, `risky` e `deadly`.
 
-- [ ] T1.4 Definir como lidar com composicoes nao triviais
-  Notas:
+- [x] T1.4 Definir como lidar com composicoes nao triviais
+  Notas: `codex/t20-balance-t1-4` introduziu heuristicas para composicoes de enxame, elite, mista e boss solo no motor de risco (`src/lib/t20-balance.ts`), com impacto em fatores, confianca e recomendacao.
 
 - [-] T1.5 Definir limites e mensagens de confianca
   Notas: O painel ja expõe confianca `alta`, `media` ou `baixa` e fatores de incerteza quando faltam dados do grupo ou das ameacas.

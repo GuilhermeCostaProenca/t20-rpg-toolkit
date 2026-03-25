@@ -102,6 +102,11 @@ function getRoleWeight(role?: string | null) {
   return 0.5;
 }
 
+function weakenConfidence(confidence: BalanceConfidence): BalanceConfidence {
+  if (confidence === "high") return "medium";
+  return "low";
+}
+
 function averageHpRatio(combatants: LiveCombatantInput[]) {
   if (combatants.length === 0) return 0;
 
@@ -139,10 +144,42 @@ export function analyzeT20Encounter(
 
   const pressureRatio = partyScore > 0 ? threatScore / partyScore : 0;
 
+  const enemyUnitScores = enemies
+    .map((enemy) => estimateEnemyUnitScore(enemy))
+    .sort((left, right) => right - left);
+  const strongestEnemyScore = enemyUnitScores[0] ?? 0;
+  const weakestEnemyScore = enemyUnitScores[enemyUnitScores.length - 1] ?? 0;
+  const averageEnemyScore =
+    enemyUnitScores.length > 0
+      ? enemyUnitScores.reduce((total, score) => total + score, 0) / enemyUnitScores.length
+      : 0;
+  const strongestShare = threatScore > 0 ? strongestEnemyScore / threatScore : 0;
+
+  const hasSwarmProfile =
+    partyCount > 0 &&
+    enemies.length >= Math.max(4, partyCount + 2) &&
+    averageEnemyScore > 0 &&
+    averageEnemyScore <= 12;
+  const hasEliteProfile =
+    enemies.length > 0 && strongestEnemyScore >= 24 && strongestShare >= 0.5;
+  const hasMixedProfile =
+    enemies.length >= 4 &&
+    strongestEnemyScore >= 24 &&
+    weakestEnemyScore > 0 &&
+    strongestEnemyScore / weakestEnemyScore >= 2.2;
+  const hasSoloBossProfile = enemies.length === 1 && strongestEnemyScore >= 30;
+
+  let ratioModifier = 0;
+  if (hasSwarmProfile) ratioModifier += 0.08;
+  if (hasEliteProfile) ratioModifier += 0.1;
+  if (hasMixedProfile) ratioModifier += 0.08;
+
+  const effectivePressureRatio = pressureRatio + ratioModifier;
+
   let rating: BalanceRating = "manageable";
-  if (pressureRatio < 0.55) rating = "trivial";
-  else if (pressureRatio < 0.95) rating = "manageable";
-  else if (pressureRatio < 1.3) rating = "risky";
+  if (effectivePressureRatio < 0.55) rating = "trivial";
+  else if (effectivePressureRatio < 0.95) rating = "manageable";
+  else if (effectivePressureRatio < 1.3) rating = "risky";
   else rating = "deadly";
 
   const factors: string[] = [];
@@ -170,9 +207,28 @@ export function analyzeT20Encounter(
     factors.push(`${lowRoleSignal} personagens sem funcao registrada deixam a leitura menos precisa.`);
   }
 
+  if (hasSwarmProfile) {
+    factors.push("Composicao em enxame: muitas ameacas leves elevam economia de acao hostil.");
+  }
+  if (hasEliteProfile) {
+    factors.push("Composicao de elite: uma ameaca concentra grande parte da pressao total.");
+  }
+  if (hasMixedProfile) {
+    factors.push("Composicao mista (elite + base): encontro tende a oscilar mais entre picos de risco.");
+  }
+  if (hasSoloBossProfile) {
+    factors.push("Boss solo: leitura de risco depende fortemente da economia de acao da mesa.");
+  }
+
   let confidence: BalanceConfidence = "high";
   if (partyCount === 0 || enemies.length === 0 || missingEnemyStats >= 2) confidence = "low";
   else if (missingEnemyStats > 0 || lowRoleSignal > 0) confidence = "medium";
+  if (hasSoloBossProfile || hasEliteProfile || hasSwarmProfile) {
+    confidence = weakenConfidence(confidence);
+  }
+  if (hasMixedProfile) {
+    confidence = weakenConfidence(confidence);
+  }
 
   let recommendation = "Composicao em faixa jogavel para a campanha.";
   if (rating === "trivial") {
@@ -182,13 +238,22 @@ export function analyzeT20Encounter(
   } else if (rating === "deadly") {
     recommendation = "Revise imediatamente HP, dano ou numero de ameacas para evitar um pico punitivo.";
   }
+  if (hasMixedProfile) {
+    recommendation += " Como a composicao e mista, prefira ajustes pequenos por rodada em vez de mudancas bruscas.";
+  } else if (hasSwarmProfile) {
+    recommendation += " Controle a economia de acao (menos corpos ou menos acoes secundarias) antes de mexer em HP.";
+  } else if (hasEliteProfile) {
+    recommendation += " Se precisar aliviar, reduza primeiro a ameaca principal em vez de remover varias unidades menores.";
+  } else if (hasSoloBossProfile) {
+    recommendation += " Boss solo pede atencao a cobertura, objetivo e acoes lendarias caseiras para manter tensao sem all-in.";
+  }
 
   return {
     rating,
     confidence,
     partyScore: Number(partyScore.toFixed(1)),
     threatScore: Number(threatScore.toFixed(1)),
-    pressureRatio: Number(pressureRatio.toFixed(2)),
+    pressureRatio: Number(effectivePressureRatio.toFixed(2)),
     avgPartyLevel: Number(avgPartyLevel.toFixed(1)),
     enemyCount: enemies.length,
     factors,
