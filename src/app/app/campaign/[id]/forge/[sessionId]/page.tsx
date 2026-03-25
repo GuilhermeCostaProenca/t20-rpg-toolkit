@@ -602,6 +602,12 @@ export default function SessionForgePage() {
     },
     [prepVisualAssets, revealAssetKindFilter, revealAssetSearchQuery]
   );
+  const hasActiveRevealAssetFilters =
+    revealAssetKindFilter !== "all" || revealAssetSearchQuery.trim().length > 0;
+  const clearRevealAssetFilters = () => {
+    setRevealAssetKindFilter("all");
+    setRevealAssetSearchQuery("");
+  };
   useEffect(() => {
     if (revealAssetKindFilter === "all") return;
     if (!revealAssetKindOptions.includes(revealAssetKindFilter)) {
@@ -2178,6 +2184,23 @@ export default function SessionForgePage() {
                                   </div>
                                 ) : null}
                                 <div className="grid gap-2 sm:grid-cols-2">
+                                  <div className="sm:col-span-2 flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-muted-foreground">
+                                    <span>
+                                      {filteredRevealAssets.length}{" "}
+                                      {filteredRevealAssets.length === 1 ? "asset encontrado" : "assets encontrados"}
+                                    </span>
+                                    {hasActiveRevealAssetFilters ? (
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        className="border-white/10 bg-white/5"
+                                        onClick={clearRevealAssetFilters}
+                                      >
+                                        Limpar filtros
+                                      </Button>
+                                    ) : null}
+                                  </div>
                                   <div className="sm:col-span-2">
                                     <Input
                                       value={revealAssetSearchQuery}
