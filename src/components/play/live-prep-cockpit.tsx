@@ -1079,7 +1079,7 @@ export function LivePrepCockpit({
               {liveCombat?.isActive ? (
                 <Badge className="border-red-500/30 bg-red-500/10 text-red-300">
                   <Swords className="mr-1 h-3 w-3" />
-                  Modo Tatico — combate ativo
+                  Modo Tatico - combate ativo
                 </Badge>
               ) : (
                 <Badge variant="outline" className="border-primary/20 text-primary/80">
@@ -1354,7 +1354,7 @@ export function LivePrepCockpit({
                     ) : null}
                     {subsceneIsConsumed ? (
                       <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">
-                        Cues absorvidos — subcena pronta para avancar
+                        Cues absorvidos - subcena pronta para avancar
                       </p>
                     ) : null}
                   </div>

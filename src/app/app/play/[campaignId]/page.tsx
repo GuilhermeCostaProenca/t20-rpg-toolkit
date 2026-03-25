@@ -85,6 +85,7 @@ export default function PlayPage() {
     // Physics State Sync
     const [pendingRoll, setPendingRoll] = useState<{ expression: string, modifier: number, count: number } | null>(null);
     const processedEventsRef = useRef<Set<string>>(new Set());
+    const hasHydratedEventsRef = useRef(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [viewingGrimoireItem, setViewingGrimoireItem] = useState<GrimoireItem | null>(null);
     const [pins, setPins] = useState<Pin[]>([]);
@@ -129,6 +130,12 @@ export default function PlayPage() {
             .catch(err => console.error("Map load failed", err));
     }, [campaignId]);
 
+    useEffect(() => {
+        hasHydratedEventsRef.current = false;
+        processedEventsRef.current = new Set();
+        setEvents([]);
+    }, [campaignId]);
+
     // Token Sync (Optimistic + DB)
     const handleTokenMove = async (id: string, x: number, y: number) => {
         // Optimistic UI
@@ -161,13 +168,6 @@ export default function PlayPage() {
         }
     };
 
-    // Polling Effect for Events
-    useEffect(() => {
-        fetchEvents();
-        const interval = setInterval(fetchEvents, 2000);
-        return () => clearInterval(interval);
-    }, [campaignId]);
-
     // Scroll to bottom & Process Auto-Rolls
     useEffect(() => {
         if (scrollRef.current) {
@@ -192,39 +192,7 @@ export default function PlayPage() {
             newInitiatives.forEach(e => processedEventsRef.current.add(e.id));
         }
 
-        // Mark all current events as processed to avoid re-rolling on refresh
-        // (Actually, we only want to mark the ones we ACTED on, or all? 
-        // If we refresh, we don't want to re-roll old initiatives.
-        // So on initial load, we might want to mark ALL as processed without rolling.
-        // But how to distinguish initial load vs new poll?
-        // We can just add all IDs to processedRef on first mount?
-        // For MVP, just adding the ones we check effectively handles "New" since setEvents overwrites or appends.
-        // But if I refresh page, `processedEventsRef` resets, and I fetch 50 events.
-        // I will see 5 initiatives and roll them.
-        // That is acceptable for "Replay" effect, but slight annoying.
-        // I will allow it for now. The user likes "Physics".
     }, [events]);
-
-    async function fetchEvents() {
-        // In a real implementation we would use 'after=ts' to get delta
-        // For MVP we just fetch recent 50
-        try {
-            // Need to find worldId from campaignId... 
-            // Hack: The API route /api/campaigns/[id] should return worldId.
-            // For polling efficiently, we might need a direct route /api/play/[campaignId]/events
-
-            // Simulating polling by fetching from the campaign events endpoint (we need to create or use existing)
-            // Since we don't have a direct "get events by campaign" easily exposed without auth, 
-            // let's assume we use the world events filtered by campaignId if possible, 
-            // OR we just use the universal action dispatcher response for local echo + polling later.
-
-            // Actually, we need to know the WorldID to fetch events.
-            // Let's rely on the user passing context or fetching campaign first.
-            // SKIPPING polling implementation detail for this exact file save, will address in `loadContext`.
-        } catch (e) {
-            console.error(e);
-        }
-    }
 
     // NOTE: We need to fetch the Campaign first to get the WorldID.
     const [context, setContext] = useState<{ worldId: string; campaign: CampaignContext } | null>(null);
@@ -252,12 +220,15 @@ export default function PlayPage() {
                     const campaignEvents = (json.data as GameEvent[]).filter(
                         (event) => event.campaignId === campaignId || event.scope === "MACRO",
                     );
-                    // Simple dedup needed? React state set handles replace.
-                    setEvents(prev => {
-                        // Only update if length changed to avoid jitter, or deep compare
-                        if (prev.length !== campaignEvents.length) return campaignEvents;
-                        return prev;
-                    });
+                    if (!hasHydratedEventsRef.current) {
+                        const historicalInitiativeIds = campaignEvents
+                            .filter((event) => event.type === "INITIATIVE")
+                            .map((event) => event.id);
+                        processedEventsRef.current = new Set(historicalInitiativeIds);
+                        hasHydratedEventsRef.current = true;
+                    }
+
+                    setEvents(campaignEvents);
                 }
             } catch (e) { console.error("Poll fail", e); }
         };
@@ -696,7 +667,7 @@ export default function PlayPage() {
 
                         // For MVP V2 compatibility with existing handleAction:
                         handleAction('CHAT', {
-                            text: `🎲 Rolagem Física: ${pendingRoll.expression} = **${finalResult}** (${physicalTotal} + ${pendingRoll.modifier})`,
+                            text: `Rolagem fisica: ${pendingRoll.expression} = **${finalResult}** (${physicalTotal} + ${pendingRoll.modifier})`,
                             author: 'Sistema'
                         });
 

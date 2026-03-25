@@ -146,13 +146,13 @@ O app ja possui fundacao de combate, mas a experiencia precisa se alinhar ao pro
   Notas: `GUI-45` acrescentou um painel `Combatentes` dentro do bloco Modo Tatico: cada combatante aparece com barra de HP colorida (verde/ambar/vermelho por percentual), badge `PC` ou `Hostil`, contagem `X / Y HP`, e botao `Consultar` para inimigos que possuem `npcId` no encontro preparado — abrindo o inspect do Codex sem sair do cockpit.
 
 - [-] M3.4 Melhorar acoes rapidas do mestre
-  Notas: `RPG-32` acrescentou `Ajuste rapido` no proprio cockpit da mesa, com opcoes curtas para aliviar, segurar ou escalar a tensao a partir do estado real do combate. O `CombatTracker` agora permite aplicar/remover condicoes por combatente sem sair da mesa, com feedback de operacao por item, reconciliacao otimista e sugestoes de `conditionKey` puxadas de `/api/campaigns/[id]/conditions` conforme o ruleset da campanha.
+  Notas: `RPG-32` acrescentou `Ajuste rapido` no proprio cockpit da mesa, com opcoes curtas para aliviar, segurar ou escalar a tensao a partir do estado real do combate. O `CombatTracker` agora permite aplicar/remover condicoes por combatente sem sair da mesa, com feedback de operacao por item, reconciliacao otimista e sugestoes de `conditionKey` puxadas de `/api/campaigns/[id]/conditions` conforme o ruleset da campanha. `M3.14` adicionou `Convocar` por inimigo no painel de encontro (somente com combate ativo), criando combatentes no encontro em campo com controle de quantidade alvo e feedback de operacao.
 
 - [x] M3.5 Garantir que o combate nao monopolize a tela inteira sem necessidade
   Notas: O `LiveWarRoom` agora distingue modo narrativo e tatico no mesmo mapa: em narrativo as barras de squad ficam ocultas e o mapa permanece livre com overlay de cena/subcena; em tatico o monitor de squad volta ao topo, o watermark muda para simulacao tatica e o overlay de turno fica no canto com avancar/voltar turno sem abrir outra superficie.
 
 - [x] M3.6 Garantir leitura de ficha viva para PCs e NPCs durante a mesa
-  Notas: `SquadMonitor` passou a operar HP/PM/SAN em tempo real com update otimista + persistencia na sheet API e reconciliacao no polling; condicoes aplicadas em combate aparecem por personagem. No `CombatTracker`, o mestre aplica/remove condicoes por combatente com feedback por item e sugestao de chaves de condicao do ruleset.
+  Notas: `SquadMonitor` passou a operar HP/PM/SAN em tempo real com update otimista + persistencia na sheet API e reconciliacao no polling; condicoes aplicadas em combate aparecem por personagem. No `CombatTracker`, o mestre aplica/remove condicoes por combatente com feedback por item e sugestao de chaves de condicao do ruleset. `M3.15` removeu polling morto de eventos no `play/[campaignId]`, consolidando um unico fluxo de eventos com hidratacao inicial sem replay de iniciativas antigas.
 
 ### Criterios de aceite da Frente M3
 - combate e parte do cockpit, nao uma experiencia apartada;
