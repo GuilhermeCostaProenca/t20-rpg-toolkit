@@ -184,6 +184,7 @@ export default function PlayPage() {
     const [flowChecklist, setFlowChecklist] = useState<LiveFlowChecklistState>(EMPTY_FLOW_CHECKLIST);
     const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
     const [publicLayerLocked, setPublicLayerLocked] = useState(false);
+    const [requestedSheetCharacterId, setRequestedSheetCharacterId] = useState<string | null>(null);
     const wasCombatActiveRef = useRef(false);
 
     const loadLiveCombat = useCallback(async () => {
@@ -1069,6 +1070,7 @@ export default function PlayPage() {
                 onAction={handleAction}
                 collapsed={sheetCollapsed}
                 onToggle={() => setSheetCollapsed(!sheetCollapsed)}
+                requestedCharacterId={requestedSheetCharacterId}
             />
             {/* Toggle Button for QuickSheet (Visible when collapsed) */}
             {sheetCollapsed && (
@@ -1097,6 +1099,10 @@ export default function PlayPage() {
                 onPinCreate={handlePinCreate}
                 onTurnNext={() => void handleCombatTurn("next")}
                 onTurnPrev={() => void handleCombatTurn("prev")}
+                onSelectSquadCharacter={(characterId) => {
+                    setRequestedSheetCharacterId(characterId);
+                    setSheetCollapsed(false);
+                }}
                 onRollDice={({ expression, modifier, count, diceArray }) => {
                     setPendingRoll({ expression, modifier, count });
                     diceRef.current?.roll(diceArray);
