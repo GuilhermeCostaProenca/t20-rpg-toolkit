@@ -159,8 +159,8 @@ Esses elementos sao centrais para narracao e precisam ser tratados explicitament
 Contexto tecnico:
 A forja nao pode ser uma ilha.
 
-- [ ] F4.1 Permitir anexar entidades do codex a cena e roteiro
-  Notas:
+- [-] F4.1 Permitir anexar entidades do codex a cena e roteiro
+  Notas: A forja ja vinculava entidades em beats e cenas; `RPG-93` fechou o recorte de subcena, permitindo anexar entidades diretamente em `subscene.linkedEntityIds` para granularidade operacional maior durante a mesa.
 
 - [ ] F4.2 Permitir anexar imagens e assets visuais
   Notas: `reveals` ja aceitam `imageUrl`, reaproveitam imagens de entidades do Codex e a forja agora monta um `pacote visual da mesa` com assets puxados do preparo. Ainda falta curadoria mais profunda de assets da biblioteca visual.
