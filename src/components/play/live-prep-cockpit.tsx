@@ -1507,7 +1507,7 @@ export function LivePrepCockpit({
                               size="sm"
                               variant="outline"
                               className="border-white/10 bg-white/5 text-xs"
-                              onClick={() => onInspectEntity(enemy.npcId)}
+                              onClick={() => onInspectEntity(enemy.npcId!)}
                             >
                               Consultar
                             </Button>

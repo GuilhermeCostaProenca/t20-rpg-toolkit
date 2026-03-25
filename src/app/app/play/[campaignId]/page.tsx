@@ -69,6 +69,19 @@ type CampaignContext = {
     roomCode?: string | null;
 };
 
+type CampaignCharacter = {
+    id: string;
+    name: string;
+    sheet?: {
+        pvCurrent?: number | null;
+        pvMax?: number | null;
+        pmCurrent?: number | null;
+        pmMax?: number | null;
+        sanCurrent?: number | null;
+        sanMax?: number | null;
+    } | null;
+};
+
 type LivePublicAsset = {
     title: string;
     detail: string;
