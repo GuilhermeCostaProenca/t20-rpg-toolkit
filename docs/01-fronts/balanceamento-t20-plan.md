@@ -67,8 +67,8 @@ Pode iniciar modelagem antes, mas a experiencia final depende dessas frentes.
 - [x] T4. Criar apoio para preparo de encontro
   Notas: Consolidado em `master` com composicao, leitura dedicada, sugestao, persistencia e manutencao do vinculo sessao/cena (RPG-26, RPG-27, RPG-66).
 
-- [-] T5. Criar apoio para ajuste durante a mesa
-  Notas: `RPG-28` abriu o primeiro slice ao vivo, levando o encontro preparado da sessao para o cockpit de `/app/play/[campaignId]` com risco, confianca, composicao e recomendacao.
+- [x] T5. Criar apoio para ajuste durante a mesa
+  Notas: Consolidado em `master` com leitura do encontro preparado + sinais ao vivo de pressao + ajuste rapido discreto no cockpit (`RPG-28`, `RPG-31`, `RPG-32`).
 
 ---
 
@@ -185,20 +185,20 @@ Balanceamento precisa ajudar antes da sessao, nao so diagnosticar.
 Contexto tecnico:
 O mestre tambem precisa ajuste em tempo real.
 
-- [-] T5.1 Definir o que pode ser lido durante combate
+- [x] T5.1 Definir o que pode ser lido durante combate
   Notas: `RPG-28` ja expoe o encontro preparado em foco com rating, confianca, composicao e recomendacao curta no cockpit ao vivo. `RPG-31` acrescentou leitura do combate ativo com round, HP medio do grupo/hostis, contagem viva, quedas e resumo de pressao.
 
-- [-] T5.2 Definir alertas ou heuristicas de desbalanceamento ao vivo
+- [x] T5.2 Definir alertas ou heuristicas de desbalanceamento ao vivo
   Notas: `RPG-31` abriu o primeiro sinal ao vivo com estados `Sob controle`, `Pressao subindo` e `Critico`, baseado em HP medio, vantagem numerica e personagens caidos.
 
-- [-] T5.3 Criar ferramentas de ajuste rapido
+- [x] T5.3 Criar ferramentas de ajuste rapido
   Notas: `RPG-32` abriu um primeiro bloco de `Ajuste rapido` no cockpit ao vivo, derivado de `livePressure` + encontro preparado, com sugestoes curtas de aliviar, segurar ou escalar a tensao sem automatizar a mesa.
 
-- [-] T5.4 Integrar com a mesa ao vivo sem poluicao visual
+- [x] T5.4 Integrar com a mesa ao vivo sem poluicao visual
   Notas: `RPG-28` integrou a leitura do encontro ao pacote de preparo da mesa sem abrir nova superficie. `RPG-31` consolidou isso com o combate ativo no mesmo card stack do cockpit, sem abrir painel paralelo.
 
-- [-] T5.5 Garantir que a sugestao seja util sem sequestrar a narracao
-  Notas: `RPG-31` mantem recomendacao curta e discreta, com no maximo dois fatores de pressao visiveis por vez.
+- [x] T5.5 Garantir que a sugestao seja util sem sequestrar a narracao
+  Notas: `RPG-31` e `RPG-32` mantem recomendacao curta e discreta, com no maximo dois fatores de pressao visiveis por vez no cockpit.
 
 ### Criterios de aceite da Frente T5
 - o mestre consegue reagir a encontro quebrado;
