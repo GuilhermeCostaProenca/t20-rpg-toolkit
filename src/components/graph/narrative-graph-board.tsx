@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,8 @@ type NarrativeGraphBoardProps = {
   focusNodeId?: string | null;
   mode?: "narrative" | "genealogy";
   onSelectNode: (nodeId: string) => void;
+  enableReorder?: boolean;
+  onReorderNode?: (sourceNodeId: string, targetNodeId: string) => void | Promise<void>;
 };
 
 const narrativeLaneOrder = ["house", "faction", "institution", "office", "character", "npc", "place", "artifact", "event"];
@@ -73,7 +75,10 @@ export function NarrativeGraphBoard({
   focusNodeId,
   mode = "narrative",
   onSelectNode,
+  enableReorder = false,
+  onReorderNode,
 }: NarrativeGraphBoardProps) {
+  const [draggedNodeId, setDraggedNodeId] = useState<string | null>(null);
   const layout = useMemo(() => {
     const laneOrder = mode === "genealogy" ? genealogyLaneOrder : narrativeLaneOrder;
     const grouped = laneOrder
@@ -130,6 +135,8 @@ export function NarrativeGraphBoard({
     }
     return set;
   }, [edges, focusNodeId]);
+
+  const allowGenealogyReorder = enableReorder && mode === "genealogy" && typeof onReorderNode === "function";
 
   return (
     <div className="cinematic-frame overflow-auto rounded-[32px] border border-white/10 p-4">
@@ -195,14 +202,41 @@ export function NarrativeGraphBoard({
                   <button
                     key={node.id}
                     type="button"
+                    draggable={allowGenealogyReorder}
                     onClick={() => onSelectNode(node.id)}
+                    onDragStart={(event) => {
+                      if (!allowGenealogyReorder) return;
+                      event.dataTransfer.setData("text/plain", node.id);
+                      event.dataTransfer.effectAllowed = "move";
+                      setDraggedNodeId(node.id);
+                    }}
+                    onDragEnd={() => setDraggedNodeId(null)}
+                    onDragOver={(event) => {
+                      if (!allowGenealogyReorder) return;
+                      if (!draggedNodeId || draggedNodeId === node.id) return;
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "move";
+                    }}
+                    onDrop={(event) => {
+                      if (!allowGenealogyReorder) return;
+                      event.preventDefault();
+                      const sourceNodeId = event.dataTransfer.getData("text/plain");
+                      setDraggedNodeId(null);
+                      if (!sourceNodeId || sourceNodeId === node.id) return;
+                      void onReorderNode?.(sourceNodeId, node.id);
+                    }}
                     className={cn(
                       "absolute overflow-hidden rounded-[28px] border bg-black/30 p-4 text-left backdrop-blur transition",
                       selected
                         ? "border-primary/35 shadow-[0_0_24px_rgba(188,74,63,0.22)]"
                         : "border-white/10 hover:border-white/20",
                       focused && "ring-1 ring-primary/40",
-                      dimmed && "opacity-35"
+                      dimmed && "opacity-35",
+                      allowGenealogyReorder && "cursor-grab active:cursor-grabbing",
+                      allowGenealogyReorder &&
+                        draggedNodeId &&
+                        draggedNodeId !== node.id &&
+                        "hover:border-primary/30"
                     )}
                     style={{
                       left: position.x,

@@ -309,19 +309,12 @@ export default function WorldForgeGenealogyPage() {
     return metadata;
   }
 
-  async function handleReorderGenealogyNode(direction: "backward" | "forward") {
-    if (!inspectEntity) return;
-    const isGenealogyType = inspectEntity.type === "house" || inspectEntity.type === "character" || inspectEntity.type === "npc";
-    if (!isGenealogyType) return;
-    if (inspectLaneIndex < 0) return;
-
-    const targetIndex = direction === "backward" ? inspectLaneIndex - 1 : inspectLaneIndex + 1;
-    if (targetIndex < 0 || targetIndex >= genealogyLaneNodes.length) return;
-
-    const currentNode = genealogyLaneNodes[inspectLaneIndex];
-    const targetNode = genealogyLaneNodes[targetIndex];
+  async function swapGenealogyNodeOrder(currentNode: NarrativeGraphNode, targetNode: NarrativeGraphNode) {
+    const currentIndex = genealogyLaneNodes.findIndex((node) => node.id === currentNode.id);
+    const targetIndex = genealogyLaneNodes.findIndex((node) => node.id === targetNode.id);
+    if (currentIndex < 0 || targetIndex < 0) return;
     const currentOrder =
-      typeof currentNode.orderHint === "number" ? currentNode.orderHint : inspectLaneIndex * 10;
+      typeof currentNode.orderHint === "number" ? currentNode.orderHint : currentIndex * 10;
     const targetOrder = typeof targetNode.orderHint === "number" ? targetNode.orderHint : targetIndex * 10;
 
     setOrderingSubmitting(true);
@@ -354,7 +347,9 @@ export default function WorldForgeGenealogyPage() {
         );
       }
 
-      await Promise.all([loadGraph(), loadEntity(inspectEntity.id)]);
+      if (inspectEntity?.id) {
+        await Promise.all([loadGraph(), loadEntity(inspectEntity.id)]);
+      }
     } catch (reorderError) {
       const message =
         reorderError instanceof Error
@@ -364,6 +359,31 @@ export default function WorldForgeGenealogyPage() {
     } finally {
       setOrderingSubmitting(false);
     }
+  }
+
+  async function handleReorderGenealogyNode(direction: "backward" | "forward") {
+    if (!inspectEntity) return;
+    const isGenealogyType =
+      inspectEntity.type === "house" || inspectEntity.type === "character" || inspectEntity.type === "npc";
+    if (!isGenealogyType) return;
+    if (inspectLaneIndex < 0) return;
+
+    const targetIndex = direction === "backward" ? inspectLaneIndex - 1 : inspectLaneIndex + 1;
+    if (targetIndex < 0 || targetIndex >= genealogyLaneNodes.length) return;
+
+    const currentNode = genealogyLaneNodes[inspectLaneIndex];
+    const targetNode = genealogyLaneNodes[targetIndex];
+    await swapGenealogyNodeOrder(currentNode, targetNode);
+  }
+
+  async function handleReorderGenealogyByDrop(sourceNodeId: string, targetNodeId: string) {
+    if (orderingSubmitting) return;
+    if (sourceNodeId === targetNodeId) return;
+    const sourceNode = genealogyLaneNodes.find((node) => node.id === sourceNodeId);
+    const targetNode = genealogyLaneNodes.find((node) => node.id === targetNodeId);
+    if (!sourceNode || !targetNode) return;
+    if (sourceNode.type !== targetNode.type) return;
+    await swapGenealogyNodeOrder(sourceNode, targetNode);
   }
 
   function handleSelectNode(nodeId: string) {
@@ -472,6 +492,9 @@ export default function WorldForgeGenealogyPage() {
                 <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
                   Clique em um no para inspecionar. Com `Ligacao pelo board` ativa, o proximo clique escolhe o alvo da relacao.
                 </div>
+                <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+                  Arraste um no genealogico sobre outro no mesmo eixo para trocar prioridade de ramo.
+                </div>
               </div>
             </div>
             <div className="cinematic-frame rounded-[28px] p-5">
@@ -503,6 +526,8 @@ export default function WorldForgeGenealogyPage() {
         selectedNodeId={inspectId}
         focusNodeId={selectedHouseId || null}
         mode="genealogy"
+        enableReorder
+        onReorderNode={(sourceNodeId, targetNodeId) => void handleReorderGenealogyByDrop(sourceNodeId, targetNodeId)}
         onSelectNode={handleSelectNode}
       />
 
