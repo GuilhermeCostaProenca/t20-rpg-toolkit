@@ -86,6 +86,7 @@ type LiveOperationsSidebarProps = {
         visual: boolean;
         notes: boolean;
     };
+    publicLayerLocked: boolean;
     partyStatus: {
         total: number;
         downed: number;
@@ -143,6 +144,7 @@ type LiveOperationsSidebarProps = {
         checked: boolean,
     ) => void;
     onFlowChecklistSetAll: (checked: boolean) => void;
+    onTogglePublicLayerLock: () => void;
 };
 
 export function LiveOperationsSidebar({
@@ -164,6 +166,7 @@ export function LiveOperationsSidebar({
     soundtrack,
     gmScratchpad,
     flowChecklist,
+    publicLayerLocked,
     partyStatus,
     revealingId,
     secondScreenReady,
@@ -206,6 +209,7 @@ export function LiveOperationsSidebar({
     onGmScratchpadChange,
     onFlowChecklistToggle,
     onFlowChecklistSetAll,
+    onTogglePublicLayerLock,
 }: LiveOperationsSidebarProps) {
     const jumpToSection = (sectionId: string) => {
         const target = document.getElementById(sectionId);
@@ -272,11 +276,13 @@ export function LiveOperationsSidebar({
                 activeInspectEntityId={activeInspectEntityId}
                 spawningEncounterEnemyId={spawningEncounterEnemyId}
                 spawnStatusMessage={spawnStatusMessage}
+                publicLayerLocked={publicLayerLocked}
                 onFocusScene={onFocusScene}
                 onInspectEntity={onInspectEntity}
                 onReveal={onReveal}
                 onPresentAsset={onPresentAsset}
                 onSpawnEncounterEnemy={onSpawnEncounterEnemy}
+                onTogglePublicLayerLock={onTogglePublicLayerLock}
             />
         </div>
     );

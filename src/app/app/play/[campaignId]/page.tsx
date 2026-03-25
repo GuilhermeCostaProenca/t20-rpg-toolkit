@@ -170,6 +170,7 @@ export default function PlayPage() {
     const [showHistoryChat, setShowHistoryChat] = useState(true);
     const [flowChecklist, setFlowChecklist] = useState<LiveFlowChecklistState>(EMPTY_FLOW_CHECKLIST);
     const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
+    const [publicLayerLocked, setPublicLayerLocked] = useState(false);
 
     const loadLiveCombat = useCallback(async () => {
         if (!campaignId) return;
@@ -282,6 +283,17 @@ export default function PlayPage() {
         } catch (error) {
             console.error("Failed to load history chat visibility", error);
             setShowHistoryChat(true);
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.public-layer-lock.${campaignId}`);
+            setPublicLayerLocked(saved === "true");
+        } catch (error) {
+            console.error("Failed to load public layer lock", error);
+            setPublicLayerLocked(false);
         }
     }, [campaignId]);
 
@@ -1076,6 +1088,7 @@ export default function PlayPage() {
                 soundtrack={soundtrack}
                 gmScratchpad={gmScratchpad}
                 flowChecklist={flowChecklist}
+                publicLayerLocked={publicLayerLocked}
                 partyStatus={partyStatus}
                 revealingId={revealingId}
                 secondScreenReady={Boolean(context.campaign.roomCode)}
@@ -1214,6 +1227,22 @@ export default function PlayPage() {
                 onGmScratchpadChange={handleGmScratchpadChange}
                 onFlowChecklistToggle={handleFlowChecklistToggle}
                 onFlowChecklistSetAll={handleFlowChecklistSetAll}
+                onTogglePublicLayerLock={() => {
+                    setPublicLayerLocked((current) => {
+                        const next = !current;
+                        if (campaignId) {
+                            try {
+                                window.localStorage.setItem(
+                                    `t20.live.public-layer-lock.${campaignId}`,
+                                    String(next),
+                                );
+                            } catch (error) {
+                                console.error("Failed to persist public layer lock", error);
+                            }
+                        }
+                        return next;
+                    });
+                }}
             />
         </div>
     );

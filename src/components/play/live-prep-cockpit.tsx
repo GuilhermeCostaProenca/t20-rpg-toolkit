@@ -79,6 +79,7 @@ type LivePrepCockpitProps = {
   activeInspectEntityId: string | null;
   spawningEncounterEnemyId: string | null;
   spawnStatusMessage?: LiveOpsStatusMessage | null;
+  publicLayerLocked: boolean;
   onFocusScene: (sceneId: string) => void;
   onInspectEntity: (entityId: string) => void;
   onReveal: (revealId: string) => void | Promise<void>;
@@ -87,6 +88,7 @@ type LivePrepCockpitProps = {
     enemy: SessionForgeEncounter["enemies"][number],
     enemyIndex: number,
   ) => void | Promise<void>;
+  onTogglePublicLayerLock: () => void;
 };
 
 function PlayerFacingAssetCard({
@@ -431,11 +433,13 @@ export function LivePrepCockpit({
   activeInspectEntityId,
   spawningEncounterEnemyId,
   spawnStatusMessage,
+  publicLayerLocked,
   onFocusScene,
   onInspectEntity,
   onReveal,
   onPresentAsset,
   onSpawnEncounterEnemy,
+  onTogglePublicLayerLock,
 }: LivePrepCockpitProps) {
   const openVisualLibrary = (preset?: "reveals" | "scenes") => {
     const params = new URLSearchParams();
@@ -672,7 +676,27 @@ export function LivePrepCockpit({
                   {currentPublicAsset.title}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">{currentPublicAsset.detail}</p>
-                {publicAdvanceCue ? (
+                <div className="mt-3">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={`border-white/10 bg-white/5 ${publicLayerLocked ? "text-amber-200" : ""}`}
+                    onClick={() => onTogglePublicLayerLock()}
+                  >
+                    <Lock className="mr-2 h-3.5 w-3.5" />
+                    {publicLayerLocked ? "Destravar camada" : "Fixar camada"}
+                  </Button>
+                </div>
+                {publicLayerLocked ? (
+                  <div className="mt-3 rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-300">
+                      Camada publica fixada
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      A fila sugerida fica congelada ate voce destravar esta camada.
+                    </p>
+                  </div>
+                ) : publicAdvanceCue ? (
                   <div className="mt-3 rounded-xl border border-white/8 bg-sidebar/50 px-3 py-2">
                     <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary/80">
                       {publicAdvanceCue.label}
@@ -720,7 +744,7 @@ export function LivePrepCockpit({
               </div>
             ) : null}
 
-            {nextPublicCandidate ? (
+            {!publicLayerLocked && nextPublicCandidate ? (
               <div className="rounded-xl border border-primary/20 bg-black/20 p-3">
                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary/80">
                   <Eye className="h-3 w-3" />
