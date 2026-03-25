@@ -446,6 +446,9 @@ export function LiveOperationsSidebar({
                         Suporte
                     </button>
                 </div>
+                <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-white/45">
+                    Atalhos: Alt+1..4 secoes, Alt+5 chat, Ctrl/Cmd+K busca
+                </p>
             </div>
 
             <ScrollArea className="max-h-[56vh] border-b border-white/10">

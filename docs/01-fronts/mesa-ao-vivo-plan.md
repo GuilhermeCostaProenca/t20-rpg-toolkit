@@ -83,7 +83,7 @@ Contexto tecnico:
 Hoje a base ja existe, mas precisa consolidacao como cockpit do mestre.
 
 - [-] M1.1 Definir layout final da sessao ao vivo
-  Notas: `M1.1` consolidou a sidebar como cockpit por secoes, com barra de navegacao rapida (`Combate`, `Preparo`, `Codex`, `Suporte`) e stack operacional rolavel separado do bloco de historico/chat, reduzindo sobrecarga visual e mantendo acesso rapido aos blocos criticos.
+  Notas: `M1.1` consolidou a sidebar como cockpit por secoes, com barra de navegacao rapida (`Combate`, `Preparo`, `Codex`, `Suporte`) e stack operacional rolavel separado do bloco de historico/chat, reduzindo sobrecarga visual e mantendo acesso rapido aos blocos criticos. O proprio header agora exibe linha curta de atalhos operacionais para reduzir friccao em mesa real.
 
 - [-] M1.2 Definir paines principais e secundarios
   Notas: O sidebar da mesa agora combina combate, historico e pacote de preparo da sessao; `RPG-33` extraiu esse bloco para `live-prep-cockpit`, `RPG-35` fez o mesmo com historico/chat em `live-history-chat-stack`, `RPG-36` tirou o centro tatico para `live-war-room`, `RPG-37` agrupou a sidebar operacional inteira em `live-operations-sidebar` e `RPG-38` limpou helpers mortos e tipagem local do `play`, zerando o lint do arquivo. `M1.2` adicionou controle de visibilidade de paineis secundarios (`Codex` e `Suporte`) com persistencia por campanha para o mestre ajustar densidade operacional da mesa.
