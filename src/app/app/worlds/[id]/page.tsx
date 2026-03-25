@@ -555,7 +555,7 @@ export default function WorldDetailPage() {
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="space-y-6 pb-8 xl:space-y-7">
       <section
         className="world-hero rounded-[32px] px-6 py-7 sm:px-8 xl:px-10"
         style={{
@@ -864,7 +864,7 @@ export default function WorldDetailPage() {
                 }
               />
             ) : (
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
                 {world.campaigns.map((campaign, index) => (
                   <Card
                     key={campaign.id}
@@ -872,7 +872,7 @@ export default function WorldDetailPage() {
                   >
                     <CardContent className="p-0">
                       <div
-                        className="flex min-h-[220px] flex-col justify-between p-5"
+                        className="flex min-h-[196px] flex-col justify-between p-5 xl:min-h-[188px]"
                         style={{
                           background:
                             index % 2 === 0
@@ -950,7 +950,7 @@ export default function WorldDetailPage() {
                 icon={<Activity className="h-6 w-6" />}
               />
             ) : (
-              <div className="space-y-3">
+              <div className="grid gap-3 2xl:grid-cols-2">
                 {recentEvents.map((event) => (
                   <button
                     key={event.id}
@@ -1056,56 +1056,58 @@ export default function WorldDetailPage() {
                     Nenhum evento de memoria corresponde aos filtros atuais.
                   </div>
                 ) : (
-                  filteredMemoryEvents.slice(0, 8).map((event) => (
-                  <button
-                    key={event.id}
-                    type="button"
-                    className="w-full rounded-[24px] border border-white/8 bg-white/4 p-4 text-left transition hover:border-primary/20 hover:bg-white/6"
-                    onClick={() =>
-                      setInspectItem({
-                        type: "memory",
-                        item: event,
-                        href: event.campaignId ? `/app/campaign/${event.campaignId}` : undefined,
-                      })
-                    }
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap gap-2">
-                          <Badge
-                            className={
-                              getMemoryEventTone(event) === "death"
-                                ? "border-red-300/20 bg-red-300/10 text-red-100"
-                                : getMemoryEventTone(event) === "change"
-                                  ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
-                                  : "border-primary/20 bg-primary/10 text-primary"
-                            }
-                          >
-                            {formatMemoryEventType(event.type)}
-                          </Badge>
-                          <Badge className="border-white/10 bg-black/30 text-white">
-                            {formatMemoryEventVisibility(event.visibility)}
-                          </Badge>
-                          <Badge className="border-white/10 bg-white/5 text-white/75">
-                            {formatMemoryEventKind(event)}
-                          </Badge>
-                          <Badge className="border-white/10 bg-white/5 text-white/75">
-                            {formatMemoryEventTemporalLabel(event.ts)}
-                          </Badge>
+                  <div className="grid gap-3 2xl:grid-cols-2">
+                    {filteredMemoryEvents.slice(0, 10).map((event) => (
+                      <button
+                        key={event.id}
+                        type="button"
+                        className="w-full rounded-[24px] border border-white/8 bg-white/4 p-4 text-left transition hover:border-primary/20 hover:bg-white/6"
+                        onClick={() =>
+                          setInspectItem({
+                            type: "memory",
+                            item: event,
+                            href: event.campaignId ? `/app/campaign/${event.campaignId}` : undefined,
+                          })
+                        }
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="space-y-2">
+                            <div className="flex flex-wrap gap-2">
+                              <Badge
+                                className={
+                                  getMemoryEventTone(event) === "death"
+                                    ? "border-red-300/20 bg-red-300/10 text-red-100"
+                                    : getMemoryEventTone(event) === "change"
+                                      ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                                      : "border-primary/20 bg-primary/10 text-primary"
+                                }
+                              >
+                                {formatMemoryEventType(event.type)}
+                              </Badge>
+                              <Badge className="border-white/10 bg-black/30 text-white">
+                                {formatMemoryEventVisibility(event.visibility)}
+                              </Badge>
+                              <Badge className="border-white/10 bg-white/5 text-white/75">
+                                {formatMemoryEventKind(event)}
+                              </Badge>
+                              <Badge className="border-white/10 bg-white/5 text-white/75">
+                                {formatMemoryEventTemporalLabel(event.ts)}
+                              </Badge>
+                            </div>
+                            <p className="text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
+                            {event.campaignId ? (
+                              <p className="text-xs uppercase tracking-[0.14em] text-amber-100/80">
+                                {campaignNameById.get(event.campaignId) || "Campanha ligada"}
+                              </p>
+                            ) : null}
+                          </div>
+                          <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                            {formatDateTime(event.ts)}
+                          </span>
                         </div>
-                        <p className="text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
-                        {event.campaignId ? (
-                          <p className="text-xs uppercase tracking-[0.14em] text-amber-100/80">
-                            {campaignNameById.get(event.campaignId) || "Campanha ligada"}
-                          </p>
-                        ) : null}
-                      </div>
-                      <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                        {formatDateTime(event.ts)}
-                      </span>
-                    </div>
-                  </button>
-                  ))
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
             )}
