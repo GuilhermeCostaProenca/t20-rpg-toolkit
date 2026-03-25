@@ -456,6 +456,26 @@ export default function PlayPage() {
         return () => clearTimeout(timer);
     }, [spawnStatusMessage]);
 
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            const target = event.target as HTMLElement | null;
+            const tagName = target?.tagName.toLowerCase();
+            const isTypingTarget =
+                tagName === "input" ||
+                tagName === "textarea" ||
+                target?.isContentEditable;
+            if (isTypingTarget) return;
+
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+                event.preventDefault();
+                setSearchOpen(true);
+            }
+        };
+
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, []);
+
 
     async function handleAction(type: string, payload: Record<string, unknown>) {
         if (!context) return;

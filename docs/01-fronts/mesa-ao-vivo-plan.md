@@ -202,8 +202,8 @@ Operar a mesa nao e so combate e reveal; envolve trilha, estado de ficha e apoio
 - [-] M5.3 Permitir ficha rapida e acesso a NPCs improvisados
   Notas: `M5.3` adicionou `Consultar` por inimigo dentro do encontro preparado no cockpit ao vivo, abrindo o inspect do Codex diretamente a partir da linha do inimigo (sem depender de combate ativo), alem do fluxo de `Convocar` quando o combate esta em curso.
 
-- [ ] M5.4 Garantir que rolagem, ficha e consulta convivam sem caos
-  Notas:
+- [-] M5.4 Garantir que rolagem, ficha e consulta convivam sem caos
+  Notas: `M5.4` adicionou atalho global `Ctrl+K`/`Cmd+K` na tela de mesa para abrir busca rapida (`OmniSearch`) sem sair do fluxo de rolagem, ficha rapida e cockpit ao vivo.
 
 - [ ] M5.5 Garantir que o mestre nao precise sair do app para controlar a sessao
   Notas:
