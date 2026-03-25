@@ -142,7 +142,7 @@ Esses elementos sao centrais para narracao e precisam ser tratados explicitament
   Notas: `reveals` agora podem ser preparados no mesmo workspace da sessao.
 
 - [-] F3.4 Definir visibilidade e uso pelo mestre
-  Notas: O recorte atual ja separa estruturalmente esses itens no workspace do mestre, e `reveals` ja podem ser enviados para a mesa ao vivo. `RPG-102` adicionou filtro operacional por status na camada dramatica (`all/planned/executed/delayed/canceled`) para leitura rapida de uso em mesa. `RPG-106` acrescentou contadores por status no proprio filtro, consolidando hooks+segredos+revelacoes para leitura situacional imediata.
+  Notas: O recorte atual ja separa estruturalmente esses itens no workspace do mestre, e `reveals` ja podem ser enviados para a mesa ao vivo. `RPG-102` adicionou filtro operacional por status na camada dramatica (`all/planned/executed/delayed/canceled`) para leitura rapida de uso em mesa. `RPG-106` acrescentou contadores por status no proprio filtro, consolidando hooks+segredos+revelacoes para leitura situacional imediata. `RPG-141` adicionou busca textual na camada dramatica (titulo/notas), combinada com status, para localizar rapidamente itens durante preparo e operacao.
 
 - [x] F3.5 Definir estados de executado, adiado e cancelado
   Notas: Hooks, segredos e revelacoes agora aceitam `planned`, `executed`, `delayed` e `canceled`.
