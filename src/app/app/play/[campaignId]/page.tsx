@@ -1351,6 +1351,7 @@ export default function PlayPage() {
                 spawningEncounterEnemyId={spawningEncounterEnemyId}
                 spawnStatusMessage={spawnStatusMessage}
                 executionStatusMessage={executionStatusMessage}
+                executingScope={executingScope}
                 inspectQuery={inspectQuery}
                 inspectCandidates={inspectCandidates}
                 inspectId={inspectId}
