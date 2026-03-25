@@ -1237,6 +1237,63 @@ export default function SessionForgePage() {
                           )}
                         </div>
                       </div>
+
+                      {(() => {
+                        const revealVisuals = forge.reveals
+                          .filter((reveal) => scene.linkedRevealIds.includes(reveal.id) && Boolean(reveal.imageUrl))
+                          .slice(0, 4);
+                        const entityVisuals = entities
+                          .filter(
+                            (entity) =>
+                              scene.linkedEntityIds.includes(entity.id) &&
+                              Boolean(entity.portraitImageUrl || entity.coverImageUrl)
+                          )
+                          .slice(0, 4);
+                        if (revealVisuals.length === 0 && entityVisuals.length === 0) return null;
+
+                        return (
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                              Previa visual da cena
+                            </p>
+                            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                              {revealVisuals.map((reveal) => (
+                                <div
+                                  key={`scene-reveal-visual-${scene.id}-${reveal.id}`}
+                                  className="overflow-hidden rounded-xl border border-white/10 bg-black/30"
+                                >
+                                  <div
+                                    className="h-20 bg-cover bg-center"
+                                    style={{
+                                      backgroundImage: `linear-gradient(180deg, rgba(8,8,12,0.1), rgba(8,8,12,0.75)), url(${reveal.imageUrl})`,
+                                    }}
+                                  />
+                                  <p className="truncate px-2 py-1 text-xs text-white/80">
+                                    {reveal.title || "Reveal sem titulo"}
+                                  </p>
+                                </div>
+                              ))}
+                              {entityVisuals.map((entity) => {
+                                const imageUrl = entity.portraitImageUrl || entity.coverImageUrl || "";
+                                return (
+                                  <div
+                                    key={`scene-entity-visual-${scene.id}-${entity.id}`}
+                                    className="overflow-hidden rounded-xl border border-white/10 bg-black/30"
+                                  >
+                                    <div
+                                      className="h-20 bg-cover bg-center"
+                                      style={{
+                                        backgroundImage: `linear-gradient(180deg, rgba(8,8,12,0.1), rgba(8,8,12,0.75)), url(${imageUrl})`,
+                                      }}
+                                    />
+                                    <p className="truncate px-2 py-1 text-xs text-white/80">{entity.name}</p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     <div className="mt-5 rounded-[22px] border border-white/8 bg-black/20 p-4">
@@ -1477,6 +1534,67 @@ export default function SessionForgePage() {
                                     </div>
                                   )}
                                 </div>
+                                {(() => {
+                                  const revealVisuals = forge.reveals
+                                    .filter(
+                                      (reveal) =>
+                                        subscene.linkedRevealIds.includes(reveal.id) && Boolean(reveal.imageUrl)
+                                    )
+                                    .slice(0, 2);
+                                  const entityVisuals = entities
+                                    .filter(
+                                      (entity) =>
+                                        subscene.linkedEntityIds.includes(entity.id) &&
+                                        Boolean(entity.portraitImageUrl || entity.coverImageUrl)
+                                    )
+                                    .slice(0, 2);
+                                  if (revealVisuals.length === 0 && entityVisuals.length === 0) return null;
+
+                                  return (
+                                    <div className="space-y-2">
+                                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                                        Previa visual da subcena
+                                      </p>
+                                      <div className="grid gap-2 sm:grid-cols-2">
+                                        {revealVisuals.map((reveal) => (
+                                          <div
+                                            key={`subscene-reveal-visual-${subscene.id}-${reveal.id}`}
+                                            className="overflow-hidden rounded-xl border border-white/10 bg-black/30"
+                                          >
+                                            <div
+                                              className="h-16 bg-cover bg-center"
+                                              style={{
+                                                backgroundImage: `linear-gradient(180deg, rgba(8,8,12,0.1), rgba(8,8,12,0.75)), url(${reveal.imageUrl})`,
+                                              }}
+                                            />
+                                            <p className="truncate px-2 py-1 text-xs text-white/80">
+                                              {reveal.title || "Reveal sem titulo"}
+                                            </p>
+                                          </div>
+                                        ))}
+                                        {entityVisuals.map((entity) => {
+                                          const imageUrl = entity.portraitImageUrl || entity.coverImageUrl || "";
+                                          return (
+                                            <div
+                                              key={`subscene-entity-visual-${subscene.id}-${entity.id}`}
+                                              className="overflow-hidden rounded-xl border border-white/10 bg-black/30"
+                                            >
+                                              <div
+                                                className="h-16 bg-cover bg-center"
+                                                style={{
+                                                  backgroundImage: `linear-gradient(180deg, rgba(8,8,12,0.1), rgba(8,8,12,0.75)), url(${imageUrl})`,
+                                                }}
+                                              />
+                                              <p className="truncate px-2 py-1 text-xs text-white/80">
+                                                {entity.name}
+                                              </p>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
                               </div>
                             </div>
                           ))
