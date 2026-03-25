@@ -13,6 +13,7 @@ import { LivePrepCockpit } from "@/components/play/live-prep-cockpit";
 import { LiveSessionSoundtrack } from "@/components/play/live-session-soundtrack";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { LiveCombat, LiveOpsStatusMessage } from "@/lib/live-combat";
 import type {
     SessionForgeDramaticItem,
@@ -183,6 +184,12 @@ export function LiveOperationsSidebar({
     onGmScratchpadChange,
     onFlowChecklistToggle,
 }: LiveOperationsSidebarProps) {
+    const jumpToSection = (sectionId: string) => {
+        const target = document.getElementById(sectionId);
+        if (!target) return;
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
     return (
         <div
             className={`z-[60] flex w-full flex-col border-l border-white/10 bg-sidebar ${
@@ -222,88 +229,125 @@ export function LiveOperationsSidebar({
                 </div>
             </div>
 
-            <div className="px-3 pt-3">
-                <CombatTracker
-                    campaignId={campaignId}
-                    liveCombat={liveCombat}
-                    onCombatChange={onCombatChange}
+            <div className="border-b border-white/10 bg-black/10 px-3 py-2">
+                <div className="flex flex-wrap gap-1">
+                    <button
+                        type="button"
+                        className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-white/80 hover:bg-white/10"
+                        onClick={() => jumpToSection("live-section-combate")}
+                    >
+                        Combate
+                    </button>
+                    <button
+                        type="button"
+                        className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-white/80 hover:bg-white/10"
+                        onClick={() => jumpToSection("live-section-preparo")}
+                    >
+                        Preparo
+                    </button>
+                    <button
+                        type="button"
+                        className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-white/80 hover:bg-white/10"
+                        onClick={() => jumpToSection("live-section-codex")}
+                    >
+                        Codex
+                    </button>
+                    <button
+                        type="button"
+                        className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-white/80 hover:bg-white/10"
+                        onClick={() => jumpToSection("live-section-suporte")}
+                    >
+                        Suporte
+                    </button>
+                </div>
+            </div>
+
+            <ScrollArea className="max-h-[56vh] border-b border-white/10">
+                <div id="live-section-combate" className="px-3 pt-3">
+                    <CombatTracker
+                        campaignId={campaignId}
+                        liveCombat={liveCombat}
+                        onCombatChange={onCombatChange}
+                    />
+                </div>
+
+                <div id="live-section-suporte" className="px-3 pt-3">
+                    <LivePartyStatus {...partyStatus} />
+                </div>
+
+                <div className="px-3 pt-3">
+                    <LiveSessionSoundtrack
+                        isCombatActive={Boolean(liveCombat?.isActive)}
+                        soundtrack={soundtrack}
+                        onSave={onSaveSoundtrack}
+                    />
+                </div>
+
+                <div className="px-3 pt-3">
+                    <LiveGmScratchpad
+                        value={gmScratchpad}
+                        onChange={onGmScratchpadChange}
+                    />
+                </div>
+
+                <div className="px-3 pt-3">
+                    <LiveFlowChecklist
+                        state={flowChecklist}
+                        onToggle={onFlowChecklistToggle}
+                    />
+                </div>
+
+                <div id="live-section-preparo" className="px-3 py-3">
+                    <LivePrepCockpit
+                    prepPacket={prepPacket}
+                    activeScene={activeScene}
+                    activeEncounter={activeEncounter}
+                    activeSceneReveals={activeSceneReveals}
+                    currentPublicAsset={currentPublicAsset}
+                    sceneVisualEntities={sceneVisualEntities}
+                        liveCombat={liveCombat}
+                        revealingId={revealingId}
+                        secondScreenReady={secondScreenReady}
+                        activeInspectEntityId={activeInspectEntityId}
+                        spawningEncounterEnemyId={spawningEncounterEnemyId}
+                        spawnStatusMessage={spawnStatusMessage}
+                        onFocusScene={onFocusScene}
+                        onInspectEntity={onInspectEntity}
+                        onReveal={onReveal}
+                        onPresentAsset={onPresentAsset}
+                        onSpawnEncounterEnemy={onSpawnEncounterEnemy}
+                    />
+                </div>
+
+                <div id="live-section-codex" className="px-3 pb-3">
+                    <LiveCodexInspect
+                        worldId={worldId}
+                        inspectQuery={inspectQuery}
+                        inspectCandidates={inspectCandidates}
+                        inspectId={inspectId}
+                        inspectEntity={inspectEntity}
+                        inspectLoading={inspectLoading}
+                        onInspectQueryChange={onInspectQueryChange}
+                        onInspectIdChange={onInspectIdChange}
+                        onOpenSearch={onOpenSearch}
+                    />
+                </div>
+            </ScrollArea>
+
+            <div className="min-h-0 flex-1">
+                <LiveHistoryChatStack
+                    events={events}
+                    pinnedEventIds={pinnedEventIds}
+                    timelineFilter={timelineFilter}
+                    chatInput={chatInput}
+                    scrollRef={scrollRef}
+                    onTimelineFilterChange={onTimelineFilterChange}
+                    onPinToggle={onPinToggle}
+                    onChatInputChange={onChatInputChange}
+                    onChatSubmit={onChatSubmit}
+                    onVoiceTranscription={onVoiceTranscription}
                 />
             </div>
-
-            <div className="px-3 pt-3">
-                <LivePartyStatus {...partyStatus} />
-            </div>
-
-            <div className="px-3 pt-3">
-                <LiveSessionSoundtrack
-                    isCombatActive={Boolean(liveCombat?.isActive)}
-                    soundtrack={soundtrack}
-                    onSave={onSaveSoundtrack}
-                />
-            </div>
-
-            <div className="px-3 pt-3">
-                <LiveGmScratchpad
-                    value={gmScratchpad}
-                    onChange={onGmScratchpadChange}
-                />
-            </div>
-
-            <div className="px-3 pt-3">
-                <LiveFlowChecklist
-                    state={flowChecklist}
-                    onToggle={onFlowChecklistToggle}
-                />
-            </div>
-
-            <div className="px-3 pt-3">
-                <LivePrepCockpit
-                prepPacket={prepPacket}
-                activeScene={activeScene}
-                activeEncounter={activeEncounter}
-                activeSceneReveals={activeSceneReveals}
-                currentPublicAsset={currentPublicAsset}
-                sceneVisualEntities={sceneVisualEntities}
-                    liveCombat={liveCombat}
-                    revealingId={revealingId}
-                    secondScreenReady={secondScreenReady}
-                    activeInspectEntityId={activeInspectEntityId}
-                    spawningEncounterEnemyId={spawningEncounterEnemyId}
-                    spawnStatusMessage={spawnStatusMessage}
-                    onFocusScene={onFocusScene}
-                    onInspectEntity={onInspectEntity}
-                    onReveal={onReveal}
-                    onPresentAsset={onPresentAsset}
-                    onSpawnEncounterEnemy={onSpawnEncounterEnemy}
-                />
-            </div>
-
-            <div className="px-3 pt-3">
-                <LiveCodexInspect
-                    worldId={worldId}
-                    inspectQuery={inspectQuery}
-                    inspectCandidates={inspectCandidates}
-                    inspectId={inspectId}
-                    inspectEntity={inspectEntity}
-                    inspectLoading={inspectLoading}
-                    onInspectQueryChange={onInspectQueryChange}
-                    onInspectIdChange={onInspectIdChange}
-                    onOpenSearch={onOpenSearch}
-                />
-            </div>
-
-            <LiveHistoryChatStack
-                events={events}
-                pinnedEventIds={pinnedEventIds}
-                timelineFilter={timelineFilter}
-                chatInput={chatInput}
-                scrollRef={scrollRef}
-                onTimelineFilterChange={onTimelineFilterChange}
-                onPinToggle={onPinToggle}
-                onChatInputChange={onChatInputChange}
-                onChatSubmit={onChatSubmit}
-                onVoiceTranscription={onVoiceTranscription}
-            />
         </div>
     );
 }
