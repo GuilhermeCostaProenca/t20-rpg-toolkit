@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent, RefObject } from "react";
-import { BookOpen, Map as MapIcon } from "lucide-react";
+import { BookOpen, Map as MapIcon, MonitorUp } from "lucide-react";
 
 import { CombatTracker } from "@/components/play/combat-tracker";
 import { LiveCodexInspect, type LiveCodexEntity, type LiveEntityDetail } from "@/components/play/live-codex-inspect";
@@ -65,6 +65,7 @@ type LiveOperationsSidebarProps = {
         role: "portrait" | "location";
     }[];
     liveCombat: LiveCombat | null;
+    monitorMode: boolean;
     soundtrack: {
         ambientUrl: string;
         combatUrl: string;
@@ -104,6 +105,7 @@ type LiveOperationsSidebarProps = {
     scrollRef: RefObject<HTMLDivElement | null>;
     onOpenAtlas: () => void;
     onSummarize: () => void;
+    onToggleMonitorMode: () => void;
     onFocusScene: (sceneId: string) => void;
     onInspectEntity: (entityId: string) => void;
     onReveal: (revealId: string) => void | Promise<void>;
@@ -140,6 +142,7 @@ export function LiveOperationsSidebar({
     currentPublicAsset,
     sceneVisualEntities,
     liveCombat,
+    monitorMode,
     soundtrack,
     gmScratchpad,
     flowChecklist,
@@ -161,6 +164,7 @@ export function LiveOperationsSidebar({
     scrollRef,
     onOpenAtlas,
     onSummarize,
+    onToggleMonitorMode,
     onFocusScene,
     onInspectEntity,
     onReveal,
@@ -180,20 +184,32 @@ export function LiveOperationsSidebar({
     onFlowChecklistToggle,
 }: LiveOperationsSidebarProps) {
     return (
-        <div className="z-[60] flex w-full flex-col border-l border-white/10 bg-sidebar md:w-[350px]">
-            <div className="flex items-center justify-between border-b border-white/10 bg-black/20 p-3">
+        <div
+            className={`z-[60] flex w-full flex-col border-l border-white/10 bg-sidebar ${
+                monitorMode ? "md:w-[390px]" : "md:w-[350px]"
+            }`}
+        >
+            <div className={`flex items-center justify-between border-b border-white/10 bg-black/20 ${monitorMode ? "p-4" : "p-3"}`}>
                 <div className="flex flex-col">
-                    <span className="max-w-[150px] truncate text-sm font-bold uppercase tracking-wider text-primary/80">
+                    <span className={`truncate font-bold uppercase tracking-wider text-primary/80 ${monitorMode ? "max-w-[190px] text-base" : "max-w-[150px] text-sm"}`}>
                         {campaignName}
                     </span>
                     <Badge
                         variant="outline"
-                        className="h-4 w-fit border-green-500/30 text-[10px] text-green-500"
+                        className={`w-fit border-green-500/30 text-green-500 ${monitorMode ? "h-5 text-xs" : "h-4 text-[10px]"}`}
                     >
                         Online
                     </Badge>
                 </div>
                 <div className="flex gap-1">
+                    <Button
+                        variant={monitorMode ? "default" : "ghost"}
+                        size="icon"
+                        title="Alternar modo monitor"
+                        onClick={onToggleMonitorMode}
+                    >
+                        <MonitorUp className={`text-primary ${monitorMode ? "h-5 w-5" : "h-4 w-4"}`} />
+                    </Button>
                     <Button variant="ghost" size="icon" title="Abrir Atlas" onClick={onOpenAtlas}>
                         <MapIcon className="h-4 w-4 text-blue-400" />
                     </Button>

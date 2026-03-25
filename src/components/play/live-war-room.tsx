@@ -8,7 +8,13 @@ import { SquadMonitor } from "@/components/overseer/squad-monitor";
 import { InteractiveMap, type Pin, type Token } from "@/components/map/interactive-map";
 import { type DieType } from "@/components/dice/die";
 
-function DiceTray({ onRoll }: { onRoll: (expression: string) => void }) {
+function DiceTray({
+    onRoll,
+    monitorMode = false,
+}: {
+    onRoll: (expression: string) => void;
+    monitorMode?: boolean;
+}) {
     const dice = [
         { label: "d4", value: "1d4" },
         { label: "d6", value: "1d6" },
@@ -19,14 +25,26 @@ function DiceTray({ onRoll }: { onRoll: (expression: string) => void }) {
     ];
 
     return (
-        <div className="flex gap-2 rounded-lg border border-white/10 bg-white/5 p-2 items-center">
-            <span className="mr-2 text-xs font-bold uppercase text-muted-foreground">Dados</span>
+        <div
+            className={`flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-2 ${
+                monitorMode ? "scale-110 shadow-2xl" : ""
+            }`}
+        >
+            <span
+                className={`mr-2 font-bold uppercase text-muted-foreground ${
+                    monitorMode ? "text-sm tracking-[0.16em]" : "text-xs"
+                }`}
+            >
+                Dados
+            </span>
             {dice.map((d) => (
                 <Button
                     key={d.label}
                     size="sm"
                     variant="secondary"
-                    className="h-8 min-w-[3rem] font-bold text-primary hover:bg-primary/20"
+                    className={`font-bold text-primary hover:bg-primary/20 ${
+                        monitorMode ? "h-9 min-w-[3.35rem] text-sm" : "h-8 min-w-[3rem]"
+                    }`}
                     onClick={() => onRoll(d.value)}
                 >
                     {d.label}
@@ -35,7 +53,9 @@ function DiceTray({ onRoll }: { onRoll: (expression: string) => void }) {
             <div className="mx-2 h-6 w-px bg-white/10" />
             <Input
                 placeholder="Ex: 2d8+4"
-                className="h-8 w-24 border-white/10 bg-black/20 text-xs font-mono"
+                className={`border-white/10 bg-black/20 font-mono ${
+                    monitorMode ? "h-9 w-28 text-sm" : "h-8 w-24 text-xs"
+                }`}
                 onKeyDown={(e) => {
                     if (e.key === "Enter") {
                         onRoll(e.currentTarget.value);
@@ -51,6 +71,7 @@ type LiveWarRoomProps = {
     campaignId: string;
     campaignName?: string | null;
     isCombatActive?: boolean;
+    monitorMode?: boolean;
     narrativeContext?: {
         sceneTitle: string;
         subsceneTitle?: string | null;
@@ -78,6 +99,7 @@ export function LiveWarRoom({
     campaignId,
     campaignName,
     isCombatActive = false,
+    monitorMode = false,
     narrativeContext,
     combatTurn,
     mapTokens,
@@ -105,29 +127,41 @@ export function LiveWarRoom({
             />
 
             {!isCombatActive && narrativeContext?.sceneTitle ? (
-                <div className="pointer-events-none absolute left-4 top-4 z-30 rounded-xl border border-white/10 bg-black/60 px-3 py-2 backdrop-blur">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary/80">
+                <div
+                    className={`pointer-events-none absolute left-4 top-4 z-30 rounded-xl border border-white/10 bg-black/60 backdrop-blur ${
+                        monitorMode ? "px-4 py-3" : "px-3 py-2"
+                    }`}
+                >
+                    <p className={`${monitorMode ? "text-sm" : "text-xs"} font-semibold uppercase tracking-[0.16em] text-primary/80`}>
                         Cena ativa
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-foreground">{narrativeContext.sceneTitle}</p>
+                    <p className={`${monitorMode ? "text-base" : "text-sm"} mt-1 font-semibold text-foreground`}>
+                        {narrativeContext.sceneTitle}
+                    </p>
                     {narrativeContext.subsceneTitle ? (
-                        <p className="mt-1 text-xs text-muted-foreground">{narrativeContext.subsceneTitle}</p>
+                        <p className={`${monitorMode ? "text-sm" : "text-xs"} mt-1 text-muted-foreground`}>
+                            {narrativeContext.subsceneTitle}
+                        </p>
                     ) : null}
                 </div>
             ) : null}
 
             {isCombatActive && combatTurn ? (
-                <div className="absolute right-4 top-4 z-30 rounded-xl border border-red-500/30 bg-black/70 p-3 backdrop-blur">
+                <div
+                    className={`absolute right-4 top-4 z-30 rounded-xl border border-red-500/30 bg-black/70 backdrop-blur ${
+                        monitorMode ? "p-4" : "p-3"
+                    }`}
+                >
                     <div className="flex items-center justify-between gap-3">
-                        <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-red-300">
-                            <Swords className="h-3.5 w-3.5" />
+                        <p className={`inline-flex items-center gap-2 font-bold uppercase tracking-[0.16em] text-red-300 ${monitorMode ? "text-sm" : "text-xs"}`}>
+                            <Swords className={monitorMode ? "h-4 w-4" : "h-3.5 w-3.5"} />
                             Round {combatTurn.round}
                         </p>
                         <div className="flex items-center gap-1">
                             <Button
                                 size="icon"
                                 variant="outline"
-                                className="h-7 w-7 border-white/10 bg-white/5"
+                                className={`border-white/10 bg-white/5 ${monitorMode ? "h-8 w-8" : "h-7 w-7"}`}
                                 onClick={() => void onTurnPrev?.()}
                             >
                                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -135,22 +169,24 @@ export function LiveWarRoom({
                             <Button
                                 size="icon"
                                 variant="outline"
-                                className="h-7 w-7 border-white/10 bg-white/5"
+                                className={`border-white/10 bg-white/5 ${monitorMode ? "h-8 w-8" : "h-7 w-7"}`}
                                 onClick={() => void onTurnNext?.()}
                             >
                                 <ArrowRight className="h-3.5 w-3.5" />
                             </Button>
                         </div>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-foreground">{combatTurn.currentName}</p>
-                    <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-red-200/80">
+                    <p className={`${monitorMode ? "text-base" : "text-sm"} mt-2 font-semibold text-foreground`}>
+                        {combatTurn.currentName}
+                    </p>
+                    <p className={`${monitorMode ? "text-xs" : "text-[10px]"} mt-1 uppercase tracking-[0.16em] text-red-200/80`}>
                         {combatTurn.currentKind === "CHARACTER" ? "PC" : "Hostil"}
                     </p>
                 </div>
             ) : null}
 
             <div className="pointer-events-none z-10 mb-20 select-none text-center opacity-30">
-                <p className="text-[10px] font-light uppercase tracking-[0.2em] drop-shadow-md shadow-black">
+                <p className={`${monitorMode ? "text-xs" : "text-[10px]"} font-light uppercase tracking-[0.2em] drop-shadow-md shadow-black`}>
                     {isCombatActive
                         ? `Simulacao Tatica: ${campaignName ?? "Mesa ao vivo"}`
                         : campaignName ?? "Mesa ao vivo"}
@@ -159,6 +195,7 @@ export function LiveWarRoom({
 
             <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 shadow-2xl">
                 <DiceTray
+                    monitorMode={monitorMode}
                     onRoll={(expr) => {
                         const parts = expr.split("+");
                         const dicePart = parts[0] ?? "1d20";

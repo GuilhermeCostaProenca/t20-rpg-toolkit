@@ -94,8 +94,8 @@ Hoje a base ja existe, mas precisa consolidacao como cockpit do mestre.
 - [-] M1.4 Integrar mapa, timeline e consulta rapida sem poluicao
   Notas: `RPG-36` extraiu o bloco central de mapa/war room para `live-war-room`, isolando `InteractiveMap`, monitor de esquadra e bandeja de dados em um componente proprio.
 
-- [ ] M1.5 Garantir leitura clara em monitor de mesa
-  Notas:
+- [-] M1.5 Garantir leitura clara em monitor de mesa
+  Notas: `M1.5` adicionou `Modo monitor` persistido por campanha no cockpit da mesa, com toggle no header do sidebar e ganho de legibilidade (largura maior da coluna operacional, textos e controles ampliados no war room e overlays narrativo/tatico).
 
 ### Criterios de aceite da Frente M1
 - a tela da sessao parece central de operacao;

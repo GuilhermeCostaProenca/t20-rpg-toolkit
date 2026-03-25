@@ -153,6 +153,7 @@ export default function PlayPage() {
         combatUrl: "",
     });
     const [gmScratchpad, setGmScratchpad] = useState("");
+    const [monitorMode, setMonitorMode] = useState(false);
     const [flowChecklist, setFlowChecklist] = useState<LiveFlowChecklistState>(EMPTY_FLOW_CHECKLIST);
     const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
 
@@ -215,6 +216,17 @@ export default function PlayPage() {
         } catch (error) {
             console.error("Failed to load GM scratchpad", error);
             setGmScratchpad("");
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.monitor-mode.${campaignId}`);
+            setMonitorMode(saved === "true");
+        } catch (error) {
+            console.error("Failed to load monitor mode", error);
+            setMonitorMode(false);
         }
     }, [campaignId]);
 
@@ -954,6 +966,7 @@ export default function PlayPage() {
                 campaignId={campaignId}
                 campaignName={context?.campaign?.name}
                 isCombatActive={liveCombat?.isActive ?? false}
+                monitorMode={monitorMode}
                 narrativeContext={narrativeContext}
                 combatTurn={combatTurn}
                 mapTokens={mapTokens}
@@ -979,6 +992,7 @@ export default function PlayPage() {
                 currentPublicAsset={currentPublicAsset}
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
+                monitorMode={monitorMode}
                 soundtrack={soundtrack}
                 gmScratchpad={gmScratchpad}
                 flowChecklist={flowChecklist}
@@ -1002,6 +1016,19 @@ export default function PlayPage() {
                     window.open(`/app/worlds/${context.worldId}/map`, "_blank", "noopener,noreferrer");
                 }}
                 onSummarize={handleSummarize}
+                onToggleMonitorMode={() => {
+                    setMonitorMode((current) => {
+                        const next = !current;
+                        if (campaignId) {
+                            try {
+                                window.localStorage.setItem(`t20.live.monitor-mode.${campaignId}`, String(next));
+                            } catch (error) {
+                                console.error("Failed to persist monitor mode", error);
+                            }
+                        }
+                        return next;
+                    });
+                }}
                 onFocusScene={setFocusedSceneId}
                 onInspectEntity={setInspectId}
                 onReveal={(revealId) => void handleLiveReveal(revealId)}
