@@ -52,7 +52,15 @@ type EntityDetail = {
   images: EntityImage[];
   outgoingRelations: RelationEdge[];
   incomingRelations: RelationEdge[];
-  recentEvents: Array<{ id: string; type: string; text?: string | null; ts: string; visibility: string }>;
+  recentEvents: Array<{
+    id: string;
+    campaignId?: string | null;
+    type: string;
+    text?: string | null;
+    ts: string;
+    visibility: string;
+    meta?: Record<string, unknown> | null;
+  }>;
 };
 type CodexPayload = {
   world: { id: string; title: string; description?: string | null; campaigns: Campaign[] };
@@ -61,6 +69,45 @@ type CodexPayload = {
 
 const typeOptions = ["character", "npc", "faction", "house", "place", "artifact", "event"];
 
+function getMemoryChangeTypeLabel(event: { meta?: Record<string, unknown> | null }) {
+  const meta = event.meta && typeof event.meta === "object" ? event.meta : null;
+  const changeType = typeof meta?.changeType === "string" ? meta.changeType : null;
+  switch (changeType) {
+    case "status":
+      return "Mudanca de status";
+    case "alliance":
+      return "Alianca";
+    case "rupture":
+      return "Ruptura";
+    case "discovery":
+      return "Descoberta";
+    case "secret":
+      return "Segredo";
+    case "world_change":
+      return "Mudanca do mundo";
+    default:
+      return null;
+  }
+}
+
+function getMemoryChangeHighlight(event: { meta?: Record<string, unknown> | null }) {
+  const meta = event.meta && typeof event.meta === "object" ? event.meta : null;
+  const changeType = typeof meta?.changeType === "string" ? meta.changeType : null;
+  if (changeType === "status") {
+    return {
+      tone: "status",
+      label: "Status impactado",
+    } as const;
+  }
+  if (changeType === "alliance" || changeType === "rupture") {
+    return {
+      tone: "relation",
+      label: "Relacao impactada",
+    } as const;
+  }
+  return null;
+}
+
 function formatDate(value: string) {
   return new Date(value).toLocaleString("pt-BR", {
     day: "2-digit",
@@ -68,6 +115,15 @@ function formatDate(value: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function isInsideTimeWindow(value: string, window: "ALL" | "7D" | "30D" | "90D") {
+  if (window === "ALL") return true;
+  const eventTime = new Date(value).getTime();
+  if (Number.isNaN(eventTime)) return true;
+  const now = Date.now();
+  const days = window === "7D" ? 7 : window === "30D" ? 30 : 90;
+  return eventTime >= now - days * 24 * 60 * 60 * 1000;
 }
 
 export default function CodexEntityWorkspacePage() {
@@ -110,6 +166,8 @@ export default function CodexEntityWorkspacePage() {
     caption: "",
     sortOrder: "0",
   });
+  const [memoryCampaignFilter, setMemoryCampaignFilter] = useState("ALL");
+  const [memoryTimeFilter, setMemoryTimeFilter] = useState<"ALL" | "7D" | "30D" | "90D">("ALL");
   const [form, setForm] = useState({
     name: "",
     type: "npc",
@@ -396,6 +454,15 @@ export default function CodexEntityWorkspacePage() {
     () => (entity?.recentEvents ?? []).filter((event) => isMemoryWorldEvent(event)),
     [entity]
   );
+  const filteredMemoryTimeline = useMemo(
+    () =>
+      memoryTimeline.filter((event) => {
+        if (memoryCampaignFilter !== "ALL" && event.campaignId !== memoryCampaignFilter) return false;
+        if (!isInsideTimeWindow(event.ts, memoryTimeFilter)) return false;
+        return true;
+      }),
+    [memoryCampaignFilter, memoryTimeFilter, memoryTimeline]
+  );
 
   if (loading) {
     return (
@@ -629,7 +696,40 @@ export default function CodexEntityWorkspacePage() {
           <Card className="rounded-[28px] border-white/10 bg-card/70">
             <CardHeader><CardTitle className="text-xl font-black uppercase tracking-[0.04em]">Timeline da entidade</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              {memoryTimeline.length ? memoryTimeline.map((event) => (
+              {memoryTimeline.length ? (
+                <div className="rounded-2xl border border-white/10 bg-white/4 p-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <select
+                      className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                      value={memoryCampaignFilter}
+                      onChange={(event) => setMemoryCampaignFilter(event.target.value)}
+                    >
+                      <option value="ALL">Todas as campanhas</option>
+                      {(codex?.world.campaigns ?? []).map((campaign) => (
+                        <option key={campaign.id} value={campaign.id}>
+                          {campaign.name}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                      value={memoryTimeFilter}
+                      onChange={(event) =>
+                        setMemoryTimeFilter(event.target.value as "ALL" | "7D" | "30D" | "90D")
+                      }
+                    >
+                      <option value="ALL">Todo o periodo</option>
+                      <option value="7D">Ultimos 7 dias</option>
+                      <option value="30D">Ultimos 30 dias</option>
+                      <option value="90D">Ultimos 90 dias</option>
+                    </select>
+                  </div>
+                  <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    {filteredMemoryTimeline.length} eventos no recorte atual
+                  </p>
+                </div>
+              ) : null}
+              {filteredMemoryTimeline.length ? filteredMemoryTimeline.map((event) => (
                 <div key={event.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
                   <div className="flex flex-wrap gap-2">
                     <Badge
@@ -644,11 +744,31 @@ export default function CodexEntityWorkspacePage() {
                       {formatMemoryEventType(event.type)}
                     </Badge>
                     <Badge className="border-white/10 bg-black/25 text-white/75">{event.visibility}</Badge>
+                    {getMemoryChangeTypeLabel(event) ? (
+                      <Badge className="border-white/10 bg-black/25 text-white/75">
+                        {getMemoryChangeTypeLabel(event)}
+                      </Badge>
+                    ) : null}
                   </div>
                   <p className="mt-3 text-sm font-semibold text-foreground">{formatMemoryEventText(event)}</p>
+                  {getMemoryChangeHighlight(event) ? (
+                    <p
+                      className={
+                        getMemoryChangeHighlight(event)?.tone === "status"
+                          ? "mt-2 text-xs uppercase tracking-[0.16em] text-amber-100/80"
+                          : "mt-2 text-xs uppercase tracking-[0.16em] text-sky-100/80"
+                      }
+                    >
+                      {getMemoryChangeHighlight(event)?.label}
+                    </p>
+                  ) : null}
                   <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">{formatDate(event.ts)}</p>
                 </div>
-              )) : entity.recentEvents.length ? entity.recentEvents.map((event) => (
+              )) : memoryTimeline.length ? (
+                <div className="rounded-[24px] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-muted-foreground">
+                  Nenhum evento de memoria corresponde aos filtros atuais.
+                </div>
+              ) : entity.recentEvents.length ? entity.recentEvents.map((event) => (
                 <div key={event.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
                   <p className="text-sm font-semibold text-foreground">{event.text || event.type}</p>
                   <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">{formatDate(event.ts)} • {event.visibility}</p>

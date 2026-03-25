@@ -57,6 +57,7 @@ import {
   formatMemoryEventText,
   formatMemoryEventType,
   formatMemoryEventVisibility,
+  getMemoryEventLinkedEntityIds,
   getMemoryEventLinkedEntityCount,
   getMemoryEventSearchText,
   getMemoryEventTone,
@@ -150,6 +151,13 @@ type WorldEvent = {
   meta?: Record<string, unknown> | null;
 };
 
+type EntityRelationshipPreview = {
+  id: string;
+  type: string;
+  fromEntity: { id: string; name: string; type: string };
+  toEntity: { id: string; name: string; type: string };
+};
+
 const initialCharacter = {
   name: "",
   ancestry: "",
@@ -211,6 +219,14 @@ function formatDateTime(value: string | null | undefined) {
   });
 }
 
+function isInsideTimeWindow(value: string, window: "ALL" | "7D" | "30D" | "90D") {
+  if (window === "ALL") return true;
+  const eventTime = new Date(value).getTime();
+  if (Number.isNaN(eventTime)) return true;
+  const days = window === "7D" ? 7 : window === "30D" ? 30 : 90;
+  return eventTime >= Date.now() - days * 24 * 60 * 60 * 1000;
+}
+
 function getSessionTone(status?: Session["status"]) {
   switch (status) {
     case "active":
@@ -262,6 +278,7 @@ export default function CampaignPage() {
   const [memoryQuery, setMemoryQuery] = useState("");
   const [memoryVisibility, setMemoryVisibility] = useState<"ALL" | "MASTER" | "PLAYERS">("ALL");
   const [memoryTone, setMemoryTone] = useState<"ALL" | "summary" | "change" | "death" | "note">("ALL");
+  const [memoryTimeFilter, setMemoryTimeFilter] = useState<"ALL" | "7D" | "30D" | "90D">("ALL");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
@@ -289,6 +306,7 @@ export default function CampaignPage() {
   const [encounterSaving, setEncounterSaving] = useState(false);
   const [encounterSaveMessage, setEncounterSaveMessage] = useState<string | null>(null);
   const [encounterSaveError, setEncounterSaveError] = useState<string | null>(null);
+  const [worldRelationships, setWorldRelationships] = useState<EntityRelationshipPreview[]>([]);
 
   const loadData = useCallback(async (id: string) => {
     setLoading(true);
@@ -314,11 +332,24 @@ export default function CampaignPage() {
       if (!sessionRes.ok) throw new Error(sessionPayload.error ?? "Erro ao buscar sessoes");
       if (!npcRes.ok) throw new Error(npcPayload.error ?? "Erro ao buscar NPCs");
 
+      const worldId = campaignPayload?.data?.world?.id as string | undefined;
+      let relationshipItems: EntityRelationshipPreview[] = [];
+      if (worldId) {
+        const relationshipRes = await fetch(`/api/worlds/${worldId}/relationships`, {
+          cache: "no-store",
+        });
+        const relationshipPayload = await relationshipRes.json().catch(() => ({}));
+        if (relationshipRes.ok && Array.isArray(relationshipPayload?.data)) {
+          relationshipItems = relationshipPayload.data as EntityRelationshipPreview[];
+        }
+      }
+
       setCampaign(campaignPayload.data ?? null);
       setCharacters(characterPayload.data ?? []);
       setSessions(sessionPayload.data ?? []);
       setNpcs(npcPayload.data ?? []);
       setCombat(combatRes.ok ? (combatPayload.data ?? null) : null);
+      setWorldRelationships(relationshipItems);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro inesperado ao carregar");
     } finally {
@@ -369,19 +400,38 @@ export default function CampaignPage() {
     () => (campaign?.recentMemoryEvents ?? []).filter((event) => isMemoryWorldEvent(event)),
     [campaign?.recentMemoryEvents]
   );
+  const sessionMemoryEventsBySessionId = useMemo(() => {
+    const grouped = new Map<string, WorldEvent[]>();
+    for (const event of campaignMemoryEvents) {
+      if (!event.sessionId) continue;
+      const current = grouped.get(event.sessionId) ?? [];
+      current.push(event);
+      grouped.set(event.sessionId, current);
+    }
+    return grouped;
+  }, [campaignMemoryEvents]);
   const filteredCampaignMemoryEvents = useMemo(() => {
     const query = memoryQuery.trim().toLowerCase();
     return campaignMemoryEvents.filter((event) => {
       if (memoryVisibility !== "ALL" && event.visibility !== memoryVisibility) return false;
       if (memoryTone !== "ALL" && getMemoryEventTone(event) !== memoryTone) return false;
+      if (!isInsideTimeWindow(event.ts, memoryTimeFilter)) return false;
       if (query && !getMemoryEventSearchText(event).includes(query)) return false;
       return true;
     });
-  }, [campaignMemoryEvents, memoryQuery, memoryTone, memoryVisibility]);
+  }, [campaignMemoryEvents, memoryQuery, memoryTimeFilter, memoryTone, memoryVisibility]);
   const sessionTitleById = useMemo(
     () => new Map(sessions.map((session) => [session.id, session.title])),
     [sessions]
   );
+  const memoryInspectRelations = useMemo(() => {
+    if (inspectItem?.type !== "memory") return [];
+    const linked = new Set(getMemoryEventLinkedEntityIds(inspectItem.item));
+    if (linked.size === 0) return [];
+    return worldRelationships
+      .filter((relation) => linked.has(relation.fromEntity.id) || linked.has(relation.toEntity.id))
+      .slice(0, 6);
+  }, [inspectItem, worldRelationships]);
   const threatCount = useMemo(
     () => sortedNpcs.filter((npc) => npc.type === "enemy").length,
     [sortedNpcs]
@@ -1476,7 +1526,7 @@ export default function CampaignPage() {
                 {campaignMemoryEvents.length > 0 ? (
                   <div className="mt-4 space-y-4">
                     <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
-                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.3fr)_repeat(2,minmax(0,0.6fr))]">
+                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,0.6fr))]">
                         <Input
                           value={memoryQuery}
                           onChange={(event) => setMemoryQuery(event.target.value)}
@@ -1505,6 +1555,18 @@ export default function CampaignPage() {
                           <option value="change">Mudanca</option>
                           <option value="death">Morte</option>
                           <option value="note">Nota</option>
+                        </select>
+                        <select
+                          className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                          value={memoryTimeFilter}
+                          onChange={(event) =>
+                            setMemoryTimeFilter(event.target.value as "ALL" | "7D" | "30D" | "90D")
+                          }
+                        >
+                          <option value="ALL">Todo periodo</option>
+                          <option value="7D">Ultimos 7 dias</option>
+                          <option value="30D">Ultimos 30 dias</option>
+                          <option value="90D">Ultimos 90 dias</option>
                         </select>
                       </div>
                       <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
@@ -2108,6 +2170,26 @@ export default function CampaignPage() {
                       : undefined,
                   })}
                 </p>
+                {memoryInspectRelations.length > 0 ? (
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      Relacoes ligadas ao evento
+                    </p>
+                    <div className="mt-2 space-y-2">
+                      {memoryInspectRelations.map((relation) => (
+                        <p key={relation.id} className="text-sm text-foreground">
+                          <span className="font-semibold">{relation.fromEntity.name}</span>
+                          {" -> "}
+                          <span className="text-amber-100/90">
+                            {relation.type.replaceAll("_", " ")}
+                          </span>
+                          {" -> "}
+                          <span className="font-semibold">{relation.toEntity.name}</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="mt-4 flex flex-wrap gap-2">
                   {inspectItem.item.sessionId ? (
                     <Button
@@ -2131,6 +2213,18 @@ export default function CampaignPage() {
                     >
                       <Link href={`/app/campaign/${campaignId}/forge/${inspectItem.item.sessionId}`}>
                         Abrir forja da sessao
+                      </Link>
+                    </Button>
+                  ) : null}
+                  {memoryInspectRelations.length > 0 && campaign?.world?.id ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      asChild
+                    >
+                      <Link href={`/app/worlds/${campaign.world.id}/graph`}>
+                        Abrir grafo de relacoes
                       </Link>
                     </Button>
                   ) : null}
@@ -2182,7 +2276,24 @@ export default function CampaignPage() {
               </div>
               {(() => {
                 const memory = normalizeSessionForgeState(inspectItem.item.metadata).memory;
-                if (!memory.publicSummary && !memory.masterSummary) return null;
+                const persistedEvents =
+                  sessionMemoryEventsBySessionId.get(inspectItem.item.id) ?? [];
+                const affectedEntities = new Set<string>();
+                for (const event of persistedEvents) {
+                  for (const entityId of getMemoryEventLinkedEntityIds(event)) {
+                    affectedEntities.add(entityId);
+                  }
+                }
+                const deathEvents = persistedEvents.filter((event) => event.type === "NPC_DEATH").length;
+                const changeEvents = persistedEvents.filter((event) => event.type === "WORLD_CHANGE").length;
+
+                if (
+                  !memory.publicSummary &&
+                  !memory.masterSummary &&
+                  persistedEvents.length === 0
+                ) {
+                  return null;
+                }
                 return (
                   <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
                     <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Fechamento consolidado</p>
@@ -2196,6 +2307,27 @@ export default function CampaignPage() {
                       <div className="mt-3 space-y-2">
                         <Badge className="border-red-300/20 bg-red-300/10 text-red-100">Mestre</Badge>
                         <p className="text-sm leading-7 text-muted-foreground">{memory.masterSummary}</p>
+                      </div>
+                    ) : null}
+                    {persistedEvents.length > 0 ? (
+                      <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                          Continuidade refletida no mundo
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <Badge className="border-white/10 bg-black/25 text-white/75">
+                            {persistedEvents.length} eventos persistidos
+                          </Badge>
+                          <Badge className="border-white/10 bg-black/25 text-white/75">
+                            {changeEvents} mudancas
+                          </Badge>
+                          <Badge className="border-white/10 bg-black/25 text-white/75">
+                            {deathEvents} mortes
+                          </Badge>
+                          <Badge className="border-white/10 bg-black/25 text-white/75">
+                            {affectedEntities.size} entidades afetadas
+                          </Badge>
+                        </div>
                       </div>
                     ) : null}
                   </div>
