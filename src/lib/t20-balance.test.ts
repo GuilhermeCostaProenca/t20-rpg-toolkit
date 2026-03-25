@@ -139,5 +139,7 @@ describe("analyzeT20Encounter - non-trivial compositions", () => {
     expect(uncertain.uncertaintySignals.length).toBeGreaterThan(0);
     expect(uncertain.uncertaintySignals.some((signal) => signal.code === "missing_enemy_stats")).toBe(true);
     expect(uncertain.uncertaintySignals.some((signal) => signal.code === "missing_roles")).toBe(true);
+    expect(uncertain.dataGaps.severity).not.toBe("none");
+    expect(uncertain.partySummary.length).toBeGreaterThan(0);
   });
 });
