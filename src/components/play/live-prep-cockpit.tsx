@@ -422,6 +422,11 @@ function getPublicAdvanceCue(
   };
 }
 
+function isPlayerCombatantKind(kind?: string | null) {
+  const normalized = (kind ?? "").trim().toUpperCase();
+  return normalized === "CHARACTER" || normalized === "PLAYER" || normalized === "PC";
+}
+
 export function LivePrepCockpit({
   worldId,
   campaignId,
@@ -1218,7 +1223,7 @@ export function LivePrepCockpit({
                       {liveCombat.combatants.map((combatant) => {
                         const hpRatio =
                           combatant.hpMax > 0 ? combatant.hpCurrent / combatant.hpMax : 0;
-                        const isPlayer = combatant.kind === "player";
+                        const isPlayer = isPlayerCombatantKind(combatant.kind);
                         const linkedEnemy = activeEncounter?.enemies.find(
                           (e) =>
                             e.npcId &&
