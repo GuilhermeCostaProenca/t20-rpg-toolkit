@@ -62,8 +62,8 @@ Esta frente depende de:
 - [-] F2. Fechar estrutura de roteiro e cenas
   Notas: `GUI-40` agora sustenta `beats`, `cenas` e `subcenas` dentro de `Session.metadata.forge`, com reordenacao, vinculacao a entidades, ligacao de reveals e reaproveitamento de beats como base narrativa. Ainda falta aprofundar a navegacao e ligar isso mais diretamente a mesa ao vivo.
 
-- [-] F3. Fechar ganchos, segredos e revelacoes
-  Notas: `GUI-40` ja suporta ganchos, segredos e revelacoes dentro de `Session.metadata.forge`, com status (`planned`, `executed`, `delayed`, `canceled`). Revelacoes ja podem ser enviadas direto para a mesa pela propria forja usando `roomCode`; ainda faltam visibilidade mais forte e ligacao mais profunda com assets visuais.
+- [x] F3. Fechar ganchos, segredos e revelacoes
+  Notas: `GUI-40` ja suporta ganchos, segredos e revelacoes dentro de `Session.metadata.forge`, com status (`planned`, `executed`, `delayed`, `canceled`). A visibilidade operacional foi fechada com a sequencia `RPG-102`, `RPG-106`, `RPG-141`, `RPG-142`, `RPG-143`, `RPG-144` e `RPG-145`.
 
 - [-] F4. Integrar entidades e referencias visuais ao preparo
   Notas: `GUI-40` agora ja permite ligar imagem real a `reveals` da sessao e reaproveitar retrato/capa de entidades do Codex sem sair da forja. `RPG-27` acrescentou `encontros preparados` vindos da campanha e ligados opcionalmente a cenas da sessao. Ainda faltam assets mais ricos da biblioteca visual e ligacao mais forte por cena.
@@ -141,7 +141,7 @@ Esses elementos sao centrais para narracao e precisam ser tratados explicitament
 - [x] F3.3 Criar suporte a revelacoes planejadas
   Notas: `reveals` agora podem ser preparados no mesmo workspace da sessao.
 
-- [-] F3.4 Definir visibilidade e uso pelo mestre
+- [x] F3.4 Definir visibilidade e uso pelo mestre
   Notas: O recorte atual ja separa estruturalmente esses itens no workspace do mestre, e `reveals` ja podem ser enviados para a mesa ao vivo. `RPG-102` adicionou filtro operacional por status na camada dramatica (`all/planned/executed/delayed/canceled`) para leitura rapida de uso em mesa. `RPG-106` acrescentou contadores por status no proprio filtro, consolidando hooks+segredos+revelacoes para leitura situacional imediata. `RPG-141` adicionou busca textual na camada dramatica (titulo/notas), combinada com status, para localizar rapidamente itens durante preparo e operacao. `RPG-142` adicionou filtro por colecao (`ganchos`, `segredos`, `revelacoes`) combinado com status e busca, reduzindo ruido visual na triagem operacional. `RPG-143` adicionou acao `Limpar filtros` contextual na camada dramatica para reset rapido (colecao, status e busca) sem retrabalho manual. `RPG-144` adicionou contadores por coluna no formato `visiveis/total` para leitura imediata do impacto dos filtros. `RPG-145` corrigiu o estado vazio para considerar qualquer filtro ativo (colecao/status/busca), evitando mensagem enganosa de coluna vazia.
 
 - [x] F3.5 Definir estados de executado, adiado e cancelado
