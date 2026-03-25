@@ -487,6 +487,7 @@ export default function SessionForgePage() {
   const [revealAssetKindFilter, setRevealAssetKindFilter] = useState<"all" | string>("all");
   const [revealAssetSearchQuery, setRevealAssetSearchQuery] = useState("");
   const [collapsedSceneIds, setCollapsedSceneIds] = useState<Set<string>>(new Set());
+  const [collapsedSubsceneIds, setCollapsedSubsceneIds] = useState<Set<string>>(new Set());
 
   const loadWorkspace = useCallback(async () => {
     if (!campaignId) return;
@@ -619,6 +620,22 @@ export default function SessionForgePage() {
       const next = new Set<string>();
       for (const sceneId of current) {
         if (validSceneIds.has(sceneId)) next.add(sceneId);
+      }
+      return next;
+    });
+  }, [forge.scenes]);
+
+  useEffect(() => {
+    setCollapsedSubsceneIds((current) => {
+      if (current.size === 0) return current;
+      const validSubsceneIds = new Set(
+        forge.scenes.flatMap((scene) =>
+          scene.subscenes.map((subscene) => `${scene.id}:${subscene.id}`)
+        )
+      );
+      const next = new Set<string>();
+      for (const subsceneKey of current) {
+        if (validSubsceneIds.has(subsceneKey)) next.add(subsceneKey);
       }
       return next;
     });
@@ -1628,30 +1645,105 @@ export default function SessionForgePage() {
                             Quebre a cena em entradas menores, improvisos guiados ou viradas de ritmo.
                           </p>
                         </div>
-                        <Button
-                          variant="outline"
-                          className="border-white/10 bg-white/5"
-                          onClick={() =>
-                            updateScene(scene.id, (current) => ({
-                              ...current,
-                              subscenes: [...current.subscenes, buildSubscene()],
-                            }))
-                          }
-                        >
-                          <Plus className="mr-2 h-4 w-4" />
-                          Nova subcena
-                        </Button>
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="border-white/10 bg-white/5"
+                            onClick={() =>
+                              setCollapsedSubsceneIds((current) => {
+                                const next = new Set(current);
+                                for (const subscene of scene.subscenes) {
+                                  next.add(`${scene.id}:${subscene.id}`);
+                                }
+                                return next;
+                              })
+                            }
+                            disabled={
+                              scene.subscenes.length === 0 ||
+                              scene.subscenes.every((subscene) =>
+                                collapsedSubsceneIds.has(`${scene.id}:${subscene.id}`)
+                              )
+                            }
+                          >
+                            Recolher todas
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="border-white/10 bg-white/5"
+                            onClick={() =>
+                              setCollapsedSubsceneIds((current) => {
+                                const next = new Set(current);
+                                for (const subscene of scene.subscenes) {
+                                  next.delete(`${scene.id}:${subscene.id}`);
+                                }
+                                return next;
+                              })
+                            }
+                            disabled={
+                              !scene.subscenes.some((subscene) =>
+                                collapsedSubsceneIds.has(`${scene.id}:${subscene.id}`)
+                              )
+                            }
+                          >
+                            Expandir todas
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="border-white/10 bg-white/5"
+                            onClick={() =>
+                              updateScene(scene.id, (current) => ({
+                                ...current,
+                                subscenes: [...current.subscenes, buildSubscene()],
+                              }))
+                            }
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Nova subcena
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="mt-4 space-y-3">
                         {scene.subscenes.length > 0 ? (
-                          scene.subscenes.map((subscene, subsceneIndex) => (
+                          scene.subscenes.map((subscene, subsceneIndex) => {
+                            const subsceneCollapseKey = `${scene.id}:${subscene.id}`;
+                            const isSubsceneCollapsed = collapsedSubsceneIds.has(subsceneCollapseKey);
+                            return (
                             <div key={subscene.id} className="rounded-[20px] border border-white/8 bg-white/4 p-4">
                               <div className="flex flex-wrap items-center justify-between gap-3">
                                 <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
                                   Subcena {sceneIndex + 1}.{subsceneIndex + 1}
                                 </p>
                                 <div className="flex flex-wrap gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="border-white/10 bg-white/5"
+                                    onClick={() =>
+                                      setCollapsedSubsceneIds((current) => {
+                                        const next = new Set(current);
+                                        if (next.has(subsceneCollapseKey)) next.delete(subsceneCollapseKey);
+                                        else next.add(subsceneCollapseKey);
+                                        return next;
+                                      })
+                                    }
+                                  >
+                                    {isSubsceneCollapsed ? (
+                                      <>
+                                        <ChevronDown className="mr-2 h-4 w-4" />
+                                        Expandir
+                                      </>
+                                    ) : (
+                                      <>
+                                        <ChevronUp className="mr-2 h-4 w-4" />
+                                        Recolher
+                                      </>
+                                    )}
+                                  </Button>
                                   <Button asChild variant="outline" className="border-white/10 bg-white/5">
                                     <Link
                                       href={buildLiveTableHref(
@@ -1741,7 +1833,18 @@ export default function SessionForgePage() {
                                 </div>
                               </div>
 
-                              <div className="mt-3 grid gap-3">
+                              {isSubsceneCollapsed ? (
+                                <div className="mt-3 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-muted-foreground">
+                                  <span className="font-semibold uppercase tracking-[0.14em] text-white/70">
+                                    {subscene.status}
+                                  </span>
+                                  <span className="mx-2 text-white/30">|</span>
+                                  <span>{subscene.linkedEntityIds.length} entidades</span>
+                                  <span className="mx-2 text-white/30">|</span>
+                                  <span>{subscene.linkedRevealIds.length} reveals</span>
+                                </div>
+                              ) : null}
+                              <div className={`mt-3 grid gap-3 ${isSubsceneCollapsed ? "hidden" : ""}`}>
                                 <Input
                                   value={subscene.title}
                                   onChange={(event) =>
@@ -2026,7 +2129,8 @@ export default function SessionForgePage() {
                                 })()}
                               </div>
                             </div>
-                          ))
+                          );
+                          })
                         ) : (
                           <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-muted-foreground">
                             Nenhuma subcena ainda.
