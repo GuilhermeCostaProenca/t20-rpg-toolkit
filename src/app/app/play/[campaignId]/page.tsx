@@ -25,6 +25,7 @@ import type {
 } from "@/lib/live-combat";
 import {
     LIVE_COMBAT_POLL_MS,
+    LIVE_PARTY_POLL_MS,
     LIVE_SPAWN_STATUS_MS,
     getCampaignCombatPath,
     getCampaignCombatantsPath,
@@ -78,6 +79,28 @@ type SessionSoundtrack = {
     combatUrl: string;
 };
 
+type LivePartyStatusSnapshot = {
+    total: number;
+    downed: number;
+    lowHp: number;
+    lowPm: number;
+    lowSan: number;
+    avgHpPercent: number;
+    avgPmPercent: number;
+    avgSanPercent: number;
+};
+
+const EMPTY_PARTY_STATUS: LivePartyStatusSnapshot = {
+    total: 0,
+    downed: 0,
+    lowHp: 0,
+    lowPm: 0,
+    lowSan: 0,
+    avgHpPercent: 0,
+    avgPmPercent: 0,
+    avgSanPercent: 0,
+};
+
 export default function PlayPage() {
     const params = useParams();
     const router = useRouter();
@@ -113,6 +136,7 @@ export default function PlayPage() {
         ambientUrl: "",
         combatUrl: "",
     });
+    const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
 
     const loadLiveCombat = useCallback(async () => {
         if (!campaignId) return;
@@ -316,6 +340,74 @@ export default function PlayPage() {
             clearInterval(interval);
         };
     }, [campaignId, loadLiveCombat]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+
+        const pollPartyStatus = async () => {
+            try {
+                const response = await fetch(`/api/characters?campaignId=${campaignId}&withSheet=true`, {
+                    cache: "no-store",
+                });
+                const json = await response.json();
+                const characters = (json.data as CampaignCharacter[] | undefined) ?? [];
+                if (characters.length === 0) {
+                    setPartyStatus(EMPTY_PARTY_STATUS);
+                    return;
+                }
+
+                const hpRatios = characters.map((character) => {
+                    const current = character.sheet?.pvCurrent ?? 0;
+                    const max = Math.max(1, character.sheet?.pvMax ?? 1);
+                    return current / max;
+                });
+                const pmRatios = characters.map((character) => {
+                    const current = character.sheet?.pmCurrent ?? 0;
+                    const max = Math.max(1, character.sheet?.pmMax ?? 1);
+                    return current / max;
+                });
+                const sanRatios = characters.map((character) => {
+                    const current = character.sheet?.sanCurrent ?? 0;
+                    const max = Math.max(1, character.sheet?.sanMax ?? 1);
+                    return current / max;
+                });
+
+                const average = (values: number[]) =>
+                    values.length > 0
+                        ? Math.round((values.reduce((acc, value) => acc + value, 0) / values.length) * 100)
+                        : 0;
+
+                setPartyStatus({
+                    total: characters.length,
+                    downed: characters.filter((character) => (character.sheet?.pvCurrent ?? 0) <= 0).length,
+                    lowHp: characters.filter((character) => {
+                        const max = Math.max(1, character.sheet?.pvMax ?? 1);
+                        return (character.sheet?.pvCurrent ?? 0) / max <= 0.35;
+                    }).length,
+                    lowPm: characters.filter((character) => {
+                        const max = Math.max(1, character.sheet?.pmMax ?? 1);
+                        return (character.sheet?.pmCurrent ?? 0) / max <= 0.35;
+                    }).length,
+                    lowSan: characters.filter((character) => {
+                        const max = Math.max(1, character.sheet?.sanMax ?? 1);
+                        return (character.sheet?.sanCurrent ?? 0) / max <= 0.35;
+                    }).length,
+                    avgHpPercent: average(hpRatios),
+                    avgPmPercent: average(pmRatios),
+                    avgSanPercent: average(sanRatios),
+                });
+            } catch (error) {
+                console.error("Party status poll failed", error);
+            }
+        };
+
+        void pollPartyStatus();
+        const interval = setInterval(() => {
+            void pollPartyStatus();
+        }, LIVE_PARTY_POLL_MS);
+
+        return () => clearInterval(interval);
+    }, [campaignId]);
 
     useEffect(() => {
         if (!context?.worldId) return;
@@ -782,6 +874,7 @@ export default function PlayPage() {
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
                 soundtrack={soundtrack}
+                partyStatus={partyStatus}
                 revealingId={revealingId}
                 secondScreenReady={Boolean(context.campaign.roomCode)}
                 activeInspectEntityId={inspectId}

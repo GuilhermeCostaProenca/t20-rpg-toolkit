@@ -69,6 +69,7 @@ export type RemoveConditionPayload = {
 };
 
 export const LIVE_COMBAT_POLL_MS = 4000;
+export const LIVE_PARTY_POLL_MS = 8000;
 export const SQUAD_MONITOR_POLL_MS = 5000;
 export const LIVE_SPAWN_STATUS_MS = 5000;
 export const CONDITION_APPLY_COOLDOWN_MS = 900;

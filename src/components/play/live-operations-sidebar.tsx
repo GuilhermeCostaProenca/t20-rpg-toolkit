@@ -6,6 +6,7 @@ import { BookOpen, Map as MapIcon } from "lucide-react";
 import { CombatTracker } from "@/components/play/combat-tracker";
 import { LiveCodexInspect, type LiveCodexEntity, type LiveEntityDetail } from "@/components/play/live-codex-inspect";
 import { LiveHistoryChatStack } from "@/components/play/live-history-chat-stack";
+import { LivePartyStatus } from "@/components/play/live-party-status";
 import { LivePrepCockpit } from "@/components/play/live-prep-cockpit";
 import { LiveSessionSoundtrack } from "@/components/play/live-session-soundtrack";
 import { Badge } from "@/components/ui/badge";
@@ -66,6 +67,16 @@ type LiveOperationsSidebarProps = {
         ambientUrl: string;
         combatUrl: string;
     };
+    partyStatus: {
+        total: number;
+        downed: number;
+        lowHp: number;
+        lowPm: number;
+        lowSan: number;
+        avgHpPercent: number;
+        avgPmPercent: number;
+        avgSanPercent: number;
+    };
     revealingId: string | null;
     secondScreenReady: boolean;
     activeInspectEntityId: string | null;
@@ -115,6 +126,7 @@ export function LiveOperationsSidebar({
     sceneVisualEntities,
     liveCombat,
     soundtrack,
+    partyStatus,
     revealingId,
     secondScreenReady,
     activeInspectEntityId,
@@ -178,6 +190,10 @@ export function LiveOperationsSidebar({
                     liveCombat={liveCombat}
                     onCombatChange={onCombatChange}
                 />
+            </div>
+
+            <div className="px-3 pt-3">
+                <LivePartyStatus {...partyStatus} />
             </div>
 
             <div className="px-3 pt-3">

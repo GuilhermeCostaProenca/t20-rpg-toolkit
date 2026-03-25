@@ -196,8 +196,8 @@ Operar a mesa nao e so combate e reveal; envolve trilha, estado de ficha e apoio
 - [-] M5.1 Definir superficie para trilha e playlist da sessao
   Notas: `M5.1` adicionou o card `Trilha da sessao` no sidebar ao vivo com slots separados de URL (`Ambiental` e `Combate`), abertura rapida por modo atual da mesa e persistencia local por campanha (`localStorage`) para reduzir troca de contexto durante operacao.
 
-- [ ] M5.2 Integrar o estado operacional de PCs e NPCs
-  Notas:
+- [-] M5.2 Integrar o estado operacional de PCs e NPCs
+  Notas: `M5.2` adicionou o card `Estado da mesa` na sidebar ao vivo, com resumo de PCs (HP/PM/SAN medio, caidos e faixas baixas) polled de `/api/characters?campaignId=...&withSheet=true`, mantendo leitura operacional tambem fora do modo tatico.
 
 - [ ] M5.3 Permitir ficha rapida e acesso a NPCs improvisados
   Notas:
