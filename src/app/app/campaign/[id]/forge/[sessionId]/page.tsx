@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   Eye,
+  GripVertical,
   LayoutGrid,
   ArrowDown,
   ArrowUp,
@@ -427,6 +428,16 @@ function moveItemToTop<T>(items: T[], fromIndex: number) {
   return next;
 }
 
+function moveItemById<T extends { id: string }>(items: T[], sourceId: string, targetId: string) {
+  const sourceIndex = items.findIndex((item) => item.id === sourceId);
+  const targetIndex = items.findIndex((item) => item.id === targetId);
+  if (sourceIndex === -1 || targetIndex === -1 || sourceIndex === targetIndex) return items;
+  const next = [...items];
+  const [moved] = next.splice(sourceIndex, 1);
+  next.splice(targetIndex, 0, moved);
+  return next;
+}
+
 function buildLiveTableHref(
   campaignId: string,
   sessionId: string,
@@ -490,6 +501,10 @@ export default function SessionForgePage() {
   const [collapsedSceneIds, setCollapsedSceneIds] = useState<Set<string>>(new Set());
   const [collapsedSubsceneIds, setCollapsedSubsceneIds] = useState<Set<string>>(new Set());
   const [activeSceneRailId, setActiveSceneRailId] = useState<string | null>(null);
+  const [draggedSceneId, setDraggedSceneId] = useState<string | null>(null);
+  const [sceneDropTargetId, setSceneDropTargetId] = useState<string | null>(null);
+  const [draggedSubsceneKey, setDraggedSubsceneKey] = useState<string | null>(null);
+  const [subsceneDropTargetKey, setSubsceneDropTargetKey] = useState<string | null>(null);
 
   const loadWorkspace = useCallback(async () => {
     if (!campaignId) return;
@@ -959,6 +974,32 @@ export default function SessionForgePage() {
     jumpToSceneCard(nextScene.id);
   }, [activeSceneRailIndex, forge.scenes, jumpToSceneCard]);
 
+  const handleDropScene = useCallback((targetSceneId: string) => {
+    const sourceSceneId = draggedSceneId;
+    setDraggedSceneId(null);
+    setSceneDropTargetId(null);
+    if (!sourceSceneId || sourceSceneId === targetSceneId) return;
+    setForge((current) => ({
+      ...current,
+      scenes: moveItemById(current.scenes, sourceSceneId, targetSceneId),
+    }));
+    setActiveSceneRailId(sourceSceneId);
+  }, [draggedSceneId]);
+
+  const handleDropSubscene = useCallback((sceneId: string, targetSubsceneId: string) => {
+    const sourceKey = draggedSubsceneKey;
+    setDraggedSubsceneKey(null);
+    setSubsceneDropTargetKey(null);
+    if (!sourceKey) return;
+    const [sourceSceneId, sourceSubsceneId] = sourceKey.split(":");
+    if (!sourceSceneId || !sourceSubsceneId) return;
+    if (sourceSceneId !== sceneId || sourceSubsceneId === targetSubsceneId) return;
+    updateScene(sceneId, (current) => ({
+      ...current,
+      subscenes: moveItemById(current.subscenes, sourceSubsceneId, targetSubsceneId),
+    }));
+  }, [draggedSubsceneKey]);
+
   useEffect(() => {
     if (typeof window === "undefined" || forge.scenes.length === 0) return;
 
@@ -1346,8 +1387,27 @@ export default function SessionForgePage() {
                     id={`forge-scene-${scene.id}`}
                     data-scene-id={scene.id}
                     key={scene.id}
-                    className="rounded-[24px] border border-white/10 bg-white/4 p-4"
+                    className={`rounded-[24px] border bg-white/4 p-4 ${
+                      draggedSceneId && sceneDropTargetId === scene.id && draggedSceneId !== scene.id
+                        ? "border-primary/35 ring-1 ring-primary/35"
+                        : "border-white/10"
+                    }`}
                     onClick={() => setActiveSceneRailId(scene.id)}
+                    onDragOver={(event) => {
+                      if (!draggedSceneId || draggedSceneId === scene.id) return;
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "move";
+                      setSceneDropTargetId(scene.id);
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      void handleDropScene(scene.id);
+                    }}
+                    onDragLeave={() => {
+                      if (sceneDropTargetId === scene.id) {
+                        setSceneDropTargetId(null);
+                      }
+                    }}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
@@ -1359,6 +1419,25 @@ export default function SessionForgePage() {
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          draggable
+                          onDragStart={(event) => {
+                            event.dataTransfer.setData("text/plain", scene.id);
+                            event.dataTransfer.effectAllowed = "move";
+                            setDraggedSceneId(scene.id);
+                            setSceneDropTargetId(null);
+                          }}
+                          onDragEnd={() => {
+                            setDraggedSceneId(null);
+                            setSceneDropTargetId(null);
+                          }}
+                        >
+                          <GripVertical className="mr-2 h-4 w-4" />
+                          Arrastar
+                        </Button>
                         <Button
                           type="button"
                           variant="outline"
@@ -1841,12 +1920,56 @@ export default function SessionForgePage() {
                             const subsceneCollapseKey = `${scene.id}:${subscene.id}`;
                             const isSubsceneCollapsed = collapsedSubsceneIds.has(subsceneCollapseKey);
                             return (
-                            <div key={subscene.id} className="rounded-[20px] border border-white/8 bg-white/4 p-4">
+                            <div
+                              key={subscene.id}
+                              className={`rounded-[20px] border bg-white/4 p-4 ${
+                                draggedSubsceneKey &&
+                                subsceneDropTargetKey === subsceneCollapseKey &&
+                                draggedSubsceneKey !== subsceneCollapseKey
+                                  ? "border-primary/35 ring-1 ring-primary/35"
+                                  : "border-white/8"
+                              }`}
+                              onDragOver={(event) => {
+                                if (!draggedSubsceneKey || !draggedSubsceneKey.startsWith(`${scene.id}:`)) return;
+                                if (draggedSubsceneKey === subsceneCollapseKey) return;
+                                event.preventDefault();
+                                event.dataTransfer.dropEffect = "move";
+                                setSubsceneDropTargetKey(subsceneCollapseKey);
+                              }}
+                              onDrop={(event) => {
+                                event.preventDefault();
+                                void handleDropSubscene(scene.id, subscene.id);
+                              }}
+                              onDragLeave={() => {
+                                if (subsceneDropTargetKey === subsceneCollapseKey) {
+                                  setSubsceneDropTargetKey(null);
+                                }
+                              }}
+                            >
                               <div className="flex flex-wrap items-center justify-between gap-3">
                                 <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
                                   Subcena {sceneIndex + 1}.{subsceneIndex + 1}
                                 </p>
                                 <div className="flex flex-wrap gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="border-white/10 bg-white/5"
+                                    draggable
+                                    onDragStart={(event) => {
+                                      event.dataTransfer.setData("text/plain", subsceneCollapseKey);
+                                      event.dataTransfer.effectAllowed = "move";
+                                      setDraggedSubsceneKey(subsceneCollapseKey);
+                                      setSubsceneDropTargetKey(null);
+                                    }}
+                                    onDragEnd={() => {
+                                      setDraggedSubsceneKey(null);
+                                      setSubsceneDropTargetKey(null);
+                                    }}
+                                  >
+                                    <GripVertical className="mr-2 h-4 w-4" />
+                                    Arrastar
+                                  </Button>
                                   <Button
                                     type="button"
                                     variant="outline"
