@@ -168,8 +168,8 @@ A forja nao pode ser uma ilha.
 - [ ] F4.3 Permitir preparar reveals ligados a cena
   Notas: Cenas e subcenas ja prendem `reveals` por ID; esses reveals agora podem inclusive ser enviados para a mesa.
 
-- [ ] F4.4 Permitir referencia cruzada para lugar, faccao e personagem
-  Notas:
+- [-] F4.4 Permitir referencia cruzada para lugar, faccao e personagem
+  Notas: `RPG-95` adicionou atalhos de referencia cruzada por tipo (personagem, NPC, faccao, casa e lugar) dentro dos blocos de cena e subcena, abrindo o Codex ja filtrado para consulta rapida durante o preparo.
 
 - [-] F4.5 Garantir consulta rapida do mundo durante o preparo
   Notas: A forja agora sobe `pacote operacional` e `pacote visual da mesa` no proprio workspace, reduzindo a necessidade de sair da sessao para consultar o essencial. `RPG-94` adicionou atalhos de consulta direta para o Codex a partir das entidades ja vinculadas em cena e subcena.

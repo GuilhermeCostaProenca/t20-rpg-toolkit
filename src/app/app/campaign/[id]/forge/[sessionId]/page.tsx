@@ -430,6 +430,12 @@ function buildLiveTableHref(
   return `/app/play/${campaignId}${suffix ? `?${suffix}` : ""}`;
 }
 
+function buildCodexTypeHref(worldId: string, type: string) {
+  const search = new URLSearchParams();
+  search.set("type", type);
+  return `/app/worlds/${worldId}/codex?${search.toString()}`;
+}
+
 function getLoreScore(doc: LoreDoc, entities: CodexEntity[], campaignId: string) {
   const meta = parseLoreTextIndex(doc.textIndex);
   const linked = meta.linkedEntityIds
@@ -1167,6 +1173,33 @@ export default function SessionForgePage() {
                               ))}
                           </div>
                         ) : null}
+                        <div className="flex flex-wrap gap-2">
+                          <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                            <Link href={buildCodexTypeHref(campaign.world.id, "character")}>
+                              Personagens
+                            </Link>
+                          </Button>
+                          <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                            <Link href={buildCodexTypeHref(campaign.world.id, "npc")}>
+                              NPCs
+                            </Link>
+                          </Button>
+                          <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                            <Link href={buildCodexTypeHref(campaign.world.id, "faction")}>
+                              Faccoes
+                            </Link>
+                          </Button>
+                          <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                            <Link href={buildCodexTypeHref(campaign.world.id, "house")}>
+                              Casas
+                            </Link>
+                          </Button>
+                          <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                            <Link href={buildCodexTypeHref(campaign.world.id, "place")}>
+                              Lugares
+                            </Link>
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="space-y-2">
@@ -1386,6 +1419,33 @@ export default function SessionForgePage() {
                                         ))}
                                     </div>
                                   ) : null}
+                                  <div className="flex flex-wrap gap-2">
+                                    <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                                      <Link href={buildCodexTypeHref(campaign.world.id, "character")}>
+                                        Personagens
+                                      </Link>
+                                    </Button>
+                                    <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                                      <Link href={buildCodexTypeHref(campaign.world.id, "npc")}>
+                                        NPCs
+                                      </Link>
+                                    </Button>
+                                    <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                                      <Link href={buildCodexTypeHref(campaign.world.id, "faction")}>
+                                        Faccoes
+                                      </Link>
+                                    </Button>
+                                    <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                                      <Link href={buildCodexTypeHref(campaign.world.id, "house")}>
+                                        Casas
+                                      </Link>
+                                    </Button>
+                                    <Button asChild size="sm" variant="outline" className="border-white/10 bg-black/30">
+                                      <Link href={buildCodexTypeHref(campaign.world.id, "place")}>
+                                        Lugares
+                                      </Link>
+                                    </Button>
+                                  </div>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                   {forge.reveals.length > 0 ? (
