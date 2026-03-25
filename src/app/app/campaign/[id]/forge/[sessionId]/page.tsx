@@ -1508,6 +1508,19 @@ export default function SessionForgePage() {
                                     onClick={() =>
                                       updateScene(scene.id, (current) => ({
                                         ...current,
+                                        subscenes: moveItemToTop(current.subscenes, subsceneIndex),
+                                      }))
+                                    }
+                                    disabled={subsceneIndex === 0}
+                                  >
+                                    Topo
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    className="border-white/10 bg-white/5"
+                                    onClick={() =>
+                                      updateScene(scene.id, (current) => ({
+                                        ...current,
                                         subscenes: moveItem(current.subscenes, subsceneIndex, "up"),
                                       }))
                                     }
