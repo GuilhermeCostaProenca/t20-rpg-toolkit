@@ -447,6 +447,15 @@ function moveItemToEndById<T extends { id: string }>(items: T[], sourceId: strin
   return next;
 }
 
+function moveItemToStartById<T extends { id: string }>(items: T[], sourceId: string) {
+  const sourceIndex = items.findIndex((item) => item.id === sourceId);
+  if (sourceIndex <= 0) return items;
+  const next = [...items];
+  const [moved] = next.splice(sourceIndex, 1);
+  next.unshift(moved);
+  return next;
+}
+
 function buildLiveTableHref(
   campaignId: string,
   sessionId: string,
@@ -1015,6 +1024,17 @@ export default function SessionForgePage() {
     }));
     setActiveSceneRailId(sourceSceneId);
   }, [draggedSceneId]);
+  const handleDropSceneToStart = useCallback(() => {
+    const sourceSceneId = draggedSceneId;
+    setDraggedSceneId(null);
+    setSceneDropTargetId(null);
+    if (!sourceSceneId) return;
+    setForge((current) => ({
+      ...current,
+      scenes: moveItemToStartById(current.scenes, sourceSceneId),
+    }));
+    setActiveSceneRailId(sourceSceneId);
+  }, [draggedSceneId]);
   const handleDropSceneToEnd = useCallback(() => {
     const sourceSceneId = draggedSceneId;
     setDraggedSceneId(null);
@@ -1038,6 +1058,19 @@ export default function SessionForgePage() {
     updateScene(sceneId, (current) => ({
       ...current,
       subscenes: moveItemById(current.subscenes, sourceSubsceneId, targetSubsceneId),
+    }));
+  }, [draggedSubsceneKey]);
+  const handleDropSubsceneToStart = useCallback((sceneId: string) => {
+    const sourceKey = draggedSubsceneKey;
+    setDraggedSubsceneKey(null);
+    setSubsceneDropTargetKey(null);
+    if (!sourceKey) return;
+    const [sourceSceneId, sourceSubsceneId] = sourceKey.split(":");
+    if (!sourceSceneId || !sourceSubsceneId) return;
+    if (sourceSceneId !== sceneId) return;
+    updateScene(sceneId, (current) => ({
+      ...current,
+      subscenes: moveItemToStartById(current.subscenes, sourceSubsceneId),
     }));
   }, [draggedSubsceneKey]);
   const handleDropSubsceneToEnd = useCallback((sceneId: string) => {
@@ -1434,6 +1467,31 @@ export default function SessionForgePage() {
                     Expandir todas
                   </Button>
                 </div>
+                {draggedSceneId ? (
+                  <div
+                    className={`rounded-2xl border border-dashed px-4 py-3 text-sm transition ${
+                      sceneDropTargetId === "__scene_start__"
+                        ? "border-primary/40 bg-primary/10 text-primary"
+                        : "border-white/20 bg-black/10 text-muted-foreground"
+                    }`}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "move";
+                      setSceneDropTargetId("__scene_start__");
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      void handleDropSceneToStart();
+                    }}
+                    onDragLeave={() => {
+                      if (sceneDropTargetId === "__scene_start__") {
+                        setSceneDropTargetId(null);
+                      }
+                    }}
+                  >
+                    Solte aqui para mover a cena para o topo da lista
+                  </div>
+                ) : null}
                 {forge.scenes.map((scene, sceneIndex) => {
                   const isSceneCollapsed = collapsedSceneIds.has(scene.id);
                   const isSceneDropTarget =
@@ -1978,6 +2036,31 @@ export default function SessionForgePage() {
                       <div className="mt-4 space-y-3">
                         {scene.subscenes.length > 0 ? (
                           <>
+                          {draggedSubsceneKey && draggedSubsceneKey.startsWith(`${scene.id}:`) ? (
+                            <div
+                              className={`rounded-2xl border border-dashed px-4 py-3 text-sm transition ${
+                                subsceneDropTargetKey === `${scene.id}:__start__`
+                                  ? "border-primary/40 bg-primary/10 text-primary"
+                                  : "border-white/20 bg-black/10 text-muted-foreground"
+                              }`}
+                              onDragOver={(event) => {
+                                event.preventDefault();
+                                event.dataTransfer.dropEffect = "move";
+                                setSubsceneDropTargetKey(`${scene.id}:__start__`);
+                              }}
+                              onDrop={(event) => {
+                                event.preventDefault();
+                                void handleDropSubsceneToStart(scene.id);
+                              }}
+                              onDragLeave={() => {
+                                if (subsceneDropTargetKey === `${scene.id}:__start__`) {
+                                  setSubsceneDropTargetKey(null);
+                                }
+                              }}
+                            >
+                              Solte aqui para mover a subcena para o topo desta cena
+                            </div>
+                          ) : null}
                           {scene.subscenes.map((subscene, subsceneIndex) => {
                             const subsceneCollapseKey = `${scene.id}:${subscene.id}`;
                             const isSubsceneCollapsed = collapsedSubsceneIds.has(subsceneCollapseKey);
