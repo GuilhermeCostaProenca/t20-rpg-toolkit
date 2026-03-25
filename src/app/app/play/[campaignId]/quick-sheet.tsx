@@ -37,12 +37,19 @@ type Character = {
 
 interface QuickSheetProps {
     campaignId: string;
-    onAction: (type: string, payload: any) => void;
+    onAction: (type: string, payload: Record<string, unknown>) => void;
     collapsed: boolean;
     onToggle: () => void;
+    requestedCharacterId?: string | null;
 }
 
-export function QuickSheet({ campaignId, onAction, collapsed, onToggle }: QuickSheetProps) {
+export function QuickSheet({
+    campaignId,
+    onAction,
+    collapsed,
+    onToggle,
+    requestedCharacterId = null,
+}: QuickSheetProps) {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [targetId, setTargetId] = useState<string>("none"); // "none" or uuid
@@ -53,15 +60,25 @@ export function QuickSheet({ campaignId, onAction, collapsed, onToggle }: QuickS
             .then(res => res.json())
             .then(data => {
                 if (data.data) {
-                    setCharacters(data.data);
-                    if (data.data.length > 0) setSelectedId(data.data[0].id);
+                    const nextCharacters = data.data as Character[];
+                    setCharacters(nextCharacters);
+                    setSelectedId((current) => {
+                        if (current && nextCharacters.some((character) => character.id === current)) {
+                            return current;
+                        }
+                        return nextCharacters[0]?.id ?? null;
+                    });
                 }
             })
             .catch(console.error)
             .finally(() => setLoading(false));
-    }, [campaignId]);
+    }, [campaignId, requestedCharacterId]);
 
-    const activeChar = characters.find(c => c.id === selectedId);
+    const resolvedSelectedId =
+        requestedCharacterId && characters.some((character) => character.id === requestedCharacterId)
+            ? requestedCharacterId
+            : selectedId;
+    const activeChar = characters.find(c => c.id === resolvedSelectedId);
 
     // Mock Attacks if none (Standard T20)
     // In real app, we parse activeChar.sheet.attacks
@@ -118,7 +135,7 @@ export function QuickSheet({ campaignId, onAction, collapsed, onToggle }: QuickS
                         {characters.length > 1 && (
                             <select
                                 className="bg-black/50 border border-white/10 text-xs text-white rounded p-1"
-                                value={selectedId || ""}
+                                value={resolvedSelectedId || ""}
                                 onChange={(e) => setSelectedId(e.target.value)}
                             >
                                 {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}

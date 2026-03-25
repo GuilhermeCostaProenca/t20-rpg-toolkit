@@ -87,6 +87,7 @@ type LiveWarRoomProps = {
     onPinCreate: (pin: Pin) => void | Promise<void>;
     onTurnNext?: () => void | Promise<void>;
     onTurnPrev?: () => void | Promise<void>;
+    onSelectSquadCharacter?: (characterId: string) => void;
     onRollDice: (payload: {
         expression: string;
         modifier: number;
@@ -108,13 +109,14 @@ export function LiveWarRoom({
     onPinCreate,
     onTurnNext,
     onTurnPrev,
+    onSelectSquadCharacter,
     onRollDice,
 }: LiveWarRoomProps) {
     return (
         <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-neutral-900 text-muted-foreground">
             {isCombatActive ? (
                 <div className="pointer-events-none absolute left-1/2 top-4 z-40 w-full max-w-3xl -translate-x-1/2 px-4 pt-2">
-                    <SquadMonitor campaignId={campaignId} />
+                    <SquadMonitor campaignId={campaignId} onSelect={onSelectSquadCharacter} />
                 </div>
             ) : null}
 
