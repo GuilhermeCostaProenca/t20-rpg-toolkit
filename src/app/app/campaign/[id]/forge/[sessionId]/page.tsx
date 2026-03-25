@@ -7,6 +7,8 @@ import {
   ArrowRight,
   BookOpenText,
   CalendarClock,
+  ChevronDown,
+  ChevronUp,
   Eye,
   LayoutGrid,
   ArrowDown,
@@ -484,6 +486,7 @@ export default function SessionForgePage() {
   const [dramaticStatusFilter, setDramaticStatusFilter] = useState<"all" | SessionForgeDramaticStatus>("all");
   const [revealAssetKindFilter, setRevealAssetKindFilter] = useState<"all" | string>("all");
   const [revealAssetSearchQuery, setRevealAssetSearchQuery] = useState("");
+  const [collapsedSceneIds, setCollapsedSceneIds] = useState<Set<string>>(new Set());
 
   const loadWorkspace = useCallback(async () => {
     if (!campaignId) return;
@@ -608,6 +611,18 @@ export default function SessionForgePage() {
     setRevealAssetKindFilter("all");
     setRevealAssetSearchQuery("");
   };
+
+  useEffect(() => {
+    setCollapsedSceneIds((current) => {
+      if (current.size === 0) return current;
+      const validSceneIds = new Set(forge.scenes.map((scene) => scene.id));
+      const next = new Set<string>();
+      for (const sceneId of current) {
+        if (validSceneIds.has(sceneId)) next.add(sceneId);
+      }
+      return next;
+    });
+  }, [forge.scenes]);
   useEffect(() => {
     if (revealAssetKindFilter === "all") return;
     if (!revealAssetKindOptions.includes(revealAssetKindFilter)) {
@@ -1122,7 +1137,33 @@ export default function SessionForgePage() {
               />
             ) : (
               <div className="space-y-5">
-                {forge.scenes.map((scene, sceneIndex) => (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={() =>
+                      setCollapsedSceneIds(new Set(forge.scenes.map((scene) => scene.id)))
+                    }
+                    disabled={forge.scenes.length === 0 || collapsedSceneIds.size === forge.scenes.length}
+                  >
+                    Recolher todas
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={() => setCollapsedSceneIds(new Set())}
+                    disabled={collapsedSceneIds.size === 0}
+                  >
+                    Expandir todas
+                  </Button>
+                </div>
+                {forge.scenes.map((scene, sceneIndex) => {
+                  const isSceneCollapsed = collapsedSceneIds.has(scene.id);
+                  return (
                   <div key={scene.id} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
@@ -1134,6 +1175,31 @@ export default function SessionForgePage() {
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setCollapsedSceneIds((current) => {
+                              const next = new Set(current);
+                              if (next.has(scene.id)) next.delete(scene.id);
+                              else next.add(scene.id);
+                              return next;
+                            })
+                          }
+                        >
+                          {isSceneCollapsed ? (
+                            <>
+                              <ChevronDown className="mr-2 h-4 w-4" />
+                              Expandir
+                            </>
+                          ) : (
+                            <>
+                              <ChevronUp className="mr-2 h-4 w-4" />
+                              Recolher
+                            </>
+                          )}
+                        </Button>
                         <Button asChild variant="outline" className="border-white/10 bg-white/5">
                           <Link href={buildLiveTableHref(campaign.id, selectedSession.id, scene.id)}>
                             Abrir na mesa
@@ -1219,8 +1285,20 @@ export default function SessionForgePage() {
                         </Button>
                       </div>
                     </div>
-
-                    <div className="mt-4 grid gap-3">
+                    {isSceneCollapsed ? (
+                      <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-muted-foreground">
+                        <span className="font-semibold uppercase tracking-[0.14em] text-white/70">
+                          {scene.status}
+                        </span>
+                        <span className="mx-2 text-white/30">|</span>
+                        <span>{scene.subscenes.length} subcenas</span>
+                        <span className="mx-2 text-white/30">|</span>
+                        <span>{scene.linkedEntityIds.length} entidades</span>
+                        <span className="mx-2 text-white/30">|</span>
+                        <span>{scene.linkedRevealIds.length} reveals</span>
+                      </div>
+                    ) : null}
+                    <div className={`mt-4 grid gap-3 ${isSceneCollapsed ? "hidden" : ""}`}>
                       <Input
                         value={scene.title}
                         onChange={(event) =>
@@ -1918,7 +1996,8 @@ export default function SessionForgePage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                );
+                })}
               </div>
             )}
           </section>
