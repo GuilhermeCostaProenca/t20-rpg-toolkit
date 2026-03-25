@@ -2214,43 +2214,49 @@ export default function SessionForgePage() {
                                       </Button>
                                     ))}
                                   </div>
-                                  {filteredRevealAssets.slice(0, 8).map((asset) => {
-                                    const candidateUrl = asset.url;
-                                    const selected = item.imageUrl === candidateUrl;
-                                    return (
-                                      <button
-                                        key={`${item.id}:${asset.id}`}
-                                        type="button"
-                                        className={`overflow-hidden rounded-xl border text-left transition ${
-                                          selected
-                                            ? "border-primary/30 bg-primary/10"
-                                            : "border-white/10 bg-black/20 hover:border-white/20"
-                                        }`}
-                                        onClick={() =>
-                                          updateDramaticCollection(column.key, item.id, (current) => ({
-                                            ...current,
-                                            imageUrl:
-                                              current.imageUrl === candidateUrl ? undefined : candidateUrl,
-                                          }))
-                                        }
-                                      >
-                                        <div
-                                          className="h-16 bg-cover bg-center"
-                                          style={{
-                                            backgroundImage: `linear-gradient(180deg, rgba(8,8,12,0.08), rgba(8,8,12,0.72)), url(${candidateUrl})`,
-                                          }}
-                                        />
-                                        <div className="p-2">
-                                          <p className="truncate text-xs font-semibold text-foreground">
-                                            {asset.entityName}
-                                          </p>
-                                          <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-white/60">
-                                            {getVisualKindLabel(asset.kind)}
-                                          </p>
-                                        </div>
-                                      </button>
-                                    );
-                                  })}
+                                  {filteredRevealAssets.length === 0 ? (
+                                    <div className="sm:col-span-2 rounded-xl border border-dashed border-white/10 bg-black/20 px-3 py-2 text-sm text-muted-foreground">
+                                      Nenhum asset encontrado com os filtros atuais. Ajuste o tipo ou a busca.
+                                    </div>
+                                  ) : (
+                                    filteredRevealAssets.slice(0, 8).map((asset) => {
+                                      const candidateUrl = asset.url;
+                                      const selected = item.imageUrl === candidateUrl;
+                                      return (
+                                        <button
+                                          key={`${item.id}:${asset.id}`}
+                                          type="button"
+                                          className={`overflow-hidden rounded-xl border text-left transition ${
+                                            selected
+                                              ? "border-primary/30 bg-primary/10"
+                                              : "border-white/10 bg-black/20 hover:border-white/20"
+                                          }`}
+                                          onClick={() =>
+                                            updateDramaticCollection(column.key, item.id, (current) => ({
+                                              ...current,
+                                              imageUrl:
+                                                current.imageUrl === candidateUrl ? undefined : candidateUrl,
+                                            }))
+                                          }
+                                        >
+                                          <div
+                                            className="h-16 bg-cover bg-center"
+                                            style={{
+                                              backgroundImage: `linear-gradient(180deg, rgba(8,8,12,0.08), rgba(8,8,12,0.72)), url(${candidateUrl})`,
+                                            }}
+                                          />
+                                          <div className="p-2">
+                                            <p className="truncate text-xs font-semibold text-foreground">
+                                              {asset.entityName}
+                                            </p>
+                                            <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-white/60">
+                                              {getVisualKindLabel(asset.kind)}
+                                            </p>
+                                          </div>
+                                        </button>
+                                      );
+                                    })
+                                  )}
                                 </div>
                               </div>
                             ) : null}
