@@ -1436,13 +1436,15 @@ export default function SessionForgePage() {
                 </div>
                 {forge.scenes.map((scene, sceneIndex) => {
                   const isSceneCollapsed = collapsedSceneIds.has(scene.id);
+                  const isSceneDropTarget =
+                    !!draggedSceneId && sceneDropTargetId === scene.id && draggedSceneId !== scene.id;
                   return (
                   <div
                     id={`forge-scene-${scene.id}`}
                     data-scene-id={scene.id}
                     key={scene.id}
                     className={`rounded-[24px] border bg-white/4 p-4 ${
-                      draggedSceneId && sceneDropTargetId === scene.id && draggedSceneId !== scene.id
+                      isSceneDropTarget
                         ? "border-primary/35 ring-1 ring-primary/35"
                         : "border-white/10"
                     }`}
@@ -1468,6 +1470,11 @@ export default function SessionForgePage() {
                         <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
                           Cena {sceneIndex + 1}
                         </p>
+                        {isSceneDropTarget ? (
+                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-primary">
+                            Solte para mover antes desta cena
+                          </p>
+                        ) : null}
                         <p className="mt-1 text-sm text-muted-foreground">
                           Macrobloco que pode ser quebrado em subcenas, reveals e entidades em foco.
                         </p>
@@ -1974,13 +1981,15 @@ export default function SessionForgePage() {
                           {scene.subscenes.map((subscene, subsceneIndex) => {
                             const subsceneCollapseKey = `${scene.id}:${subscene.id}`;
                             const isSubsceneCollapsed = collapsedSubsceneIds.has(subsceneCollapseKey);
+                            const isSubsceneDropTarget =
+                              !!draggedSubsceneKey &&
+                              subsceneDropTargetKey === subsceneCollapseKey &&
+                              draggedSubsceneKey !== subsceneCollapseKey;
                             return (
                             <div
                               key={subscene.id}
                               className={`rounded-[20px] border bg-white/4 p-4 ${
-                                draggedSubsceneKey &&
-                                subsceneDropTargetKey === subsceneCollapseKey &&
-                                draggedSubsceneKey !== subsceneCollapseKey
+                                isSubsceneDropTarget
                                   ? "border-primary/35 ring-1 ring-primary/35"
                                   : "border-white/8"
                               }`}
@@ -2002,9 +2011,16 @@ export default function SessionForgePage() {
                               }}
                             >
                               <div className="flex flex-wrap items-center justify-between gap-3">
-                                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
-                                  Subcena {sceneIndex + 1}.{subsceneIndex + 1}
-                                </p>
+                                <div>
+                                  <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
+                                    Subcena {sceneIndex + 1}.{subsceneIndex + 1}
+                                  </p>
+                                  {isSubsceneDropTarget ? (
+                                    <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-primary">
+                                      Solte para mover antes desta subcena
+                                    </p>
+                                  ) : null}
+                                </div>
                                 <div className="flex flex-wrap gap-2">
                                   <Button
                                     type="button"
