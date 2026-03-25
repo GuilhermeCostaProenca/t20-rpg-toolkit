@@ -73,6 +73,13 @@ export type EncounterBalanceSnapshot = {
   };
   confidenceScore: number;
   uncertaintySignals: BalanceUncertaintySignal[];
+  partySummary: string;
+  dataGaps: {
+    missingRoles: number;
+    missingSheets: number;
+    missingEnemyStats: number;
+    severity: "none" | "attention" | "critical";
+  };
   factors: string[];
   recommendation: string;
 };
@@ -463,6 +470,38 @@ export function analyzeT20Encounter(
     confidence = weakenConfidence(confidence);
   }
 
+  const readinessLabel =
+    avgHpRatio === null && avgPmRatio === null
+      ? "prontidao desconhecida"
+      : (avgHpRatio ?? 0) <= 0.45
+        ? "grupo desgastado"
+        : (avgHpRatio ?? 0) >= 0.75 && (avgPmRatio === null || avgPmRatio >= 0.6)
+          ? "grupo pronto para pressao"
+          : "prontidao moderada";
+  const profileLabel =
+    partyCount === 0
+      ? "sem grupo definido"
+      : frontliners === 0
+        ? "sem frente clara"
+        : sustain === 0
+          ? "suporte fragil"
+          : diversity === "high"
+            ? "perfil equilibrado"
+            : "perfil parcial";
+  const partySummary =
+    partyCount === 0 ? "Sem grupo suficiente para leitura resumida." : `${profileLabel}, ${readinessLabel}.`;
+
+  const dataGapScore =
+    missingEnemyStats * 2 +
+    lowRoleSignal +
+    (missingSheetSignal === partyCount && partyCount > 0 ? 2 : missingSheetSignal > 0 ? 1 : 0);
+  const gapSeverity: "none" | "attention" | "critical" =
+    partyCount === 0 || enemies.length === 0 || dataGapScore >= 4
+      ? "critical"
+      : dataGapScore > 0
+        ? "attention"
+        : "none";
+
   let recommendation = "Composicao em faixa jogavel para a campanha.";
   if (rating === "trivial") {
     recommendation = "Aumente pressao hostil, quantidade de ameacas ou dano medio para evitar combate frouxo.";
@@ -528,6 +567,13 @@ export function analyzeT20Encounter(
     },
     confidenceScore,
     uncertaintySignals,
+    partySummary,
+    dataGaps: {
+      missingRoles: lowRoleSignal,
+      missingSheets: missingSheetSignal,
+      missingEnemyStats,
+      severity: gapSeverity,
+    },
     factors,
     recommendation,
   };

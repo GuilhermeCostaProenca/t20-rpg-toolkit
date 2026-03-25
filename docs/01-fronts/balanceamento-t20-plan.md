@@ -110,11 +110,11 @@ Nivel puro nem sempre representa a forca real da mesa.
 - [x] T2.2 Integrar dados disponiveis de personagens e sheets
   Notas: `codex/t20-balance-t2-2` integrou leitura de `CharacterSheet` (PV/PM atuais e maximos) no `partyScore`, com fator explicito de prontidao de ficha e degradacao de confianca quando a cobertura de sheet e insuficiente.
 
-- [-] T2.3 Expor leitura resumida do grupo
-  Notas: A campanha agora exibe nivel medio do grupo e `partyScore` no painel de balanceamento.
+- [x] T2.3 Expor leitura resumida do grupo
+  Notas: `RPG-63` (`codex/rpg-63-t20-balance-t2-3-t2-4`) adicionou `partySummary` no snapshot e exibicao direta no card de grupo no painel da campanha.
 
-- [-] T2.4 Definir como o app lida com dados incompletos
-  Notas: O helper reduz a confianca e expõe fatores quando faltam `role`, `hpMax`, `defenseFinal` ou `damageFormula`.
+- [x] T2.4 Definir como o app lida com dados incompletos
+  Notas: `RPG-63` adicionou `dataGaps` estruturado (roles, fichas e ameacas incompletas + severidade) e callout explicito no painel, mantendo fluxo funcional com dados parciais.
 
 - [x] T2.5 Garantir que a leitura nao seja caixa-preta
   Notas: `RPG-61` (`codex/rpg-61-t20-balance-t2-5`) adicionou `breakdown` explicito no snapshot (base, papeis, diversidade, prontidao, composicao e razao base/efetiva) e exibiu essa conta no painel de balanceamento da campanha.

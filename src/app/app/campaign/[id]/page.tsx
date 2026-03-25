@@ -1287,6 +1287,19 @@ export default function CampaignPage() {
                       ))}
                     </div>
                   ) : null}
+                  {encounterBalance.dataGaps.severity !== "none" ? (
+                    <div
+                      className={`mt-2 rounded-xl border px-3 py-2 text-xs ${
+                        encounterBalance.dataGaps.severity === "critical"
+                          ? "border-red-300/20 bg-red-300/10 text-red-100"
+                          : "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                      }`}
+                    >
+                      Lacunas de dados: roles {encounterBalance.dataGaps.missingRoles} · fichas{" "}
+                      {encounterBalance.dataGaps.missingSheets} · ameacas incompletas{" "}
+                      {encounterBalance.dataGaps.missingEnemyStats}
+                    </div>
+                  ) : null}
                   <div className="mt-4 grid gap-4 lg:grid-cols-3">
                     <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Grupo</p>
@@ -1305,6 +1318,7 @@ export default function CampaignPage() {
                         Prontidao x{encounterBalance.breakdown.party.readinessModifier} · cobertura de ficha{" "}
                         {Math.round(encounterBalance.breakdown.party.sheetCoverage * 100)}%
                       </p>
+                      <p className="mt-1 text-xs text-muted-foreground">{encounterBalance.partySummary}</p>
                       <p className="mt-1 text-xs uppercase tracking-[0.14em] text-muted-foreground">
                         Frente {encounterBalance.partyProfile.frontliners} · Suporte {encounterBalance.partyProfile.sustain} ·
                         Ofensiva {encounterBalance.partyProfile.offense} · Controle {encounterBalance.partyProfile.control}
