@@ -2,6 +2,10 @@ type BalanceCharacterInput = {
   level: number;
   role?: string | null;
   className?: string | null;
+  pvCurrent?: number | null;
+  pvMax?: number | null;
+  pmCurrent?: number | null;
+  pmMax?: number | null;
 };
 
 type BalanceNpcInput = {
@@ -136,6 +140,13 @@ function weakenConfidence(confidence: BalanceConfidence): BalanceConfidence {
   return "low";
 }
 
+function ratio(current?: number | null, max?: number | null) {
+  const safeMax = Math.max(max ?? 0, 0);
+  const safeCurrent = Math.max(current ?? 0, 0);
+  if (safeMax <= 0) return null;
+  return Math.min(safeCurrent / safeMax, 1);
+}
+
 function averageHpRatio(combatants: LiveCombatantInput[]) {
   if (combatants.length === 0) return 0;
 
@@ -187,7 +198,28 @@ export function analyzeT20Encounter(
   const diversity: "low" | "medium" | "high" =
     activeAxes >= 4 ? "high" : activeAxes >= 2 ? "medium" : "low";
   const diversityBonus = diversity === "high" ? 3 : diversity === "medium" ? 1.5 : 0;
-  const profileAdjustedPartyScore = partyScore + diversityBonus * partyCount;
+  let profileAdjustedPartyScore = partyScore + diversityBonus * partyCount;
+
+  const hpRatios = characters
+    .map((character) => ratio(character.pvCurrent, character.pvMax))
+    .filter((value): value is number => value !== null);
+  const pmRatios = characters
+    .map((character) => ratio(character.pmCurrent, character.pmMax))
+    .filter((value): value is number => value !== null);
+  const avgHpRatio =
+    hpRatios.length > 0 ? hpRatios.reduce((total, value) => total + value, 0) / hpRatios.length : null;
+  const avgPmRatio =
+    pmRatios.length > 0 ? pmRatios.reduce((total, value) => total + value, 0) / pmRatios.length : null;
+
+  let readinessModifier = 1;
+  if (avgHpRatio !== null) {
+    readinessModifier += (avgHpRatio - 0.6) * 0.2;
+  }
+  if (avgPmRatio !== null) {
+    readinessModifier += (avgPmRatio - 0.5) * 0.1;
+  }
+  readinessModifier = Math.min(1.1, Math.max(0.9, readinessModifier));
+  profileAdjustedPartyScore *= readinessModifier;
 
   const threatScore = enemies.reduce((total, enemy) => {
     return total + estimateEnemyUnitScore(enemy);
@@ -242,6 +274,11 @@ export function analyzeT20Encounter(
       `Perfil do grupo: frente ${frontliners}, suporte ${sustain}, ofensiva ${offense}, controle ${control}.`
     );
   }
+  if (avgHpRatio !== null || avgPmRatio !== null) {
+    const hpLabel = avgHpRatio !== null ? `${Math.round(avgHpRatio * 100)}%` : "n/d";
+    const pmLabel = avgPmRatio !== null ? `${Math.round(avgPmRatio * 100)}%` : "n/d";
+    factors.push(`Leitura de ficha: PV medio ${hpLabel}, PM medio ${pmLabel}.`);
+  }
 
   if (enemies.length === 0) {
     factors.push("Nenhuma ameaca do tipo enemy cadastrada nesta campanha.");
@@ -269,6 +306,12 @@ export function analyzeT20Encounter(
   if (unknown > 0) {
     factors.push(`${unknown} personagem(ns) sem papel legivel no modelo atual.`);
   }
+  const missingSheetSignal = characters.filter(
+    (character) => ratio(character.pvCurrent, character.pvMax) === null && ratio(character.pmCurrent, character.pmMax) === null
+  ).length;
+  if (missingSheetSignal > 0) {
+    factors.push(`${missingSheetSignal} personagem(ns) sem dados de PV/PM na ficha para leitura do grupo.`);
+  }
 
   if (hasSwarmProfile) {
     factors.push("Composicao em enxame: muitas ameacas leves elevam economia de acao hostil.");
@@ -287,6 +330,9 @@ export function analyzeT20Encounter(
   if (partyCount === 0 || enemies.length === 0 || missingEnemyStats >= 2) confidence = "low";
   else if (missingEnemyStats > 0 || lowRoleSignal > 0) confidence = "medium";
   if (unknown >= Math.ceil(Math.max(1, partyCount) / 2)) {
+    confidence = weakenConfidence(confidence);
+  }
+  if (missingSheetSignal === partyCount && partyCount > 0) {
     confidence = weakenConfidence(confidence);
   }
   if (hasSoloBossProfile || hasEliteProfile || hasSwarmProfile) {
