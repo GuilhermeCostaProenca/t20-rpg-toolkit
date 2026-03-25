@@ -192,11 +192,11 @@ Preparar e rodar precisam conversar.
 - [-] F5.2 Definir o que pode ser aberto rapidamente durante a sessao
   Notas: A abertura rapida da mesa com foco de cena/subcena da Forja foi entregue (`RPG-86`/`RPG-87`). O proximo passo e aprofundar isso em superficie dedicada de passagem operacional dentro do cockpit ao vivo.
 
-- [ ] F5.3 Definir o que pode virar acao operacional
-  Notas:
+- [-] F5.3 Definir o que pode virar acao operacional
+  Notas: O cockpit ao vivo ganhou acao operacional direta para marcar `cena` e `subcena` em foco como `executed`, sem sair da mesa (`RPG-89`). A acao foi ligada a persistencia de `Session.metadata.forge` com update otimista e rollback em erro.
 
-- [ ] F5.4 Definir o que deve ser registrado como executado
-  Notas:
+- [-] F5.4 Definir o que deve ser registrado como executado
+  Notas: O registro de executado agora cobre `scenes` e `subscenes` direto na mesa, alem de `reveals` ja existentes. Ainda falta consolidar fechamento mais completo de execucao (hooks/segredos e memoria pos-cena).
 
 - [ ] F5.5 Preparar integracao futura com memoria do mundo
   Notas: `RPG-20` abriu o primeiro fechamento pos-sessao dentro da propria Forja, com `Session.metadata.memory` para resumo publico, resumo do mestre, presencas, mortes e mudancas persistentes, alem de sincronizacao inicial com `WorldEvent`.

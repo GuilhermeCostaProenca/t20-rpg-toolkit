@@ -79,6 +79,7 @@ type LivePrepCockpitProps = {
   activeInspectEntityId: string | null;
   spawningEncounterEnemyId: string | null;
   spawnStatusMessage?: LiveOpsStatusMessage | null;
+  executionStatusMessage?: LiveOpsStatusMessage | null;
   publicLayerLocked: boolean;
   onFocusScene: (sceneId: string) => void;
   onInspectEntity: (entityId: string) => void;
@@ -88,6 +89,8 @@ type LivePrepCockpitProps = {
     enemy: SessionForgeEncounter["enemies"][number],
     enemyIndex: number,
   ) => void | Promise<void>;
+  onMarkActiveSceneExecuted: () => void | Promise<void>;
+  onMarkActiveSubsceneExecuted: () => void | Promise<void>;
   onTogglePublicLayerLock: () => void;
 };
 
@@ -433,12 +436,15 @@ export function LivePrepCockpit({
   activeInspectEntityId,
   spawningEncounterEnemyId,
   spawnStatusMessage,
+  executionStatusMessage,
   publicLayerLocked,
   onFocusScene,
   onInspectEntity,
   onReveal,
   onPresentAsset,
   onSpawnEncounterEnemy,
+  onMarkActiveSceneExecuted,
+  onMarkActiveSubsceneExecuted,
   onTogglePublicLayerLock,
 }: LivePrepCockpitProps) {
   const openVisualLibrary = (preset?: "reveals" | "scenes") => {
@@ -1394,7 +1400,46 @@ export function LivePrepCockpit({
                         Cues absorvidos - subcena pronta para avancar
                       </p>
                     ) : null}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-primary/20 bg-primary/10 text-primary"
+                        onClick={() => void onMarkActiveSubsceneExecuted()}
+                        disabled={activeSubscene.status === "executed"}
+                      >
+                        {activeSubscene.status === "executed"
+                          ? "Subcena executada"
+                          : "Marcar subcena como executada"}
+                      </Button>
+                    </div>
                   </div>
+                ) : null}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-primary/20 bg-primary/10 text-primary"
+                    onClick={() => void onMarkActiveSceneExecuted()}
+                    disabled={activeScene.status === "executed"}
+                  >
+                    {activeScene.status === "executed"
+                      ? "Cena executada"
+                      : "Marcar cena como executada"}
+                  </Button>
+                </div>
+                {executionStatusMessage ? (
+                  <p
+                    className={`mt-2 text-xs ${
+                      executionStatusMessage.kind === "error"
+                        ? "text-red-300"
+                        : executionStatusMessage.kind === "success"
+                          ? "text-emerald-300"
+                          : "text-white/70"
+                    }`}
+                  >
+                    {executionStatusMessage.message}
+                  </p>
                 ) : null}
 
                 {subsceneIsConsumed && nextSubscene ? (
