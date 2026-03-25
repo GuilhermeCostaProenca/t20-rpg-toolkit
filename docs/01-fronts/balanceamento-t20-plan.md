@@ -104,8 +104,8 @@ Sem fundacao clara, a frente vira sugestao vaga.
 Contexto tecnico:
 Nivel puro nem sempre representa a forca real da mesa.
 
-- [ ] T2.1 Definir o que o sistema considera na leitura do grupo
-  Notas:
+- [x] T2.1 Definir o que o sistema considera na leitura do grupo
+  Notas: `codex/t20-balance-t2-1` definiu leitura explicita por eixos (frente, suporte, ofensiva, controle, desconhecido), com bonus de diversidade, fatores explicativos e reflexo direto no `partyScore`.
 
 - [ ] T2.2 Integrar dados disponiveis de personagens e sheets
   Notas:

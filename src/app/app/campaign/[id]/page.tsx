@@ -1257,6 +1257,10 @@ export default function CampaignPage() {
                       <p className="mt-1 text-sm text-muted-foreground">
                         Score de grupo {encounterBalance.partyScore}
                       </p>
+                      <p className="mt-1 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                        Frente {encounterBalance.partyProfile.frontliners} · Suporte {encounterBalance.partyProfile.sustain} ·
+                        Ofensiva {encounterBalance.partyProfile.offense} · Controle {encounterBalance.partyProfile.control}
+                      </p>
                     </div>
                     <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Ameacas</p>

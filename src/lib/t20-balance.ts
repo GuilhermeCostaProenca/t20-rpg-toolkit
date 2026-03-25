@@ -25,6 +25,14 @@ export type EncounterBalanceSnapshot = {
   pressureRatio: number;
   avgPartyLevel: number;
   enemyCount: number;
+  partyProfile: {
+    frontliners: number;
+    sustain: number;
+    offense: number;
+    control: number;
+    unknown: number;
+    diversity: "low" | "medium" | "high";
+  };
   factors: string[];
   recommendation: string;
 };
@@ -67,6 +75,10 @@ function normalizeRole(role?: string | null) {
   return role?.trim().toLowerCase() ?? "";
 }
 
+function normalizeClassName(className?: string | null) {
+  return className?.trim().toLowerCase() ?? "";
+}
+
 function averageDiceFormula(formula?: string | null) {
   if (!formula?.trim()) return 0;
 
@@ -102,6 +114,23 @@ function getRoleWeight(role?: string | null) {
   return 0.5;
 }
 
+function getRoleSignals(character: BalanceCharacterInput) {
+  const role = normalizeRole(character.role);
+  const className = normalizeClassName(character.className);
+  const source = `${role} ${className}`;
+
+  const frontliner =
+    /(tank|guardiao|frente|defensor|guerreir|paladin|barbar)/.test(source);
+  const sustain =
+    /(suporte|healer|cura|clerig|sacerdot|druida|bardo)/.test(source);
+  const offense =
+    /(striker|dano|assassin|atacante|ladin|caçad|cacad|arcanista|feiticeir|mago)/.test(source);
+  const control =
+    /(controle|tatico|leader|lider|arcan|mago|brux)/.test(source);
+
+  return { frontliner, sustain, offense, control };
+}
+
 function weakenConfidence(confidence: BalanceConfidence): BalanceConfidence {
   if (confidence === "high") return "medium";
   return "low";
@@ -132,17 +161,39 @@ export function analyzeT20Encounter(
         partyCount
       : 0;
 
+  let frontliners = 0;
+  let sustain = 0;
+  let offense = 0;
+  let control = 0;
+  let unknown = 0;
+
   const partyScore = characters.reduce((total, character) => {
     const base = Math.max(character.level || 1, 1) * 10;
     const roleWeight = getRoleWeight(character.role);
+    const signals = getRoleSignals(character);
+
+    if (signals.frontliner) frontliners += 1;
+    if (signals.sustain) sustain += 1;
+    if (signals.offense) offense += 1;
+    if (signals.control) control += 1;
+    if (!signals.frontliner && !signals.sustain && !signals.offense && !signals.control) {
+      unknown += 1;
+    }
+
     return total + base + roleWeight;
   }, 0);
+
+  const activeAxes = [frontliners, sustain, offense, control].filter((value) => value > 0).length;
+  const diversity: "low" | "medium" | "high" =
+    activeAxes >= 4 ? "high" : activeAxes >= 2 ? "medium" : "low";
+  const diversityBonus = diversity === "high" ? 3 : diversity === "medium" ? 1.5 : 0;
+  const profileAdjustedPartyScore = partyScore + diversityBonus * partyCount;
 
   const threatScore = enemies.reduce((total, enemy) => {
     return total + estimateEnemyUnitScore(enemy);
   }, 0);
 
-  const pressureRatio = partyScore > 0 ? threatScore / partyScore : 0;
+  const pressureRatio = profileAdjustedPartyScore > 0 ? threatScore / profileAdjustedPartyScore : 0;
 
   const enemyUnitScores = enemies
     .map((enemy) => estimateEnemyUnitScore(enemy))
@@ -187,6 +238,9 @@ export function analyzeT20Encounter(
     factors.push("Sem personagens suficientes para leitura confiavel.");
   } else {
     factors.push(`${partyCount} personagens com nivel medio ${avgPartyLevel.toFixed(1)}.`);
+    factors.push(
+      `Perfil do grupo: frente ${frontliners}, suporte ${sustain}, ofensiva ${offense}, controle ${control}.`
+    );
   }
 
   if (enemies.length === 0) {
@@ -206,6 +260,15 @@ export function analyzeT20Encounter(
   if (lowRoleSignal > 0) {
     factors.push(`${lowRoleSignal} personagens sem funcao registrada deixam a leitura menos precisa.`);
   }
+  if (sustain === 0 && partyCount > 0) {
+    factors.push("Grupo sem sinal forte de suporte/cura; desgaste pode escalar mais rapido.");
+  }
+  if (frontliners === 0 && partyCount > 0) {
+    factors.push("Grupo sem frente clara; combate tende a punir posicionamento e economia de acao.");
+  }
+  if (unknown > 0) {
+    factors.push(`${unknown} personagem(ns) sem papel legivel no modelo atual.`);
+  }
 
   if (hasSwarmProfile) {
     factors.push("Composicao em enxame: muitas ameacas leves elevam economia de acao hostil.");
@@ -223,6 +286,9 @@ export function analyzeT20Encounter(
   let confidence: BalanceConfidence = "high";
   if (partyCount === 0 || enemies.length === 0 || missingEnemyStats >= 2) confidence = "low";
   else if (missingEnemyStats > 0 || lowRoleSignal > 0) confidence = "medium";
+  if (unknown >= Math.ceil(Math.max(1, partyCount) / 2)) {
+    confidence = weakenConfidence(confidence);
+  }
   if (hasSoloBossProfile || hasEliteProfile || hasSwarmProfile) {
     confidence = weakenConfidence(confidence);
   }
@@ -251,11 +317,19 @@ export function analyzeT20Encounter(
   return {
     rating,
     confidence,
-    partyScore: Number(partyScore.toFixed(1)),
+    partyScore: Number(profileAdjustedPartyScore.toFixed(1)),
     threatScore: Number(threatScore.toFixed(1)),
     pressureRatio: Number(effectivePressureRatio.toFixed(2)),
     avgPartyLevel: Number(avgPartyLevel.toFixed(1)),
     enemyCount: enemies.length,
+    partyProfile: {
+      frontliners,
+      sustain,
+      offense,
+      control,
+      unknown,
+      diversity,
+    },
     factors,
     recommendation,
   };
