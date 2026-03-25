@@ -9,6 +9,13 @@ export default defineConfig({
         globals: true,
         setupFiles: [],
         include: ['**/*.test.{ts,tsx}'],
+        exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/.next/**',
+            '**/references/**',
+            '**/.claude/**',
+        ],
         alias: {
             '@': path.resolve(__dirname, './src')
         }

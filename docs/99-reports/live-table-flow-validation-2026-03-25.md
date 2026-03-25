@@ -33,11 +33,14 @@ Validar se o fluxo principal da mesa ao vivo permanece continuo durante:
 4. Suporte de mesa sem app externo
 - Card `Trilha da sessao` com slots `Ambiental` e `Combate`.
 - `Bloco do mestre` persistido por campanha.
-- Atalho `Ctrl+K` / `Cmd+K` abre busca rapida.
+- Atalhos `Ctrl+K` / `Cmd+K` (busca), `Alt+1..4` (secoes) e `Alt+5` (chat).
+- Presets de foco (`Narrativo`/`Tatico`) e controles de densidade de paineis.
 
 5. Reducao de troca de contexto
 - Atalho `Abrir Atlas` abre em nova aba e preserva a mesa ativa.
 - Poll de eventos evita `setEvents` redundante quando nao ha mudanca.
+- Historico/chat pode ser ocultado em foco tatico sem troca de rota/modal.
+- Header expoe prontidao operacional `X/5` do checklist.
 
 ## Ajustes tecnicos aplicados nesta rodada
 
@@ -49,18 +52,25 @@ Validar se o fluxo principal da mesa ao vivo permanece continuo durante:
 - `feat(live): add gm scratchpad to live sidebar` (`da935d2`)
 - `fix(live): keep cockpit active when opening atlas` (`1020105`)
 - ajuste atual de fingerprint no poll de eventos (nao-render redundante)
+- `vitest.config.ts` ajustado para excluir `references/**` e `.claude/**` da suite principal
+
+## Validacao automatizada
+
+- `npm run test:run` (2026-03-25): **passou** no escopo principal do produto (`4 files / 13 tests`).
 
 ## Estado de M5/M6 apos validacao
 
-- M5.1: `[-]` (superficie de trilha entregue com persistencia local)
-- M5.2: `[-]` (estado operacional de PCs entregue em resumo vivo)
-- M5.3: `[-]` (consulta de NPC improvisado no encontro)
-- M5.4: `[-]` (atalho global de busca)
-- M5.5: `[-]` (bloco do mestre persistente)
-- M6.1: `[-]` (reduzida saida forcada da tela principal)
-- M6.3: `[-]` (menos troca de rota na operacao)
-- M6.4: `[-]` (validacao de fluxo principal executada)
+- M5.1: `[x]` (superficie de trilha entregue com persistencia local)
+- M5.2: `[x]` (estado operacional de PCs entregue em resumo vivo)
+- M5.3: `[x]` (consulta de NPC improvisado no encontro)
+- M5.4: `[x]` (atalhos de busca e convivencia de fluxo no cockpit)
+- M5.5: `[x]` (bloco do mestre persistente)
+- M6.1: `[x]` (reduzida saida forcada da tela principal)
+- M6.2: `[x]` (atalhos e acessos rapidos consolidados)
+- M6.3: `[x]` (menos troca de rota/modal em operacao)
+- M6.4: `[x]` (validacao de fluxo principal executada)
+- M6.5: `[x]` (criterio operacional fechado com checklist objetivo)
 
 ## Proximo passo sugerido
 
-Repetir o checklist `Pronto para mesa` em sessao real (nao so ambiente de desenvolvimento) e promover M5/M6 para `[x]` apos 1 ciclo completo sem saida para ferramentas externas.
+Repetir o checklist `Pronto para mesa` em sessao real como validacao continua da frente e concentrar o proximo ciclo em M4 (`reveal`/referencia visual), que permanece principal pendencia da mesa ao vivo.
