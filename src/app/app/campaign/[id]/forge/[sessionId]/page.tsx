@@ -416,6 +416,14 @@ function moveItem<T>(items: T[], fromIndex: number, direction: "up" | "down") {
   return next;
 }
 
+function moveItemToTop<T>(items: T[], fromIndex: number) {
+  if (fromIndex <= 0 || fromIndex >= items.length) return items;
+  const next = [...items];
+  const [item] = next.splice(fromIndex, 1);
+  next.unshift(item);
+  return next;
+}
+
 function buildLiveTableHref(
   campaignId: string,
   sessionId: string,
@@ -1071,6 +1079,19 @@ export default function SessionForgePage() {
                             Abrir na mesa
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Link>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setForge((current) => ({
+                              ...current,
+                              scenes: moveItemToTop(current.scenes, sceneIndex),
+                            }))
+                          }
+                          disabled={sceneIndex === 0}
+                        >
+                          Topo
                         </Button>
                         <Button
                           variant="outline"
@@ -1788,6 +1809,19 @@ export default function SessionForgePage() {
                         Beat {index + 1}
                       </p>
                       <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setForge((current) => ({
+                              ...current,
+                              beats: moveItemToTop(current.beats, index),
+                            }))
+                          }
+                          disabled={index === 0}
+                        >
+                          Topo
+                        </Button>
                         <Button
                           variant="outline"
                           className="border-white/10 bg-white/5"
