@@ -170,8 +170,8 @@ Balanceamento precisa ajudar antes da sessao, nao so diagnosticar.
 - [-] T4.4 Permitir salvar composicoes de encontro
   Notas: `RPG-27` salva o encontro preparado em `Session.metadata.forge.encounters`, preservando composicao, leitura de risco, confianca e recomendacao.
 
-- [-] T4.5 Permitir associar encontro a sessao ou cena
-  Notas: `RPG-27` ja associa o encontro a uma sessao alvo e, quando desejado, a uma cena existente da Forja. Falta aprofundar a edicao e manutencao desse vinculo.
+- [x] T4.5 Permitir associar encontro a sessao ou cena
+  Notas: `RPG-27` abriu a associacao inicial e `RPG-66` adicionou manutencao operacional no cockpit da campanha (relink de cena, desvinculo e remocao de encontro salvo).
 
 ### Criterios de aceite da Frente T4
 - o mestre consegue montar encontro com mais seguranca;
