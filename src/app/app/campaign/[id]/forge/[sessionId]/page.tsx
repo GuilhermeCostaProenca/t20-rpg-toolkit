@@ -820,6 +820,34 @@ export default function SessionForgePage() {
     });
     return next;
   }, [encounterSortBy, filteredEncounters, sceneTitleById]);
+  const groupedFilteredEncounters = useMemo(() => {
+    const groups = new Map<
+      string,
+      {
+        key: string;
+        sceneId: string | null;
+        title: string;
+        encounters: (typeof sortedFilteredEncounters)[number][];
+      }
+    >();
+    for (const encounter of sortedFilteredEncounters) {
+      const sceneId = encounter.linkedSceneId ?? null;
+      const key = sceneId ?? "__unlinked__";
+      const title = sceneId ? (sceneTitleById.get(sceneId) ?? "Cena sem titulo") : "Sem cena vinculada";
+      const current = groups.get(key);
+      if (current) {
+        current.encounters.push(encounter);
+      } else {
+        groups.set(key, {
+          key,
+          sceneId,
+          title,
+          encounters: [encounter],
+        });
+      }
+    }
+    return [...groups.values()];
+  }, [sceneTitleById, sortedFilteredEncounters]);
   const hasActiveEncounterFilters =
     encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
   function clearEncounterFilters() {
@@ -4069,56 +4097,59 @@ export default function SessionForgePage() {
                       </Button>
                     </div>
                   ) : null}
-                  {sortedFilteredEncounters.length > 0 ? (
-                    sortedFilteredEncounters.map((encounter) => {
-                  const linkedSceneTitle = encounter.linkedSceneId
-                    ? sceneTitleById.get(encounter.linkedSceneId)
-                    : undefined;
-                  return (
-                  <div key={encounter.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge className="border-primary/20 bg-primary/10 text-primary">
-                          {formatEncounterRating(encounter.rating)}
-                        </Badge>
-                        <Badge className="border-white/10 bg-white/5 text-white/75">
-                          Confianca {formatBalanceConfidence(encounter.confidence)}
-                        </Badge>
-                        {encounter.linkedSceneId ? (
+                  {groupedFilteredEncounters.length > 0 ? (
+                    groupedFilteredEncounters.map((group) => (
+                      <div key={group.key} className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Badge className="border-white/10 bg-white/5 text-white/75">
-                            {linkedSceneTitle ?? "Cena vinculada"}
+                            {group.title}
                           </Badge>
-                        ) : null}
+                          <Badge className="border-white/10 bg-white/5 text-white/60">
+                            {group.encounters.length}{" "}
+                            {group.encounters.length === 1 ? "encontro" : "encontros"}
+                          </Badge>
+                        </div>
+                        {group.encounters.map((encounter) => (
+                          <div key={encounter.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Badge className="border-primary/20 bg-primary/10 text-primary">
+                                  {formatEncounterRating(encounter.rating)}
+                                </Badge>
+                                <Badge className="border-white/10 bg-white/5 text-white/75">
+                                  Confianca {formatBalanceConfidence(encounter.confidence)}
+                                </Badge>
+                              </div>
+                              {encounter.linkedSceneId && group.sceneId ? (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-white/10 bg-white/5"
+                                  onClick={() => jumpToSceneCard(encounter.linkedSceneId)}
+                                >
+                                  Ir para cena
+                                  <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                                </Button>
+                              ) : null}
+                            </div>
+                            <h3 className="mt-3 text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
+                              {encounter.title || "Encontro preparado"}
+                            </h3>
+                            <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
+                              {encounter.enemies.map((enemy) => (
+                                <p key={`${encounter.id}:${enemy.npcId ?? enemy.label}`}>
+                                  {enemy.quantity}x {enemy.label || "Ameaca sem nome"}
+                                </p>
+                              ))}
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                              {encounter.notes || encounter.recommendation || "Sem nota de ajuste registrada."}
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                      {encounter.linkedSceneId && linkedSceneTitle ? (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          className="border-white/10 bg-white/5"
-                          onClick={() => jumpToSceneCard(encounter.linkedSceneId!)}
-                        >
-                          Ir para cena
-                          <ArrowRight className="ml-2 h-3.5 w-3.5" />
-                        </Button>
-                      ) : null}
-                    </div>
-                    <h3 className="mt-3 text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
-                      {encounter.title || "Encontro preparado"}
-                    </h3>
-                    <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
-                      {encounter.enemies.map((enemy) => (
-                        <p key={`${encounter.id}:${enemy.npcId ?? enemy.label}`}>
-                          {enemy.quantity}x {enemy.label || "Ameaca sem nome"}
-                        </p>
-                      ))}
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                      {encounter.notes || encounter.recommendation || "Sem nota de ajuste registrada."}
-                    </p>
-                  </div>
-                    );
-                    })
+                    ))
                   ) : (
                     <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
                       Nenhum encontro corresponde ao filtro selecionado.
