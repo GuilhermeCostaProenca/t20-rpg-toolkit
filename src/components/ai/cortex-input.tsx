@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Loader2, Mic, Send, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -10,13 +11,25 @@ import { useCortex } from "@/components/ai/cortex-provider";
 interface CortexInputProps {
     className?: string;
     mode?: "default" | "chat"; // default = topbar trigger, chat = inside sidebar
+    campaignId?: string;
 }
 
-export function CortexInput({ className, mode = "default" }: CortexInputProps) {
+function resolveCampaignIdFromPath(pathname: string) {
+    const campaignMatch = pathname.match(/^\/app\/campaign\/([^/]+)/);
+    if (campaignMatch?.[1]) return campaignMatch[1];
+
+    const liveMatch = pathname.match(/^\/app\/play\/([^/]+)/);
+    if (liveMatch?.[1]) return liveMatch[1];
+
+    return null;
+}
+
+export function CortexInput({ className, mode = "default", campaignId }: CortexInputProps) {
     const [query, setQuery] = useState("");
     const [isListening, setIsListening] = useState(false); // Local listening state (UI only)
     const inputRef = useRef<HTMLInputElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const pathname = usePathname();
 
     // Connect to Context
     const { sendMessage } = useCortex();
@@ -98,14 +111,13 @@ export function CortexInput({ className, mode = "default" }: CortexInputProps) {
 
         setLocalLoading(true);
         try {
-            // Use Context to send message
-            // TODO: Get real campaignId from somewhere (URL or Context)
-            // For now, we mock or try to extract from URL if possible
-            const route = window.location.pathname;
-            const match = route.match(/\/([a-zA-Z0-9]{20,})/);
-            const campaignId = match ? match[1] : "demo";
+            const resolvedCampaignId = campaignId ?? resolveCampaignIdFromPath(pathname || "");
+            if (!resolvedCampaignId) {
+                toast.error("Abra uma campanha ativa antes de usar o chat Jarvis.");
+                return;
+            }
 
-            await sendMessage(query, campaignId);
+            await sendMessage(query, resolvedCampaignId);
             setQuery(""); // Clear input
         } catch (err) {
             console.error(err);
