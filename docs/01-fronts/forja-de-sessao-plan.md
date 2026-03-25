@@ -198,8 +198,8 @@ Preparar e rodar precisam conversar.
 - [-] F5.4 Definir o que deve ser registrado como executado
   Notas: O registro de executado agora cobre `scenes` e `subscenes` direto na mesa, alem de `reveals` ja existentes. Ainda falta consolidar fechamento mais completo de execucao (hooks/segredos e memoria pos-cena).
 
-- [ ] F5.5 Preparar integracao futura com memoria do mundo
-  Notas: `RPG-20` abriu o primeiro fechamento pos-sessao dentro da propria Forja, com `Session.metadata.memory` para resumo publico, resumo do mestre, presencas, mortes e mudancas persistentes, alem de sincronizacao inicial com `WorldEvent`.
+- [-] F5.5 Preparar integracao futura com memoria do mundo
+  Notas: `RPG-20` abriu o primeiro fechamento pos-sessao dentro da propria Forja, com `Session.metadata.memory` para resumo publico, resumo do mestre, presencas, mortes e mudancas persistentes, alem de sincronizacao inicial com `WorldEvent`. A mesa ao vivo agora tambem injeta `memory.changes` (tipo `status`, visibilidade `MASTER`) quando cena/subcena e marcada como `executed` (`RPG-90`), criando ponte operacional entre execucao e memoria.
 
 ### Criterios de aceite da Frente F5
 - a forja nao termina em si mesma;
