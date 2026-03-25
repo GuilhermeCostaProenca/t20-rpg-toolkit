@@ -69,8 +69,8 @@ Esta frente depende de:
 - [-] M4. Fechar reveal e referencia visual em operacao
   Notas: A mesa agora consome o pacote de preparo da sessao, inclusive reveals planejados e proximas cenas, e ja consegue disparar `reveals` direto do cockpit ao vivo. Ainda falta integrar consulta visual mais profunda e disparo mais guiado por cena.
 
-- [ ] M5. Fechar trilha, estado de ficha e suporte de mesa
-  Notas:
+- [-] M5. Fechar trilha, estado de ficha e suporte de mesa
+  Notas: Subitens `M5.1` a `M5.5` ja estao com slices operacionais no cockpit ao vivo; falta rodada de mesa real para promover tudo para `[x]`.
 
 - [-] M6. Reduzir troca de contexto durante sessao real
   Notas:
