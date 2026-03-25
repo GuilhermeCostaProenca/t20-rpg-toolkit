@@ -219,6 +219,14 @@ function formatDateTime(value: string | null | undefined) {
   });
 }
 
+function isInsideTimeWindow(value: string, window: "ALL" | "7D" | "30D" | "90D") {
+  if (window === "ALL") return true;
+  const eventTime = new Date(value).getTime();
+  if (Number.isNaN(eventTime)) return true;
+  const days = window === "7D" ? 7 : window === "30D" ? 30 : 90;
+  return eventTime >= Date.now() - days * 24 * 60 * 60 * 1000;
+}
+
 function getSessionTone(status?: Session["status"]) {
   switch (status) {
     case "active":
@@ -270,6 +278,7 @@ export default function CampaignPage() {
   const [memoryQuery, setMemoryQuery] = useState("");
   const [memoryVisibility, setMemoryVisibility] = useState<"ALL" | "MASTER" | "PLAYERS">("ALL");
   const [memoryTone, setMemoryTone] = useState<"ALL" | "summary" | "change" | "death" | "note">("ALL");
+  const [memoryTimeFilter, setMemoryTimeFilter] = useState<"ALL" | "7D" | "30D" | "90D">("ALL");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
@@ -406,10 +415,11 @@ export default function CampaignPage() {
     return campaignMemoryEvents.filter((event) => {
       if (memoryVisibility !== "ALL" && event.visibility !== memoryVisibility) return false;
       if (memoryTone !== "ALL" && getMemoryEventTone(event) !== memoryTone) return false;
+      if (!isInsideTimeWindow(event.ts, memoryTimeFilter)) return false;
       if (query && !getMemoryEventSearchText(event).includes(query)) return false;
       return true;
     });
-  }, [campaignMemoryEvents, memoryQuery, memoryTone, memoryVisibility]);
+  }, [campaignMemoryEvents, memoryQuery, memoryTimeFilter, memoryTone, memoryVisibility]);
   const sessionTitleById = useMemo(
     () => new Map(sessions.map((session) => [session.id, session.title])),
     [sessions]
@@ -1516,7 +1526,7 @@ export default function CampaignPage() {
                 {campaignMemoryEvents.length > 0 ? (
                   <div className="mt-4 space-y-4">
                     <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
-                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.3fr)_repeat(2,minmax(0,0.6fr))]">
+                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,0.6fr))]">
                         <Input
                           value={memoryQuery}
                           onChange={(event) => setMemoryQuery(event.target.value)}
@@ -1545,6 +1555,18 @@ export default function CampaignPage() {
                           <option value="change">Mudanca</option>
                           <option value="death">Morte</option>
                           <option value="note">Nota</option>
+                        </select>
+                        <select
+                          className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                          value={memoryTimeFilter}
+                          onChange={(event) =>
+                            setMemoryTimeFilter(event.target.value as "ALL" | "7D" | "30D" | "90D")
+                          }
+                        >
+                          <option value="ALL">Todo periodo</option>
+                          <option value="7D">Ultimos 7 dias</option>
+                          <option value="30D">Ultimos 30 dias</option>
+                          <option value="90D">Ultimos 90 dias</option>
                         </select>
                       </div>
                       <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">

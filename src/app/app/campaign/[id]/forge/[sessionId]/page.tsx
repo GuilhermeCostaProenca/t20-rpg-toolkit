@@ -374,6 +374,38 @@ function buildMemoryChange(): SessionForgeMemoryChangeItem {
   };
 }
 
+function buildAutoAttendance(entity: CodexEntity): SessionForgeMemoryAttendanceItem {
+  return {
+    id: `attendance-${Math.random().toString(36).slice(2, 10)}`,
+    label: entity.name,
+    entityId: entity.id,
+    status: "appeared",
+    notes: "Sugestao automatica a partir das entidades em foco da sessao.",
+    visibility: "PLAYERS",
+  };
+}
+
+function buildAutoDeath(entity: CodexEntity): SessionForgeMemoryDeathItem {
+  return {
+    id: `death-${Math.random().toString(36).slice(2, 10)}`,
+    label: entity.name,
+    entityId: entity.id,
+    notes: "Sugestao automatica detectada por texto de ruptura/morte. Revisar antes de salvar.",
+    visibility: "MASTER",
+  };
+}
+
+function buildAutoChange(title: string): SessionForgeMemoryChangeItem {
+  return {
+    id: `change-${Math.random().toString(36).slice(2, 10)}`,
+    title,
+    type: "discovery",
+    notes: "Sugestao automatica a partir de reveals executados.",
+    linkedEntityIds: [],
+    visibility: "PLAYERS",
+  };
+}
+
 function moveItem<T>(items: T[], fromIndex: number, direction: "up" | "down") {
   const nextIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
   if (nextIndex < 0 || nextIndex >= items.length) return items;
@@ -624,6 +656,77 @@ export default function SessionForgePage() {
         changes: current.memory.changes.map((item) => (item.id === itemId ? updater(item) : item)),
       },
     }));
+  }
+
+  function handleAutoReviewMemory() {
+    const entityById = new Map(entities.map((entity) => [entity.id, entity]));
+
+    setForge((current) => {
+      const usedEntityIds = new Set<string>();
+      for (const id of current.linkedEntityIds) usedEntityIds.add(id);
+      for (const beat of current.beats) {
+        for (const id of beat.linkedEntityIds) usedEntityIds.add(id);
+      }
+      for (const scene of current.scenes) {
+        if (scene.status === "discarded") continue;
+        for (const id of scene.linkedEntityIds) usedEntityIds.add(id);
+        for (const subscene of scene.subscenes) {
+          if (subscene.status === "discarded") continue;
+          for (const id of subscene.linkedEntityIds) usedEntityIds.add(id);
+        }
+      }
+
+      const existingAttendance = new Set(
+        current.memory.attendance.map((item) => item.entityId).filter((id): id is string => Boolean(id))
+      );
+      const attendanceSuggestions = Array.from(usedEntityIds)
+        .map((id) => entityById.get(id))
+        .filter((entity): entity is CodexEntity => Boolean(entity))
+        .filter((entity) => !existingAttendance.has(entity.id))
+        .slice(0, 8)
+        .map((entity) => buildAutoAttendance(entity));
+
+      const existingDeaths = new Set(
+        current.memory.deaths.map((item) => item.entityId).filter((id): id is string => Boolean(id))
+      );
+      const deathCandidateIds = new Set<string>();
+      for (const change of current.memory.changes) {
+        const text = `${change.title} ${change.notes}`.toLowerCase();
+        if (!/(morreu|morto|morta|falec|executad)/.test(text)) continue;
+        for (const linkedId of change.linkedEntityIds) {
+          deathCandidateIds.add(linkedId);
+        }
+      }
+      const deathSuggestions = Array.from(deathCandidateIds)
+        .map((id) => entityById.get(id))
+        .filter((entity): entity is CodexEntity => Boolean(entity))
+        .filter((entity) => !existingDeaths.has(entity.id))
+        .slice(0, 4)
+        .map((entity) => buildAutoDeath(entity));
+
+      const existingChangeTitles = new Set(
+        current.memory.changes.map((item) => item.title.trim().toLowerCase()).filter(Boolean)
+      );
+      const keyEventSuggestions = current.reveals
+        .filter((item) => item.status === "executed")
+        .map((item) => item.title.trim())
+        .filter((title) => title.length > 0)
+        .filter((title) => !existingChangeTitles.has(title.toLowerCase()))
+        .slice(0, 4)
+        .map((title) => buildAutoChange(title));
+
+      return {
+        ...current,
+        memory: {
+          ...current.memory,
+          attendance: [...current.memory.attendance, ...attendanceSuggestions],
+          deaths: [...current.memory.deaths, ...deathSuggestions],
+          changes: [...current.memory.changes, ...keyEventSuggestions],
+        },
+      };
+    });
+
+    setMessage("Sugestoes automaticas aplicadas no fechamento. Revise e ajuste antes de salvar.");
   }
 
   async function handleRevealNow(item: SessionForgeDramaticItem) {
@@ -1549,6 +1652,14 @@ export default function SessionForgePage() {
                 Consolide o que realmente ficou da mesa: resumo publico, resumo do mestre, presencas,
                 mortes e mudancas persistentes do mundo.
               </p>
+              <Button
+                variant="outline"
+                className="border-white/10 bg-white/5"
+                onClick={handleAutoReviewMemory}
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                Sugerir revisao automatica
+              </Button>
             </div>
 
             <div className="grid gap-4">

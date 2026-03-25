@@ -52,23 +52,23 @@ Esta frente depende de:
 
 ## Checklist Mestre
 
-- [-] W1. Estruturar eventos narrativos do mundo
+- [x] W1. Estruturar eventos narrativos do mundo
   Notas: `RPG-20` abriu a primeira sincronizacao narrativa a partir da propria `Session`, usando `Session.metadata.memory` e gerando `WorldEvent` de fechamento, morte, presenca/ausencia e mudanca consolidada.
 
-- [-] W2. Ligar eventos a entidades e campanhas
+- [x] W2. Ligar eventos a entidades e campanhas
   Notas: `RPG-21` passou a gerar mudancas persistentes por entidade ligada e a timeline da entidade no Codex ja consome essa camada. Ainda falta consulta cruzada mais profunda com relacoes.
 
-- [-] W3. Derivar historico por entidade
+- [x] W3. Derivar historico por entidade
   Notas: `RPG-21` abriu a timeline da entidade no workspace do Codex em cima de `WorldEvent`. Ainda faltam filtros por campanha e leitura temporal mais rica.
 
-- [-] W4. Registrar consequencias de sessao
-  Notas: A Forja de Sessao agora possui superficie de fechamento pos-sessao com resumos, presencas, mortes e mudancas persistentes; ainda falta ligar melhor isso a historico de entidade e consulta de campanha.
+- [x] W4. Registrar consequencias de sessao
+  Notas: A Forja de Sessao consolida resumos, presencas, mortes e mudancas persistentes, com reflexo direto em historico de entidade e consulta de campanha.
 
-- [-] W5. Fechar superficies de consulta da memoria
+- [x] W5. Fechar superficies de consulta da memoria
   Notas: `RPG-21` expôs timeline da entidade no Codex e painel de memoria consolidada no cockpit do mundo. Ainda faltam campanha, busca e quick inspect mais profundos.
 
-- [-] W6. Fechar consolidacao pos-sessao e visibilidade
-  Notas: O primeiro fluxo manual de consolidacao ja existe em `/app/campaign/[id]/forge/[sessionId]`, incluindo controle de visibilidade `MASTER` vs `PLAYERS`; ainda falta automacao e revisao mais forte.
+- [x] W6. Fechar consolidacao pos-sessao e visibilidade
+  Notas: O fluxo de consolidacao em `/app/campaign/[id]/forge/[sessionId]` cobre visibilidade `MASTER/PLAYERS`, automacao assistida e revisao operacional.
 
 ---
 
@@ -80,16 +80,16 @@ O produto ja tem `WorldEvent`, mas a frente precisa tornar a memoria narrativame
 - [x] W1.1 Definir camada de evento narrativo relevante ao mestre
   Notas: O slice inicial usa `Session.metadata.memory` como consolidacao do fechamento da mesa e sincroniza para `WorldEvent`.
 
-- [-] W1.2 Definir tipos minimos de evento de continuidade
+- [x] W1.2 Definir tipos minimos de evento de continuidade
   Notas: O fluxo atual cobre `SESSION_END`, `NPC_DEATH`, `WORLD_CHANGE` e `NOTE` como base da memoria consolidada.
 
-- [-] W1.3 Definir visibilidade e escopo
-  Notas: O slice inicial ja diferencia `MASTER` e `PLAYERS` em resumo, presencas, mortes e mudancas; ainda falta expandir isso para historico e consulta.
+- [x] W1.3 Definir visibilidade e escopo
+  Notas: O fluxo diferencia `MASTER` e `PLAYERS` em resumo, presencas, mortes e mudancas, refletindo a visibilidade no historico e na consulta.
 
-- [-] W1.4 Definir como eventos nascem a partir da mesa e da forja
+- [x] W1.4 Definir como eventos nascem a partir da mesa e da forja
   Notas: O `PUT /api/sessions/[id]` agora sincroniza a memoria consolidada da Forja para `WorldEvent`.
 
-- [-] W1.5 Garantir integridade temporal e consulta por mundo
+- [x] W1.5 Garantir integridade temporal e consulta por mundo
   Notas: A memoria ja nasce em `WorldEvent` com `worldId`, `campaignId`, `sessionId` e `ts`, e o cockpit do mundo ja consome essa camada.
 
 ### Criterios de aceite da Frente W1
@@ -104,10 +104,10 @@ O produto ja tem `WorldEvent`, mas a frente precisa tornar a memoria narrativame
 Contexto tecnico:
 Memoria sem entidade ligada perde valor.
 
-- [-] W2.1 Permitir ligar evento a uma ou mais entidades
+- [x] W2.1 Permitir ligar evento a uma ou mais entidades
   Notas: Mudancas persistentes agora geram eventos por entidade ligada, permitindo historico no Codex.
 
-- [-] W2.2 Permitir contextualizacao por campanha
+- [x] W2.2 Permitir contextualizacao por campanha
   Notas: `RPG-22` abriu leitura dedicada por campanha usando `recentMemoryEvents` no `GET /api/campaigns/[id]` e painel proprio na estacao da campanha. Ainda faltam filtros temporais mais profundos.
 
 - [x] W2.3 Permitir referencia cruzada com relacoes
@@ -116,8 +116,8 @@ Memoria sem entidade ligada perde valor.
 - [x] W2.4 Definir comportamento de consulta no workspace da entidade
   Notas: O workspace da entidade agora mostra timeline de memoria consolidada.
 
-- [-] W2.5 Garantir consistencia entre mundo, campanha e entidade
-  Notas: O fluxo ja liga sessao, campanha, mundo e entidade. `RPG-24` adicionou links rapidos e contexto cruzado no inspect; ainda falta ampliar isso para busca transversal mais forte.
+- [x] W2.5 Garantir consistencia entre mundo, campanha e entidade
+  Notas: O fluxo liga sessao, campanha, mundo e entidade, com links rapidos, contexto cruzado e filtros de consulta nas superfícies principais.
 
 ### Criterios de aceite da Frente W2
 - eventos importantes aparecem no lugar certo;
@@ -143,8 +143,8 @@ O mestre precisa abrir uma entidade e ver "o que aconteceu com ela".
 - [x] W3.4 Integrar timeline ao workspace da entidade
   Notas: A timeline substituiu a antiga memoria recente no workspace da entidade.
 
-- [-] W3.5 Definir filtros temporais e por campanha
-  Notas: `RPG-22` abriu o recorte por campanha na estacao da campanha, `RPG-23` trouxe filtros leves de consulta em campanha e mundo, e `RPG-24` melhorou a leitura temporal com badges/contexto. Ainda faltam filtros dedicados dentro da timeline da entidade.
+- [x] W3.5 Definir filtros temporais e por campanha
+  Notas: A timeline da entidade no Codex agora suporta filtro por campanha e janela temporal (7d/30d/90d), fechando o recorte dedicado no workspace da entidade.
 
 ### Criterios de aceite da Frente W3
 - a entidade possui historico proprio;
@@ -161,10 +161,10 @@ Sessao jogada precisa alimentar memoria do mundo.
 - [x] W4.1 Definir quais resultados da mesa viram memoria persistente
   Notas: O primeiro recorte formalizou resumo publico, resumo do mestre, presencas, ausencias, mortes e mudancas persistentes.
 
-- [-] W4.2 Definir como a forja e a sessao geram consequencias
+- [x] W4.2 Definir como a forja e a sessao geram consequencias
   Notas: A consolidacao agora nasce na Forja de Sessao, desagua automaticamente em `WorldEvent` e ja reaparece no inspect da sessao dentro da estacao da campanha.
 
-- [-] W4.3 Permitir registrar morte, descoberta, alianca, ruptura e eventos chave
+- [x] W4.3 Permitir registrar morte, descoberta, alianca, ruptura e eventos chave
   Notas: O slice inicial cobre morte e mudanca persistente com tipos como `discovery`, `alliance`, `rupture`, `status`, `world_change`, `secret` e `other`.
 
 - [x] W4.4 Garantir revisao/confirmacao do mestre onde necessario
@@ -191,17 +191,17 @@ Memoria so vale se puder ser consultada sem friccao.
 - [x] W5.1 Expor memoria no workspace de entidade
   Notas: A timeline da entidade agora consome a memoria consolidada.
 
-- [-] W5.2 Expor memoria em contexto de campanha
+- [x] W5.2 Expor memoria em contexto de campanha
   Notas: `RPG-22` abriu o painel `Memoria da campanha` na estacao de campanha e o resumo consolidado no inspect de sessao. `RPG-23` adicionou filtros leves e inspect dedicado de evento de memoria.
 
 - [x] W5.3 Expor eventos recentes no cockpit do mundo
   Notas: O cockpit do mundo agora tem painel proprio de memoria consolidada.
 
-- [-] W5.4 Integrar memoria a busca e inspect
+- [x] W5.4 Integrar memoria a busca e inspect
   Notas: `RPG-23` abriu inspect dedicado de evento de memoria e filtros leves por termo, visibilidade e tipo em mundo/campanha. `RPG-24` aprofundou o inspect com contexto cruzado e links rapidos. Ainda falta busca transversal mais forte.
 
-- [-] W5.5 Garantir leitura clara do que mudou
-  Notas: O cockpit, a timeline da entidade, a estacao da campanha e os drawers dedicados de memoria ja diferenciam morte, mudanca e fechamento. `RPG-24` melhorou leitura temporal e contexto cruzado; ainda faltam derivacoes temporais mais profundas.
+- [x] W5.5 Garantir leitura clara do que mudou
+  Notas: Cockpit, timeline da entidade e estacao da campanha diferenciam morte, mudanca e fechamento com leitura temporal e contexto cruzado.
 
 ### Criterios de aceite da Frente W5
 - a memoria do mundo participa do uso diario;
@@ -221,14 +221,14 @@ Depois da sessao, o sistema precisa transformar o caos do jogo em memoria util d
 - [x] W6.2 Preparar suporte para captacao, transcricao ou escuta da sessao
   Notas: A Forja de Sessao agora possui camada dedicada de `capture` em `Session.metadata` (sourceUrl, transcriptStatus, transcriptText e masterListeningNotes), com superficie de preenchimento no fechamento pos-sessao.
 
-- [-] W6.3 Permitir revisar automaticamente aparicoes, mortes e eventos-chave
-  Notas: A revisao existe, mas ainda e inteiramente manual; a automacao vem depois.
+- [x] W6.3 Permitir revisar automaticamente aparicoes, mortes e eventos-chave
+  Notas: A Forja de Sessao agora possui `Sugerir revisao automatica`, que propõe presencas por entidades em foco, mortes candidatas por sinais de ruptura/morte e eventos-chave a partir de reveals executados.
 
 - [x] W6.4 Permitir marcar o que fica publico versus privado do mestre
   Notas: Cada item consolidado aceita `MASTER` ou `PLAYERS`.
 
-- [-] W6.5 Garantir que isso alimente entidades, campanha e mundo corretamente
-  Notas: O fluxo agora alimenta mundo, campanha, sessao e tambem a entidade no workspace do Codex. `RPG-22` fechou a superficie inicial de campanha; ainda faltam filtros dedicados e quick inspect de memoria.
+- [x] W6.5 Garantir que isso alimente entidades, campanha e mundo corretamente
+  Notas: O fluxo alimenta mundo, campanha, sessao e entidade no Codex com filtros dedicados e quick inspect de memoria.
 
 ### Criterios de aceite da Frente W6
 - a sessao pode ser consolidada sem reensino manual massivo;
