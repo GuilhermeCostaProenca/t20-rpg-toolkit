@@ -938,15 +938,15 @@ export default function SessionForgePage() {
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function jumpToSceneCard(sceneId: string) {
+  const jumpToSceneCard = useCallback((sceneId: string) => {
     if (typeof window === "undefined") return;
     setActiveSceneRailId(sceneId);
     const target = document.getElementById(`forge-scene-${sceneId}`);
     if (!target) return;
     target.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  }, []);
 
-  function navigateSceneRail(direction: "prev" | "next") {
+  const navigateSceneRail = useCallback((direction: "prev" | "next") => {
     if (forge.scenes.length === 0) return;
     const fallbackIndex = 0;
     const currentIndex = activeSceneRailIndex >= 0 ? activeSceneRailIndex : fallbackIndex;
@@ -957,7 +957,32 @@ export default function SessionForgePage() {
     const nextScene = forge.scenes[nextIndex];
     if (!nextScene) return;
     jumpToSceneCard(nextScene.id);
-  }
+  }, [activeSceneRailIndex, forge.scenes, jumpToSceneCard]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || forge.scenes.length === 0) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const tagName = target?.tagName.toLowerCase();
+      const isTypingTarget =
+        tagName === "input" ||
+        tagName === "textarea" ||
+        target?.isContentEditable;
+      if (isTypingTarget) return;
+
+      if (event.key === "[") {
+        event.preventDefault();
+        navigateSceneRail("prev");
+      } else if (event.key === "]") {
+        event.preventDefault();
+        navigateSceneRail("next");
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [forge.scenes.length, navigateSceneRail]);
 
   if (loading) {
     return (
@@ -1241,6 +1266,9 @@ export default function SessionForgePage() {
                     </Button>
                   ))}
                 </div>
+                <p className="mt-2 text-[10px] uppercase tracking-[0.12em] text-white/45">
+                  Atalhos: [ anterior cena | ] proxima cena
+                </p>
               </div>
             ) : null}
 
