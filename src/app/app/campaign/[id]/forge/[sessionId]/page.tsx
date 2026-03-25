@@ -581,6 +581,25 @@ export default function SessionForgePage() {
     [focusedEntities]
   );
 
+  const dramaticItems = useMemo(
+    () => [...forge.hooks, ...forge.secrets, ...forge.reveals],
+    [forge.hooks, forge.secrets, forge.reveals]
+  );
+
+  const dramaticStatusCounts = useMemo<Record<"all" | SessionForgeDramaticStatus, number>>(() => {
+    const counts: Record<"all" | SessionForgeDramaticStatus, number> = {
+      all: dramaticItems.length,
+      planned: 0,
+      executed: 0,
+      delayed: 0,
+      canceled: 0,
+    };
+    for (const item of dramaticItems) {
+      counts[item.status] += 1;
+    }
+    return counts;
+  }, [dramaticItems]);
+
   const readyScenes = useMemo(
     () =>
       forge.scenes.filter(
@@ -1965,7 +1984,7 @@ export default function SessionForgePage() {
                   }
                   onClick={() => setDramaticStatusFilter("all")}
                 >
-                  Todos
+                  Todos ({dramaticStatusCounts.all})
                 </Button>
                 {dramaticStatusOptions.map((status) => (
                   <Button
@@ -1979,7 +1998,7 @@ export default function SessionForgePage() {
                     }
                     onClick={() => setDramaticStatusFilter(status)}
                   >
-                    {status}
+                    {status} ({dramaticStatusCounts[status]})
                   </Button>
                 ))}
               </div>
