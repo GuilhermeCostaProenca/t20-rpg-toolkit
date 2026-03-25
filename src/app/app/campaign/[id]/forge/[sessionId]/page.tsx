@@ -139,6 +139,12 @@ const dramaticStatusOptions: SessionForgeDramaticStatus[] = [
   "canceled",
 ];
 const encounterRatingOptions = ["trivial", "manageable", "risky", "deadly"] as const;
+const encounterRatingWeight: Record<(typeof encounterRatingOptions)[number], number> = {
+  deadly: 4,
+  risky: 3,
+  manageable: 2,
+  trivial: 1,
+};
 
 const sceneStatusOptions: SessionForgeSceneStatus[] = [
   "planned",
@@ -521,6 +527,7 @@ export default function SessionForgePage() {
   const [revealAssetSearchQuery, setRevealAssetSearchQuery] = useState("");
   const [encounterSceneFilter, setEncounterSceneFilter] = useState<string>("all");
   const [encounterRatingFilter, setEncounterRatingFilter] = useState<"all" | (typeof encounterRatingOptions)[number]>("all");
+  const [encounterSortBy, setEncounterSortBy] = useState<"scene" | "risk">("scene");
   const [collapsedSceneIds, setCollapsedSceneIds] = useState<Set<string>>(new Set());
   const [collapsedSubsceneIds, setCollapsedSubsceneIds] = useState<Set<string>>(new Set());
   const [activeSceneRailId, setActiveSceneRailId] = useState<string | null>(null);
@@ -792,6 +799,27 @@ export default function SessionForgePage() {
     if (encounterRatingFilter === "all") return sceneFiltered;
     return sceneFiltered.filter((encounter) => encounter.rating === encounterRatingFilter);
   }, [encounterRatingFilter, encounterSceneFilter, forge.encounters]);
+  const sortedFilteredEncounters = useMemo(() => {
+    const next = [...filteredEncounters];
+    next.sort((left, right) => {
+      if (encounterSortBy === "risk") {
+        const riskDiff = encounterRatingWeight[right.rating] - encounterRatingWeight[left.rating];
+        if (riskDiff !== 0) return riskDiff;
+      }
+      const leftScene = left.linkedSceneId ? (sceneTitleById.get(left.linkedSceneId) ?? "zzzz") : "zzzz";
+      const rightScene = right.linkedSceneId ? (sceneTitleById.get(right.linkedSceneId) ?? "zzzz") : "zzzz";
+      const sceneDiff = leftScene.localeCompare(rightScene, "pt-BR", { sensitivity: "base" });
+      if (sceneDiff !== 0) return sceneDiff;
+      if (encounterSortBy === "scene") {
+        const riskDiff = encounterRatingWeight[right.rating] - encounterRatingWeight[left.rating];
+        if (riskDiff !== 0) return riskDiff;
+      }
+      const leftTitle = (left.title || "Encontro preparado").trim();
+      const rightTitle = (right.title || "Encontro preparado").trim();
+      return leftTitle.localeCompare(rightTitle, "pt-BR", { sensitivity: "base" });
+    });
+    return next;
+  }, [encounterSortBy, filteredEncounters, sceneTitleById]);
   const hasActiveEncounterFilters =
     encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
   function clearEncounterFilters() {
@@ -3997,6 +4025,37 @@ export default function SessionForgePage() {
                       </Button>
                     ))}
                   </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-[0.12em] text-white/60">
+                      Ordenar por
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className={
+                        encounterSortBy === "scene"
+                          ? "border-primary/30 bg-primary/10 text-primary"
+                          : "border-white/10 bg-white/5"
+                      }
+                      onClick={() => setEncounterSortBy("scene")}
+                    >
+                      Cena
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className={
+                        encounterSortBy === "risk"
+                          ? "border-primary/30 bg-primary/10 text-primary"
+                          : "border-white/10 bg-white/5"
+                      }
+                      onClick={() => setEncounterSortBy("risk")}
+                    >
+                      Risco
+                    </Button>
+                  </div>
                   {hasActiveEncounterFilters ? (
                     <div className="flex justify-end">
                       <Button
@@ -4010,8 +4069,8 @@ export default function SessionForgePage() {
                       </Button>
                     </div>
                   ) : null}
-                  {filteredEncounters.length > 0 ? (
-                    filteredEncounters.map((encounter) => {
+                  {sortedFilteredEncounters.length > 0 ? (
+                    sortedFilteredEncounters.map((encounter) => {
                   const linkedSceneTitle = encounter.linkedSceneId
                     ? sceneTitleById.get(encounter.linkedSceneId)
                     : undefined;
