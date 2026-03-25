@@ -159,6 +159,30 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
 
     const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
+    const removePendingOverride = (id: string, type: "hp" | "pm" | "san") => {
+        const current = pendingSheetOverridesRef.current[id];
+        if (!current) return;
+
+        const next: PendingSheetOverride = { ...current };
+        delete next[type];
+
+        if (
+            typeof next.hp !== "number" &&
+            typeof next.pm !== "number" &&
+            typeof next.san !== "number"
+        ) {
+            const cloned = { ...pendingSheetOverridesRef.current };
+            delete cloned[id];
+            pendingSheetOverridesRef.current = cloned;
+            return;
+        }
+
+        pendingSheetOverridesRef.current = {
+            ...pendingSheetOverridesRef.current,
+            [id]: next,
+        };
+    };
+
     const handleGrant = async (id: string, type: "hp" | "pm" | "san", amount: number) => {
         const target = agents.find((agent) => agent.id === id);
         if (!target) return;
@@ -175,6 +199,7 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                 : type === "pm"
                     ? target.pm.max
                     : target.san.max;
+        const previousValue = current;
         const nextValue = clamp(current + amount, 0, max);
 
         setAgents((prev) =>
@@ -199,7 +224,7 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
         };
 
         try {
-            await fetch(`/api/characters/${id}/sheet`, {
+            const response = await fetch(`/api/characters/${id}/sheet`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(
@@ -210,24 +235,25 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                             : { sanCurrent: nextValue },
                 ),
             });
-        } catch (error) {
-            const current = pendingSheetOverridesRef.current[id] ?? {};
-            const next: PendingSheetOverride = { ...current };
-            delete next[type];
-            if (
-                typeof next.hp !== "number" &&
-                typeof next.pm !== "number" &&
-                typeof next.san !== "number"
-            ) {
-                const cloned = { ...pendingSheetOverridesRef.current };
-                delete cloned[id];
-                pendingSheetOverridesRef.current = cloned;
-            } else {
-                pendingSheetOverridesRef.current = {
-                    ...pendingSheetOverridesRef.current,
-                    [id]: next,
-                };
+            if (!response.ok) {
+                const payload = await response.json().catch(() => null);
+                const message = (payload?.error as string | undefined) ?? "Failed to update character sheet";
+                throw new Error(message);
             }
+        } catch (error) {
+            setAgents((prev) =>
+                prev.map((agent) => {
+                    if (agent.id !== id) return agent;
+                    if (type === "hp") {
+                        return { ...agent, hp: { ...agent.hp, current: previousValue } };
+                    }
+                    if (type === "pm") {
+                        return { ...agent, pm: { ...agent.pm, current: previousValue } };
+                    }
+                    return { ...agent, san: { ...agent.san, current: previousValue } };
+                }),
+            );
+            removePendingOverride(id, type);
             console.error("Failed to update character sheet", error);
         }
     };
