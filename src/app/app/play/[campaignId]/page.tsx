@@ -198,6 +198,7 @@ export default function PlayPage() {
     const routeSceneId = searchParams.get("sceneId");
     const routeSubsceneId = searchParams.get("subsceneId");
     const routeFocus = searchParams.get("focus");
+    const routePreset = searchParams.get("preset");
 
     const loadLiveCombat = useCallback(async () => {
         if (!campaignId) return;
@@ -278,10 +279,18 @@ export default function PlayPage() {
 
     useEffect(() => {
         if (!campaignId) return;
-        if (routeFocus === "narrative" || routeFocus === "tactical") {
-            setTableFocusMode(routeFocus);
+        const presetFocus =
+            routePreset === "narrative" || routePreset === "tactical"
+                ? routePreset
+                : null;
+        const nextFocus =
+            routeFocus === "narrative" || routeFocus === "tactical"
+                ? routeFocus
+                : presetFocus;
+        if (nextFocus) {
+            setTableFocusMode(nextFocus);
             try {
-                window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, routeFocus);
+                window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, nextFocus);
             } catch (error) {
                 console.error("Failed to persist table focus mode", error);
             }
@@ -294,10 +303,26 @@ export default function PlayPage() {
             console.error("Failed to load table focus mode", error);
             setTableFocusMode("narrative");
         }
-    }, [campaignId, routeFocus]);
+    }, [campaignId, routeFocus, routePreset]);
 
     useEffect(() => {
         if (!campaignId) return;
+        if (routePreset === "tactical" || routePreset === "narrative") {
+            const nextPanels =
+                routePreset === "tactical"
+                    ? { showSupport: true, showCodex: false }
+                    : { showSupport: true, showCodex: true };
+            setCockpitPanels(nextPanels);
+            try {
+                window.localStorage.setItem(
+                    `t20.live.cockpit-panels.${campaignId}`,
+                    JSON.stringify(nextPanels),
+                );
+            } catch (error) {
+                console.error("Failed to persist cockpit panel visibility", error);
+            }
+            return;
+        }
         try {
             const saved = window.localStorage.getItem(`t20.live.cockpit-panels.${campaignId}`);
             if (!saved) {
@@ -313,10 +338,20 @@ export default function PlayPage() {
             console.error("Failed to load cockpit panel visibility", error);
             setCockpitPanels(DEFAULT_COCKPIT_PANELS);
         }
-    }, [campaignId]);
+    }, [campaignId, routePreset]);
 
     useEffect(() => {
         if (!campaignId) return;
+        if (routePreset === "tactical" || routePreset === "narrative") {
+            const nextHistory = routePreset !== "tactical";
+            setShowHistoryChat(nextHistory);
+            try {
+                window.localStorage.setItem(`t20.live.history-chat.${campaignId}`, String(nextHistory));
+            } catch (error) {
+                console.error("Failed to persist history chat visibility", error);
+            }
+            return;
+        }
         try {
             const saved = window.localStorage.getItem(`t20.live.history-chat.${campaignId}`);
             setShowHistoryChat(saved !== "false");
@@ -324,7 +359,7 @@ export default function PlayPage() {
             console.error("Failed to load history chat visibility", error);
             setShowHistoryChat(true);
         }
-    }, [campaignId]);
+    }, [campaignId, routePreset]);
 
     useEffect(() => {
         if (!campaignId) return;
