@@ -1147,6 +1147,26 @@ export default function SessionForgePage() {
                             </Button>
                           ))}
                         </div>
+                        {scene.linkedEntityIds.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {entities
+                              .filter((entity) => scene.linkedEntityIds.includes(entity.id))
+                              .slice(0, 4)
+                              .map((entity) => (
+                                <Button
+                                  key={`scene-codex-${scene.id}-${entity.id}`}
+                                  asChild
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-white/10 bg-black/30"
+                                >
+                                  <Link href={`/app/worlds/${campaign.world.id}/codex/${entity.id}`}>
+                                    Consultar {entity.name}
+                                  </Link>
+                                </Button>
+                              ))}
+                          </div>
+                        ) : null}
                       </div>
 
                       <div className="space-y-2">
@@ -1346,6 +1366,26 @@ export default function SessionForgePage() {
                                       </Button>
                                     ))}
                                   </div>
+                                  {subscene.linkedEntityIds.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2">
+                                      {entities
+                                        .filter((entity) => subscene.linkedEntityIds.includes(entity.id))
+                                        .slice(0, 4)
+                                        .map((entity) => (
+                                          <Button
+                                            key={`subscene-codex-${subscene.id}-${entity.id}`}
+                                            asChild
+                                            size="sm"
+                                            variant="outline"
+                                            className="border-white/10 bg-black/30"
+                                          >
+                                            <Link href={`/app/worlds/${campaign.world.id}/codex/${entity.id}`}>
+                                              Consultar {entity.name}
+                                            </Link>
+                                          </Button>
+                                        ))}
+                                    </div>
+                                  ) : null}
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                   {forge.reveals.length > 0 ? (
