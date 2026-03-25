@@ -811,6 +811,13 @@ export default function SessionForgePage() {
     }));
   }
 
+  function jumpToSection(sectionId: string) {
+    if (typeof window === "undefined") return;
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -930,9 +937,49 @@ export default function SessionForgePage() {
         </div>
       </section>
 
+      <section className="chrome-panel rounded-[24px] p-4">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className="border-white/10 bg-white/5"
+            onClick={() => jumpToSection("forge-section-briefing")}
+          >
+            Briefing
+          </Button>
+          <Button
+            variant="outline"
+            className="border-white/10 bg-white/5"
+            onClick={() => jumpToSection("forge-section-scenes")}
+          >
+            Cenas
+          </Button>
+          <Button
+            variant="outline"
+            className="border-white/10 bg-white/5"
+            onClick={() => jumpToSection("forge-section-beats")}
+          >
+            Beats
+          </Button>
+          <Button
+            variant="outline"
+            className="border-white/10 bg-white/5"
+            onClick={() => jumpToSection("forge-section-dramatic")}
+          >
+            Dramatica
+          </Button>
+          <Button
+            variant="outline"
+            className="border-white/10 bg-white/5"
+            onClick={() => jumpToSection("forge-section-visual")}
+          >
+            Visual
+          </Button>
+        </div>
+      </section>
+
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_360px]">
         <div className="space-y-6">
-          <section className="chrome-panel rounded-[30px] p-6">
+          <section id="forge-section-briefing" className="chrome-panel rounded-[30px] p-6">
             <div className="mb-5 space-y-2">
               <p className="section-eyebrow">Briefing</p>
               <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
@@ -961,7 +1008,7 @@ export default function SessionForgePage() {
             </div>
           </section>
 
-          <section className="chrome-panel rounded-[30px] p-6">
+          <section id="forge-section-scenes" className="chrome-panel rounded-[30px] p-6">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <p className="section-eyebrow">Cenas em jogo</p>
@@ -1691,7 +1738,7 @@ export default function SessionForgePage() {
             )}
           </section>
 
-          <section className="chrome-panel rounded-[30px] p-6">
+          <section id="forge-section-beats" className="chrome-panel rounded-[30px] p-6">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <p className="section-eyebrow">Roteiro flexivel</p>
@@ -1806,7 +1853,7 @@ export default function SessionForgePage() {
             )}
           </section>
 
-          <section className="chrome-panel rounded-[30px] p-6">
+          <section id="forge-section-dramatic" className="chrome-panel rounded-[30px] p-6">
             <div className="mb-5 space-y-2">
               <p className="section-eyebrow">Camada dramatica</p>
               <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
@@ -1978,7 +2025,7 @@ export default function SessionForgePage() {
             </div>
           </section>
 
-          <section className="chrome-panel rounded-[30px] p-6">
+          <section id="forge-section-visual" className="chrome-panel rounded-[30px] p-6">
             <div className="mb-5 space-y-2">
               <p className="section-eyebrow">Notas operacionais</p>
               <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
