@@ -421,13 +421,15 @@ function buildLiveTableHref(
   sessionId: string,
   sceneId?: string,
   subsceneId?: string,
-  focus?: "narrative" | "tactical"
+  focus?: "narrative" | "tactical",
+  preset?: "narrative" | "tactical"
 ) {
   const search = new URLSearchParams();
   search.set("sessionId", sessionId);
   if (sceneId) search.set("sceneId", sceneId);
   if (subsceneId) search.set("subsceneId", subsceneId);
   if (focus) search.set("focus", focus);
+  if (preset) search.set("preset", preset);
   const suffix = search.toString();
   return `/app/play/${campaignId}${suffix ? `?${suffix}` : ""}`;
 }
@@ -917,13 +919,13 @@ export default function SessionForgePage() {
               <p className="section-eyebrow">Acessos</p>
               <div className="mt-4 grid gap-3">
                 <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
-                  <Link href={buildLiveTableHref(campaign.id, selectedSession.id, undefined, undefined, "narrative")}>
+                  <Link href={buildLiveTableHref(campaign.id, selectedSession.id, undefined, undefined, "narrative", "narrative")}>
                     Mesa narrativa
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
-                  <Link href={buildLiveTableHref(campaign.id, selectedSession.id, undefined, undefined, "tactical")}>
+                  <Link href={buildLiveTableHref(campaign.id, selectedSession.id, undefined, undefined, "tactical", "tactical")}>
                     Mesa tatica
                     <ArrowRight className="h-4 w-4" />
                   </Link>

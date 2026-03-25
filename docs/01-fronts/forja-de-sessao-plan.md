@@ -91,7 +91,7 @@ Preparar sessao precisa ser atividade de primeira classe, nao campo de texto per
   Notas: A forja da sessao consome a campanha, o mundo, o Codex e o corpus de `LORE` ligados a ela.
 
 - [-] F1.5 Garantir que a forja se encaixe no cockpit continuo
-  Notas: A entrada ja existe pela pagina da campanha com CTA `Forjar sessao`. `RPG-99` aprofundou o handoff com preset de foco da mesa (`focus=narrative|tactical`) na abertura a partir da Forja, reduzindo ajuste manual inicial no cockpit.
+  Notas: A entrada ja existe pela pagina da campanha com CTA `Forjar sessao`. `RPG-99` aprofundou o handoff com preset de foco da mesa (`focus=narrative|tactical`) na abertura a partir da Forja, reduzindo ajuste manual inicial no cockpit. `RPG-103` completou o preset de cockpit com `preset=narrative|tactical` (foco + visibilidade de paineis + historico) aplicado na entrada da mesa.
 
 ### Criterios de aceite da Frente F1
 - existe um lugar claro para preparar uma sessao;
