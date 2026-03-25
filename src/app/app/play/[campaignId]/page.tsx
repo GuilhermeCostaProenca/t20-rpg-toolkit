@@ -197,6 +197,7 @@ export default function PlayPage() {
     const routeSessionId = searchParams.get("sessionId");
     const routeSceneId = searchParams.get("sceneId");
     const routeSubsceneId = searchParams.get("subsceneId");
+    const routeFocus = searchParams.get("focus");
 
     const loadLiveCombat = useCallback(async () => {
         if (!campaignId) return;
@@ -277,6 +278,15 @@ export default function PlayPage() {
 
     useEffect(() => {
         if (!campaignId) return;
+        if (routeFocus === "narrative" || routeFocus === "tactical") {
+            setTableFocusMode(routeFocus);
+            try {
+                window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, routeFocus);
+            } catch (error) {
+                console.error("Failed to persist table focus mode", error);
+            }
+            return;
+        }
         try {
             const saved = window.localStorage.getItem(`t20.live.table-focus.${campaignId}`);
             setTableFocusMode(saved === "tactical" ? "tactical" : "narrative");
@@ -284,7 +294,7 @@ export default function PlayPage() {
             console.error("Failed to load table focus mode", error);
             setTableFocusMode("narrative");
         }
-    }, [campaignId]);
+    }, [campaignId, routeFocus]);
 
     useEffect(() => {
         if (!campaignId) return;
