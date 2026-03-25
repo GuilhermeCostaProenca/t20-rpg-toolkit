@@ -170,10 +170,10 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
   Notas: `M4.1` integrou atalhos da Biblioteca Visual no `LivePrepCockpit`, com abertura contextual por mundo/campanha e cortes diretos para `reveals` e `cenas` da campanha ativa sem sair do fluxo de mesa.
 
 - [-] M4.2 Permitir disparar visual a partir de entidade ou cena
-  Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao, e a `cena em foco` agora contextualiza quais reveals aparecem primeiro. `RPG-39` aprofundou isso separando `reveal principal da cena`, `reveals secundarios` e `reveals gerais da sessao`, e `RPG-40` passou a sugerir referencias visuais de entidades em foco da cena, com retratos e lugares ligados ao contexto atual.
+  Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao, e a `cena em foco` agora contextualiza quais reveals aparecem primeiro. `RPG-39` aprofundou isso separando `reveal principal da cena`, `reveals secundarios` e `reveals gerais da sessao`, e `RPG-40` passou a sugerir referencias visuais de entidades em foco da cena, com retratos e lugares ligados ao contexto atual. O `LivePrepCockpit` agora tambem expoe atalhos diretos para Biblioteca Visual por campanha (`reveals` e `cenas`) sem sair do fluxo da mesa.
 
 - [-] M4.3 Definir fluxo rapido para mostrar referencia sem friccao
-  Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit. `RPG-41` aproximou isso do fluxo de consulta, sincronizando cards visuais da cena com o `quick inspect`.
+  Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit. `RPG-41` aproximou isso do fluxo de consulta, sincronizando cards visuais da cena com o `quick inspect`. O header do cockpit agora tambem centraliza status/atalho de segunda tela e atalho rapido de busca, reduzindo passos para acionar referencia visual em mesa real.
 
 - [x] M4.4 Garantir consistencia com TV/segunda tela
   Notas: `RPG-42` passou a marcar `pronto para segunda tela` nos reveals e assets visuais da cena, e o cockpit agora consegue exibir retratos/lugares direto para os jogadores usando o mesmo fluxo de `roomCode` dos reveals. O header da mesa agora mostra status explicito da segunda tela (`2a tela pronta`/`offline`) e atalho direto para abrir a view de jogadores.
