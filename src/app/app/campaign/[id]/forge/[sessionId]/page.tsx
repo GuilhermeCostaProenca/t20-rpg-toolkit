@@ -792,6 +792,12 @@ export default function SessionForgePage() {
     if (encounterRatingFilter === "all") return sceneFiltered;
     return sceneFiltered.filter((encounter) => encounter.rating === encounterRatingFilter);
   }, [encounterRatingFilter, encounterSceneFilter, forge.encounters]);
+  const hasActiveEncounterFilters =
+    encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
+  function clearEncounterFilters() {
+    setEncounterSceneFilter("all");
+    setEncounterRatingFilter("all");
+  }
   const activeSceneRailIndex = useMemo(
     () =>
       activeSceneRailId
@@ -3991,6 +3997,19 @@ export default function SessionForgePage() {
                       </Button>
                     ))}
                   </div>
+                  {hasActiveEncounterFilters ? (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        onClick={clearEncounterFilters}
+                      >
+                        Limpar filtros
+                      </Button>
+                    </div>
+                  ) : null}
                   {filteredEncounters.length > 0 ? (
                     filteredEncounters.map((encounter) => {
                   const linkedSceneTitle = encounter.linkedSceneId
