@@ -68,7 +68,7 @@ Esta frente depende de:
 - [-] F4. Integrar entidades e referencias visuais ao preparo
   Notas: `GUI-40` agora ja permite ligar imagem real a `reveals` da sessao e reaproveitar retrato/capa de entidades do Codex sem sair da forja. `RPG-27` acrescentou `encontros preparados` vindos da campanha e ligados opcionalmente a cenas da sessao. Ainda faltam assets mais ricos da biblioteca visual e ligacao mais forte por cena.
 
-- [ ] F5. Definir transicao da forja para a mesa ao vivo
+- [-] F5. Definir transicao da forja para a mesa ao vivo
   Notas:
 
 ---
@@ -162,16 +162,16 @@ A forja nao pode ser uma ilha.
 - [ ] F4.1 Permitir anexar entidades do codex a cena e roteiro
   Notas:
 
-- [ ] F4.2 Permitir anexar imagens e assets visuais
+- [-] F4.2 Permitir anexar imagens e assets visuais
   Notas: `reveals` ja aceitam `imageUrl`, reaproveitam imagens de entidades do Codex e a forja agora monta um `pacote visual da mesa` com assets puxados do preparo. Ainda falta curadoria mais profunda de assets da biblioteca visual.
 
-- [ ] F4.3 Permitir preparar reveals ligados a cena
+- [-] F4.3 Permitir preparar reveals ligados a cena
   Notas: Cenas e subcenas ja prendem `reveals` por ID; esses reveals agora podem inclusive ser enviados para a mesa.
 
 - [ ] F4.4 Permitir referencia cruzada para lugar, faccao e personagem
   Notas:
 
-- [ ] F4.5 Garantir consulta rapida do mundo durante o preparo
+- [-] F4.5 Garantir consulta rapida do mundo durante o preparo
   Notas: A forja agora sobe `pacote operacional` e `pacote visual da mesa` no proprio workspace, reduzindo a necessidade de sair da sessao para consultar o essencial.
 
 ### Criterios de aceite da Frente F4
@@ -198,7 +198,7 @@ Preparar e rodar precisam conversar.
 - [ ] F5.4 Definir o que deve ser registrado como executado
   Notas:
 
-- [ ] F5.5 Preparar integracao futura com memoria do mundo
+- [-] F5.5 Preparar integracao futura com memoria do mundo
   Notas: `RPG-20` abriu o primeiro fechamento pos-sessao dentro da propria Forja, com `Session.metadata.memory` para resumo publico, resumo do mestre, presencas, mortes e mudancas persistentes, alem de sincronizacao inicial com `WorldEvent`.
 
 ### Criterios de aceite da Frente F5
