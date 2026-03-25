@@ -1273,6 +1273,15 @@ export default function CampaignPage() {
                       <p className="mt-1 text-sm text-muted-foreground">
                         Score de grupo {encounterBalance.partyScore}
                       </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Base {encounterBalance.breakdown.party.baseLevelScore} + papeis{" "}
+                        {encounterBalance.breakdown.party.roleScore} + diversidade{" "}
+                        {encounterBalance.breakdown.party.diversityBonus}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Prontidao x{encounterBalance.breakdown.party.readinessModifier} · cobertura de ficha{" "}
+                        {Math.round(encounterBalance.breakdown.party.sheetCoverage * 100)}%
+                      </p>
                       <p className="mt-1 text-xs uppercase tracking-[0.14em] text-muted-foreground">
                         Frente {encounterBalance.partyProfile.frontliners} · Suporte {encounterBalance.partyProfile.sustain} ·
                         Ofensiva {encounterBalance.partyProfile.offense} · Controle {encounterBalance.partyProfile.control}
@@ -1286,11 +1295,23 @@ export default function CampaignPage() {
                       <p className="mt-1 text-sm text-muted-foreground">
                         Score de pressao {encounterBalance.threatScore}
                       </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Base {encounterBalance.breakdown.threat.rawThreatScore} + bonus de composicao{" "}
+                        {encounterBalance.breakdown.threat.compositionBonus}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Perfil {encounterBalance.breakdown.threat.profile} · foco do mais forte{" "}
+                        {Math.round(encounterBalance.breakdown.threat.strongestShare * 100)}%
+                      </p>
                     </div>
                     <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Leitura</p>
                       <p className="mt-2 text-sm font-semibold text-foreground">
                         Razao {encounterBalance.pressureRatio}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Razao base {encounterBalance.breakdown.ratio.base} · efetiva{" "}
+                        {encounterBalance.breakdown.ratio.effective}
                       </p>
                       <p className="mt-1 text-sm text-muted-foreground">
                         {encounterBalance.recommendation}

@@ -116,8 +116,8 @@ Nivel puro nem sempre representa a forca real da mesa.
 - [-] T2.4 Definir como o app lida com dados incompletos
   Notas: O helper reduz a confianca e expõe fatores quando faltam `role`, `hpMax`, `defenseFinal` ou `damageFormula`.
 
-- [ ] T2.5 Garantir que a leitura nao seja caixa-preta
-  Notas:
+- [x] T2.5 Garantir que a leitura nao seja caixa-preta
+  Notas: `RPG-61` (`codex/rpg-61-t20-balance-t2-5`) adicionou `breakdown` explicito no snapshot (base, papeis, diversidade, prontidao, composicao e razao base/efetiva) e exibiu essa conta no painel de balanceamento da campanha.
 
 ### Criterios de aceite da Frente T2
 - o app consegue avaliar grupo com utilidade real;
