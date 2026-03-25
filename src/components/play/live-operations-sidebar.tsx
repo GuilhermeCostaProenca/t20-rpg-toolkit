@@ -102,6 +102,7 @@ type LiveOperationsSidebarProps = {
     activeInspectEntityId: string | null;
     spawningEncounterEnemyId: string | null;
     spawnStatusMessage?: LiveOpsStatusMessage | null;
+    executionStatusMessage?: LiveOpsStatusMessage | null;
     inspectQuery: string;
     inspectCandidates: LiveCodexEntity[];
     inspectId: string | null;
@@ -128,6 +129,8 @@ type LiveOperationsSidebarProps = {
         enemy: SessionForgeEncounter["enemies"][number],
         enemyIndex: number,
     ) => void | Promise<void>;
+    onMarkActiveSceneExecuted: () => void | Promise<void>;
+    onMarkActiveSubsceneExecuted: () => void | Promise<void>;
     onInspectQueryChange: (value: string) => void;
     onInspectIdChange: (value: string | null) => void;
     onOpenSearch: () => void;
@@ -174,6 +177,7 @@ export function LiveOperationsSidebar({
     activeInspectEntityId,
     spawningEncounterEnemyId,
     spawnStatusMessage,
+    executionStatusMessage,
     inspectQuery,
     inspectCandidates,
     inspectId,
@@ -197,6 +201,8 @@ export function LiveOperationsSidebar({
     onReveal,
     onPresentAsset,
     onSpawnEncounterEnemy,
+    onMarkActiveSceneExecuted,
+    onMarkActiveSubsceneExecuted,
     onInspectQueryChange,
     onInspectIdChange,
     onOpenSearch,
@@ -279,12 +285,15 @@ export function LiveOperationsSidebar({
                 activeInspectEntityId={activeInspectEntityId}
                 spawningEncounterEnemyId={spawningEncounterEnemyId}
                 spawnStatusMessage={spawnStatusMessage}
+                executionStatusMessage={executionStatusMessage}
                 publicLayerLocked={publicLayerLocked}
                 onFocusScene={onFocusScene}
                 onInspectEntity={onInspectEntity}
                 onReveal={onReveal}
                 onPresentAsset={onPresentAsset}
                 onSpawnEncounterEnemy={onSpawnEncounterEnemy}
+                onMarkActiveSceneExecuted={onMarkActiveSceneExecuted}
+                onMarkActiveSubsceneExecuted={onMarkActiveSubsceneExecuted}
                 onTogglePublicLayerLock={onTogglePublicLayerLock}
             />
         </div>

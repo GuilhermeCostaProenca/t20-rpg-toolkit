@@ -18,7 +18,12 @@ export type SessionForgeDramaticItem = {
   imageUrl?: string;
 };
 
-export type SessionForgeSceneStatus = SessionForgeBeatStatus;
+export type SessionForgeSceneStatus =
+  | "planned"
+  | "optional"
+  | "improvised"
+  | "executed"
+  | "discarded";
 
 export type SessionForgeSubscene = {
   id: string;
@@ -167,7 +172,10 @@ export function getEmptySessionForgeState(): SessionForgeState {
 }
 
 function parseSceneStatus(value: unknown): SessionForgeSceneStatus {
-  return value === "optional" || value === "improvised" || value === "discarded"
+  return value === "optional" ||
+    value === "improvised" ||
+    value === "executed" ||
+    value === "discarded"
     ? value
     : "planned";
 }

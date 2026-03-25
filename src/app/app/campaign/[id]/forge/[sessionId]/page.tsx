@@ -139,6 +139,7 @@ const sceneStatusOptions: SessionForgeSceneStatus[] = [
   "planned",
   "optional",
   "improvised",
+  "executed",
   "discarded",
 ];
 

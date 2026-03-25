@@ -33,6 +33,7 @@ import {
     getCampaignNpcsPath,
 } from "@/lib/live-combat";
 import {
+    buildSessionMetadata,
     normalizeSessionForgeState,
     type SessionForgeEncounterEnemy,
     type SessionForgeState,
@@ -53,6 +54,8 @@ type GameEvent = {
 type SessionRecord = {
     id: string;
     title: string;
+    description?: string | null;
+    coverUrl?: string | null;
     status?: "planned" | "active" | "finished";
     scheduledAt?: string | null;
     metadata?: Record<string, unknown> | null;
@@ -174,6 +177,8 @@ export default function PlayPage() {
     const [currentPublicAsset, setCurrentPublicAsset] = useState<LivePublicAsset | null>(null);
     const [spawningEncounterEnemyId, setSpawningEncounterEnemyId] = useState<string | null>(null);
     const [spawnStatusMessage, setSpawnStatusMessage] = useState<LiveOpsStatusMessage | null>(null);
+    const [executionStatusMessage, setExecutionStatusMessage] = useState<LiveOpsStatusMessage | null>(null);
+    const [executingScope, setExecutingScope] = useState<"scene" | "subscene" | null>(null);
     const [soundtrack, setSoundtrack] = useState<SessionSoundtrack>({
         ambientUrl: "",
         combatUrl: "",
@@ -620,6 +625,12 @@ export default function PlayPage() {
     }, [spawnStatusMessage]);
 
     useEffect(() => {
+        if (!executionStatusMessage) return;
+        const timer = setTimeout(() => setExecutionStatusMessage(null), LIVE_SPAWN_STATUS_MS);
+        return () => clearTimeout(timer);
+    }, [executionStatusMessage]);
+
+    useEffect(() => {
         const isCombatActive = Boolean(liveCombat?.isActive);
         if (wasCombatActiveRef.current && !isCombatActive) {
             setSpawningEncounterEnemyId(null);
@@ -1023,6 +1034,94 @@ export default function PlayPage() {
     const activeEncounter = prepPacket?.forge.encounters.find((encounter) =>
         activeScene ? encounter.linkedSceneId === activeScene.id : true
     ) ?? prepPacket?.forge.encounters[0] ?? null;
+
+    async function handleMarkActiveExecuted(scope: "scene" | "subscene") {
+        if (!prepPacket || executingScope) return;
+        if (scope === "scene" && !activeScene) return;
+        if (scope === "subscene" && (!activeScene || !activeSubscene)) return;
+
+        const previousPacket = prepPacket;
+        const nextForge: SessionForgeState = {
+            ...previousPacket.forge,
+            scenes: previousPacket.forge.scenes.map((scene) => {
+                if (scene.id !== activeScene?.id) return scene;
+                if (scope === "scene") {
+                    return { ...scene, status: "executed" };
+                }
+                return {
+                    ...scene,
+                    subscenes: scene.subscenes.map((subscene) =>
+                        subscene.id === activeSubscene?.id
+                            ? { ...subscene, status: "executed" }
+                            : subscene
+                    ),
+                };
+            }),
+        };
+        const nextMetadata = buildSessionMetadata(nextForge, previousPacket.session.metadata);
+        const targetLabel = scope === "scene" ? "Cena" : "Subcena";
+
+        setExecutingScope(scope);
+        setExecutionStatusMessage(null);
+        setPrepPacket((current) =>
+            current
+                ? {
+                    ...current,
+                    forge: nextForge,
+                    session: { ...current.session, metadata: nextMetadata },
+                }
+                : current
+        );
+
+        try {
+            const response = await fetch(`/api/sessions/${previousPacket.session.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: previousPacket.session.title,
+                    description: previousPacket.session.description ?? undefined,
+                    coverUrl: previousPacket.session.coverUrl ?? undefined,
+                    scheduledAt: previousPacket.session.scheduledAt ?? undefined,
+                    status: previousPacket.session.status ?? "planned",
+                    metadata: nextMetadata,
+                }),
+            });
+
+            const json = await response.json().catch(() => null);
+            if (!response.ok) {
+                const message =
+                    (json?.error as string | undefined) ??
+                    `Falha ao registrar ${targetLabel.toLowerCase()} como executada.`;
+                throw new Error(message);
+            }
+
+            const updatedSession = (json?.data as SessionRecord | undefined) ?? null;
+            if (updatedSession) {
+                setPrepPacket({
+                    session: updatedSession,
+                    forge: normalizeSessionForgeState(updatedSession.metadata),
+                });
+            }
+
+            setExecutionStatusMessage({
+                kind: "success",
+                message: `${targetLabel} marcada como executada.`,
+            });
+        } catch (error) {
+            console.error("Mark executed failed", error);
+            setPrepPacket(previousPacket);
+            setExecutionStatusMessage({
+                kind: "error",
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : `Falha ao registrar ${targetLabel.toLowerCase()} como executada.`,
+            });
+        } finally {
+            setExecutingScope(null);
+        }
+    }
+
     const narrativeContext = activeScene
         ? {
             sceneTitle: activeScene.title || "Cena sem titulo",
@@ -1171,6 +1270,7 @@ export default function PlayPage() {
                 activeInspectEntityId={inspectId}
                 spawningEncounterEnemyId={spawningEncounterEnemyId}
                 spawnStatusMessage={spawnStatusMessage}
+                executionStatusMessage={executionStatusMessage}
                 inspectQuery={inspectQuery}
                 inspectCandidates={inspectCandidates}
                 inspectId={inspectId}
@@ -1278,6 +1378,8 @@ export default function PlayPage() {
                 onSpawnEncounterEnemy={(enemy, enemyIndex) =>
                     void handleSpawnEncounterEnemy(enemy, enemyIndex)
                 }
+                onMarkActiveSceneExecuted={() => void handleMarkActiveExecuted("scene")}
+                onMarkActiveSubsceneExecuted={() => void handleMarkActiveExecuted("subscene")}
                 onInspectQueryChange={setInspectQuery}
                 onInspectIdChange={(value) => {
                     setInspectId(value);
