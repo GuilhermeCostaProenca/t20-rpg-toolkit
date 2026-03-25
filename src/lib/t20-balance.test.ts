@@ -103,4 +103,26 @@ describe("analyzeT20Encounter - non-trivial compositions", () => {
     expect(rested.partyScore).toBeGreaterThan(drained.partyScore);
     expect(drained.factors.some((item) => item.includes("Leitura de ficha"))).toBe(true);
   });
+
+  it("exposes explicit breakdown so scoring is not black-box", () => {
+    const analyzed = analyzeT20Encounter(
+      [
+        { level: 4, role: "tank", pvCurrent: 38, pvMax: 44, pmCurrent: 4, pmMax: 8 },
+        { level: 4, role: "healer", pvCurrent: 27, pvMax: 35, pmCurrent: 15, pmMax: 20 },
+        { level: 4, role: "striker", pvCurrent: 20, pvMax: 32, pmCurrent: 6, pmMax: 12 },
+      ],
+      [
+        { type: "enemy", hpMax: 110, defenseFinal: 19, damageFormula: "2d10+4" },
+        { type: "enemy", hpMax: 65, defenseFinal: 15, damageFormula: "2d6+3" },
+      ]
+    );
+
+    expect(analyzed.breakdown.party.baseLevelScore).toBeGreaterThan(0);
+    expect(analyzed.breakdown.party.roleScore).toBeGreaterThan(0);
+    expect(analyzed.breakdown.party.readinessModifier).toBeGreaterThanOrEqual(0.9);
+    expect(analyzed.breakdown.party.readinessModifier).toBeLessThanOrEqual(1.1);
+    expect(analyzed.breakdown.party.sheetCoverage).toBeGreaterThan(0);
+    expect(analyzed.breakdown.threat.rawThreatScore).toBe(analyzed.threatScore);
+    expect(analyzed.breakdown.ratio.effective).toBe(analyzed.pressureRatio);
+  });
 });

@@ -37,6 +37,27 @@ export type EncounterBalanceSnapshot = {
     unknown: number;
     diversity: "low" | "medium" | "high";
   };
+  breakdown: {
+    party: {
+      baseLevelScore: number;
+      roleScore: number;
+      diversityBonus: number;
+      readinessModifier: number;
+      sheetCoverage: number;
+      finalScore: number;
+    };
+    threat: {
+      rawThreatScore: number;
+      compositionBonus: number;
+      profile: "standard" | "swarm" | "elite" | "mixed" | "soloBoss";
+      strongestShare: number;
+      finalScore: number;
+    };
+    ratio: {
+      base: number;
+      effective: number;
+    };
+  };
   factors: string[];
   recommendation: string;
 };
@@ -178,9 +199,11 @@ export function analyzeT20Encounter(
   let control = 0;
   let unknown = 0;
 
-  const partyScore = characters.reduce((total, character) => {
-    const base = Math.max(character.level || 1, 1) * 10;
-    const roleWeight = getRoleWeight(character.role);
+  let baseLevelScore = 0;
+  let roleScore = 0;
+  characters.forEach((character) => {
+    baseLevelScore += Math.max(character.level || 1, 1) * 10;
+    roleScore += getRoleWeight(character.role);
     const signals = getRoleSignals(character);
 
     if (signals.frontliner) frontliners += 1;
@@ -191,14 +214,15 @@ export function analyzeT20Encounter(
       unknown += 1;
     }
 
-    return total + base + roleWeight;
-  }, 0);
+  });
+  const partyScore = baseLevelScore + roleScore;
 
   const activeAxes = [frontliners, sustain, offense, control].filter((value) => value > 0).length;
   const diversity: "low" | "medium" | "high" =
     activeAxes >= 4 ? "high" : activeAxes >= 2 ? "medium" : "low";
-  const diversityBonus = diversity === "high" ? 3 : diversity === "medium" ? 1.5 : 0;
-  let profileAdjustedPartyScore = partyScore + diversityBonus * partyCount;
+  const diversityBonusPerCharacter = diversity === "high" ? 3 : diversity === "medium" ? 1.5 : 0;
+  const diversityBonus = diversityBonusPerCharacter * partyCount;
+  let profileAdjustedPartyScore = partyScore + diversityBonus;
 
   const hpRatios = characters
     .map((character) => ratio(character.pvCurrent, character.pvMax))
@@ -210,6 +234,14 @@ export function analyzeT20Encounter(
     hpRatios.length > 0 ? hpRatios.reduce((total, value) => total + value, 0) / hpRatios.length : null;
   const avgPmRatio =
     pmRatios.length > 0 ? pmRatios.reduce((total, value) => total + value, 0) / pmRatios.length : null;
+  const sheetCoverage =
+    partyCount > 0
+      ? characters.filter(
+          (character) =>
+            ratio(character.pvCurrent, character.pvMax) !== null ||
+            ratio(character.pmCurrent, character.pmMax) !== null
+        ).length / partyCount
+      : 0;
 
   let readinessModifier = 1;
   if (avgHpRatio !== null) {
@@ -375,6 +407,35 @@ export function analyzeT20Encounter(
       control,
       unknown,
       diversity,
+    },
+    breakdown: {
+      party: {
+        baseLevelScore: Number(baseLevelScore.toFixed(1)),
+        roleScore: Number(roleScore.toFixed(1)),
+        diversityBonus: Number(diversityBonus.toFixed(1)),
+        readinessModifier: Number(readinessModifier.toFixed(2)),
+        sheetCoverage: Number(sheetCoverage.toFixed(2)),
+        finalScore: Number(profileAdjustedPartyScore.toFixed(1)),
+      },
+      threat: {
+        rawThreatScore: Number(threatScore.toFixed(1)),
+        compositionBonus: Number(ratioModifier.toFixed(2)),
+        profile: hasMixedProfile
+          ? "mixed"
+          : hasSoloBossProfile
+            ? "soloBoss"
+            : hasEliteProfile
+              ? "elite"
+              : hasSwarmProfile
+                ? "swarm"
+                : "standard",
+        strongestShare: Number(strongestShare.toFixed(2)),
+        finalScore: Number(threatScore.toFixed(1)),
+      },
+      ratio: {
+        base: Number(pressureRatio.toFixed(2)),
+        effective: Number(effectivePressureRatio.toFixed(2)),
+      },
     },
     factors,
     recommendation,
