@@ -137,6 +137,7 @@ type LiveOperationsSidebarProps = {
     onChatSubmit: (event: FormEvent) => void;
     onVoiceTranscription: (text: string) => void;
     onCombatChange: () => void | Promise<void>;
+    onSelectCombatCharacter: (characterId: string) => void;
     onSaveSoundtrack: (next: { ambientUrl: string; combatUrl: string }) => void;
     onGmScratchpadChange: (next: string) => void;
     onFlowChecklistToggle: (
@@ -205,6 +206,7 @@ export function LiveOperationsSidebar({
     onChatSubmit,
     onVoiceTranscription,
     onCombatChange,
+    onSelectCombatCharacter,
     onSaveSoundtrack,
     onGmScratchpadChange,
     onFlowChecklistToggle,
@@ -225,6 +227,7 @@ export function LiveOperationsSidebar({
                 campaignId={campaignId}
                 liveCombat={liveCombat}
                 onCombatChange={onCombatChange}
+                onSelectCharacter={onSelectCombatCharacter}
             />
         </div>
     );

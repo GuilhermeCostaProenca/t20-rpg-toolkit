@@ -35,9 +35,15 @@ type CombatTrackerProps = {
     campaignId: string;
     liveCombat: LiveCombat | null;
     onCombatChange?: () => void | Promise<void>;
+    onSelectCharacter?: (characterId: string) => void;
 };
 
-export function CombatTracker({ campaignId, liveCombat, onCombatChange }: CombatTrackerProps) {
+export function CombatTracker({
+    campaignId,
+    liveCombat,
+    onCombatChange,
+    onSelectCharacter,
+}: CombatTrackerProps) {
     const [loading, setLoading] = useState(false);
     const [removingConditionIds, setRemovingConditionIds] = useState<Set<string>>(new Set());
     const [optimisticRemovedConditionIds, setOptimisticRemovedConditionIds] = useState<Set<string>>(
@@ -417,6 +423,16 @@ export function CombatTracker({ campaignId, liveCombat, onCombatChange }: Combat
                                         >
                                             {combatant.name}
                                         </span>
+                                        {combatant.kind === "CHARACTER" ? (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="h-6 border-white/10 bg-white/5 px-2 text-[10px] uppercase tracking-[0.12em]"
+                                                onClick={() => onSelectCharacter?.(combatant.refId)}
+                                            >
+                                                Ficha
+                                            </Button>
+                                        ) : null}
                                     </div>
                                     <span className="text-xs text-muted-foreground">
                                         {combatant.hpCurrent}/{combatant.hpMax} HP

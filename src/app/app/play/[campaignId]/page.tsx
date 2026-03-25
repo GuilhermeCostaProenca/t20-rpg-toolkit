@@ -1263,6 +1263,10 @@ export default function PlayPage() {
                     processVoiceCommand(text);
                 }}
                 onCombatChange={() => void refreshLiveCombatNow()}
+                onSelectCombatCharacter={(characterId) => {
+                    setRequestedSheetCharacterId(characterId);
+                    setSheetCollapsed(false);
+                }}
                 onSaveSoundtrack={handleSaveSoundtrack}
                 onGmScratchpadChange={handleGmScratchpadChange}
                 onFlowChecklistToggle={handleFlowChecklistToggle}
