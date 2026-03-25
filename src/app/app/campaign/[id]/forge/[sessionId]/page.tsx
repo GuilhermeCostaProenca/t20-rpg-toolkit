@@ -707,6 +707,15 @@ export default function SessionForgePage() {
     [dramaticItems.length, forge.hooks.length, forge.reveals.length, forge.secrets.length]
   );
   const normalizedDramaticSearch = dramaticSearchQuery.trim().toLowerCase();
+  const hasActiveDramaticFilters =
+    dramaticCollectionFilter !== "all" ||
+    dramaticStatusFilter !== "all" ||
+    normalizedDramaticSearch.length > 0;
+  function clearDramaticFilters() {
+    setDramaticCollectionFilter("all");
+    setDramaticStatusFilter("all");
+    setDramaticSearchQuery("");
+  }
 
   const readyScenes = useMemo(
     () =>
@@ -2659,6 +2668,18 @@ export default function SessionForgePage() {
                 onChange={(event) => setDramaticSearchQuery(event.target.value)}
                 placeholder="Buscar por titulo ou notas (ganchos, segredos e revelacoes)"
               />
+              {hasActiveDramaticFilters ? (
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-white/10 bg-white/5"
+                    onClick={clearDramaticFilters}
+                  >
+                    Limpar filtros
+                  </Button>
+                </div>
+              ) : null}
             </div>
             <div className="grid gap-6 xl:grid-cols-3">
               {([
