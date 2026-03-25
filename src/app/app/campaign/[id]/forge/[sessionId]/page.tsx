@@ -415,8 +415,14 @@ function moveItem<T>(items: T[], fromIndex: number, direction: "up" | "down") {
   return next;
 }
 
-function buildLiveTableHref(campaignId: string, sceneId?: string, subsceneId?: string) {
+function buildLiveTableHref(
+  campaignId: string,
+  sessionId: string,
+  sceneId?: string,
+  subsceneId?: string
+) {
   const search = new URLSearchParams();
+  search.set("sessionId", sessionId);
   if (sceneId) search.set("sceneId", sceneId);
   if (subsceneId) search.set("subsceneId", subsceneId);
   const suffix = search.toString();
@@ -894,7 +900,7 @@ export default function SessionForgePage() {
               <p className="section-eyebrow">Acessos</p>
               <div className="mt-4 grid gap-3">
                 <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
-                  <Link href={buildLiveTableHref(campaign.id)}>
+                  <Link href={buildLiveTableHref(campaign.id, selectedSession.id)}>
                     Mesa ao vivo
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -996,7 +1002,7 @@ export default function SessionForgePage() {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Button asChild variant="outline" className="border-white/10 bg-white/5">
-                          <Link href={buildLiveTableHref(campaign.id, scene.id)}>
+                          <Link href={buildLiveTableHref(campaign.id, selectedSession.id, scene.id)}>
                             Abrir na mesa
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Link>
@@ -1214,7 +1220,14 @@ export default function SessionForgePage() {
                                 </p>
                                 <div className="flex flex-wrap gap-2">
                                   <Button asChild variant="outline" className="border-white/10 bg-white/5">
-                                    <Link href={buildLiveTableHref(campaign.id, scene.id, subscene.id)}>
+                                    <Link
+                                      href={buildLiveTableHref(
+                                        campaign.id,
+                                        selectedSession.id,
+                                        scene.id,
+                                        subscene.id
+                                      )}
+                                    >
                                       Abrir na mesa
                                       <ArrowRight className="ml-2 h-4 w-4" />
                                     </Link>
