@@ -948,6 +948,10 @@ export default function PlayPage() {
                 return;
             }
 
+            let successCount = 0;
+            let failureCount = 0;
+            let lastFailureMessage = "";
+
             for (let idx = 0; idx < remainingToSpawn; idx += 1) {
                 const sequence = existingFromSameNpc + idx + 1;
                 const shouldSuffix = quantity > 1 || existingFromSameNpc > 0;
@@ -971,18 +975,31 @@ export default function PlayPage() {
                     const message =
                         (spawnJson?.error as string | undefined) ??
                         "Falha ao convocar inimigo para o combate.";
-                    throw new Error(message);
+                    lastFailureMessage = message;
+                    failureCount += 1;
+                    continue;
                 }
+                successCount += 1;
             }
 
             await refreshLiveCombatNow();
-            setSpawnStatusMessage({
-                kind: "success",
-                message:
-                    remainingToSpawn > 1
-                        ? `${remainingToSpawn} unidades de ${baseName} convocadas para o combate.`
-                        : `${baseName} convocado para o combate.`,
-            });
+            if (successCount > 0 && failureCount === 0) {
+                setSpawnStatusMessage({
+                    kind: "success",
+                    message:
+                        successCount > 1
+                            ? `${successCount} unidades de ${baseName} convocadas para o combate.`
+                            : `${baseName} convocado para o combate.`,
+                });
+            } else if (successCount > 0) {
+                const failureSuffix = lastFailureMessage ? ` Ultima falha: ${lastFailureMessage}` : "";
+                setSpawnStatusMessage({
+                    kind: "error",
+                    message: `${successCount} convocado(s) e ${failureCount} falha(s).${failureSuffix}`,
+                });
+            } else {
+                throw new Error(lastFailureMessage || "Falha ao convocar inimigo para o combate.");
+            }
         } catch (error) {
             console.error("Encounter spawn failed", error);
             setSpawnStatusMessage({
