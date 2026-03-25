@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, type FormEvent, type RefObject } from "react";
-import { BookOpen, Map as MapIcon, MessageSquare, MonitorUp, Search } from "lucide-react";
+import { BookOpen, Map as MapIcon, MonitorUp, MonitorPlay, MessageSquare, Search } from "lucide-react";
 
 import { CombatTracker } from "@/components/play/combat-tracker";
 import { LiveCodexInspect, type LiveCodexEntity, type LiveEntityDetail } from "@/components/play/live-codex-inspect";
@@ -48,6 +48,7 @@ type PrepSessionPacket = {
 type LiveOperationsSidebarProps = {
     campaignId: string;
     campaignName: string;
+    roomCode?: string | null;
     worldId: string;
     prepPacket: PrepSessionPacket | null;
     activeScene: SessionForgeScene | null;
@@ -111,6 +112,7 @@ type LiveOperationsSidebarProps = {
     chatInput: string;
     scrollRef: RefObject<HTMLDivElement | null>;
     onOpenAtlas: () => void;
+    onOpenSecondScreen: () => void;
     onSummarize: () => void;
     onToggleMonitorMode: () => void;
     onTableFocusModeChange: (next: "narrative" | "tactical") => void;
@@ -146,6 +148,7 @@ type LiveOperationsSidebarProps = {
 export function LiveOperationsSidebar({
     campaignId,
     campaignName,
+    roomCode,
     worldId,
     prepPacket,
     activeScene,
@@ -178,6 +181,7 @@ export function LiveOperationsSidebar({
     chatInput,
     scrollRef,
     onOpenAtlas,
+    onOpenSecondScreen,
     onSummarize,
     onToggleMonitorMode,
     onTableFocusModeChange,
@@ -333,12 +337,20 @@ export function LiveOperationsSidebar({
                     <span className={`truncate font-bold uppercase tracking-wider text-primary/80 ${monitorMode ? "max-w-[190px] text-base" : "max-w-[150px] text-sm"}`}>
                         {campaignName}
                     </span>
-                    <Badge
-                        variant="outline"
-                        className={`w-fit border-green-500/30 text-green-500 ${monitorMode ? "h-5 text-xs" : "h-4 text-[10px]"}`}
-                    >
-                        Online
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                        <Badge
+                            variant="outline"
+                            className={`w-fit border-green-500/30 text-green-500 ${monitorMode ? "h-5 text-xs" : "h-4 text-[10px]"}`}
+                        >
+                            Online
+                        </Badge>
+                        <Badge
+                            variant="outline"
+                            className={`w-fit ${roomCode ? "border-primary/30 text-primary" : "border-white/15 text-white/55"} ${monitorMode ? "h-5 text-xs" : "h-4 text-[10px]"}`}
+                        >
+                            {roomCode ? "2a tela pronta" : "2a tela offline"}
+                        </Badge>
+                    </div>
                 </div>
                 <div className="flex gap-1">
                     <Button variant="ghost" size="icon" title="Busca rapida" onClick={onOpenSearch}>
@@ -351,6 +363,15 @@ export function LiveOperationsSidebar({
                         onClick={onToggleHistoryChat}
                     >
                         <MessageSquare className={`h-4 w-4 ${showHistoryChat ? "text-primary-foreground" : "text-white/80"}`} />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Abrir segunda tela"
+                        onClick={onOpenSecondScreen}
+                        disabled={!roomCode}
+                    >
+                        <MonitorPlay className={`h-4 w-4 ${roomCode ? "text-primary/90" : "text-white/35"}`} />
                     </Button>
                     <Button
                         variant={monitorMode ? "default" : "ghost"}

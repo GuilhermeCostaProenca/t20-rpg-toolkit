@@ -1060,6 +1060,7 @@ export default function PlayPage() {
             <LiveOperationsSidebar
                 campaignId={campaignId}
                 campaignName={context.campaign.name}
+                roomCode={context.campaign.roomCode}
                 worldId={context.worldId}
                 prepPacket={prepPacket}
                 activeScene={activeScene}
@@ -1093,6 +1094,10 @@ export default function PlayPage() {
                 scrollRef={scrollRef}
                 onOpenAtlas={() => {
                     window.open(`/app/worlds/${context.worldId}/map`, "_blank", "noopener,noreferrer");
+                }}
+                onOpenSecondScreen={() => {
+                    if (!context.campaign.roomCode) return;
+                    window.open(`/play/${context.campaign.roomCode}`, "_blank", "noopener,noreferrer");
                 }}
                 onSummarize={handleSummarize}
                 onToggleMonitorMode={() => {
