@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent, RefObject } from "react";
-import { BookOpen, Map as MapIcon, MonitorUp } from "lucide-react";
+import { BookOpen, Map as MapIcon, MonitorUp, Search } from "lucide-react";
 
 import { CombatTracker } from "@/components/play/combat-tracker";
 import { LiveCodexInspect, type LiveCodexEntity, type LiveEntityDetail } from "@/components/play/live-codex-inspect";
@@ -202,6 +202,9 @@ export function LiveOperationsSidebar({
                     </Badge>
                 </div>
                 <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" title="Busca rapida" onClick={onOpenSearch}>
+                        <Search className="h-4 w-4 text-primary/90" />
+                    </Button>
                     <Button
                         variant={monitorMode ? "default" : "ghost"}
                         size="icon"
