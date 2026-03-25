@@ -170,8 +170,8 @@ Sessao jogada precisa alimentar memoria do mundo.
 - [x] W4.4 Garantir revisao/confirmacao do mestre onde necessario
   Notas: O fechamento pos-sessao e manual e controlado pelo mestre dentro da Forja antes de sincronizar.
 
-- [ ] W4.5 Garantir que a continuidade do mundo fique refletida apos a sessao
-  Notas:
+- [x] W4.5 Garantir que a continuidade do mundo fique refletida apos a sessao
+  Notas: O inspect de sessao na estacao da campanha agora mostra o impacto persistido no mundo (eventos de memoria, mudancas, mortes e entidades afetadas) para confirmar continuidade consolidada.
 
 - [x] W4.6 Consolidar quem apareceu, quem nao apareceu, quem morreu e o que mudou
   Notas: O bloco `memory` da sessao agora registra exatamente esses quatro grupos.

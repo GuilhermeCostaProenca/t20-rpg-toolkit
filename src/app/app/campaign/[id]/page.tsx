@@ -391,6 +391,16 @@ export default function CampaignPage() {
     () => (campaign?.recentMemoryEvents ?? []).filter((event) => isMemoryWorldEvent(event)),
     [campaign?.recentMemoryEvents]
   );
+  const sessionMemoryEventsBySessionId = useMemo(() => {
+    const grouped = new Map<string, WorldEvent[]>();
+    for (const event of campaignMemoryEvents) {
+      if (!event.sessionId) continue;
+      const current = grouped.get(event.sessionId) ?? [];
+      current.push(event);
+      grouped.set(event.sessionId, current);
+    }
+    return grouped;
+  }, [campaignMemoryEvents]);
   const filteredCampaignMemoryEvents = useMemo(() => {
     const query = memoryQuery.trim().toLowerCase();
     return campaignMemoryEvents.filter((event) => {
@@ -2244,7 +2254,24 @@ export default function CampaignPage() {
               </div>
               {(() => {
                 const memory = normalizeSessionForgeState(inspectItem.item.metadata).memory;
-                if (!memory.publicSummary && !memory.masterSummary) return null;
+                const persistedEvents =
+                  sessionMemoryEventsBySessionId.get(inspectItem.item.id) ?? [];
+                const affectedEntities = new Set<string>();
+                for (const event of persistedEvents) {
+                  for (const entityId of getMemoryEventLinkedEntityIds(event)) {
+                    affectedEntities.add(entityId);
+                  }
+                }
+                const deathEvents = persistedEvents.filter((event) => event.type === "NPC_DEATH").length;
+                const changeEvents = persistedEvents.filter((event) => event.type === "WORLD_CHANGE").length;
+
+                if (
+                  !memory.publicSummary &&
+                  !memory.masterSummary &&
+                  persistedEvents.length === 0
+                ) {
+                  return null;
+                }
                 return (
                   <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
                     <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Fechamento consolidado</p>
@@ -2258,6 +2285,27 @@ export default function CampaignPage() {
                       <div className="mt-3 space-y-2">
                         <Badge className="border-red-300/20 bg-red-300/10 text-red-100">Mestre</Badge>
                         <p className="text-sm leading-7 text-muted-foreground">{memory.masterSummary}</p>
+                      </div>
+                    ) : null}
+                    {persistedEvents.length > 0 ? (
+                      <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                          Continuidade refletida no mundo
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <Badge className="border-white/10 bg-black/25 text-white/75">
+                            {persistedEvents.length} eventos persistidos
+                          </Badge>
+                          <Badge className="border-white/10 bg-black/25 text-white/75">
+                            {changeEvents} mudancas
+                          </Badge>
+                          <Badge className="border-white/10 bg-black/25 text-white/75">
+                            {deathEvents} mortes
+                          </Badge>
+                          <Badge className="border-white/10 bg-black/25 text-white/75">
+                            {affectedEntities.size} entidades afetadas
+                          </Badge>
+                        </div>
                       </div>
                     ) : null}
                   </div>
