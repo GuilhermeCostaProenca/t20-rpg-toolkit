@@ -103,6 +103,7 @@ type LiveOperationsSidebarProps = {
     spawningEncounterEnemyId: string | null;
     spawnStatusMessage?: LiveOpsStatusMessage | null;
     executionStatusMessage?: LiveOpsStatusMessage | null;
+    executingScope?: "scene" | "subscene" | null;
     inspectQuery: string;
     inspectCandidates: LiveCodexEntity[];
     inspectId: string | null;
@@ -178,6 +179,7 @@ export function LiveOperationsSidebar({
     spawningEncounterEnemyId,
     spawnStatusMessage,
     executionStatusMessage,
+    executingScope,
     inspectQuery,
     inspectCandidates,
     inspectId,
@@ -286,6 +288,7 @@ export function LiveOperationsSidebar({
                 spawningEncounterEnemyId={spawningEncounterEnemyId}
                 spawnStatusMessage={spawnStatusMessage}
                 executionStatusMessage={executionStatusMessage}
+                executingScope={executingScope}
                 publicLayerLocked={publicLayerLocked}
                 onFocusScene={onFocusScene}
                 onInspectEntity={onInspectEntity}

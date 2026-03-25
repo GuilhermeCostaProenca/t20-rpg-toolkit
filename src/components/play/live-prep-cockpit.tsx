@@ -80,6 +80,7 @@ type LivePrepCockpitProps = {
   spawningEncounterEnemyId: string | null;
   spawnStatusMessage?: LiveOpsStatusMessage | null;
   executionStatusMessage?: LiveOpsStatusMessage | null;
+  executingScope?: "scene" | "subscene" | null;
   publicLayerLocked: boolean;
   onFocusScene: (sceneId: string) => void;
   onInspectEntity: (entityId: string) => void;
@@ -437,6 +438,7 @@ export function LivePrepCockpit({
   spawningEncounterEnemyId,
   spawnStatusMessage,
   executionStatusMessage,
+  executingScope,
   publicLayerLocked,
   onFocusScene,
   onInspectEntity,
@@ -1406,9 +1408,11 @@ export function LivePrepCockpit({
                         variant="outline"
                         className="border-primary/20 bg-primary/10 text-primary"
                         onClick={() => void onMarkActiveSubsceneExecuted()}
-                        disabled={activeSubscene.status === "executed"}
+                        disabled={activeSubscene.status === "executed" || Boolean(executingScope)}
                       >
-                        {activeSubscene.status === "executed"
+                        {executingScope === "subscene"
+                          ? "Salvando..."
+                          : activeSubscene.status === "executed"
                           ? "Subcena executada"
                           : "Marcar subcena como executada"}
                       </Button>
@@ -1421,9 +1425,11 @@ export function LivePrepCockpit({
                     variant="outline"
                     className="border-primary/20 bg-primary/10 text-primary"
                     onClick={() => void onMarkActiveSceneExecuted()}
-                    disabled={activeScene.status === "executed"}
+                    disabled={activeScene.status === "executed" || Boolean(executingScope)}
                   >
-                    {activeScene.status === "executed"
+                    {executingScope === "scene"
+                      ? "Salvando..."
+                      : activeScene.status === "executed"
                       ? "Cena executada"
                       : "Marcar cena como executada"}
                   </Button>
