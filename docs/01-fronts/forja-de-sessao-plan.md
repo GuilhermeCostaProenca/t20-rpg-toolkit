@@ -118,7 +118,7 @@ O mestre precisa estruturar fluxo narrativo sem ficar preso a documento externo.
   Notas: Beats, cenas e subcenas usam a mesma semantica de status no preparo.
 
 - [-] F2.5 Permitir reorganizar a ordem das cenas
-  Notas: A ordem ja pode ser reorganizada com controles de subir/descer em cenas e subcenas; `RPG-100` estendeu esse controle para beats. `RPG-104` adicionou duplicacao rapida de beat para acelerar variacoes de roteiro. `RPG-105` incluiu acao `Topo` em cenas e beats para reduzir cliques em listas longas. `RPG-117` estendeu a acao `Topo` para subcenas, reduzindo friccao na reorganizacao de listas densas. `RPG-118` adicionou duplicacao rapida de subcena para iteracao de variacoes sem retrabalho manual. Ainda falta uma interacao mais fluida e mais visual.
+  Notas: A ordem ja pode ser reorganizada com controles de subir/descer em cenas e subcenas; `RPG-100` estendeu esse controle para beats. `RPG-104` adicionou duplicacao rapida de beat para acelerar variacoes de roteiro. `RPG-105` incluiu acao `Topo` em cenas e beats para reduzir cliques em listas longas. `RPG-117` estendeu a acao `Topo` para subcenas, reduzindo friccao na reorganizacao de listas densas. `RPG-118` adicionou duplicacao rapida de subcena para iteracao de variacoes sem retrabalho manual. `RPG-124` adicionou duplicacao rapida de cena com regeneracao de IDs de cena/subcenas para evitar colisao. Ainda falta uma interacao mais fluida e mais visual.
 
 ### Criterios de aceite da Frente F2
 - o mestre consegue estruturar uma sessao inteira no app;
