@@ -138,6 +138,7 @@ const dramaticStatusOptions: SessionForgeDramaticStatus[] = [
   "delayed",
   "canceled",
 ];
+const encounterRatingOptions = ["trivial", "manageable", "risky", "deadly"] as const;
 
 const sceneStatusOptions: SessionForgeSceneStatus[] = [
   "planned",
@@ -519,6 +520,7 @@ export default function SessionForgePage() {
   const [revealAssetKindFilter, setRevealAssetKindFilter] = useState<"all" | string>("all");
   const [revealAssetSearchQuery, setRevealAssetSearchQuery] = useState("");
   const [encounterSceneFilter, setEncounterSceneFilter] = useState<string>("all");
+  const [encounterRatingFilter, setEncounterRatingFilter] = useState<"all" | (typeof encounterRatingOptions)[number]>("all");
   const [collapsedSceneIds, setCollapsedSceneIds] = useState<Set<string>>(new Set());
   const [collapsedSubsceneIds, setCollapsedSubsceneIds] = useState<Set<string>>(new Set());
   const [activeSceneRailId, setActiveSceneRailId] = useState<string | null>(null);
@@ -770,13 +772,26 @@ export default function SessionForgePage() {
     () => forge.encounters.filter((encounter) => !encounter.linkedSceneId).length,
     [forge.encounters]
   );
+  const encounterRatingCounts = useMemo(
+    () => ({
+      all: forge.encounters.length,
+      trivial: forge.encounters.filter((encounter) => encounter.rating === "trivial").length,
+      manageable: forge.encounters.filter((encounter) => encounter.rating === "manageable").length,
+      risky: forge.encounters.filter((encounter) => encounter.rating === "risky").length,
+      deadly: forge.encounters.filter((encounter) => encounter.rating === "deadly").length,
+    }),
+    [forge.encounters]
+  );
   const filteredEncounters = useMemo(() => {
-    if (encounterSceneFilter === "all") return forge.encounters;
-    if (encounterSceneFilter === "__unlinked__") {
-      return forge.encounters.filter((encounter) => !encounter.linkedSceneId);
-    }
-    return forge.encounters.filter((encounter) => encounter.linkedSceneId === encounterSceneFilter);
-  }, [encounterSceneFilter, forge.encounters]);
+    const sceneFiltered =
+      encounterSceneFilter === "all"
+        ? forge.encounters
+        : encounterSceneFilter === "__unlinked__"
+          ? forge.encounters.filter((encounter) => !encounter.linkedSceneId)
+          : forge.encounters.filter((encounter) => encounter.linkedSceneId === encounterSceneFilter);
+    if (encounterRatingFilter === "all") return sceneFiltered;
+    return sceneFiltered.filter((encounter) => encounter.rating === encounterRatingFilter);
+  }, [encounterRatingFilter, encounterSceneFilter, forge.encounters]);
   const activeSceneRailIndex = useMemo(
     () =>
       activeSceneRailId
@@ -3944,6 +3959,37 @@ export default function SessionForgePage() {
                         </Button>
                       );
                     })}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className={
+                        encounterRatingFilter === "all"
+                          ? "border-primary/30 bg-primary/10 text-primary"
+                          : "border-white/10 bg-white/5"
+                      }
+                      onClick={() => setEncounterRatingFilter("all")}
+                    >
+                      Todos os riscos ({encounterRatingCounts.all})
+                    </Button>
+                    {encounterRatingOptions.map((rating) => (
+                      <Button
+                        key={`encounter-filter-rating-${rating}`}
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className={
+                          encounterRatingFilter === rating
+                            ? "border-primary/30 bg-primary/10 text-primary"
+                            : "border-white/10 bg-white/5"
+                        }
+                        onClick={() => setEncounterRatingFilter(rating)}
+                      >
+                        {formatEncounterRating(rating)} ({encounterRatingCounts[rating]})
+                      </Button>
+                    ))}
                   </div>
                   {filteredEncounters.length > 0 ? (
                     filteredEncounters.map((encounter) => {
