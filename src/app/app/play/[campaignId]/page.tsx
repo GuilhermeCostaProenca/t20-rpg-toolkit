@@ -1041,6 +1041,47 @@ export default function PlayPage() {
         if (scope === "subscene" && (!activeScene || !activeSubscene)) return;
 
         const previousPacket = prepPacket;
+        const targetAlreadyExecuted =
+            scope === "scene"
+                ? activeScene?.status === "executed"
+                : activeSubscene?.status === "executed";
+        if (targetAlreadyExecuted) {
+            setExecutionStatusMessage({
+                kind: "info",
+                message:
+                    scope === "scene"
+                        ? "Cena ja marcada como executada."
+                        : "Subcena ja marcada como executada.",
+            });
+            return;
+        }
+
+        const executionKey = scope === "scene"
+            ? `live-execution:scene:${activeScene!.id}`
+            : `live-execution:subscene:${activeScene!.id}:${activeSubscene!.id}`;
+        const executionTitle = scope === "scene"
+            ? `Cena executada: ${activeScene?.title || "Cena sem titulo"}`
+            : `Subcena executada: ${activeSubscene?.title || "Subcena sem titulo"}`;
+        const executionNotes = scope === "scene"
+            ? `${executionKey}\nMarcada durante operacao ao vivo.`
+            : `${executionKey}\nMarcada durante operacao ao vivo em ${activeScene?.title || "cena sem titulo"}.`;
+        const executionLinkedEntityIds = scope === "scene"
+            ? activeScene?.linkedEntityIds ?? []
+            : activeSubscene?.linkedEntityIds ?? [];
+        const hasExecutionMemoryEntry = previousPacket.forge.memory.changes.some((item) =>
+            item.notes.includes(executionKey)
+        );
+        const executionMemoryEntry = hasExecutionMemoryEntry
+            ? []
+            : [{
+                id: `change-${Math.random().toString(36).slice(2, 10)}`,
+                title: executionTitle,
+                type: "status" as const,
+                notes: executionNotes,
+                linkedEntityIds: executionLinkedEntityIds,
+                visibility: "MASTER" as const,
+            }];
+
         const nextForge: SessionForgeState = {
             ...previousPacket.forge,
             scenes: previousPacket.forge.scenes.map((scene) => {
@@ -1057,6 +1098,10 @@ export default function PlayPage() {
                     ),
                 };
             }),
+            memory: {
+                ...previousPacket.forge.memory,
+                changes: [...previousPacket.forge.memory.changes, ...executionMemoryEntry],
+            },
         };
         const nextMetadata = buildSessionMetadata(nextForge, previousPacket.session.metadata);
         const targetLabel = scope === "scene" ? "Cena" : "Subcena";
