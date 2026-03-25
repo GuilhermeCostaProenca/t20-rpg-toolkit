@@ -488,6 +488,7 @@ export default function SessionForgePage() {
   const [revealAssetSearchQuery, setRevealAssetSearchQuery] = useState("");
   const [collapsedSceneIds, setCollapsedSceneIds] = useState<Set<string>>(new Set());
   const [collapsedSubsceneIds, setCollapsedSubsceneIds] = useState<Set<string>>(new Set());
+  const [activeSceneRailId, setActiveSceneRailId] = useState<string | null>(null);
 
   const loadWorkspace = useCallback(async () => {
     if (!campaignId) return;
@@ -640,6 +641,19 @@ export default function SessionForgePage() {
       return next;
     });
   }, [forge.scenes]);
+
+  useEffect(() => {
+    if (forge.scenes.length === 0) {
+      setActiveSceneRailId(null);
+      return;
+    }
+    const hasActive = activeSceneRailId
+      ? forge.scenes.some((scene) => scene.id === activeSceneRailId)
+      : false;
+    if (!hasActive) {
+      setActiveSceneRailId(forge.scenes[0]?.id ?? null);
+    }
+  }, [activeSceneRailId, forge.scenes]);
   useEffect(() => {
     if (revealAssetKindFilter === "all") return;
     if (!revealAssetKindOptions.includes(revealAssetKindFilter)) {
@@ -918,6 +932,7 @@ export default function SessionForgePage() {
 
   function jumpToSceneCard(sceneId: string) {
     if (typeof window === "undefined") return;
+    setActiveSceneRailId(sceneId);
     const target = document.getElementById(`forge-scene-${sceneId}`);
     if (!target) return;
     target.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1158,7 +1173,11 @@ export default function SessionForgePage() {
                       type="button"
                       size="sm"
                       variant="outline"
-                      className="border-white/10 bg-white/5 text-xs"
+                      className={
+                        activeSceneRailId === scene.id
+                          ? "border-primary/35 bg-primary/15 text-primary text-xs"
+                          : "border-white/10 bg-white/5 text-xs"
+                      }
                       onClick={() => jumpToSceneCard(scene.id)}
                     >
                       C{sceneIndex + 1}
@@ -1220,6 +1239,7 @@ export default function SessionForgePage() {
                     id={`forge-scene-${scene.id}`}
                     key={scene.id}
                     className="rounded-[24px] border border-white/10 bg-white/4 p-4"
+                    onClick={() => setActiveSceneRailId(scene.id)}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
