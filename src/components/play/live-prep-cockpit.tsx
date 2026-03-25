@@ -1296,6 +1296,28 @@ export function LivePrepCockpit({
               </div>
             ) : null}
 
+            {prepPacket.forge.briefing ? (
+              <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                  Briefing da sessao
+                </p>
+                <p className="mt-2 whitespace-pre-line text-sm text-foreground/90">
+                  {prepPacket.forge.briefing}
+                </p>
+              </div>
+            ) : null}
+
+            {prepPacket.forge.operationalNotes ? (
+              <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                  Notas operacionais
+                </p>
+                <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
+                  {prepPacket.forge.operationalNotes}
+                </p>
+              </div>
+            ) : null}
+
             <div className="grid gap-2 text-xs text-muted-foreground">
               <div className="flex items-center justify-between rounded-xl border border-white/8 bg-black/20 px-3 py-2">
                 <span className="inline-flex items-center gap-2">
