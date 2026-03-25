@@ -482,6 +482,7 @@ export default function SessionForgePage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [dramaticStatusFilter, setDramaticStatusFilter] = useState<"all" | SessionForgeDramaticStatus>("all");
+  const [revealAssetKindFilter, setRevealAssetKindFilter] = useState<"all" | string>("all");
 
   const loadWorkspace = useCallback(async () => {
     if (!campaignId) return;
@@ -580,6 +581,26 @@ export default function SessionForgePage() {
     () => buildVisualAssets(focusedEntities).slice(0, 20),
     [focusedEntities]
   );
+  const revealAssetKindOptions = useMemo(() => {
+    const kinds = new Set<string>();
+    for (const asset of prepVisualAssets) {
+      kinds.add(asset.kind);
+    }
+    return [...kinds];
+  }, [prepVisualAssets]);
+  const filteredRevealAssets = useMemo(
+    () =>
+      revealAssetKindFilter === "all"
+        ? prepVisualAssets
+        : prepVisualAssets.filter((asset) => asset.kind === revealAssetKindFilter),
+    [prepVisualAssets, revealAssetKindFilter]
+  );
+  useEffect(() => {
+    if (revealAssetKindFilter === "all") return;
+    if (!revealAssetKindOptions.includes(revealAssetKindFilter)) {
+      setRevealAssetKindFilter("all");
+    }
+  }, [revealAssetKindFilter, revealAssetKindOptions]);
 
   const dramaticItems = useMemo(
     () => [...forge.hooks, ...forge.secrets, ...forge.reveals],
@@ -2108,7 +2129,36 @@ export default function SessionForgePage() {
                                   </div>
                                 ) : null}
                                 <div className="grid gap-2 sm:grid-cols-2">
-                                  {prepVisualAssets.slice(0, 8).map((asset) => {
+                                  <div className="sm:col-span-2 flex flex-wrap gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      className={
+                                        revealAssetKindFilter === "all"
+                                          ? "border-primary/30 bg-primary/10 text-primary"
+                                          : "border-white/10 bg-white/5"
+                                      }
+                                      onClick={() => setRevealAssetKindFilter("all")}
+                                    >
+                                      Todos
+                                    </Button>
+                                    {revealAssetKindOptions.map((kind) => (
+                                      <Button
+                                        key={`reveal-asset-kind:${kind}`}
+                                        type="button"
+                                        variant="outline"
+                                        className={
+                                          revealAssetKindFilter === kind
+                                            ? "border-primary/30 bg-primary/10 text-primary"
+                                            : "border-white/10 bg-white/5"
+                                        }
+                                        onClick={() => setRevealAssetKindFilter(kind)}
+                                      >
+                                        {getVisualKindLabel(kind)}
+                                      </Button>
+                                    ))}
+                                  </div>
+                                  {filteredRevealAssets.slice(0, 8).map((asset) => {
                                     const candidateUrl = asset.url;
                                     const selected = item.imageUrl === candidateUrl;
                                     return (
