@@ -63,4 +63,4 @@ Validar se o fluxo principal da mesa ao vivo permanece continuo durante:
 
 ## Proximo passo sugerido
 
-Fechar M6.5 com um criterio objetivo de aceitacao operacional (checklist curto de mesa real) e promover M5/M6 para `[x]` quando os checks de sessao completa forem repetidos em ambiente de jogo real.
+Repetir o checklist `Pronto para mesa` em sessao real (nao so ambiente de desenvolvimento) e promover M5/M6 para `[x]` apos 1 ciclo completo sem saida para ferramentas externas.

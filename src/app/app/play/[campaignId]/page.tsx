@@ -90,6 +90,14 @@ type LivePartyStatusSnapshot = {
     avgSanPercent: number;
 };
 
+type LiveFlowChecklistState = {
+    cockpit: boolean;
+    combat: boolean;
+    consult: boolean;
+    visual: boolean;
+    notes: boolean;
+};
+
 const EMPTY_PARTY_STATUS: LivePartyStatusSnapshot = {
     total: 0,
     downed: 0,
@@ -99,6 +107,14 @@ const EMPTY_PARTY_STATUS: LivePartyStatusSnapshot = {
     avgHpPercent: 0,
     avgPmPercent: 0,
     avgSanPercent: 0,
+};
+
+const EMPTY_FLOW_CHECKLIST: LiveFlowChecklistState = {
+    cockpit: false,
+    combat: false,
+    consult: false,
+    visual: false,
+    notes: false,
 };
 
 export default function PlayPage() {
@@ -137,6 +153,7 @@ export default function PlayPage() {
         combatUrl: "",
     });
     const [gmScratchpad, setGmScratchpad] = useState("");
+    const [flowChecklist, setFlowChecklist] = useState<LiveFlowChecklistState>(EMPTY_FLOW_CHECKLIST);
     const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
 
     const loadLiveCombat = useCallback(async () => {
@@ -198,6 +215,28 @@ export default function PlayPage() {
         } catch (error) {
             console.error("Failed to load GM scratchpad", error);
             setGmScratchpad("");
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const raw = window.localStorage.getItem(`t20.live.flow-checklist.${campaignId}`);
+            if (!raw) {
+                setFlowChecklist(EMPTY_FLOW_CHECKLIST);
+                return;
+            }
+            const parsed = JSON.parse(raw) as Partial<LiveFlowChecklistState>;
+            setFlowChecklist({
+                cockpit: Boolean(parsed.cockpit),
+                combat: Boolean(parsed.combat),
+                consult: Boolean(parsed.consult),
+                visual: Boolean(parsed.visual),
+                notes: Boolean(parsed.notes),
+            });
+        } catch (error) {
+            console.error("Failed to load flow checklist", error);
+            setFlowChecklist(EMPTY_FLOW_CHECKLIST);
         }
     }, [campaignId]);
 
@@ -649,6 +688,26 @@ export default function PlayPage() {
         }
     }
 
+    function handleFlowChecklistToggle(
+        key: keyof LiveFlowChecklistState,
+        checked: boolean,
+    ) {
+        setFlowChecklist((current) => {
+            const next = { ...current, [key]: checked };
+            if (campaignId) {
+                try {
+                    window.localStorage.setItem(
+                        `t20.live.flow-checklist.${campaignId}`,
+                        JSON.stringify(next),
+                    );
+                } catch (error) {
+                    console.error("Failed to persist flow checklist", error);
+                }
+            }
+            return next;
+        });
+    }
+
     async function handleSpawnEncounterEnemy(enemy: SessionForgeEncounterEnemy, enemyIndex: number) {
         if (spawningEncounterEnemyId) return;
         if (!campaignId || !liveCombat?.isActive || !enemy.npcId) return;
@@ -922,6 +981,7 @@ export default function PlayPage() {
                 liveCombat={liveCombat}
                 soundtrack={soundtrack}
                 gmScratchpad={gmScratchpad}
+                flowChecklist={flowChecklist}
                 partyStatus={partyStatus}
                 revealingId={revealingId}
                 secondScreenReady={Boolean(context.campaign.roomCode)}
@@ -977,6 +1037,7 @@ export default function PlayPage() {
                 onCombatChange={() => void refreshLiveCombatNow()}
                 onSaveSoundtrack={handleSaveSoundtrack}
                 onGmScratchpadChange={handleGmScratchpadChange}
+                onFlowChecklistToggle={handleFlowChecklistToggle}
             />
         </div>
     );

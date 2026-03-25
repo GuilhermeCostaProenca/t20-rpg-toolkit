@@ -5,6 +5,7 @@ import { BookOpen, Map as MapIcon } from "lucide-react";
 
 import { CombatTracker } from "@/components/play/combat-tracker";
 import { LiveCodexInspect, type LiveCodexEntity, type LiveEntityDetail } from "@/components/play/live-codex-inspect";
+import { LiveFlowChecklist } from "@/components/play/live-flow-checklist";
 import { LiveGmScratchpad } from "@/components/play/live-gm-scratchpad";
 import { LiveHistoryChatStack } from "@/components/play/live-history-chat-stack";
 import { LivePartyStatus } from "@/components/play/live-party-status";
@@ -69,6 +70,13 @@ type LiveOperationsSidebarProps = {
         combatUrl: string;
     };
     gmScratchpad: string;
+    flowChecklist: {
+        cockpit: boolean;
+        combat: boolean;
+        consult: boolean;
+        visual: boolean;
+        notes: boolean;
+    };
     partyStatus: {
         total: number;
         downed: number;
@@ -115,6 +123,10 @@ type LiveOperationsSidebarProps = {
     onCombatChange: () => void | Promise<void>;
     onSaveSoundtrack: (next: { ambientUrl: string; combatUrl: string }) => void;
     onGmScratchpadChange: (next: string) => void;
+    onFlowChecklistToggle: (
+        key: "cockpit" | "combat" | "consult" | "visual" | "notes",
+        checked: boolean,
+    ) => void;
 };
 
 export function LiveOperationsSidebar({
@@ -130,6 +142,7 @@ export function LiveOperationsSidebar({
     liveCombat,
     soundtrack,
     gmScratchpad,
+    flowChecklist,
     partyStatus,
     revealingId,
     secondScreenReady,
@@ -164,6 +177,7 @@ export function LiveOperationsSidebar({
     onCombatChange,
     onSaveSoundtrack,
     onGmScratchpadChange,
+    onFlowChecklistToggle,
 }: LiveOperationsSidebarProps) {
     return (
         <div className="z-[60] flex w-full flex-col border-l border-white/10 bg-sidebar md:w-[350px]">
@@ -213,6 +227,13 @@ export function LiveOperationsSidebar({
                 <LiveGmScratchpad
                     value={gmScratchpad}
                     onChange={onGmScratchpadChange}
+                />
+            </div>
+
+            <div className="px-3 pt-3">
+                <LiveFlowChecklist
+                    state={flowChecklist}
+                    onToggle={onFlowChecklistToggle}
                 />
             </div>
 
