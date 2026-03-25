@@ -171,8 +171,8 @@ A forja nao pode ser uma ilha.
 - [ ] F4.4 Permitir referencia cruzada para lugar, faccao e personagem
   Notas:
 
-- [ ] F4.5 Garantir consulta rapida do mundo durante o preparo
-  Notas: A forja agora sobe `pacote operacional` e `pacote visual da mesa` no proprio workspace, reduzindo a necessidade de sair da sessao para consultar o essencial.
+- [-] F4.5 Garantir consulta rapida do mundo durante o preparo
+  Notas: A forja agora sobe `pacote operacional` e `pacote visual da mesa` no proprio workspace, reduzindo a necessidade de sair da sessao para consultar o essencial. `RPG-94` adicionou atalhos de consulta direta para o Codex a partir das entidades ja vinculadas em cena e subcena.
 
 ### Criterios de aceite da Frente F4
 - preparar sessao usa o mundo real do app;
