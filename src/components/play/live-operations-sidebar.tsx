@@ -68,6 +68,10 @@ type LiveOperationsSidebarProps = {
     liveCombat: LiveCombat | null;
     monitorMode: boolean;
     tableFocusMode: "narrative" | "tactical";
+    panelVisibility: {
+        showSupport: boolean;
+        showCodex: boolean;
+    };
     soundtrack: {
         ambientUrl: string;
         combatUrl: string;
@@ -109,6 +113,7 @@ type LiveOperationsSidebarProps = {
     onSummarize: () => void;
     onToggleMonitorMode: () => void;
     onTableFocusModeChange: (next: "narrative" | "tactical") => void;
+    onPanelVisibilityChange: (next: { showSupport: boolean; showCodex: boolean }) => void;
     onFocusScene: (sceneId: string) => void;
     onInspectEntity: (entityId: string) => void;
     onReveal: (revealId: string) => void | Promise<void>;
@@ -147,6 +152,7 @@ export function LiveOperationsSidebar({
     liveCombat,
     monitorMode,
     tableFocusMode,
+    panelVisibility,
     soundtrack,
     gmScratchpad,
     flowChecklist,
@@ -170,6 +176,7 @@ export function LiveOperationsSidebar({
     onSummarize,
     onToggleMonitorMode,
     onTableFocusModeChange,
+    onPanelVisibilityChange,
     onFocusScene,
     onInspectEntity,
     onReveal,
@@ -374,6 +381,41 @@ export function LiveOperationsSidebar({
                         </span>
                     ) : null}
                 </div>
+                <div className="mb-2 flex items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-[0.14em] text-white/60">Secundarios:</span>
+                    <button
+                        type="button"
+                        className={`rounded border px-2 py-1 text-[10px] uppercase tracking-[0.14em] ${
+                            panelVisibility.showCodex
+                                ? "border-primary/40 bg-primary/15 text-primary"
+                                : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                        }`}
+                        onClick={() =>
+                            onPanelVisibilityChange({
+                                ...panelVisibility,
+                                showCodex: !panelVisibility.showCodex,
+                            })
+                        }
+                    >
+                        Codex
+                    </button>
+                    <button
+                        type="button"
+                        className={`rounded border px-2 py-1 text-[10px] uppercase tracking-[0.14em] ${
+                            panelVisibility.showSupport
+                                ? "border-primary/40 bg-primary/15 text-primary"
+                                : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                        }`}
+                        onClick={() =>
+                            onPanelVisibilityChange({
+                                ...panelVisibility,
+                                showSupport: !panelVisibility.showSupport,
+                            })
+                        }
+                    >
+                        Suporte
+                    </button>
+                </div>
                 <div className="flex flex-wrap gap-1">
                     <button
                         type="button"
@@ -410,15 +452,15 @@ export function LiveOperationsSidebar({
                 {isTacticalFocus ? (
                     <>
                         {combatSection}
-                        {supportSection}
+                        {panelVisibility.showSupport ? supportSection : null}
                         {prepSection}
-                        {codexSection}
+                        {panelVisibility.showCodex ? codexSection : null}
                     </>
                 ) : (
                     <>
                         {prepSection}
-                        {codexSection}
-                        {supportSection}
+                        {panelVisibility.showCodex ? codexSection : null}
+                        {panelVisibility.showSupport ? supportSection : null}
                         {combatSection}
                     </>
                 )}

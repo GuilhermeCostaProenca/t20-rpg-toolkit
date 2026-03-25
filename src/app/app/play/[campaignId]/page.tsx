@@ -99,6 +99,10 @@ type LiveFlowChecklistState = {
 };
 
 type TableFocusMode = "narrative" | "tactical";
+type LiveCockpitPanelVisibility = {
+    showSupport: boolean;
+    showCodex: boolean;
+};
 
 const EMPTY_PARTY_STATUS: LivePartyStatusSnapshot = {
     total: 0,
@@ -117,6 +121,11 @@ const EMPTY_FLOW_CHECKLIST: LiveFlowChecklistState = {
     consult: false,
     visual: false,
     notes: false,
+};
+
+const DEFAULT_COCKPIT_PANELS: LiveCockpitPanelVisibility = {
+    showSupport: true,
+    showCodex: true,
 };
 
 export default function PlayPage() {
@@ -157,6 +166,7 @@ export default function PlayPage() {
     const [gmScratchpad, setGmScratchpad] = useState("");
     const [monitorMode, setMonitorMode] = useState(false);
     const [tableFocusMode, setTableFocusMode] = useState<TableFocusMode>("narrative");
+    const [cockpitPanels, setCockpitPanels] = useState<LiveCockpitPanelVisibility>(DEFAULT_COCKPIT_PANELS);
     const [flowChecklist, setFlowChecklist] = useState<LiveFlowChecklistState>(EMPTY_FLOW_CHECKLIST);
     const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
 
@@ -241,6 +251,25 @@ export default function PlayPage() {
         } catch (error) {
             console.error("Failed to load table focus mode", error);
             setTableFocusMode("narrative");
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.cockpit-panels.${campaignId}`);
+            if (!saved) {
+                setCockpitPanels(DEFAULT_COCKPIT_PANELS);
+                return;
+            }
+            const parsed = JSON.parse(saved) as Partial<LiveCockpitPanelVisibility>;
+            setCockpitPanels({
+                showSupport: parsed.showSupport !== false,
+                showCodex: parsed.showCodex !== false,
+            });
+        } catch (error) {
+            console.error("Failed to load cockpit panel visibility", error);
+            setCockpitPanels(DEFAULT_COCKPIT_PANELS);
         }
     }, [campaignId]);
 
@@ -1008,6 +1037,7 @@ export default function PlayPage() {
                 liveCombat={liveCombat}
                 monitorMode={monitorMode}
                 tableFocusMode={tableFocusMode}
+                panelVisibility={cockpitPanels}
                 soundtrack={soundtrack}
                 gmScratchpad={gmScratchpad}
                 flowChecklist={flowChecklist}
@@ -1051,6 +1081,19 @@ export default function PlayPage() {
                             window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, next);
                         } catch (error) {
                             console.error("Failed to persist table focus mode", error);
+                        }
+                    }
+                }}
+                onPanelVisibilityChange={(next) => {
+                    setCockpitPanels(next);
+                    if (campaignId) {
+                        try {
+                            window.localStorage.setItem(
+                                `t20.live.cockpit-panels.${campaignId}`,
+                                JSON.stringify(next),
+                            );
+                        } catch (error) {
+                            console.error("Failed to persist cockpit panel visibility", error);
                         }
                     }
                 }}
