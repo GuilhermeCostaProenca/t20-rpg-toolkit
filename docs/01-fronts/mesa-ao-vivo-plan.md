@@ -166,7 +166,7 @@ O app ja possui fundacao de combate, mas a experiencia precisa se alinhar ao pro
 Contexto tecnico:
 Mostrar imagem e parte concreta da mesa descrita pelo produto.
 
-- [-] M4.1 Integrar reveals a partir da biblioteca visual
+- [x] M4.1 Integrar reveals a partir da biblioteca visual
   Notas: `M4.1` integrou atalhos da Biblioteca Visual no `LivePrepCockpit`, com abertura contextual por mundo/campanha e cortes diretos para `reveals` e `cenas` da campanha ativa sem sair do fluxo de mesa.
 
 - [-] M4.2 Permitir disparar visual a partir de entidade ou cena
@@ -175,7 +175,7 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
 - [-] M4.3 Definir fluxo rapido para mostrar referencia sem friccao
   Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit. `RPG-41` aproximou isso do fluxo de consulta, sincronizando cards visuais da cena com o `quick inspect`.
 
-- [-] M4.4 Garantir consistencia com TV/segunda tela
+- [x] M4.4 Garantir consistencia com TV/segunda tela
   Notas: `RPG-42` passou a marcar `pronto para segunda tela` nos reveals e assets visuais da cena, e o cockpit agora consegue exibir retratos/lugares direto para os jogadores usando o mesmo fluxo de `roomCode` dos reveals. O header da mesa agora mostra status explicito da segunda tela (`2a tela pronta`/`offline`) e atalho direto para abrir a view de jogadores.
 
 - [-] M4.5 Evitar que reveal dependa de fluxo improvisado
