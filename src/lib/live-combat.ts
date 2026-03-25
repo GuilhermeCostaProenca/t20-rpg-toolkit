@@ -73,6 +73,12 @@ export const LIVE_PARTY_POLL_MS = 8000;
 export const SQUAD_MONITOR_POLL_MS = 5000;
 export const LIVE_SPAWN_STATUS_MS = 5000;
 export const CONDITION_APPLY_COOLDOWN_MS = 900;
+const PLAYER_COMBATANT_KINDS = new Set(["CHARACTER", "PLAYER", "PC"]);
+
+export function isPlayerCombatantKind(kind?: string | null) {
+  const normalized = (kind ?? "").trim().toUpperCase();
+  return PLAYER_COMBATANT_KINDS.has(normalized);
+}
 
 export function getCampaignCombatPath(campaignId: string) {
   return `/api/campaigns/${campaignId}/combat`;

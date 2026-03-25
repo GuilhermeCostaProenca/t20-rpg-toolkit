@@ -21,6 +21,7 @@ import {
     getCampaignCombatTurnPath,
     getCombatConditionApplyPath,
     getCombatConditionRemovePath,
+    isPlayerCombatantKind,
 } from "@/lib/live-combat";
 import { cn } from "@/lib/utils";
 
@@ -423,7 +424,7 @@ export function CombatTracker({
                                         >
                                             {combatant.name}
                                         </span>
-                                        {combatant.kind === "CHARACTER" ? (
+                                        {isPlayerCombatantKind(combatant.kind) ? (
                                             <Button
                                                 size="sm"
                                                 variant="outline"
