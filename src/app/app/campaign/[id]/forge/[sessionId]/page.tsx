@@ -1545,6 +1545,28 @@ export default function SessionForgePage() {
                                     variant="outline"
                                     className="border-white/10 bg-white/5"
                                     onClick={() =>
+                                      updateScene(scene.id, (current) => {
+                                        const source = current.subscenes[subsceneIndex];
+                                        if (!source) return current;
+                                        const cloned: SessionForgeSubscene = {
+                                          ...source,
+                                          id: `subscene-${Math.random().toString(36).slice(2, 10)}`,
+                                        };
+                                        const nextSubscenes = [...current.subscenes];
+                                        nextSubscenes.splice(subsceneIndex + 1, 0, cloned);
+                                        return {
+                                          ...current,
+                                          subscenes: nextSubscenes,
+                                        };
+                                      })
+                                    }
+                                  >
+                                    Duplicar
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    className="border-white/10 bg-white/5"
+                                    onClick={() =>
                                       updateScene(scene.id, (current) => ({
                                         ...current,
                                         subscenes: current.subscenes.filter((item) => item.id !== subscene.id),
