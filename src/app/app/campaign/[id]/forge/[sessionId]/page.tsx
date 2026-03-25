@@ -1318,6 +1318,35 @@ export default function SessionForgePage() {
                                     </Button>
                                   ))}
                                 </div>
+                                <div className="space-y-2">
+                                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                                    Entidades da subcena
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {entities.slice(0, 20).map((entity) => (
+                                      <Button
+                                        key={entity.id}
+                                        type="button"
+                                        variant="outline"
+                                        className={
+                                          subscene.linkedEntityIds.includes(entity.id)
+                                            ? "border-primary/30 bg-primary/10 text-primary"
+                                            : "border-white/10 bg-white/5"
+                                        }
+                                        onClick={() =>
+                                          updateSubscene(scene.id, subscene.id, (current) => ({
+                                            ...current,
+                                            linkedEntityIds: current.linkedEntityIds.includes(entity.id)
+                                              ? current.linkedEntityIds.filter((item) => item !== entity.id)
+                                              : [...current.linkedEntityIds, entity.id].slice(0, 8),
+                                          }))
+                                        }
+                                      >
+                                        {entity.name}
+                                      </Button>
+                                    ))}
+                                  </div>
+                                </div>
                                 <div className="flex flex-wrap gap-2">
                                   {forge.reveals.length > 0 ? (
                                     forge.reveals.map((reveal) => (
