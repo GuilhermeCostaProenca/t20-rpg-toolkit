@@ -137,8 +137,8 @@ O mestre precisa abrir uma entidade e ver "o que aconteceu com ela".
 - [x] W3.2 Exibir eventos ordenados e legiveis
   Notas: A timeline agora destaca tipo, visibilidade e texto consolidado do evento.
 
-- [ ] W3.3 Destacar mudancas de status e de relacao
-  Notas:
+- [x] W3.3 Destacar mudancas de status e de relacao
+  Notas: A timeline da entidade no Codex passou a destacar `changeType` com badges e sinalizacao dedicada para mudancas de status e de relacao (`alliance`/`rupture`).
 
 - [x] W3.4 Integrar timeline ao workspace da entidade
   Notas: A timeline substituiu a antiga memoria recente no workspace da entidade.

@@ -52,7 +52,14 @@ type EntityDetail = {
   images: EntityImage[];
   outgoingRelations: RelationEdge[];
   incomingRelations: RelationEdge[];
-  recentEvents: Array<{ id: string; type: string; text?: string | null; ts: string; visibility: string }>;
+  recentEvents: Array<{
+    id: string;
+    type: string;
+    text?: string | null;
+    ts: string;
+    visibility: string;
+    meta?: Record<string, unknown> | null;
+  }>;
 };
 type CodexPayload = {
   world: { id: string; title: string; description?: string | null; campaigns: Campaign[] };
@@ -60,6 +67,45 @@ type CodexPayload = {
 };
 
 const typeOptions = ["character", "npc", "faction", "house", "place", "artifact", "event"];
+
+function getMemoryChangeTypeLabel(event: { meta?: Record<string, unknown> | null }) {
+  const meta = event.meta && typeof event.meta === "object" ? event.meta : null;
+  const changeType = typeof meta?.changeType === "string" ? meta.changeType : null;
+  switch (changeType) {
+    case "status":
+      return "Mudanca de status";
+    case "alliance":
+      return "Alianca";
+    case "rupture":
+      return "Ruptura";
+    case "discovery":
+      return "Descoberta";
+    case "secret":
+      return "Segredo";
+    case "world_change":
+      return "Mudanca do mundo";
+    default:
+      return null;
+  }
+}
+
+function getMemoryChangeHighlight(event: { meta?: Record<string, unknown> | null }) {
+  const meta = event.meta && typeof event.meta === "object" ? event.meta : null;
+  const changeType = typeof meta?.changeType === "string" ? meta.changeType : null;
+  if (changeType === "status") {
+    return {
+      tone: "status",
+      label: "Status impactado",
+    } as const;
+  }
+  if (changeType === "alliance" || changeType === "rupture") {
+    return {
+      tone: "relation",
+      label: "Relacao impactada",
+    } as const;
+  }
+  return null;
+}
 
 function formatDate(value: string) {
   return new Date(value).toLocaleString("pt-BR", {
@@ -644,8 +690,24 @@ export default function CodexEntityWorkspacePage() {
                       {formatMemoryEventType(event.type)}
                     </Badge>
                     <Badge className="border-white/10 bg-black/25 text-white/75">{event.visibility}</Badge>
+                    {getMemoryChangeTypeLabel(event) ? (
+                      <Badge className="border-white/10 bg-black/25 text-white/75">
+                        {getMemoryChangeTypeLabel(event)}
+                      </Badge>
+                    ) : null}
                   </div>
                   <p className="mt-3 text-sm font-semibold text-foreground">{formatMemoryEventText(event)}</p>
+                  {getMemoryChangeHighlight(event) ? (
+                    <p
+                      className={
+                        getMemoryChangeHighlight(event)?.tone === "status"
+                          ? "mt-2 text-xs uppercase tracking-[0.16em] text-amber-100/80"
+                          : "mt-2 text-xs uppercase tracking-[0.16em] text-sky-100/80"
+                      }
+                    >
+                      {getMemoryChangeHighlight(event)?.label}
+                    </p>
+                  ) : null}
                   <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">{formatDate(event.ts)}</p>
                 </div>
               )) : entity.recentEvents.length ? entity.recentEvents.map((event) => (
