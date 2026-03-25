@@ -239,6 +239,23 @@ function formatMemoryVisibility(visibility: SessionForgeMemoryVisibility) {
   return visibility === "PLAYERS" ? "Publico" : "Mestre";
 }
 
+function formatSceneStatusLabel(status: SessionForgeSceneStatus) {
+  switch (status) {
+    case "planned":
+      return "Planejada";
+    case "optional":
+      return "Opcional";
+    case "improvised":
+      return "Improvisada";
+    case "executed":
+      return "Executada";
+    case "discarded":
+      return "Descartada";
+    default:
+      return status;
+  }
+}
+
 function formatCaptureStatus(status: SessionForgeCaptureStatus) {
   switch (status) {
     case "recorded":
@@ -766,6 +783,19 @@ export default function SessionForgePage() {
       ),
     [forge.scenes]
   );
+  const sceneContextById = useMemo(
+    () =>
+      new Map(
+        forge.scenes.map((scene) => [
+          scene.id,
+          {
+            status: scene.status,
+            objective: scene.objective?.trim() ?? "",
+          },
+        ])
+      ),
+    [forge.scenes]
+  );
   const encounterCountBySceneId = useMemo(() => {
     const counts = new Map<string, number>();
     for (const encounter of forge.encounters) {
@@ -827,6 +857,8 @@ export default function SessionForgePage() {
         key: string;
         sceneId: string | null;
         title: string;
+        sceneStatus?: SessionForgeSceneStatus;
+        sceneObjective?: string;
         encounters: (typeof sortedFilteredEncounters)[number][];
       }
     >();
@@ -834,6 +866,7 @@ export default function SessionForgePage() {
       const sceneId = encounter.linkedSceneId ?? null;
       const key = sceneId ?? "__unlinked__";
       const title = sceneId ? (sceneTitleById.get(sceneId) ?? "Cena sem titulo") : "Sem cena vinculada";
+      const sceneContext = sceneId ? sceneContextById.get(sceneId) : null;
       const current = groups.get(key);
       if (current) {
         current.encounters.push(encounter);
@@ -842,12 +875,14 @@ export default function SessionForgePage() {
           key,
           sceneId,
           title,
+          sceneStatus: sceneContext?.status,
+          sceneObjective: sceneContext?.objective,
           encounters: [encounter],
         });
       }
     }
     return [...groups.values()];
-  }, [sceneTitleById, sortedFilteredEncounters]);
+  }, [sceneContextById, sceneTitleById, sortedFilteredEncounters]);
   const hasActiveEncounterFilters =
     encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
   function clearEncounterFilters() {
@@ -4104,11 +4139,21 @@ export default function SessionForgePage() {
                           <Badge className="border-white/10 bg-white/5 text-white/75">
                             {group.title}
                           </Badge>
+                          {group.sceneStatus ? (
+                            <Badge className="border-white/10 bg-white/5 text-white/60">
+                              {formatSceneStatusLabel(group.sceneStatus)}
+                            </Badge>
+                          ) : null}
                           <Badge className="border-white/10 bg-white/5 text-white/60">
                             {group.encounters.length}{" "}
                             {group.encounters.length === 1 ? "encontro" : "encontros"}
                           </Badge>
                         </div>
+                        {group.sceneObjective ? (
+                          <p className="text-xs leading-6 text-muted-foreground">
+                            {group.sceneObjective}
+                          </p>
+                        ) : null}
                         {group.encounters.map((encounter) => (
                           <div key={encounter.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
                             <div className="flex flex-wrap items-center justify-between gap-2">
