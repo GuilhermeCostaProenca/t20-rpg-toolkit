@@ -466,6 +466,11 @@ export function LivePrepCockpit({
     const href = `/app/worlds/${worldId}/visual-library${suffix ? `?${suffix}` : ""}`;
     window.open(href, "_blank", "noopener,noreferrer");
   };
+  const openSessionForge = () => {
+    const sessionId = prepPacket?.session?.id;
+    if (!sessionId) return;
+    window.open(`/app/campaign/${campaignId}/forge/${sessionId}`, "_blank", "noopener,noreferrer");
+  };
 
   const livePressure =
     liveCombat?.isActive && liveCombat.combatants.length > 0
@@ -1316,6 +1321,18 @@ export function LivePrepCockpit({
                   Objetivo de mesa
                 </div>
                 <p className="mt-2 text-sm text-foreground/90">{prepPacket.forge.tableObjective}</p>
+                {prepPacket.session.id ? (
+                  <div className="mt-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5"
+                      onClick={openSessionForge}
+                    >
+                      Abrir Forja da sessao
+                    </Button>
+                  </div>
+                ) : null}
               </div>
             ) : null}
 
