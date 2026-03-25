@@ -483,6 +483,7 @@ export default function SessionForgePage() {
   const [message, setMessage] = useState<string | null>(null);
   const [dramaticStatusFilter, setDramaticStatusFilter] = useState<"all" | SessionForgeDramaticStatus>("all");
   const [revealAssetKindFilter, setRevealAssetKindFilter] = useState<"all" | string>("all");
+  const [revealAssetSearchQuery, setRevealAssetSearchQuery] = useState("");
 
   const loadWorkspace = useCallback(async () => {
     if (!campaignId) return;
@@ -589,11 +590,17 @@ export default function SessionForgePage() {
     return [...kinds];
   }, [prepVisualAssets]);
   const filteredRevealAssets = useMemo(
-    () =>
-      revealAssetKindFilter === "all"
-        ? prepVisualAssets
-        : prepVisualAssets.filter((asset) => asset.kind === revealAssetKindFilter),
-    [prepVisualAssets, revealAssetKindFilter]
+    () => {
+      const normalizedQuery = revealAssetSearchQuery.trim().toLowerCase();
+      return prepVisualAssets.filter((asset) => {
+        if (revealAssetKindFilter !== "all" && asset.kind !== revealAssetKindFilter) return false;
+        if (!normalizedQuery) return true;
+        const label = getVisualKindLabel(asset.kind).toLowerCase();
+        const haystack = `${asset.entityName} ${asset.entityType} ${asset.caption ?? ""} ${label}`.toLowerCase();
+        return haystack.includes(normalizedQuery);
+      });
+    },
+    [prepVisualAssets, revealAssetKindFilter, revealAssetSearchQuery]
   );
   useEffect(() => {
     if (revealAssetKindFilter === "all") return;
@@ -2171,6 +2178,13 @@ export default function SessionForgePage() {
                                   </div>
                                 ) : null}
                                 <div className="grid gap-2 sm:grid-cols-2">
+                                  <div className="sm:col-span-2">
+                                    <Input
+                                      value={revealAssetSearchQuery}
+                                      onChange={(event) => setRevealAssetSearchQuery(event.target.value)}
+                                      placeholder="Buscar asset por entidade, tipo ou legenda"
+                                    />
+                                  </div>
                                   <div className="sm:col-span-2 flex flex-wrap gap-2">
                                     <Button
                                       type="button"
