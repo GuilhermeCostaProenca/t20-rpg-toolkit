@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
+  ArrowLeft,
   ArrowRight,
   BookOpenText,
   CalendarClock,
@@ -695,6 +696,13 @@ export default function SessionForgePage() {
       ),
     [forge.scenes]
   );
+  const activeSceneRailIndex = useMemo(
+    () =>
+      activeSceneRailId
+        ? forge.scenes.findIndex((scene) => scene.id === activeSceneRailId)
+        : -1,
+    [activeSceneRailId, forge.scenes]
+  );
 
   const memoryEntityOptions = useMemo(() => {
     if (focusedEntities.length > 0) return focusedEntities.slice(0, 18);
@@ -938,6 +946,19 @@ export default function SessionForgePage() {
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function navigateSceneRail(direction: "prev" | "next") {
+    if (forge.scenes.length === 0) return;
+    const fallbackIndex = 0;
+    const currentIndex = activeSceneRailIndex >= 0 ? activeSceneRailIndex : fallbackIndex;
+    const nextIndex =
+      direction === "prev"
+        ? Math.max(0, currentIndex - 1)
+        : Math.min(forge.scenes.length - 1, currentIndex + 1);
+    const nextScene = forge.scenes[nextIndex];
+    if (!nextScene) return;
+    jumpToSceneCard(nextScene.id);
+  }
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -1163,9 +1184,38 @@ export default function SessionForgePage() {
             </div>
             {forge.scenes.length > 0 ? (
               <div className="mb-5 rounded-2xl border border-white/10 bg-black/20 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/65">
-                  Trilha rapida de cenas
-                </p>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/65">
+                    Trilha rapida de cenas
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5 text-xs"
+                      onClick={() => navigateSceneRail("prev")}
+                      disabled={activeSceneRailIndex <= 0}
+                    >
+                      <ArrowLeft className="mr-1 h-3.5 w-3.5" />
+                      Anterior
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10 bg-white/5 text-xs"
+                      onClick={() => navigateSceneRail("next")}
+                      disabled={
+                        activeSceneRailIndex < 0 ||
+                        activeSceneRailIndex >= forge.scenes.length - 1
+                      }
+                    >
+                      Proxima
+                      <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {forge.scenes.map((scene, sceneIndex) => (
                     <Button
