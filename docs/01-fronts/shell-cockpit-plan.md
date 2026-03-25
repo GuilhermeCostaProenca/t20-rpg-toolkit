@@ -104,8 +104,8 @@ Esta frente precisa redefinir a experiencia base de `/app` e principalmente de `
 - [x] S1.4 Definir onde mora quick inspect e painel de contexto
   Notas: `Sheet` lateral adotado como quick inspect v1.
 
-- [ ] S1.5 Definir quando usar rota completa versus overlay persistente
-  Notas:
+- [x] S1.5 Definir quando usar rota completa versus overlay persistente
+  Notas: Modelo decisorio canonico consolidado em `docs/02-support/overlay-route-decision-model.md`, com matriz objetiva para `overlay`/`painel`/`workspace`/`rota completa` e gates de uso para reduzir troca de contexto.
 
 ### Criterios de aceite da Frente S1
 - existe um modelo unico de shell do mundo;
