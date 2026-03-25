@@ -82,7 +82,7 @@ Preparar sessao precisa ser atividade de primeira classe, nao campo de texto per
   Notas: Workspace dedicado existe em `/app/campaign/[id]/forge/[sessionId]` e ja salva no `metadata` da `Session`.
 
 - [-] F1.2 Definir estrutura navegavel de secoes da sessao
-  Notas: O primeiro recorte ja separa briefing, beats, notas operacionais, lore em foco e entidades em foco. `RPG-98` adicionou barra de navegacao com salto direto para secoes-chave (briefing, cenas, beats, dramatica e visual), reduzindo scroll longo no workspace.
+  Notas: O primeiro recorte ja separa briefing, beats, notas operacionais, lore em foco e entidades em foco. `RPG-98` adicionou barra de navegacao com salto direto para secoes-chave (briefing, cenas, beats, dramatica e visual), reduzindo scroll longo no workspace. `RPG-119` estendeu essa navegacao com atalho direto para `Memoria`, acelerando revisao e fechamento pos-sessao no mesmo workspace.
 
 - [x] F1.3 Definir onde moram notas do mestre e observacoes operacionais
   Notas: `masterNotes` e `operationalNotes` agora vivem em `Session.metadata.forge`.

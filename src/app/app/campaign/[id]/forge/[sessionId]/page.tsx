@@ -1033,6 +1033,13 @@ export default function SessionForgePage() {
           >
             Visual
           </Button>
+          <Button
+            variant="outline"
+            className="border-white/10 bg-white/5"
+            onClick={() => jumpToSection("forge-section-memory")}
+          >
+            Memoria
+          </Button>
         </div>
       </section>
 
