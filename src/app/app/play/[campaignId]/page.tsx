@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, useRef, FormEvent } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { QuickSheet } from "./quick-sheet";
 import {
     type LiveCodexEntity,
@@ -143,6 +143,7 @@ const DEFAULT_COCKPIT_PANELS: LiveCockpitPanelVisibility = {
 
 export default function PlayPage() {
     const params = useParams();
+    const searchParams = useSearchParams();
     const campaignId = params?.campaignId as string;
     const [events, setEvents] = useState<GameEvent[]>([]);
     const [chatInput, setChatInput] = useState("");
@@ -167,6 +168,7 @@ export default function PlayPage() {
     const [inspectLoading, setInspectLoading] = useState(false);
     const [revealingId, setRevealingId] = useState<string | null>(null);
     const [focusedSceneId, setFocusedSceneId] = useState<string | null>(null);
+    const [focusedSubsceneId, setFocusedSubsceneId] = useState<string | null>(null);
     const [liveCombat, setLiveCombat] = useState<LiveCombat | null>(null);
     const [mapTokens, setMapTokens] = useState<Token[]>([]);
     const [currentPublicAsset, setCurrentPublicAsset] = useState<LivePublicAsset | null>(null);
@@ -186,6 +188,9 @@ export default function PlayPage() {
     const [publicLayerLocked, setPublicLayerLocked] = useState(false);
     const [requestedSheetCharacterId, setRequestedSheetCharacterId] = useState<string | null>(null);
     const wasCombatActiveRef = useRef(false);
+    const hasAppliedRouteFocusRef = useRef(false);
+    const routeSceneId = searchParams.get("sceneId");
+    const routeSubsceneId = searchParams.get("subsceneId");
 
     const loadLiveCombat = useCallback(async () => {
         if (!campaignId) return;
@@ -211,6 +216,10 @@ export default function PlayPage() {
             })
             .catch(err => console.error("Map load failed", err));
     }, [campaignId]);
+
+    useEffect(() => {
+        hasAppliedRouteFocusRef.current = false;
+    }, [campaignId, routeSceneId, routeSubsceneId]);
 
     useEffect(() => {
         hasHydratedEventsRef.current = false;
@@ -949,12 +958,34 @@ export default function PlayPage() {
         setChatInput("");
     }
 
+    useEffect(() => {
+        if (!prepPacket || hasAppliedRouteFocusRef.current) return;
+
+        const nextScene = routeSceneId
+            ? prepPacket.forge.scenes.find((scene) => scene.id === routeSceneId)
+            : null;
+        const nextSubscene =
+            nextScene && routeSubsceneId
+                ? nextScene.subscenes.find((subscene) => subscene.id === routeSubsceneId)
+                : null;
+
+        if (nextScene) {
+            setFocusedSceneId(nextScene.id);
+            setFocusedSubsceneId(nextSubscene?.id ?? null);
+        }
+
+        hasAppliedRouteFocusRef.current = true;
+    }, [prepPacket, routeSceneId, routeSubsceneId]);
+
     if (!context) return <div className="flex h-screen items-center justify-center">Carregando Jogo...</div>;
 
     const activeScene = prepPacket?.forge.scenes.find((scene) => scene.id === focusedSceneId)
         ?? prepPacket?.forge.scenes.find((scene) => scene.status !== "discarded")
         ?? null;
-    const activeSubscene = activeScene?.subscenes.find((subscene) => subscene.status !== "discarded") ?? null;
+    const activeSubscene =
+        activeScene?.subscenes.find((subscene) => subscene.id === focusedSubsceneId)
+        ?? activeScene?.subscenes.find((subscene) => subscene.status !== "discarded")
+        ?? null;
 
     const activeSceneEntityIds = activeScene?.linkedEntityIds ?? prepPacket?.forge.linkedEntityIds ?? [];
 
@@ -1231,7 +1262,10 @@ export default function PlayPage() {
                         }
                     }
                 }}
-                onFocusScene={setFocusedSceneId}
+                onFocusScene={(sceneId) => {
+                    setFocusedSceneId(sceneId);
+                    setFocusedSubsceneId(null);
+                }}
                 onInspectEntity={setInspectId}
                 onReveal={(revealId) => void handleLiveReveal(revealId)}
                 onPresentAsset={(entityId, imageUrl, title) =>

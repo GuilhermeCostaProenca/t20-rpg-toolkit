@@ -415,6 +415,14 @@ function moveItem<T>(items: T[], fromIndex: number, direction: "up" | "down") {
   return next;
 }
 
+function buildLiveTableHref(campaignId: string, sceneId?: string, subsceneId?: string) {
+  const search = new URLSearchParams();
+  if (sceneId) search.set("sceneId", sceneId);
+  if (subsceneId) search.set("subsceneId", subsceneId);
+  const suffix = search.toString();
+  return `/app/play/${campaignId}${suffix ? `?${suffix}` : ""}`;
+}
+
 function getLoreScore(doc: LoreDoc, entities: CodexEntity[], campaignId: string) {
   const meta = parseLoreTextIndex(doc.textIndex);
   const linked = meta.linkedEntityIds
@@ -886,7 +894,7 @@ export default function SessionForgePage() {
               <p className="section-eyebrow">Acessos</p>
               <div className="mt-4 grid gap-3">
                 <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
-                  <Link href={`/app/play/${campaign.id}`}>
+                  <Link href={buildLiveTableHref(campaign.id)}>
                     Mesa ao vivo
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -987,6 +995,12 @@ export default function SessionForgePage() {
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
+                        <Button asChild variant="outline" className="border-white/10 bg-white/5">
+                          <Link href={buildLiveTableHref(campaign.id, scene.id)}>
+                            Abrir na mesa
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
                         <Button
                           variant="outline"
                           className="border-white/10 bg-white/5"
@@ -1199,6 +1213,12 @@ export default function SessionForgePage() {
                                   Subcena {sceneIndex + 1}.{subsceneIndex + 1}
                                 </p>
                                 <div className="flex flex-wrap gap-2">
+                                  <Button asChild variant="outline" className="border-white/10 bg-white/5">
+                                    <Link href={buildLiveTableHref(campaign.id, scene.id, subscene.id)}>
+                                      Abrir na mesa
+                                      <ArrowRight className="ml-2 h-4 w-4" />
+                                    </Link>
+                                  </Button>
                                   <Button
                                     variant="outline"
                                     className="border-white/10 bg-white/5"
