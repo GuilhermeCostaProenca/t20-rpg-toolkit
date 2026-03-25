@@ -3946,19 +3946,37 @@ export default function SessionForgePage() {
                     })}
                   </div>
                   {filteredEncounters.length > 0 ? (
-                    filteredEncounters.map((encounter) => (
+                    filteredEncounters.map((encounter) => {
+                  const linkedSceneTitle = encounter.linkedSceneId
+                    ? sceneTitleById.get(encounter.linkedSceneId)
+                    : undefined;
+                  return (
                   <div key={encounter.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge className="border-primary/20 bg-primary/10 text-primary">
-                        {formatEncounterRating(encounter.rating)}
-                      </Badge>
-                      <Badge className="border-white/10 bg-white/5 text-white/75">
-                        Confianca {formatBalanceConfidence(encounter.confidence)}
-                      </Badge>
-                      {encounter.linkedSceneId ? (
-                        <Badge className="border-white/10 bg-white/5 text-white/75">
-                          {sceneTitleById.get(encounter.linkedSceneId) ?? "Cena vinculada"}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge className="border-primary/20 bg-primary/10 text-primary">
+                          {formatEncounterRating(encounter.rating)}
                         </Badge>
+                        <Badge className="border-white/10 bg-white/5 text-white/75">
+                          Confianca {formatBalanceConfidence(encounter.confidence)}
+                        </Badge>
+                        {encounter.linkedSceneId ? (
+                          <Badge className="border-white/10 bg-white/5 text-white/75">
+                            {linkedSceneTitle ?? "Cena vinculada"}
+                          </Badge>
+                        ) : null}
+                      </div>
+                      {encounter.linkedSceneId && linkedSceneTitle ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() => jumpToSceneCard(encounter.linkedSceneId!)}
+                        >
+                          Ir para cena
+                          <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                        </Button>
                       ) : null}
                     </div>
                     <h3 className="mt-3 text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
@@ -3975,7 +3993,8 @@ export default function SessionForgePage() {
                       {encounter.notes || encounter.recommendation || "Sem nota de ajuste registrada."}
                     </p>
                   </div>
-                    ))
+                    );
+                    })
                   ) : (
                     <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
                       Nenhum encontro corresponde ao filtro selecionado.
