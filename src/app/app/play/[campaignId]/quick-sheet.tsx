@@ -37,6 +37,7 @@ interface QuickSheetProps {
     collapsed: boolean;
     onToggle: () => void;
     requestedCharacterId?: string | null;
+    onConsumeRequestedCharacter?: () => void;
 }
 
 export function QuickSheet({
@@ -45,6 +46,7 @@ export function QuickSheet({
     collapsed,
     onToggle,
     requestedCharacterId = null,
+    onConsumeRequestedCharacter,
 }: QuickSheetProps) {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -57,12 +59,6 @@ export function QuickSheet({
                     const nextCharacters = data.data as Character[];
                     setCharacters(nextCharacters);
                     setSelectedId((current) => {
-                        if (
-                            requestedCharacterId &&
-                            nextCharacters.some((character) => character.id === requestedCharacterId)
-                        ) {
-                            return requestedCharacterId;
-                        }
                         if (current && nextCharacters.some((character) => character.id === current)) {
                             return current;
                         }
@@ -71,9 +67,13 @@ export function QuickSheet({
                 }
             })
             .catch(console.error);
-    }, [campaignId, requestedCharacterId]);
+    }, [campaignId]);
 
-    const activeChar = characters.find(c => c.id === selectedId);
+    const resolvedSelectedId =
+        requestedCharacterId && characters.some((character) => character.id === requestedCharacterId)
+            ? requestedCharacterId
+            : selectedId;
+    const activeChar = characters.find(c => c.id === resolvedSelectedId);
 
     const terminalChar = activeChar ? {
         name: activeChar.name,
@@ -116,8 +116,13 @@ export function QuickSheet({
                         {characters.length > 1 && (
                             <select
                                 className="bg-black/50 border border-white/10 text-xs text-white rounded p-1"
-                                value={selectedId || ""}
-                                onChange={(e) => setSelectedId(e.target.value)}
+                                value={resolvedSelectedId || ""}
+                                onChange={(e) => {
+                                    setSelectedId(e.target.value);
+                                    if (requestedCharacterId) {
+                                        onConsumeRequestedCharacter?.();
+                                    }
+                                }}
                             >
                                 {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                             </select>

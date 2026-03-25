@@ -1071,6 +1071,7 @@ export default function PlayPage() {
                 collapsed={sheetCollapsed}
                 onToggle={() => setSheetCollapsed(!sheetCollapsed)}
                 requestedCharacterId={requestedSheetCharacterId}
+                onConsumeRequestedCharacter={() => setRequestedSheetCharacterId(null)}
             />
             {/* Toggle Button for QuickSheet (Visible when collapsed) */}
             {sheetCollapsed && (
