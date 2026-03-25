@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowLeft, ArrowRight, Swords } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SquadMonitor } from "@/components/overseer/squad-monitor";
@@ -48,10 +50,22 @@ function DiceTray({ onRoll }: { onRoll: (expression: string) => void }) {
 type LiveWarRoomProps = {
     campaignId: string;
     campaignName?: string | null;
+    isCombatActive?: boolean;
+    narrativeContext?: {
+        sceneTitle: string;
+        subsceneTitle?: string | null;
+    } | null;
+    combatTurn?: {
+        round: number;
+        currentName: string;
+        currentKind: string;
+    } | null;
     mapTokens: Token[];
     pins: Pin[];
     onTokenMove: (id: string, x: number, y: number) => void | Promise<void>;
     onPinCreate: (pin: Pin) => void | Promise<void>;
+    onTurnNext?: () => void | Promise<void>;
+    onTurnPrev?: () => void | Promise<void>;
     onRollDice: (payload: {
         expression: string;
         modifier: number;
@@ -63,17 +77,24 @@ type LiveWarRoomProps = {
 export function LiveWarRoom({
     campaignId,
     campaignName,
+    isCombatActive = false,
+    narrativeContext,
+    combatTurn,
     mapTokens,
     pins,
     onTokenMove,
     onPinCreate,
+    onTurnNext,
+    onTurnPrev,
     onRollDice,
 }: LiveWarRoomProps) {
     return (
         <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-neutral-900 text-muted-foreground">
-            <div className="pointer-events-none absolute left-1/2 top-4 z-40 w-full max-w-3xl -translate-x-1/2 px-4 pt-2">
-                <SquadMonitor campaignId={campaignId} />
-            </div>
+            {isCombatActive ? (
+                <div className="pointer-events-none absolute left-1/2 top-4 z-40 w-full max-w-3xl -translate-x-1/2 px-4 pt-2">
+                    <SquadMonitor campaignId={campaignId} />
+                </div>
+            ) : null}
 
             <InteractiveMap
                 className="absolute inset-0 z-0"
@@ -83,9 +104,56 @@ export function LiveWarRoom({
                 onPinCreate={onPinCreate}
             />
 
+            {!isCombatActive && narrativeContext?.sceneTitle ? (
+                <div className="pointer-events-none absolute left-4 top-4 z-30 rounded-xl border border-white/10 bg-black/60 px-3 py-2 backdrop-blur">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary/80">
+                        Cena ativa
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-foreground">{narrativeContext.sceneTitle}</p>
+                    {narrativeContext.subsceneTitle ? (
+                        <p className="mt-1 text-xs text-muted-foreground">{narrativeContext.subsceneTitle}</p>
+                    ) : null}
+                </div>
+            ) : null}
+
+            {isCombatActive && combatTurn ? (
+                <div className="absolute right-4 top-4 z-30 rounded-xl border border-red-500/30 bg-black/70 p-3 backdrop-blur">
+                    <div className="flex items-center justify-between gap-3">
+                        <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-red-300">
+                            <Swords className="h-3.5 w-3.5" />
+                            Round {combatTurn.round}
+                        </p>
+                        <div className="flex items-center gap-1">
+                            <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-7 w-7 border-white/10 bg-white/5"
+                                onClick={() => void onTurnPrev?.()}
+                            >
+                                <ArrowLeft className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-7 w-7 border-white/10 bg-white/5"
+                                onClick={() => void onTurnNext?.()}
+                            >
+                                <ArrowRight className="h-3.5 w-3.5" />
+                            </Button>
+                        </div>
+                    </div>
+                    <p className="mt-2 text-sm font-semibold text-foreground">{combatTurn.currentName}</p>
+                    <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-red-200/80">
+                        {combatTurn.currentKind === "CHARACTER" ? "PC" : "Hostil"}
+                    </p>
+                </div>
+            ) : null}
+
             <div className="pointer-events-none z-10 mb-20 select-none text-center opacity-30">
                 <p className="text-[10px] font-light uppercase tracking-[0.2em] drop-shadow-md shadow-black">
-                    Simulacao Tatica: {campaignName ?? "Mesa ao vivo"}
+                    {isCombatActive
+                        ? `Simulacao Tatica: ${campaignName ?? "Mesa ao vivo"}`
+                        : campaignName ?? "Mesa ao vivo"}
                 </p>
             </div>
 

@@ -63,7 +63,7 @@ Esta frente depende de:
 - [-] M2. Fechar consulta rapida de entidades durante a mesa
   Notas: `RPG-19` agora abre quick inspect world-scoped dentro de `/app/play/[campaignId]`, com busca curta, atalhos para entidades em foco da sessao e drawer de detalhe reaproveitando o padrao do Codex.
 
-- [ ] M3. Integrar combate ao cockpit de forma mais fluida
+- [-] M3. Integrar combate ao cockpit de forma mais fluida
   Notas:
 
 - [-] M4. Fechar reveal e referencia visual em operacao
@@ -72,7 +72,7 @@ Esta frente depende de:
 - [ ] M5. Fechar trilha, estado de ficha e suporte de mesa
   Notas:
 
-- [ ] M6. Reduzir troca de contexto durante sessao real
+- [-] M6. Reduzir troca de contexto durante sessao real
   Notas:
 
 ---
@@ -121,7 +121,7 @@ Consultar informacao sem travar a narracao e requisito central.
 - [x] M2.4 Garantir abertura sem perder combate/mapa
   Notas: O quick inspect abre em drawer lateral sem desmontar mapa, combate ou historico.
 
-- [ ] M2.5 Definir atalhos de uso frequente
+- [-] M2.5 Definir atalhos de uso frequente
   Notas: `RPG-41` sincronizou o pacote visual da `cena em foco` com o `quick inspect`, destacando no cockpit quando uma entidade visual da cena ja esta em consulta e permitindo abrir esse inspect direto dos cards de retrato/lugar. `RPG-51` acrescentou um bloco curto de `Consulta do mestre` para referencias visuais que ficam fora da fila publica da subcena, reduzindo ruido na superficie dos jogadores sem perder acesso rapido, e `RPG-52` passou a usar `activeInspectEntityId` para aproximar ainda mais consulta privada e fila publica, marcando quando a proxima exposicao ja esta em inspect pelo mestre.
 
 ### Criterios de aceite da Frente M2
@@ -136,23 +136,23 @@ Consultar informacao sem travar a narracao e requisito central.
 Contexto tecnico:
 O app ja possui fundacao de combate, mas a experiencia precisa se alinhar ao produto final.
 
-- [ ] M3.1 Revisar encaixe do combat tracker no cockpit
+- [-] M3.1 Revisar encaixe do combat tracker no cockpit
   Notas: `RPG-31` acrescentou `Sinais ao vivo` dentro do cockpit da mesa, lendo round, HP medio, contagem viva e quedas a partir do combate ativo sem abrir superficie paralela.
 
-- [ ] M3.2 Garantir transicao clara entre narracao e combate
+- [-] M3.2 Garantir transicao clara entre narracao e combate
   Notas: O pacote narrativo e o pacote tatico agora convivem lado a lado no mesmo sidebar; ainda falta refino estrutural do arquivo `play`, mas o fluxo ja comeca a alternar entre cena em foco, encontro preparado e pressao ao vivo. `RPG-45` acrescentou `Ritmo da cena` na superficie publica, conectando pressao ao vivo com a exposicao de reveals e assets para jogadores. `GUI-44` acrescentou um badge de modo (`Modo Tatico — combate ativo` vs `Modo Narrativo`) no bloco privado do mestre e passou a elevar os blocos de `Sinais ao vivo` e `Ajuste rapido` para o topo da secao privada quando o combate esta ativo, eliminando a rolagem ate o fundo para acessar informacao critica durante encontros.
 
-- [ ] M3.3 Integrar consulta de entidades ao combate
+- [-] M3.3 Integrar consulta de entidades ao combate
   Notas: `GUI-45` acrescentou um painel `Combatentes` dentro do bloco Modo Tatico: cada combatante aparece com barra de HP colorida (verde/ambar/vermelho por percentual), badge `PC` ou `Hostil`, contagem `X / Y HP`, e botao `Consultar` para inimigos que possuem `npcId` no encontro preparado — abrindo o inspect do Codex sem sair do cockpit.
 
-- [ ] M3.4 Melhorar acoes rapidas do mestre
-  Notas: `RPG-32` acrescentou `Ajuste rapido` no proprio cockpit da mesa, com opcoes curtas para aliviar, segurar ou escalar a tensao a partir do estado real do combate.
+- [-] M3.4 Melhorar acoes rapidas do mestre
+  Notas: `RPG-32` acrescentou `Ajuste rapido` no proprio cockpit da mesa, com opcoes curtas para aliviar, segurar ou escalar a tensao a partir do estado real do combate. O `CombatTracker` agora permite aplicar/remover condicoes por combatente sem sair da mesa, com feedback de operacao por item, reconciliacao otimista e sugestoes de `conditionKey` puxadas de `/api/campaigns/[id]/conditions` conforme o ruleset da campanha.
 
-- [ ] M3.5 Garantir que o combate nao monopolize a tela inteira sem necessidade
-  Notas:
+- [-] M3.5 Garantir que o combate nao monopolize a tela inteira sem necessidade
+  Notas: O `LiveWarRoom` agora distingue modo narrativo e tatico no mesmo mapa: em narrativo as barras de squad ficam ocultas e o mapa permanece livre com overlay de cena/subcena; em tatico o monitor de squad volta ao topo, o watermark muda para simulacao tatica e o overlay de turno fica no canto com avancar/voltar turno sem abrir outra superficie.
 
-- [ ] M3.6 Garantir leitura de ficha viva para PCs e NPCs durante a mesa
-  Notas:
+- [-] M3.6 Garantir leitura de ficha viva para PCs e NPCs durante a mesa
+  Notas: `SquadMonitor` passou a operar HP/PM em tempo real com update otimista + persistencia na sheet API e reconciliacao no polling; condicoes aplicadas em combate agora aparecem no monitor por personagem. No `CombatTracker`, o mestre aplica/remove condicoes por combatente com feedback por item e sugestao de chaves de condicao do ruleset. Ainda resta formalizar SAN persistente (campo dedicado na ficha/API) para encerrar este item como concluido.
 
 ### Criterios de aceite da Frente M3
 - combate e parte do cockpit, nao uma experiencia apartada;
@@ -169,16 +169,16 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
 - [ ] M4.1 Integrar reveals a partir da biblioteca visual
   Notas:
 
-- [ ] M4.2 Permitir disparar visual a partir de entidade ou cena
+- [-] M4.2 Permitir disparar visual a partir de entidade ou cena
   Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao, e a `cena em foco` agora contextualiza quais reveals aparecem primeiro. `RPG-39` aprofundou isso separando `reveal principal da cena`, `reveals secundarios` e `reveals gerais da sessao`, e `RPG-40` passou a sugerir referencias visuais de entidades em foco da cena, com retratos e lugares ligados ao contexto atual.
 
-- [ ] M4.3 Definir fluxo rapido para mostrar referencia sem friccao
+- [-] M4.3 Definir fluxo rapido para mostrar referencia sem friccao
   Notas: `reveals` prontos agora aparecem no sidebar da mesa e podem ser enviados sem sair do cockpit. `RPG-41` aproximou isso do fluxo de consulta, sincronizando cards visuais da cena com o `quick inspect`.
 
-- [ ] M4.4 Garantir consistencia com TV/segunda tela
+- [-] M4.4 Garantir consistencia com TV/segunda tela
   Notas: `RPG-42` passou a marcar `pronto para segunda tela` nos reveals e assets visuais da cena, e o cockpit agora consegue exibir retratos/lugares direto para os jogadores usando o mesmo fluxo de `roomCode` dos reveals.
 
-- [ ] M4.5 Evitar que reveal dependa de fluxo improvisado
+- [-] M4.5 Evitar que reveal dependa de fluxo improvisado
   Notas: `RPG-43` separou explicitamente no cockpit o que e `Para jogadores` e o que e `Apenas mestre`, agrupando reveals e assets prontos para TV/segunda tela em uma superficie publica e mantendo objetivo, encontro, pressao e ajuste rapido no bloco privado do mestre. `RPG-44` acrescentou o estado `Na tela agora`, para o mestre saber qual asset ou reveal ja esta efetivamente em exibicao para os jogadores. `RPG-46` acrescentou `Proxima exposicao sugerida`, reduzindo improviso na progressao visual da cena, `RPG-47` evoluiu isso para uma fila curta com `Proxima` e `Depois`, `RPG-48` tornou essa fila sensivel ao contexto da cena, priorizando melhor `reveal`, `lugar` e `rosto` conforme o momento narrativo, `RPG-49` conectou a fila ao `objective` e aos beats da cena em foco, `RPG-50` passou a usar pistas de subcena para priorizar e explicar melhor a progressao publica da cena, `RPG-51` passou a usar tambem as entidades ligadas a subcenas para decidir melhor o que fica na superficie publica e o que permanece como apoio privado do mestre, `RPG-52` conectou a fila publica ao `quick inspect` do mestre, dando mais peso ao que ja esta em consulta quando isso ajuda a progressao da cena, `RPG-53` passou a priorizar `reveals` ligados explicitamente a `linkedRevealIds` da subcena ativa, `RPG-54` passou a selecionar `Depois` como complemento mais util ao `Proxima`, evitando repeticao cega do mesmo tipo de asset quando a cena pede variacao, `RPG-55` passou a reagir ao que ja esta `Na tela agora` para escolher melhor a proxima camada visual, `RPG-56` acrescentou um cue curto de progressao para indicar se e hora de manter ou virar a camada publica atual, `RPG-57` acrescentou a leitura de `Fase da cena` para diferenciar melhor abertura, sustentacao e virada dentro do bloco publico, `RPG-58` passou a usar essa fase como logica real de selecao para o proximo tipo de asset sugerido, `RPG-59` fez essa fase reagir melhor aos sinais da subcena ativa, especialmente `linkedRevealIds` e `linkedEntityIds`, `GUI-42` passou a distinguir quando esses cues da subcena ja foram efetivamente consumidos pela camada publica atual, para a fila sair da mesma virada na hora certa, e `GUI-43` passou a usar a sequencia de subcenas para derivar a proxima subcena automaticamente quando a atual esta consumida — o bloco `Depois` da fila publica passa a preferir conteudo da proxima subcena, e o mestre ve indicador de posicao (`X / Y`), sinal `Cues absorvidos — subcena pronta para avancar` e preview da proxima subcena com seus cues de reveal e entidade.
 
 ### Criterios de aceite da Frente M4
@@ -223,10 +223,10 @@ Essa frente mede o sucesso operacional da mesa.
 - [ ] M6.1 Revisar pontos onde o mestre ainda precisa sair da tela principal
   Notas:
 
-- [ ] M6.2 Consolidar acessos rapidos mais frequentes
+- [-] M6.2 Consolidar acessos rapidos mais frequentes
   Notas: `RPG-33` consolidou o pacote de preparo em um componente proprio, `RPG-34` fez o mesmo com o quick inspect e `RPG-35` isolou o historico/chat. O cockpit agora esta mais modular sem mudar o fluxo do mestre.
 
-- [ ] M6.3 Reduzir rotas e modais desnecessarios durante sessao
+- [-] M6.3 Reduzir rotas e modais desnecessarios durante sessao
   Notas: `RPG-43` reduziu a ambiguidade dentro do proprio cockpit ao vivo, sem criar nova rota ou modal, deixando claro o que e superficie publica para jogadores e o que continua privado para consulta operacional do mestre.
 
 - [ ] M6.4 Validar o fluxo com cenarios completos de mesa

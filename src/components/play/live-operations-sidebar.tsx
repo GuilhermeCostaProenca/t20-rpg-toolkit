@@ -9,6 +9,7 @@ import { LiveHistoryChatStack } from "@/components/play/live-history-chat-stack"
 import { LivePrepCockpit } from "@/components/play/live-prep-cockpit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { LiveCombat, LiveOpsStatusMessage } from "@/lib/live-combat";
 import type {
     SessionForgeDramaticItem,
     SessionForgeEncounter,
@@ -39,20 +40,6 @@ type PrepSessionPacket = {
     forge: SessionForgeState;
 };
 
-type LiveCombat = {
-    id: string;
-    isActive: boolean;
-    round: number;
-    turnIndex: number;
-    combatants: {
-        id: string;
-        kind: string;
-        name: string;
-        hpCurrent: number;
-        hpMax: number;
-    }[];
-};
-
 type LiveOperationsSidebarProps = {
     campaignId: string;
     campaignName: string;
@@ -77,6 +64,8 @@ type LiveOperationsSidebarProps = {
     revealingId: string | null;
     secondScreenReady: boolean;
     activeInspectEntityId: string | null;
+    spawningEncounterEnemyId: string | null;
+    spawnStatusMessage?: LiveOpsStatusMessage | null;
     inspectQuery: string;
     inspectCandidates: LiveCodexEntity[];
     inspectId: string | null;
@@ -93,6 +82,10 @@ type LiveOperationsSidebarProps = {
     onInspectEntity: (entityId: string) => void;
     onReveal: (revealId: string) => void | Promise<void>;
     onPresentAsset: (entityId: string, imageUrl: string, title: string) => void | Promise<void>;
+    onSpawnEncounterEnemy: (
+        enemy: SessionForgeEncounter["enemies"][number],
+        enemyIndex: number,
+    ) => void | Promise<void>;
     onInspectQueryChange: (value: string) => void;
     onInspectIdChange: (value: string | null) => void;
     onOpenSearch: () => void;
@@ -101,6 +94,7 @@ type LiveOperationsSidebarProps = {
     onChatInputChange: (value: string) => void;
     onChatSubmit: (event: FormEvent) => void;
     onVoiceTranscription: (text: string) => void;
+    onCombatChange: () => void | Promise<void>;
 };
 
 export function LiveOperationsSidebar({
@@ -117,6 +111,8 @@ export function LiveOperationsSidebar({
     revealingId,
     secondScreenReady,
     activeInspectEntityId,
+    spawningEncounterEnemyId,
+    spawnStatusMessage,
     inspectQuery,
     inspectCandidates,
     inspectId,
@@ -133,6 +129,7 @@ export function LiveOperationsSidebar({
     onInspectEntity,
     onReveal,
     onPresentAsset,
+    onSpawnEncounterEnemy,
     onInspectQueryChange,
     onInspectIdChange,
     onOpenSearch,
@@ -141,6 +138,7 @@ export function LiveOperationsSidebar({
     onChatInputChange,
     onChatSubmit,
     onVoiceTranscription,
+    onCombatChange,
 }: LiveOperationsSidebarProps) {
     return (
         <div className="z-[60] flex w-full flex-col border-l border-white/10 bg-sidebar md:w-[350px]">
@@ -167,7 +165,11 @@ export function LiveOperationsSidebar({
             </div>
 
             <div className="px-3 pt-3">
-                <CombatTracker campaignId={campaignId} />
+                <CombatTracker
+                    campaignId={campaignId}
+                    liveCombat={liveCombat}
+                    onCombatChange={onCombatChange}
+                />
             </div>
 
             <div className="px-3 pt-3">
@@ -182,10 +184,13 @@ export function LiveOperationsSidebar({
                     revealingId={revealingId}
                     secondScreenReady={secondScreenReady}
                     activeInspectEntityId={activeInspectEntityId}
+                    spawningEncounterEnemyId={spawningEncounterEnemyId}
+                    spawnStatusMessage={spawnStatusMessage}
                     onFocusScene={onFocusScene}
                     onInspectEntity={onInspectEntity}
                     onReveal={onReveal}
                     onPresentAsset={onPresentAsset}
+                    onSpawnEncounterEnemy={onSpawnEncounterEnemy}
                 />
             </div>
 

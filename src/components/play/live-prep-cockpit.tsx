@@ -13,6 +13,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { LiveCombat, LiveOpsStatusMessage } from "@/lib/live-combat";
 import {
   type SessionForgeBeat,
   type SessionForgeDramaticItem,
@@ -35,18 +36,6 @@ type PrepSessionPacket = {
     status?: "planned" | "active" | "finished";
   };
   forge: SessionForgeState;
-};
-
-type LiveCombat = {
-  isActive: boolean;
-  round: number;
-  combatants: {
-    id: string;
-    kind: string;
-    name: string;
-    hpCurrent: number;
-    hpMax: number;
-  }[];
 };
 
 type SceneVisualEntity = {
@@ -86,10 +75,16 @@ type LivePrepCockpitProps = {
   revealingId: string | null;
   secondScreenReady: boolean;
   activeInspectEntityId: string | null;
+  spawningEncounterEnemyId: string | null;
+  spawnStatusMessage?: LiveOpsStatusMessage | null;
   onFocusScene: (sceneId: string) => void;
   onInspectEntity: (entityId: string) => void;
   onReveal: (revealId: string) => void | Promise<void>;
   onPresentAsset: (entityId: string, imageUrl: string, title: string) => void | Promise<void>;
+  onSpawnEncounterEnemy: (
+    enemy: SessionForgeEncounter["enemies"][number],
+    enemyIndex: number,
+  ) => void | Promise<void>;
 };
 
 function PlayerFacingAssetCard({
@@ -430,10 +425,13 @@ export function LivePrepCockpit({
   revealingId,
   secondScreenReady,
   activeInspectEntityId,
+  spawningEncounterEnemyId,
+  spawnStatusMessage,
   onFocusScene,
   onInspectEntity,
   onReveal,
   onPresentAsset,
+  onSpawnEncounterEnemy,
 }: LivePrepCockpitProps) {
   const livePressure =
     liveCombat?.isActive && liveCombat.combatants.length > 0
@@ -593,6 +591,7 @@ export function LivePrepCockpit({
     nextPublicCandidate,
     publicPacing,
   );
+  const isSpawnBusy = Boolean(spawningEncounterEnemyId);
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -1178,7 +1177,8 @@ export function LivePrepCockpit({
                         const linkedEnemy = activeEncounter?.enemies.find(
                           (e) =>
                             e.npcId &&
-                            (e.npcId === combatant.id ||
+                            (e.npcId === combatant.refId ||
+                              e.npcId === combatant.id ||
                               e.label.toLowerCase() === combatant.name.toLowerCase()),
                         );
                         return (
@@ -1443,13 +1443,66 @@ export function LivePrepCockpit({
                   {activeEncounter.title || "Encontro preparado"}
                 </p>
                 <div className="mt-3 grid gap-1 text-sm text-muted-foreground">
-                  {activeEncounter.enemies.map((enemy) => (
-                    <p key={`${activeEncounter.id}:${enemy.npcId ?? enemy.label}`}>
-                      {enemy.quantity}x {enemy.label || "Ameaca sem nome"}
-                    </p>
-                  ))}
+                  {activeEncounter.enemies.map((enemy, enemyIndex) => {
+                    const enemyKey = `${activeEncounter.id}:${enemy.npcId ?? enemy.label}:${enemyIndex}`;
+                    const isSpawnable = Boolean(enemy.npcId);
+                    const isSpawning = spawningEncounterEnemyId === enemyKey;
+                    const spawnedCount = enemy.npcId
+                      ? (liveCombat?.combatants.filter((combatant) => combatant.refId === enemy.npcId).length ?? 0)
+                      : 0;
+                    const targetCount = Math.max(1, enemy.quantity || 1);
+                    const remainingToSpawn = Math.max(0, targetCount - spawnedCount);
+                    const isFullySpawned = remainingToSpawn === 0;
+
+                    return (
+                      <div key={enemyKey} className="flex items-center justify-between gap-2">
+                        <p>
+                          {enemy.quantity}x {enemy.label || "Ameaca sem nome"}
+                          {liveCombat?.isActive && isSpawnable ? (
+                            <span className="ml-2 text-[10px] uppercase tracking-[0.12em] text-white/60">
+                              {spawnedCount}/{targetCount} em campo
+                            </span>
+                          ) : null}
+                        </p>
+                        {liveCombat?.isActive ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-white/10 bg-white/5 text-xs"
+                            disabled={!isSpawnable || isSpawning || isFullySpawned || isSpawnBusy}
+                            onClick={() => void onSpawnEncounterEnemy(enemy, enemyIndex)}
+                          >
+                            {isSpawning
+                              ? "Convocando..."
+                              : isSpawnBusy
+                                ? "Aguarde..."
+                                : !isSpawnable
+                                ? "Sem NPC"
+                                : isFullySpawned
+                                  ? "Em campo"
+                                  : remainingToSpawn > 1
+                                    ? `Convocar +${remainingToSpawn}`
+                                    : "Convocar"}
+                          </Button>
+                        ) : null}
+                      </div>
+                    );
+                  })}
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">{activeEncounter.recommendation}</p>
+                {spawnStatusMessage ? (
+                  <p
+                    className={`mt-2 text-xs ${
+                      spawnStatusMessage.kind === "error"
+                        ? "text-red-300"
+                        : spawnStatusMessage.kind === "success"
+                          ? "text-emerald-300"
+                          : "text-white/70"
+                    }`}
+                  >
+                    {spawnStatusMessage.message}
+                  </p>
+                ) : null}
               </div>
             ) : null}
 

@@ -18,7 +18,26 @@ export async function GET(_req: Request, { params }: Context) {
     const combat = await prisma.combat.findUnique({
       where: { campaignId: id },
       include: {
-        combatants: true,
+        combatants: {
+          orderBy: { initiative: "desc" },
+        },
+        conditions: {
+          include: {
+            condition: {
+              select: {
+                id: true,
+                key: true,
+                name: true,
+              },
+            },
+            target: {
+              select: {
+                id: true,
+                refId: true,
+              },
+            },
+          },
+        },
         events: {
           orderBy: { ts: "desc" },
           take: 50,

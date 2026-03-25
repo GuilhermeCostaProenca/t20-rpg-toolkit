@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, FormEvent } from "react";
+import { useCallback, useEffect, useState, useRef, FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { QuickSheet } from "./quick-sheet";
 import {
@@ -18,7 +18,24 @@ import { type Pin, type Token } from "@/components/map/interactive-map";
 import { CortexOverlay } from "@/components/cortex/cortex-overlay";
 
 import { Button } from "@/components/ui/button";
-import { normalizeSessionForgeState, type SessionForgeState } from "@/lib/session-forge";
+import type {
+    CampaignNpc,
+    LiveCombat,
+    LiveOpsStatusMessage,
+} from "@/lib/live-combat";
+import {
+    LIVE_COMBAT_POLL_MS,
+    LIVE_SPAWN_STATUS_MS,
+    getCampaignCombatPath,
+    getCampaignCombatantsPath,
+    getCampaignCombatTurnPath,
+    getCampaignNpcsPath,
+} from "@/lib/live-combat";
+import {
+    normalizeSessionForgeState,
+    type SessionForgeEncounterEnemy,
+    type SessionForgeState,
+} from "@/lib/session-forge";
 
 // --- Types ---
 type GameEvent = {
@@ -45,19 +62,6 @@ type PrepSessionPacket = {
     forge: SessionForgeState;
 };
 
-type LiveCombat = {
-    id: string;
-    isActive: boolean;
-    round: number;
-    turnIndex: number;
-    combatants: {
-        id: string;
-        kind: string;
-        name: string;
-        hpCurrent: number;
-        hpMax: number;
-    }[];
-};
 type CampaignContext = {
     id: string;
     name: string;
@@ -97,6 +101,20 @@ export default function PlayPage() {
     const [liveCombat, setLiveCombat] = useState<LiveCombat | null>(null);
     const [mapTokens, setMapTokens] = useState<Token[]>([]);
     const [currentPublicAsset, setCurrentPublicAsset] = useState<LivePublicAsset | null>(null);
+    const [spawningEncounterEnemyId, setSpawningEncounterEnemyId] = useState<string | null>(null);
+    const [spawnStatusMessage, setSpawnStatusMessage] = useState<LiveOpsStatusMessage | null>(null);
+
+    const loadLiveCombat = useCallback(async () => {
+        if (!campaignId) return;
+        try {
+            const res = await fetch(getCampaignCombatPath(campaignId), { cache: "no-store" });
+            const json = await res.json();
+            setLiveCombat((json.data as LiveCombat | null | undefined) ?? null);
+        } catch (error) {
+            console.error("Live combat load failed", error);
+            setLiveCombat(null);
+        }
+    }, [campaignId]);
 
     // Initial Map Load
     useEffect(() => {
@@ -168,7 +186,6 @@ export default function PlayPage() {
             // Limit to 10 dice max to avoid physics explosion
             const limitedDice = diceTypes.slice(0, 10);
 
-            console.log("Auto-Rolling for Initiative:", limitedDice.length);
             diceRef.current?.roll(limitedDice);
 
             // Mark as processed
@@ -291,34 +308,15 @@ export default function PlayPage() {
 
     useEffect(() => {
         if (!campaignId) return;
-
-        let cancelled = false;
-
-        const loadLiveCombat = async () => {
-            try {
-                const res = await fetch(`/api/campaigns/${campaignId}/combat`, { cache: "no-store" });
-                const json = await res.json();
-                if (!cancelled) {
-                    setLiveCombat((json.data as LiveCombat | null | undefined) ?? null);
-                }
-            } catch (error) {
-                if (!cancelled) {
-                    console.error("Live combat load failed", error);
-                    setLiveCombat(null);
-                }
-            }
-        };
-
         void loadLiveCombat();
         const interval = setInterval(() => {
             void loadLiveCombat();
-        }, 4000);
+        }, LIVE_COMBAT_POLL_MS);
 
         return () => {
-            cancelled = true;
             clearInterval(interval);
         };
-    }, [campaignId]);
+    }, [campaignId, loadLiveCombat]);
 
     useEffect(() => {
         if (!context?.worldId) return;
@@ -360,6 +358,12 @@ export default function PlayPage() {
 
         void loadInspectEntity();
     }, [context?.worldId, inspectId]);
+
+    useEffect(() => {
+        if (!spawnStatusMessage) return;
+        const timer = setTimeout(() => setSpawnStatusMessage(null), LIVE_SPAWN_STATUS_MS);
+        return () => clearTimeout(timer);
+    }, [spawnStatusMessage]);
 
 
     async function handleAction(type: string, payload: Record<string, unknown>) {
@@ -493,6 +497,109 @@ export default function PlayPage() {
         }
     }
 
+    async function refreshLiveCombatNow() {
+        await loadLiveCombat();
+    }
+
+    async function handleSpawnEncounterEnemy(enemy: SessionForgeEncounterEnemy, enemyIndex: number) {
+        if (spawningEncounterEnemyId) return;
+        if (!campaignId || !liveCombat?.isActive || !enemy.npcId) return;
+
+        const spawnId = `${activeEncounter?.id ?? "encounter"}:${enemy.npcId}:${enemyIndex}`;
+        setSpawningEncounterEnemyId(spawnId);
+        setSpawnStatusMessage(null);
+
+        try {
+            const npcResponse = await fetch(getCampaignNpcsPath(campaignId), { cache: "no-store" });
+            if (!npcResponse.ok) {
+                throw new Error("Falha ao carregar NPCs da campanha.");
+            }
+
+            const npcJson = await npcResponse.json();
+            const npcs = (npcJson.data as CampaignNpc[] | undefined) ?? [];
+            const npc = npcs.find((entry) => entry.id === enemy.npcId);
+            if (!npc) {
+                throw new Error("NPC do encontro nao encontrado na campanha.");
+            }
+
+            const quantity = Math.max(1, enemy.quantity || 1);
+            const baseName = enemy.label?.trim() || npc.name || "Ameaca";
+            const hpMax = Math.max(1, npc.hpMax ?? 1);
+            const kind = npc.type?.toLowerCase() === "monster" ? "MONSTER" : "NPC";
+            const existingFromSameNpc =
+                liveCombat?.combatants.filter((combatant) => combatant.refId === npc.id).length ?? 0;
+            const remainingToSpawn = Math.max(0, quantity - existingFromSameNpc);
+            if (remainingToSpawn === 0) {
+                setSpawnStatusMessage({
+                    kind: "info",
+                    message: `${baseName} ja esta completo em campo (${existingFromSameNpc}/${quantity}).`,
+                });
+                return;
+            }
+
+            for (let idx = 0; idx < remainingToSpawn; idx += 1) {
+                const sequence = existingFromSameNpc + idx + 1;
+                const shouldSuffix = quantity > 1 || existingFromSameNpc > 0;
+                const combatantName = shouldSuffix ? `${baseName} ${sequence}` : baseName;
+                const spawnResponse = await fetch(getCampaignCombatantsPath(campaignId), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: combatantName,
+                        refId: npc.id,
+                        kind,
+                        hpMax,
+                        hpCurrent: hpMax,
+                        defenseFinal: npc.defenseFinal ?? 10,
+                        damageFormula: npc.damageFormula ?? "1d6",
+                    }),
+                });
+
+                if (!spawnResponse.ok) {
+                    const spawnJson = await spawnResponse.json().catch(() => null);
+                    const message =
+                        (spawnJson?.error as string | undefined) ??
+                        "Falha ao convocar inimigo para o combate.";
+                    throw new Error(message);
+                }
+            }
+
+            await refreshLiveCombatNow();
+            setSpawnStatusMessage({
+                kind: "success",
+                message:
+                    remainingToSpawn > 1
+                        ? `${remainingToSpawn} unidades de ${baseName} convocadas para o combate.`
+                        : `${baseName} convocado para o combate.`,
+            });
+        } catch (error) {
+            console.error("Encounter spawn failed", error);
+            setSpawnStatusMessage({
+                kind: "error",
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : "Falha ao convocar inimigo para o combate.",
+            });
+        } finally {
+            setSpawningEncounterEnemyId(null);
+        }
+    }
+
+    async function handleCombatTurn(direction: "next" | "prev") {
+        if (!liveCombat?.isActive) return;
+        try {
+            await fetch(getCampaignCombatTurnPath(campaignId), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ direction }),
+            });
+            await refreshLiveCombatNow();
+        } catch (error) {
+            console.error("Combat turn update failed", error);
+        }
+    }
+
     const sendChat = (e: FormEvent) => {
         e.preventDefault();
         if (!chatInput.trim()) return;
@@ -505,6 +612,7 @@ export default function PlayPage() {
     const activeScene = prepPacket?.forge.scenes.find((scene) => scene.id === focusedSceneId)
         ?? prepPacket?.forge.scenes.find((scene) => scene.status !== "discarded")
         ?? null;
+    const activeSubscene = activeScene?.subscenes.find((subscene) => subscene.status !== "discarded") ?? null;
 
     const activeSceneEntityIds = activeScene?.linkedEntityIds ?? prepPacket?.forge.linkedEntityIds ?? [];
 
@@ -538,6 +646,22 @@ export default function PlayPage() {
     const activeEncounter = prepPacket?.forge.encounters.find((encounter) =>
         activeScene ? encounter.linkedSceneId === activeScene.id : true
     ) ?? prepPacket?.forge.encounters[0] ?? null;
+    const narrativeContext = activeScene
+        ? {
+            sceneTitle: activeScene.title || "Cena sem titulo",
+            subsceneTitle: activeSubscene?.title || undefined,
+        }
+        : null;
+    const currentCombatant = liveCombat?.combatants.length
+        ? liveCombat.combatants[liveCombat.turnIndex % liveCombat.combatants.length]
+        : null;
+    const combatTurn = liveCombat?.isActive && currentCombatant
+        ? {
+            round: liveCombat.round,
+            currentName: currentCombatant.name,
+            currentKind: currentCombatant.kind,
+        }
+        : null;
     const inspectCandidates = (inspectQuery.trim()
         ? liveCodexEntities.filter((entity) => {
             const term = inspectQuery.trim().toLowerCase();
@@ -622,10 +746,15 @@ export default function PlayPage() {
             <LiveWarRoom
                 campaignId={campaignId}
                 campaignName={context?.campaign?.name}
+                isCombatActive={liveCombat?.isActive ?? false}
+                narrativeContext={narrativeContext}
+                combatTurn={combatTurn}
                 mapTokens={mapTokens}
                 pins={pins}
                 onTokenMove={handleTokenMove}
                 onPinCreate={handlePinCreate}
+                onTurnNext={() => void handleCombatTurn("next")}
+                onTurnPrev={() => void handleCombatTurn("prev")}
                 onRollDice={({ expression, modifier, count, diceArray }) => {
                     setPendingRoll({ expression, modifier, count });
                     diceRef.current?.roll(diceArray);
@@ -646,6 +775,8 @@ export default function PlayPage() {
                 revealingId={revealingId}
                 secondScreenReady={Boolean(context.campaign.roomCode)}
                 activeInspectEntityId={inspectId}
+                spawningEncounterEnemyId={spawningEncounterEnemyId}
+                spawnStatusMessage={spawnStatusMessage}
                 inspectQuery={inspectQuery}
                 inspectCandidates={inspectCandidates}
                 inspectId={inspectId}
@@ -663,6 +794,9 @@ export default function PlayPage() {
                 onReveal={(revealId) => void handleLiveReveal(revealId)}
                 onPresentAsset={(entityId, imageUrl, title) =>
                     void handlePresentSceneAsset(entityId, imageUrl, title)
+                }
+                onSpawnEncounterEnemy={(enemy, enemyIndex) =>
+                    void handleSpawnEncounterEnemy(enemy, enemyIndex)
                 }
                 onInspectQueryChange={setInspectQuery}
                 onInspectIdChange={(value) => {
@@ -687,6 +821,7 @@ export default function PlayPage() {
                     handleAction('CHAT', { text, author: 'Mestre (Voz)' });
                     processVoiceCommand(text);
                 }}
+                onCombatChange={() => void refreshLiveCombatNow()}
             />
         </div>
     );

@@ -291,6 +291,7 @@ export const CombatInitiativeSchema = z.object({
 
 export const CombatantCreateSchema = z.object({
   name: z.string().trim().min(1),
+  refId: z.string().trim().optional(),
   kind: z.enum(["NPC", "MONSTER"]).default("NPC"),
   hpMax: z.coerce.number().int().min(1),
   hpCurrent: z.coerce.number().int().min(0).optional(),
