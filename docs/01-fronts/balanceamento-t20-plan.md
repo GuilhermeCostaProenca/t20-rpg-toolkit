@@ -89,8 +89,8 @@ Sem fundacao clara, a frente vira sugestao vaga.
 - [x] T1.4 Definir como lidar com composicoes nao triviais
   Notas: `codex/t20-balance-t1-4` introduziu heuristicas para composicoes de enxame, elite, mista e boss solo no motor de risco (`src/lib/t20-balance.ts`), com impacto em fatores, confianca e recomendacao.
 
-- [-] T1.5 Definir limites e mensagens de confianca
-  Notas: O painel ja expõe confianca `alta`, `media` ou `baixa` e fatores de incerteza quando faltam dados do grupo ou das ameacas.
+- [x] T1.5 Definir limites e mensagens de confianca
+  Notas: `RPG-62` (`codex/rpg-62-t20-balance-t1-5`) adicionou `confidenceScore` (0-100) e `uncertaintySignals` estruturados com impacto e acao recomendada, refletidos no painel da campanha.
 
 ### Criterios de aceite da Frente T1
 - a base de calculo e previsivel;

@@ -125,4 +125,19 @@ describe("analyzeT20Encounter - non-trivial compositions", () => {
     expect(analyzed.breakdown.threat.rawThreatScore).toBe(analyzed.threatScore);
     expect(analyzed.breakdown.ratio.effective).toBe(analyzed.pressureRatio);
   });
+
+  it("exposes confidence score and actionable uncertainty signals", () => {
+    const uncertain = analyzeT20Encounter(
+      [
+        { level: 5, role: "", className: "guerreiro", pvCurrent: null, pvMax: null, pmCurrent: null, pmMax: null },
+        { level: 5, role: "", className: "arcanista", pvCurrent: null, pvMax: null, pmCurrent: null, pmMax: null },
+      ],
+      [{ type: "enemy", hpMax: null, defenseFinal: null, damageFormula: "" }]
+    );
+
+    expect(uncertain.confidenceScore).toBeLessThan(75);
+    expect(uncertain.uncertaintySignals.length).toBeGreaterThan(0);
+    expect(uncertain.uncertaintySignals.some((signal) => signal.code === "missing_enemy_stats")).toBe(true);
+    expect(uncertain.uncertaintySignals.some((signal) => signal.code === "missing_roles")).toBe(true);
+  });
 });

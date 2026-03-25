@@ -1264,6 +1264,29 @@ export default function CampaignPage() {
                       </Badge>
                     </div>
                   </div>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Score de confianca {encounterBalance.confidenceScore}/100
+                  </p>
+                  {encounterBalance.uncertaintySignals.length > 0 ? (
+                    <div className="mt-2 grid gap-2">
+                      {encounterBalance.uncertaintySignals.slice(0, 3).map((signal) => (
+                        <div
+                          key={signal.code}
+                          className="rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs text-muted-foreground"
+                        >
+                          <span className="font-semibold text-foreground">
+                            {signal.impact === "high"
+                              ? "Impacto alto"
+                              : signal.impact === "medium"
+                                ? "Impacto medio"
+                                : "Impacto baixo"}
+                            :
+                          </span>{" "}
+                          {signal.message} {signal.action}
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                   <div className="mt-4 grid gap-4 lg:grid-cols-3">
                     <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Grupo</p>
