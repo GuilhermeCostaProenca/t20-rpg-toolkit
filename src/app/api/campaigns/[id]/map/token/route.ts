@@ -4,37 +4,48 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const { id } = await params;
     try {
         const body = await req.json();
+        const tokenId = typeof body.id === "string" && body.id.trim().length > 0 ? body.id : null;
 
-        // Validate body (simple check)
-        if (!body.x || !body.y) { // id is optional for new tokens
+        if (typeof body.x !== "number" || typeof body.y !== "number") {
             return Response.json({ error: "Missing x/y coordinates" }, { status: 400 });
         }
 
-        const token = await prisma.mapToken.upsert({
-            where: { id: body.id || "new" }, // Use "new" or a placeholder if creating, but actually upsert needs a valid where.
-            // Better strategy: Check if ID exists, or use create if no ID. Upsert requires unique ID.
-            // If we don't have an ID from client, we are creating. 
-            // If we have an ID, we update.
-            create: {
+        const payload = {
+            x: body.x,
+            y: body.y,
+            scale: typeof body.scale === "number" ? body.scale : 1,
+            rotation: typeof body.rotation === "number" ? body.rotation : 0,
+            type: body.type || "character",
+            label: body.label,
+            imageUrl: body.imageUrl,
+            referenceId: body.referenceId,
+            status: body.status || "active",
+        };
+
+        if (!tokenId) {
+            const token = await prisma.mapToken.create({
+                data: {
+                    campaignId: id,
+                    ...payload,
+                },
+            });
+            return Response.json({ data: token });
+        }
+
+        const existing = await prisma.mapToken.findFirst({
+            where: { id: tokenId, campaignId: id },
+            select: { id: true },
+        });
+        if (!existing) {
+            return Response.json({ error: "Token not found" }, { status: 404 });
+        }
+
+        const token = await prisma.mapToken.update({
+            where: { id: tokenId },
+            data: {
+                ...payload,
                 campaignId: id,
-                x: body.x,
-                y: body.y,
-                // Optional fields
-                scale: body.scale || 1,
-                rotation: body.rotation || 0,
-                type: body.type || "character",
-                label: body.label,
-                imageUrl: body.imageUrl,
-                referenceId: body.referenceId,
-                status: body.status || "active",
             },
-            update: {
-                x: body.x,
-                y: body.y,
-                scale: body.scale,
-                rotation: body.rotation,
-                status: body.status,
-            }
         });
 
         return Response.json({ data: token });
@@ -52,12 +63,16 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
         if (!id) return Response.json({ error: "ID required" }, { status: 400 });
 
-        await prisma.mapToken.delete({
-            where: { id }
+        const result = await prisma.mapToken.deleteMany({
+            where: { id, campaignId }
         });
+        if (result.count === 0) {
+            return Response.json({ error: "Token not found" }, { status: 404 });
+        }
 
         return Response.json({ success: true });
     } catch (error) {
+        console.error("DELETE /api/campaigns/[id]/map/token", error);
         return Response.json({ error: "Failed to delete" }, { status: 500 });
     }
 }
