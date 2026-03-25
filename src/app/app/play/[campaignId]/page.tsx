@@ -184,6 +184,7 @@ export default function PlayPage() {
     const [flowChecklist, setFlowChecklist] = useState<LiveFlowChecklistState>(EMPTY_FLOW_CHECKLIST);
     const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
     const [publicLayerLocked, setPublicLayerLocked] = useState(false);
+    const wasCombatActiveRef = useRef(false);
 
     const loadLiveCombat = useCallback(async () => {
         if (!campaignId) return;
@@ -603,6 +604,26 @@ export default function PlayPage() {
         const timer = setTimeout(() => setSpawnStatusMessage(null), LIVE_SPAWN_STATUS_MS);
         return () => clearTimeout(timer);
     }, [spawnStatusMessage]);
+
+    useEffect(() => {
+        const isCombatActive = Boolean(liveCombat?.isActive);
+        if (wasCombatActiveRef.current && !isCombatActive) {
+            setSpawningEncounterEnemyId(null);
+            setSpawnStatusMessage({
+                kind: "info",
+                message: "Combate encerrado. Cockpit voltou para modo narrativo.",
+            });
+            setTableFocusMode("narrative");
+            if (campaignId) {
+                try {
+                    window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, "narrative");
+                } catch (error) {
+                    console.error("Failed to persist table focus mode", error);
+                }
+            }
+        }
+        wasCombatActiveRef.current = isCombatActive;
+    }, [campaignId, liveCombat?.isActive]);
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
