@@ -471,6 +471,7 @@ export default function SessionForgePage() {
   const [revealingId, setRevealingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [dramaticStatusFilter, setDramaticStatusFilter] = useState<"all" | SessionForgeDramaticStatus>("all");
 
   const loadWorkspace = useCallback(async () => {
     if (!campaignId) return;
@@ -1895,6 +1896,35 @@ export default function SessionForgePage() {
               <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
                 Ganchos, segredos e revelacoes
               </h2>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={
+                    dramaticStatusFilter === "all"
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : "border-white/10 bg-white/5"
+                  }
+                  onClick={() => setDramaticStatusFilter("all")}
+                >
+                  Todos
+                </Button>
+                {dramaticStatusOptions.map((status) => (
+                  <Button
+                    key={`dramatic-filter-${status}`}
+                    type="button"
+                    variant="outline"
+                    className={
+                      dramaticStatusFilter === status
+                        ? "border-primary/30 bg-primary/10 text-primary"
+                        : "border-white/10 bg-white/5"
+                    }
+                    onClick={() => setDramaticStatusFilter(status)}
+                  >
+                    {status}
+                  </Button>
+                ))}
+              </div>
             </div>
             <div className="grid gap-6 xl:grid-cols-3">
               {([
@@ -1925,8 +1955,12 @@ export default function SessionForgePage() {
                   </div>
 
                   <div className="mt-4 space-y-3">
-                    {forge[column.key].length > 0 ? (
-                      forge[column.key].map((item) => (
+                    {(dramaticStatusFilter === "all"
+                      ? forge[column.key]
+                      : forge[column.key].filter((item) => item.status === dramaticStatusFilter)).length > 0 ? (
+                      (dramaticStatusFilter === "all"
+                        ? forge[column.key]
+                        : forge[column.key].filter((item) => item.status === dramaticStatusFilter)).map((item) => (
                         <div key={item.id} className="rounded-2xl border border-white/8 bg-black/20 p-3">
                           <div className="flex items-center justify-between gap-3">
                             <p className="text-sm font-semibold text-foreground">{column.singular}</p>
