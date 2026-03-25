@@ -319,12 +319,18 @@ export function LiveOperationsSidebar({
             } else if (event.key === "4") {
                 event.preventDefault();
                 jumpToSection("live-section-suporte");
+            } else if (event.key === "0") {
+                event.preventDefault();
+                onToggleHistoryChat();
+            } else if (event.key === "6" && roomCode) {
+                event.preventDefault();
+                onOpenSecondScreen();
             }
         };
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, []);
+    }, [onOpenSecondScreen, onToggleHistoryChat, roomCode]);
 
     return (
         <div
@@ -506,7 +512,7 @@ export function LiveOperationsSidebar({
                     </button>
                 </div>
                 <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-white/45">
-                    Atalhos: Alt+1..4 secoes, Alt+5 chat, Ctrl/Cmd+K busca
+                    Atalhos: Alt+1..4 secoes, Alt+5 chat, Alt+6 2a tela, Alt+0 chat on/off, Ctrl/Cmd+K busca
                 </p>
                 <div className="mt-2 flex gap-2">
                     <button
