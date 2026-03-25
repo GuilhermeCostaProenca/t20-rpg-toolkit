@@ -91,6 +91,14 @@ type Character = {
   description?: string | null;
   avatarUrl?: string | null;
   level: number;
+  sheet?: {
+    pvCurrent?: number | null;
+    pvMax?: number | null;
+    pmCurrent?: number | null;
+    pmMax?: number | null;
+    sanCurrent?: number | null;
+    sanMax?: number | null;
+  } | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -315,7 +323,7 @@ export default function CampaignPage() {
       const [campaignRes, characterRes, sessionRes, npcRes, combatRes] =
         await Promise.all([
           fetch(`/api/campaigns/${id}`, { cache: "no-store" }),
-          fetch(`/api/campaigns/${id}/characters`, { cache: "no-store" }),
+          fetch(`/api/campaigns/${id}/characters?withSheet=true`, { cache: "no-store" }),
           fetch(`/api/campaigns/${id}/sessions`, { cache: "no-store" }),
           fetch(`/api/campaigns/${id}/npcs`, { cache: "no-store" }),
           fetch(`/api/campaigns/${id}/combat`, { cache: "no-store" }),
@@ -443,6 +451,10 @@ export default function CampaignPage() {
           level: character.level,
           role: character.role,
           className: character.className,
+          pvCurrent: character.sheet?.pvCurrent,
+          pvMax: character.sheet?.pvMax,
+          pmCurrent: character.sheet?.pmCurrent,
+          pmMax: character.sheet?.pmMax,
         })),
         sortedNpcs.map((npc) => ({
           type: npc.type,
@@ -473,6 +485,10 @@ export default function CampaignPage() {
           level: character.level,
           role: character.role,
           className: character.className,
+          pvCurrent: character.sheet?.pvCurrent,
+          pvMax: character.sheet?.pvMax,
+          pmCurrent: character.sheet?.pmCurrent,
+          pmMax: character.sheet?.pmMax,
         })),
         preparedEncounterEnemies.map((enemy) => ({
           id: enemy.id,

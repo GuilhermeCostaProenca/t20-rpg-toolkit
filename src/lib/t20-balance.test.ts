@@ -80,4 +80,27 @@ describe("analyzeT20Encounter - non-trivial compositions", () => {
     expect(result.partyProfile.diversity).toBe("high");
     expect(result.factors.some((item) => item.includes("Perfil do grupo"))).toBe(true);
   });
+
+  it("considers sheet readiness (PV/PM) in party evaluation", () => {
+    const restedParty = [
+      { level: 6, role: "tank", pvCurrent: 60, pvMax: 70, pmCurrent: 18, pmMax: 20 },
+      { level: 6, role: "healer", pvCurrent: 42, pvMax: 50, pmCurrent: 30, pmMax: 35 },
+      { level: 6, role: "striker", pvCurrent: 48, pvMax: 55, pmCurrent: 12, pmMax: 14 },
+    ];
+    const drainedParty = [
+      { level: 6, role: "tank", pvCurrent: 14, pvMax: 70, pmCurrent: 2, pmMax: 20 },
+      { level: 6, role: "healer", pvCurrent: 9, pvMax: 50, pmCurrent: 4, pmMax: 35 },
+      { level: 6, role: "striker", pvCurrent: 12, pvMax: 55, pmCurrent: 1, pmMax: 14 },
+    ];
+    const enemies = [
+      { type: "enemy" as const, hpMax: 95, defenseFinal: 18, damageFormula: "2d8+4" },
+      { type: "enemy" as const, hpMax: 80, defenseFinal: 16, damageFormula: "2d6+4" },
+    ];
+
+    const rested = analyzeT20Encounter(restedParty, enemies);
+    const drained = analyzeT20Encounter(drainedParty, enemies);
+
+    expect(rested.partyScore).toBeGreaterThan(drained.partyScore);
+    expect(drained.factors.some((item) => item.includes("Leitura de ficha"))).toBe(true);
+  });
 });

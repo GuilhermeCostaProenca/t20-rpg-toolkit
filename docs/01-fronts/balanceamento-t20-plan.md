@@ -107,8 +107,8 @@ Nivel puro nem sempre representa a forca real da mesa.
 - [x] T2.1 Definir o que o sistema considera na leitura do grupo
   Notas: `codex/t20-balance-t2-1` definiu leitura explicita por eixos (frente, suporte, ofensiva, controle, desconhecido), com bonus de diversidade, fatores explicativos e reflexo direto no `partyScore`.
 
-- [ ] T2.2 Integrar dados disponiveis de personagens e sheets
-  Notas:
+- [x] T2.2 Integrar dados disponiveis de personagens e sheets
+  Notas: `codex/t20-balance-t2-2` integrou leitura de `CharacterSheet` (PV/PM atuais e maximos) no `partyScore`, com fator explicito de prontidao de ficha e degradacao de confianca quando a cobertura de sheet e insuficiente.
 
 - [-] T2.3 Expor leitura resumida do grupo
   Notas: A campanha agora exibe nivel medio do grupo e `partyScore` no painel de balanceamento.

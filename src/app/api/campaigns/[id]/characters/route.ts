@@ -18,6 +18,8 @@ export async function GET(_req: Request, { params }: RouteContext) {
   try {
     ({ id } = await params);
     if (!id) return missingId();
+    const { searchParams } = new URL(_req.url);
+    const withSheet = searchParams.get("withSheet") === "true";
 
     const campaign = await prisma.campaign.findUnique({
       where: { id },
@@ -31,6 +33,9 @@ export async function GET(_req: Request, { params }: RouteContext) {
 
     const characters = await prisma.character.findMany({
       where: { campaignId: id },
+      include: {
+        sheet: withSheet ? true : false,
+      },
       orderBy: { updatedAt: "desc" },
     });
 
