@@ -116,6 +116,7 @@ type LiveOperationsSidebarProps = {
     onTableFocusModeChange: (next: "narrative" | "tactical") => void;
     onPanelVisibilityChange: (next: { showSupport: boolean; showCodex: boolean }) => void;
     onToggleHistoryChat: () => void;
+    onApplyCockpitPreset: (preset: "narrative" | "tactical") => void;
     onFocusScene: (sceneId: string) => void;
     onInspectEntity: (entityId: string) => void;
     onReveal: (revealId: string) => void | Promise<void>;
@@ -182,6 +183,7 @@ export function LiveOperationsSidebar({
     onTableFocusModeChange,
     onPanelVisibilityChange,
     onToggleHistoryChat,
+    onApplyCockpitPreset,
     onFocusScene,
     onInspectEntity,
     onReveal,
@@ -398,6 +400,22 @@ export function LiveOperationsSidebar({
                     <span className="ml-auto rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-emerald-300">
                         pronto {flowChecklistDoneCount}/5
                     </span>
+                </div>
+                <div className="mb-2 flex items-center gap-2">
+                    <button
+                        type="button"
+                        className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-white/75 hover:bg-white/10"
+                        onClick={() => onApplyCockpitPreset("narrative")}
+                    >
+                        Preset narrativo
+                    </button>
+                    <button
+                        type="button"
+                        className="rounded border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-white/75 hover:bg-white/10"
+                        onClick={() => onApplyCockpitPreset("tactical")}
+                    >
+                        Preset tatico
+                    </button>
                 </div>
                 <div className="mb-2 flex items-center gap-2">
                     <span className="text-[10px] uppercase tracking-[0.14em] text-white/60">Secundarios:</span>

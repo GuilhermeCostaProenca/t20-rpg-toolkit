@@ -1144,6 +1144,34 @@ export default function PlayPage() {
                         return next;
                     });
                 }}
+                onApplyCockpitPreset={(preset) => {
+                    const nextFocus = preset === "tactical" ? "tactical" : "narrative";
+                    const nextPanels =
+                        preset === "tactical"
+                            ? { showSupport: true, showCodex: false }
+                            : { showSupport: true, showCodex: true };
+                    const nextHistory = preset !== "tactical";
+
+                    setTableFocusMode(nextFocus);
+                    setCockpitPanels(nextPanels);
+                    setShowHistoryChat(nextHistory);
+
+                    if (campaignId) {
+                        try {
+                            window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, nextFocus);
+                            window.localStorage.setItem(
+                                `t20.live.cockpit-panels.${campaignId}`,
+                                JSON.stringify(nextPanels),
+                            );
+                            window.localStorage.setItem(
+                                `t20.live.history-chat.${campaignId}`,
+                                String(nextHistory),
+                            );
+                        } catch (error) {
+                            console.error("Failed to persist cockpit preset", error);
+                        }
+                    }
+                }}
                 onFocusScene={setFocusedSceneId}
                 onInspectEntity={setInspectId}
                 onReveal={(revealId) => void handleLiveReveal(revealId)}
