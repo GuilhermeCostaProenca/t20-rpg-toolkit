@@ -10,7 +10,7 @@ function missingId() {
   return Response.json({ error: message, message }, { status: 400 });
 }
 
-function stripNonUpdatable(sheet: any) {
+function stripNonUpdatable(sheet: Record<string, unknown> | null | undefined) {
   if (!sheet) return {};
   const clone = { ...sheet };
   delete clone.id;
@@ -33,6 +33,8 @@ async function upsertDefault(characterId: string, rulesetId: string) {
     pvMax: 10,
     pmCurrent: 5,
     pmMax: 5,
+    sanCurrent: 0,
+    sanMax: 0,
     attackBonus: 0,
     damageFormula: "1d6",
     critRange: 20,

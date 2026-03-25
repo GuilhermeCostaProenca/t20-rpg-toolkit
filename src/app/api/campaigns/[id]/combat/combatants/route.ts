@@ -36,7 +36,7 @@ export async function POST(req: Request, { params }: Context) {
       data: {
         combatId: combat.id,
         kind: parsed.kind,
-        refId: npcRefId(),
+        refId: parsed.refId || npcRefId(),
         name: parsed.name,
         initiative,
         hpMax: parsed.hpMax,

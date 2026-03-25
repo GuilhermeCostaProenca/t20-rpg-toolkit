@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import { useEffect, useRef, type FormEvent } from "react";
 
 import { Send } from "lucide-react";
 
@@ -47,6 +47,25 @@ export function LiveHistoryChatStack({
   onChatSubmit,
   onVoiceTranscription,
 }: LiveHistoryChatStackProps) {
+  const chatInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const tagName = target?.tagName.toLowerCase();
+      const isTypingTarget =
+        tagName === "input" ||
+        tagName === "textarea" ||
+        target?.isContentEditable;
+      if (isTypingTarget || !event.altKey || event.key !== "5") return;
+      event.preventDefault();
+      chatInputRef.current?.focus();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   return (
     <>
       <div className="flex items-center justify-between px-4 py-2 bg-black/20 border-b border-white/5">
@@ -117,6 +136,7 @@ export function LiveHistoryChatStack({
       <div className="p-3 border-t border-white/10 bg-black/20">
         <form onSubmit={onChatSubmit} className="flex gap-2">
           <Input
+            ref={chatInputRef}
             value={chatInput}
             onChange={(event) => onChatInputChange(event.target.value)}
             placeholder="Diga algo..."

@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Heart, Zap, Shield, Skull } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { Skull } from "lucide-react";
+import { getCampaignCombatPath, SQUAD_MONITOR_POLL_MS } from "@/lib/live-combat";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -16,39 +18,134 @@ type CharacterStatus = {
     avatarUrl?: string;
     hp: { current: number; max: number };
     pm: { current: number; max: number };
+    san: { current: number; max: number };
     def: number;
     conditions: string[];
+};
+
+type FetchedCharacter = {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+    sheet?: {
+        pvCurrent?: number;
+        pvMax?: number;
+        pmCurrent?: number;
+        pmMax?: number;
+        sanCurrent?: number;
+        sanMax?: number;
+        defenseFinal?: number;
+    };
+};
+
+type LiveCombatSnapshot = {
+    isActive: boolean;
+    conditions?: {
+        target?: { refId?: string };
+        condition?: { name?: string; key?: string };
+    }[];
+};
+
+type PendingSheetOverride = {
+    hp?: number;
+    pm?: number;
+    san?: number;
 };
 
 export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
     const [agents, setAgents] = useState<CharacterStatus[]>([]);
     const [loading, setLoading] = useState(true);
+    const pendingSheetOverridesRef = useRef<Record<string, PendingSheetOverride>>({});
 
     // Poll for status updates
     useEffect(() => {
         const fetchStatus = async () => {
             try {
-                // Ideally this would be a specialized lightweight endpoint
-                const res = await fetch(`/api/characters?campaignId=${campaignId}&withSheet=true`);
-                const json = await res.json();
-                if (json.data) {
-                    const statusData = json.data.map((c: any) => ({
-                        id: c.id,
-                        name: c.name,
-                        avatarUrl: c.avatarUrl,
-                        hp: { current: c.sheet?.pvCurrent || 0, max: c.sheet?.pvMax || 1 },
-                        pm: { current: c.sheet?.pmCurrent || 0, max: c.sheet?.pmMax || 1 },
-                        def: c.sheet?.defenseFinal || 10,
-                        conditions: [] // TODO: Real conditions
-                    }));
-                    setAgents(statusData);
+                const [characterRes, combatRes] = await Promise.all([
+                    fetch(`/api/characters?campaignId=${campaignId}&withSheet=true`),
+                    fetch(getCampaignCombatPath(campaignId), { cache: "no-store" }).catch(() => null),
+                ]);
+
+                const characterJson = await characterRes.json();
+                const characters = (characterJson.data as FetchedCharacter[] | undefined) ?? [];
+
+                const conditionByRefId = new Map<string, string[]>();
+                if (combatRes?.ok) {
+                    const combatJson = await combatRes.json();
+                    const combat = (combatJson.data as LiveCombatSnapshot | null | undefined) ?? null;
+                    if (combat?.isActive && Array.isArray(combat.conditions)) {
+                        for (const applied of combat.conditions) {
+                            const refId = applied.target?.refId;
+                            if (!refId) continue;
+                            const label = applied.condition?.name || applied.condition?.key || "Condicao";
+                            const existing = conditionByRefId.get(refId) ?? [];
+                            conditionByRefId.set(refId, [...existing, label]);
+                        }
+                    }
                 }
+
+                const statusData = characters.map((character) => ({
+                    id: character.id,
+                    name: character.name,
+                    avatarUrl: character.avatarUrl,
+                    hp: { current: character.sheet?.pvCurrent || 0, max: character.sheet?.pvMax || 1 },
+                    pm: { current: character.sheet?.pmCurrent || 0, max: character.sheet?.pmMax || 1 },
+                    san: { current: character.sheet?.sanCurrent || 0, max: character.sheet?.sanMax || 1 },
+                    def: character.sheet?.defenseFinal || 10,
+                    conditions: conditionByRefId.get(character.id) ?? [],
+                }));
+                const pendingSheetOverrides = pendingSheetOverridesRef.current;
+                const mergedStatusData = statusData.map((agent) => {
+                    const pending = pendingSheetOverrides[agent.id];
+                    if (!pending) return agent;
+                    return {
+                        ...agent,
+                        hp: {
+                            ...agent.hp,
+                            current: typeof pending.hp === "number" ? pending.hp : agent.hp.current,
+                        },
+                        pm: {
+                            ...agent.pm,
+                            current: typeof pending.pm === "number" ? pending.pm : agent.pm.current,
+                        },
+                        san: {
+                            ...agent.san,
+                            current: typeof pending.san === "number" ? pending.san : agent.san.current,
+                        },
+                    };
+                });
+
+                const nextPendingSheetOverrides: Record<string, PendingSheetOverride> = {};
+                for (const [agentId, pending] of Object.entries(pendingSheetOverrides)) {
+                    const serverAgent = statusData.find((entry) => entry.id === agentId);
+                    if (!serverAgent) continue;
+                    const remaining: PendingSheetOverride = {};
+                    if (typeof pending.hp === "number" && serverAgent.hp.current !== pending.hp) {
+                        remaining.hp = pending.hp;
+                    }
+                    if (typeof pending.pm === "number" && serverAgent.pm.current !== pending.pm) {
+                        remaining.pm = pending.pm;
+                    }
+                    if (typeof pending.san === "number" && serverAgent.san.current !== pending.san) {
+                        remaining.san = pending.san;
+                    }
+                    if (
+                        typeof remaining.hp === "number" ||
+                        typeof remaining.pm === "number" ||
+                        typeof remaining.san === "number"
+                    ) {
+                        nextPendingSheetOverrides[agentId] = remaining;
+                    }
+                }
+                pendingSheetOverridesRef.current = nextPendingSheetOverrides;
+
+                setAgents(mergedStatusData);
             } catch (e) { console.error(e); }
             finally { setLoading(false); }
         };
 
         fetchStatus();
-        const interval = setInterval(fetchStatus, 5000); // 5s poll
+        const interval = setInterval(fetchStatus, SQUAD_MONITOR_POLL_MS);
         return () => clearInterval(interval);
     }, [campaignId]);
 
@@ -60,16 +157,79 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
         );
     }
 
-    // Simplified Grant Handler
-    const handleGrant = (id: string, type: 'hp' | 'pm' | 'san', amount: number) => {
-        // Optimistic Update (Real impl would call API)
-        setAgents(prev => prev.map(a => {
-            if (a.id !== id) return a;
-            const key = type as keyof typeof a;
-            // logic to update nested val... simplify for prototype:
-            return a; // Placeholder
-        }));
-        console.log(`GRANT ${type.toUpperCase()} ${amount} to ${id}`);
+    const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+    const handleGrant = async (id: string, type: "hp" | "pm" | "san", amount: number) => {
+        const target = agents.find((agent) => agent.id === id);
+        if (!target) return;
+
+        const current =
+            type === "hp"
+                ? target.hp.current
+                : type === "pm"
+                    ? target.pm.current
+                    : target.san.current;
+        const max =
+            type === "hp"
+                ? target.hp.max
+                : type === "pm"
+                    ? target.pm.max
+                    : target.san.max;
+        const nextValue = clamp(current + amount, 0, max);
+
+        setAgents((prev) =>
+            prev.map((agent) => {
+                if (agent.id !== id) return agent;
+                if (type === "hp") {
+                    return { ...agent, hp: { ...agent.hp, current: nextValue } };
+                }
+                if (type === "pm") {
+                    return { ...agent, pm: { ...agent.pm, current: nextValue } };
+                }
+                return { ...agent, san: { ...agent.san, current: nextValue } };
+            }),
+        );
+        const currentPending = pendingSheetOverridesRef.current[id] ?? {};
+        pendingSheetOverridesRef.current = {
+            ...pendingSheetOverridesRef.current,
+            [id]: {
+                ...currentPending,
+                [type]: nextValue,
+            },
+        };
+
+        try {
+            await fetch(`/api/characters/${id}/sheet`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(
+                    type === "hp"
+                        ? { pvCurrent: nextValue }
+                        : type === "pm"
+                            ? { pmCurrent: nextValue }
+                            : { sanCurrent: nextValue },
+                ),
+            });
+        } catch (error) {
+            const current = pendingSheetOverridesRef.current[id] ?? {};
+            const next: PendingSheetOverride = { ...current };
+            delete next[type];
+            if (
+                typeof next.hp !== "number" &&
+                typeof next.pm !== "number" &&
+                typeof next.san !== "number"
+            ) {
+                const cloned = { ...pendingSheetOverridesRef.current };
+                delete cloned[id];
+                pendingSheetOverridesRef.current = cloned;
+            } else {
+                pendingSheetOverridesRef.current = {
+                    ...pendingSheetOverridesRef.current,
+                    [id]: next,
+                };
+            }
+            console.error("Failed to update character sheet", error);
+        }
     };
 
     return (
@@ -77,10 +237,7 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
             {agents.map(agent => {
                 const hpPct = (agent.hp.current / agent.hp.max) * 100;
                 const pmPct = (agent.pm.current / agent.pm.max) * 100;
-                // Mock Sanity for now
-                const sanCurrent = 50;
-                const sanMax = 100;
-                const sanPct = (sanCurrent / sanMax) * 100;
+                const sanPct = (agent.san.current / agent.san.max) * 100;
 
                 const isDying = agent.hp.current <= 0;
 
@@ -97,11 +254,17 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                         <div className="p-2 flex gap-3 items-center">
                             {/* Avatar */}
                             <div className={cn(
-                                "w-10 h-10 rounded bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0",
+                                "relative w-10 h-10 rounded bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0",
                                 isDying && "border-red-500"
                             )}>
                                 {agent.avatarUrl ? (
-                                    <img src={agent.avatarUrl} alt={agent.name} className="w-full h-full object-cover" />
+                                    <Image
+                                        src={agent.avatarUrl}
+                                        alt={agent.name}
+                                        fill
+                                        sizes="40px"
+                                        className="object-cover"
+                                    />
                                 ) : (
                                     <span className="font-bold text-xs">{agent.name.charAt(0)}</span>
                                 )}
@@ -135,7 +298,7 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                                         </div>
                                     </div>
 
-                                    {/* Sanity Bar (New) */}
+                                    {/* SAN Bar */}
                                     <div className="group/bar relative h-1.5 w-full bg-black/50 rounded-full overflow-hidden mt-1">
                                         <div className="h-full bg-purple-500 transition-all" style={{ width: `${sanPct}%` }} />
                                         <div className="absolute inset-0 flex opacity-0 group-hover/bar:opacity-100 bg-black/60 items-center justify-center gap-4 transition-opacity">
@@ -144,6 +307,23 @@ export function SquadMonitor({ campaignId, onSelect }: SquadMonitorProps) {
                                         </div>
                                     </div>
                                 </div>
+                                {agent.conditions.length > 0 ? (
+                                    <div className="mt-1 flex flex-wrap gap-1">
+                                        {agent.conditions.slice(0, 2).map((condition, index) => (
+                                            <span
+                                                key={`${agent.id}:${condition}:${index}`}
+                                                className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.12em] text-amber-200"
+                                            >
+                                                {condition}
+                                            </span>
+                                        ))}
+                                        {agent.conditions.length > 2 ? (
+                                            <span className="rounded border border-white/20 px-1.5 py-0.5 text-[9px] text-white/70">
+                                                +{agent.conditions.length - 2}
+                                            </span>
+                                        ) : null}
+                                    </div>
+                                ) : null}
                             </div>
                         </div>
                     </div>

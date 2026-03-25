@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef, FormEvent } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, useRef, FormEvent } from "react";
+import { useParams } from "next/navigation";
 import { QuickSheet } from "./quick-sheet";
 import {
     type LiveCodexEntity,
@@ -18,7 +18,25 @@ import { type Pin, type Token } from "@/components/map/interactive-map";
 import { CortexOverlay } from "@/components/cortex/cortex-overlay";
 
 import { Button } from "@/components/ui/button";
-import { normalizeSessionForgeState, type SessionForgeState } from "@/lib/session-forge";
+import type {
+    CampaignNpc,
+    LiveCombat,
+    LiveOpsStatusMessage,
+} from "@/lib/live-combat";
+import {
+    LIVE_COMBAT_POLL_MS,
+    LIVE_PARTY_POLL_MS,
+    LIVE_SPAWN_STATUS_MS,
+    getCampaignCombatPath,
+    getCampaignCombatantsPath,
+    getCampaignCombatTurnPath,
+    getCampaignNpcsPath,
+} from "@/lib/live-combat";
+import {
+    normalizeSessionForgeState,
+    type SessionForgeEncounterEnemy,
+    type SessionForgeState,
+} from "@/lib/session-forge";
 
 // --- Types ---
 type GameEvent = {
@@ -45,19 +63,6 @@ type PrepSessionPacket = {
     forge: SessionForgeState;
 };
 
-type LiveCombat = {
-    id: string;
-    isActive: boolean;
-    round: number;
-    turnIndex: number;
-    combatants: {
-        id: string;
-        kind: string;
-        name: string;
-        hpCurrent: number;
-        hpMax: number;
-    }[];
-};
 type CampaignContext = {
     id: string;
     name: string;
@@ -69,9 +74,62 @@ type LivePublicAsset = {
     detail: string;
 };
 
+type SessionSoundtrack = {
+    ambientUrl: string;
+    combatUrl: string;
+};
+
+type LivePartyStatusSnapshot = {
+    total: number;
+    downed: number;
+    lowHp: number;
+    lowPm: number;
+    lowSan: number;
+    avgHpPercent: number;
+    avgPmPercent: number;
+    avgSanPercent: number;
+};
+
+type LiveFlowChecklistState = {
+    cockpit: boolean;
+    combat: boolean;
+    consult: boolean;
+    visual: boolean;
+    notes: boolean;
+};
+
+type TableFocusMode = "narrative" | "tactical";
+type LiveCockpitPanelVisibility = {
+    showSupport: boolean;
+    showCodex: boolean;
+};
+
+const EMPTY_PARTY_STATUS: LivePartyStatusSnapshot = {
+    total: 0,
+    downed: 0,
+    lowHp: 0,
+    lowPm: 0,
+    lowSan: 0,
+    avgHpPercent: 0,
+    avgPmPercent: 0,
+    avgSanPercent: 0,
+};
+
+const EMPTY_FLOW_CHECKLIST: LiveFlowChecklistState = {
+    cockpit: false,
+    combat: false,
+    consult: false,
+    visual: false,
+    notes: false,
+};
+
+const DEFAULT_COCKPIT_PANELS: LiveCockpitPanelVisibility = {
+    showSupport: true,
+    showCodex: true,
+};
+
 export default function PlayPage() {
     const params = useParams();
-    const router = useRouter();
     const campaignId = params?.campaignId as string;
     const [events, setEvents] = useState<GameEvent[]>([]);
     const [chatInput, setChatInput] = useState("");
@@ -81,6 +139,8 @@ export default function PlayPage() {
     // Physics State Sync
     const [pendingRoll, setPendingRoll] = useState<{ expression: string, modifier: number, count: number } | null>(null);
     const processedEventsRef = useRef<Set<string>>(new Set());
+    const hasHydratedEventsRef = useRef(false);
+    const lastEventsFingerprintRef = useRef("");
     const [searchOpen, setSearchOpen] = useState(false);
     const [viewingGrimoireItem, setViewingGrimoireItem] = useState<GrimoireItem | null>(null);
     const [pins, setPins] = useState<Pin[]>([]);
@@ -97,6 +157,32 @@ export default function PlayPage() {
     const [liveCombat, setLiveCombat] = useState<LiveCombat | null>(null);
     const [mapTokens, setMapTokens] = useState<Token[]>([]);
     const [currentPublicAsset, setCurrentPublicAsset] = useState<LivePublicAsset | null>(null);
+    const [spawningEncounterEnemyId, setSpawningEncounterEnemyId] = useState<string | null>(null);
+    const [spawnStatusMessage, setSpawnStatusMessage] = useState<LiveOpsStatusMessage | null>(null);
+    const [soundtrack, setSoundtrack] = useState<SessionSoundtrack>({
+        ambientUrl: "",
+        combatUrl: "",
+    });
+    const [gmScratchpad, setGmScratchpad] = useState("");
+    const [monitorMode, setMonitorMode] = useState(false);
+    const [tableFocusMode, setTableFocusMode] = useState<TableFocusMode>("narrative");
+    const [cockpitPanels, setCockpitPanels] = useState<LiveCockpitPanelVisibility>(DEFAULT_COCKPIT_PANELS);
+    const [showHistoryChat, setShowHistoryChat] = useState(true);
+    const [flowChecklist, setFlowChecklist] = useState<LiveFlowChecklistState>(EMPTY_FLOW_CHECKLIST);
+    const [partyStatus, setPartyStatus] = useState<LivePartyStatusSnapshot>(EMPTY_PARTY_STATUS);
+    const [publicLayerLocked, setPublicLayerLocked] = useState(false);
+
+    const loadLiveCombat = useCallback(async () => {
+        if (!campaignId) return;
+        try {
+            const res = await fetch(getCampaignCombatPath(campaignId), { cache: "no-store" });
+            const json = await res.json();
+            setLiveCombat((json.data as LiveCombat | null | undefined) ?? null);
+        } catch (error) {
+            console.error("Live combat load failed", error);
+            setLiveCombat(null);
+        }
+    }, [campaignId]);
 
     // Initial Map Load
     useEffect(() => {
@@ -109,6 +195,128 @@ export default function PlayPage() {
                 if (data.pins) setPins(data.pins);
             })
             .catch(err => console.error("Map load failed", err));
+    }, [campaignId]);
+
+    useEffect(() => {
+        hasHydratedEventsRef.current = false;
+        processedEventsRef.current = new Set();
+        lastEventsFingerprintRef.current = "";
+        setEvents([]);
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const raw = window.localStorage.getItem(`t20.live.soundtrack.${campaignId}`);
+            if (!raw) {
+                setSoundtrack({ ambientUrl: "", combatUrl: "" });
+                return;
+            }
+            const parsed = JSON.parse(raw) as Partial<SessionSoundtrack>;
+            setSoundtrack({
+                ambientUrl: typeof parsed.ambientUrl === "string" ? parsed.ambientUrl : "",
+                combatUrl: typeof parsed.combatUrl === "string" ? parsed.combatUrl : "",
+            });
+        } catch (error) {
+            console.error("Failed to load soundtrack presets", error);
+            setSoundtrack({ ambientUrl: "", combatUrl: "" });
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const notes = window.localStorage.getItem(`t20.live.gm-scratchpad.${campaignId}`) ?? "";
+            setGmScratchpad(notes);
+        } catch (error) {
+            console.error("Failed to load GM scratchpad", error);
+            setGmScratchpad("");
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.monitor-mode.${campaignId}`);
+            setMonitorMode(saved === "true");
+        } catch (error) {
+            console.error("Failed to load monitor mode", error);
+            setMonitorMode(false);
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.table-focus.${campaignId}`);
+            setTableFocusMode(saved === "tactical" ? "tactical" : "narrative");
+        } catch (error) {
+            console.error("Failed to load table focus mode", error);
+            setTableFocusMode("narrative");
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.cockpit-panels.${campaignId}`);
+            if (!saved) {
+                setCockpitPanels(DEFAULT_COCKPIT_PANELS);
+                return;
+            }
+            const parsed = JSON.parse(saved) as Partial<LiveCockpitPanelVisibility>;
+            setCockpitPanels({
+                showSupport: parsed.showSupport !== false,
+                showCodex: parsed.showCodex !== false,
+            });
+        } catch (error) {
+            console.error("Failed to load cockpit panel visibility", error);
+            setCockpitPanels(DEFAULT_COCKPIT_PANELS);
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.history-chat.${campaignId}`);
+            setShowHistoryChat(saved !== "false");
+        } catch (error) {
+            console.error("Failed to load history chat visibility", error);
+            setShowHistoryChat(true);
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const saved = window.localStorage.getItem(`t20.live.public-layer-lock.${campaignId}`);
+            setPublicLayerLocked(saved === "true");
+        } catch (error) {
+            console.error("Failed to load public layer lock", error);
+            setPublicLayerLocked(false);
+        }
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const raw = window.localStorage.getItem(`t20.live.flow-checklist.${campaignId}`);
+            if (!raw) {
+                setFlowChecklist(EMPTY_FLOW_CHECKLIST);
+                return;
+            }
+            const parsed = JSON.parse(raw) as Partial<LiveFlowChecklistState>;
+            setFlowChecklist({
+                cockpit: Boolean(parsed.cockpit),
+                combat: Boolean(parsed.combat),
+                consult: Boolean(parsed.consult),
+                visual: Boolean(parsed.visual),
+                notes: Boolean(parsed.notes),
+            });
+        } catch (error) {
+            console.error("Failed to load flow checklist", error);
+            setFlowChecklist(EMPTY_FLOW_CHECKLIST);
+        }
     }, [campaignId]);
 
     // Token Sync (Optimistic + DB)
@@ -143,13 +351,6 @@ export default function PlayPage() {
         }
     };
 
-    // Polling Effect for Events
-    useEffect(() => {
-        fetchEvents();
-        const interval = setInterval(fetchEvents, 2000);
-        return () => clearInterval(interval);
-    }, [campaignId]);
-
     // Scroll to bottom & Process Auto-Rolls
     useEffect(() => {
         if (scrollRef.current) {
@@ -168,46 +369,13 @@ export default function PlayPage() {
             // Limit to 10 dice max to avoid physics explosion
             const limitedDice = diceTypes.slice(0, 10);
 
-            console.log("Auto-Rolling for Initiative:", limitedDice.length);
             diceRef.current?.roll(limitedDice);
 
             // Mark as processed
             newInitiatives.forEach(e => processedEventsRef.current.add(e.id));
         }
 
-        // Mark all current events as processed to avoid re-rolling on refresh
-        // (Actually, we only want to mark the ones we ACTED on, or all? 
-        // If we refresh, we don't want to re-roll old initiatives.
-        // So on initial load, we might want to mark ALL as processed without rolling.
-        // But how to distinguish initial load vs new poll?
-        // We can just add all IDs to processedRef on first mount?
-        // For MVP, just adding the ones we check effectively handles "New" since setEvents overwrites or appends.
-        // But if I refresh page, `processedEventsRef` resets, and I fetch 50 events.
-        // I will see 5 initiatives and roll them.
-        // That is acceptable for "Replay" effect, but slight annoying.
-        // I will allow it for now. The user likes "Physics".
     }, [events]);
-
-    async function fetchEvents() {
-        // In a real implementation we would use 'after=ts' to get delta
-        // For MVP we just fetch recent 50
-        try {
-            // Need to find worldId from campaignId... 
-            // Hack: The API route /api/campaigns/[id] should return worldId.
-            // For polling efficiently, we might need a direct route /api/play/[campaignId]/events
-
-            // Simulating polling by fetching from the campaign events endpoint (we need to create or use existing)
-            // Since we don't have a direct "get events by campaign" easily exposed without auth, 
-            // let's assume we use the world events filtered by campaignId if possible, 
-            // OR we just use the universal action dispatcher response for local echo + polling later.
-
-            // Actually, we need to know the WorldID to fetch events.
-            // Let's rely on the user passing context or fetching campaign first.
-            // SKIPPING polling implementation detail for this exact file save, will address in `loadContext`.
-        } catch (e) {
-            console.error(e);
-        }
-    }
 
     // NOTE: We need to fetch the Campaign first to get the WorldID.
     const [context, setContext] = useState<{ worldId: string; campaign: CampaignContext } | null>(null);
@@ -235,12 +403,19 @@ export default function PlayPage() {
                     const campaignEvents = (json.data as GameEvent[]).filter(
                         (event) => event.campaignId === campaignId || event.scope === "MACRO",
                     );
-                    // Simple dedup needed? React state set handles replace.
-                    setEvents(prev => {
-                        // Only update if length changed to avoid jitter, or deep compare
-                        if (prev.length !== campaignEvents.length) return campaignEvents;
-                        return prev;
-                    });
+                    if (!hasHydratedEventsRef.current) {
+                        const historicalInitiativeIds = campaignEvents
+                            .filter((event) => event.type === "INITIATIVE")
+                            .map((event) => event.id);
+                        processedEventsRef.current = new Set(historicalInitiativeIds);
+                        hasHydratedEventsRef.current = true;
+                    }
+
+                    const fingerprint = campaignEvents.map((event) => `${event.id}:${event.ts}`).join("|");
+                    if (fingerprint !== lastEventsFingerprintRef.current) {
+                        lastEventsFingerprintRef.current = fingerprint;
+                        setEvents(campaignEvents);
+                    }
                 }
             } catch (e) { console.error("Poll fail", e); }
         };
@@ -291,33 +466,82 @@ export default function PlayPage() {
 
     useEffect(() => {
         if (!campaignId) return;
-
-        let cancelled = false;
-
-        const loadLiveCombat = async () => {
-            try {
-                const res = await fetch(`/api/campaigns/${campaignId}/combat`, { cache: "no-store" });
-                const json = await res.json();
-                if (!cancelled) {
-                    setLiveCombat((json.data as LiveCombat | null | undefined) ?? null);
-                }
-            } catch (error) {
-                if (!cancelled) {
-                    console.error("Live combat load failed", error);
-                    setLiveCombat(null);
-                }
-            }
-        };
-
         void loadLiveCombat();
         const interval = setInterval(() => {
             void loadLiveCombat();
-        }, 4000);
+        }, LIVE_COMBAT_POLL_MS);
 
         return () => {
-            cancelled = true;
             clearInterval(interval);
         };
+    }, [campaignId, loadLiveCombat]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+
+        const pollPartyStatus = async () => {
+            try {
+                const response = await fetch(`/api/characters?campaignId=${campaignId}&withSheet=true`, {
+                    cache: "no-store",
+                });
+                const json = await response.json();
+                const characters = (json.data as CampaignCharacter[] | undefined) ?? [];
+                if (characters.length === 0) {
+                    setPartyStatus(EMPTY_PARTY_STATUS);
+                    return;
+                }
+
+                const hpRatios = characters.map((character) => {
+                    const current = character.sheet?.pvCurrent ?? 0;
+                    const max = Math.max(1, character.sheet?.pvMax ?? 1);
+                    return current / max;
+                });
+                const pmRatios = characters.map((character) => {
+                    const current = character.sheet?.pmCurrent ?? 0;
+                    const max = Math.max(1, character.sheet?.pmMax ?? 1);
+                    return current / max;
+                });
+                const sanRatios = characters.map((character) => {
+                    const current = character.sheet?.sanCurrent ?? 0;
+                    const max = Math.max(1, character.sheet?.sanMax ?? 1);
+                    return current / max;
+                });
+
+                const average = (values: number[]) =>
+                    values.length > 0
+                        ? Math.round((values.reduce((acc, value) => acc + value, 0) / values.length) * 100)
+                        : 0;
+
+                setPartyStatus({
+                    total: characters.length,
+                    downed: characters.filter((character) => (character.sheet?.pvCurrent ?? 0) <= 0).length,
+                    lowHp: characters.filter((character) => {
+                        const max = Math.max(1, character.sheet?.pvMax ?? 1);
+                        return (character.sheet?.pvCurrent ?? 0) / max <= 0.35;
+                    }).length,
+                    lowPm: characters.filter((character) => {
+                        const max = Math.max(1, character.sheet?.pmMax ?? 1);
+                        return (character.sheet?.pmCurrent ?? 0) / max <= 0.35;
+                    }).length,
+                    lowSan: characters.filter((character) => {
+                        const max = Math.max(1, character.sheet?.sanMax ?? 1);
+                        return (character.sheet?.sanCurrent ?? 0) / max <= 0.35;
+                    }).length,
+                    avgHpPercent: average(hpRatios),
+                    avgPmPercent: average(pmRatios),
+                    avgSanPercent: average(sanRatios),
+                });
+            } catch (error) {
+                console.error("Party status poll failed", error);
+            }
+        };
+
+        void pollPartyStatus();
+        const interval = setInterval(() => {
+            void pollPartyStatus();
+        }, LIVE_PARTY_POLL_MS);
+
+        return () => clearInterval(interval);
     }, [campaignId]);
 
     useEffect(() => {
@@ -360,6 +584,32 @@ export default function PlayPage() {
 
         void loadInspectEntity();
     }, [context?.worldId, inspectId]);
+
+    useEffect(() => {
+        if (!spawnStatusMessage) return;
+        const timer = setTimeout(() => setSpawnStatusMessage(null), LIVE_SPAWN_STATUS_MS);
+        return () => clearTimeout(timer);
+    }, [spawnStatusMessage]);
+
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            const target = event.target as HTMLElement | null;
+            const tagName = target?.tagName.toLowerCase();
+            const isTypingTarget =
+                tagName === "input" ||
+                tagName === "textarea" ||
+                target?.isContentEditable;
+            if (isTypingTarget) return;
+
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+                event.preventDefault();
+                setSearchOpen(true);
+            }
+        };
+
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, []);
 
 
     async function handleAction(type: string, payload: Record<string, unknown>) {
@@ -493,6 +743,170 @@ export default function PlayPage() {
         }
     }
 
+    async function refreshLiveCombatNow() {
+        await loadLiveCombat();
+    }
+
+    function handleSaveSoundtrack(next: SessionSoundtrack) {
+        setSoundtrack(next);
+        if (!campaignId) return;
+        try {
+            window.localStorage.setItem(`t20.live.soundtrack.${campaignId}`, JSON.stringify(next));
+        } catch (error) {
+            console.error("Failed to persist soundtrack presets", error);
+        }
+    }
+
+    function handleGmScratchpadChange(next: string) {
+        setGmScratchpad(next);
+        if (!campaignId) return;
+        try {
+            window.localStorage.setItem(`t20.live.gm-scratchpad.${campaignId}`, next);
+        } catch (error) {
+            console.error("Failed to persist GM scratchpad", error);
+        }
+    }
+
+    function handleFlowChecklistToggle(
+        key: keyof LiveFlowChecklistState,
+        checked: boolean,
+    ) {
+        setFlowChecklist((current) => {
+            const next = { ...current, [key]: checked };
+            if (campaignId) {
+                try {
+                    window.localStorage.setItem(
+                        `t20.live.flow-checklist.${campaignId}`,
+                        JSON.stringify(next),
+                    );
+                } catch (error) {
+                    console.error("Failed to persist flow checklist", error);
+                }
+            }
+            return next;
+        });
+    }
+
+    function handleFlowChecklistSetAll(checked: boolean) {
+        const next: LiveFlowChecklistState = {
+            cockpit: checked,
+            combat: checked,
+            consult: checked,
+            visual: checked,
+            notes: checked,
+        };
+        setFlowChecklist(next);
+        if (campaignId) {
+            try {
+                window.localStorage.setItem(
+                    `t20.live.flow-checklist.${campaignId}`,
+                    JSON.stringify(next),
+                );
+            } catch (error) {
+                console.error("Failed to persist flow checklist", error);
+            }
+        }
+    }
+
+    async function handleSpawnEncounterEnemy(enemy: SessionForgeEncounterEnemy, enemyIndex: number) {
+        if (spawningEncounterEnemyId) return;
+        if (!campaignId || !liveCombat?.isActive || !enemy.npcId) return;
+
+        const spawnId = `${activeEncounter?.id ?? "encounter"}:${enemy.npcId}:${enemyIndex}`;
+        setSpawningEncounterEnemyId(spawnId);
+        setSpawnStatusMessage(null);
+
+        try {
+            const npcResponse = await fetch(getCampaignNpcsPath(campaignId), { cache: "no-store" });
+            if (!npcResponse.ok) {
+                throw new Error("Falha ao carregar NPCs da campanha.");
+            }
+
+            const npcJson = await npcResponse.json();
+            const npcs = (npcJson.data as CampaignNpc[] | undefined) ?? [];
+            const npc = npcs.find((entry) => entry.id === enemy.npcId);
+            if (!npc) {
+                throw new Error("NPC do encontro nao encontrado na campanha.");
+            }
+
+            const quantity = Math.max(1, enemy.quantity || 1);
+            const baseName = enemy.label?.trim() || npc.name || "Ameaca";
+            const hpMax = Math.max(1, npc.hpMax ?? 1);
+            const kind = npc.type?.toLowerCase() === "monster" ? "MONSTER" : "NPC";
+            const existingFromSameNpc =
+                liveCombat?.combatants.filter((combatant) => combatant.refId === npc.id).length ?? 0;
+            const remainingToSpawn = Math.max(0, quantity - existingFromSameNpc);
+            if (remainingToSpawn === 0) {
+                setSpawnStatusMessage({
+                    kind: "info",
+                    message: `${baseName} ja esta completo em campo (${existingFromSameNpc}/${quantity}).`,
+                });
+                return;
+            }
+
+            for (let idx = 0; idx < remainingToSpawn; idx += 1) {
+                const sequence = existingFromSameNpc + idx + 1;
+                const shouldSuffix = quantity > 1 || existingFromSameNpc > 0;
+                const combatantName = shouldSuffix ? `${baseName} ${sequence}` : baseName;
+                const spawnResponse = await fetch(getCampaignCombatantsPath(campaignId), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: combatantName,
+                        refId: npc.id,
+                        kind,
+                        hpMax,
+                        hpCurrent: hpMax,
+                        defenseFinal: npc.defenseFinal ?? 10,
+                        damageFormula: npc.damageFormula ?? "1d6",
+                    }),
+                });
+
+                if (!spawnResponse.ok) {
+                    const spawnJson = await spawnResponse.json().catch(() => null);
+                    const message =
+                        (spawnJson?.error as string | undefined) ??
+                        "Falha ao convocar inimigo para o combate.";
+                    throw new Error(message);
+                }
+            }
+
+            await refreshLiveCombatNow();
+            setSpawnStatusMessage({
+                kind: "success",
+                message:
+                    remainingToSpawn > 1
+                        ? `${remainingToSpawn} unidades de ${baseName} convocadas para o combate.`
+                        : `${baseName} convocado para o combate.`,
+            });
+        } catch (error) {
+            console.error("Encounter spawn failed", error);
+            setSpawnStatusMessage({
+                kind: "error",
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : "Falha ao convocar inimigo para o combate.",
+            });
+        } finally {
+            setSpawningEncounterEnemyId(null);
+        }
+    }
+
+    async function handleCombatTurn(direction: "next" | "prev") {
+        if (!liveCombat?.isActive) return;
+        try {
+            await fetch(getCampaignCombatTurnPath(campaignId), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ direction }),
+            });
+            await refreshLiveCombatNow();
+        } catch (error) {
+            console.error("Combat turn update failed", error);
+        }
+    }
+
     const sendChat = (e: FormEvent) => {
         e.preventDefault();
         if (!chatInput.trim()) return;
@@ -505,6 +919,7 @@ export default function PlayPage() {
     const activeScene = prepPacket?.forge.scenes.find((scene) => scene.id === focusedSceneId)
         ?? prepPacket?.forge.scenes.find((scene) => scene.status !== "discarded")
         ?? null;
+    const activeSubscene = activeScene?.subscenes.find((subscene) => subscene.status !== "discarded") ?? null;
 
     const activeSceneEntityIds = activeScene?.linkedEntityIds ?? prepPacket?.forge.linkedEntityIds ?? [];
 
@@ -538,6 +953,22 @@ export default function PlayPage() {
     const activeEncounter = prepPacket?.forge.encounters.find((encounter) =>
         activeScene ? encounter.linkedSceneId === activeScene.id : true
     ) ?? prepPacket?.forge.encounters[0] ?? null;
+    const narrativeContext = activeScene
+        ? {
+            sceneTitle: activeScene.title || "Cena sem titulo",
+            subsceneTitle: activeSubscene?.title || undefined,
+        }
+        : null;
+    const currentCombatant = liveCombat?.combatants.length
+        ? liveCombat.combatants[liveCombat.turnIndex % liveCombat.combatants.length]
+        : null;
+    const combatTurn = liveCombat?.isActive && currentCombatant
+        ? {
+            round: liveCombat.round,
+            currentName: currentCombatant.name,
+            currentKind: currentCombatant.kind,
+        }
+        : null;
     const inspectCandidates = (inspectQuery.trim()
         ? liveCodexEntities.filter((entity) => {
             const term = inspectQuery.trim().toLowerCase();
@@ -572,7 +1003,7 @@ export default function PlayPage() {
 
                         // For MVP V2 compatibility with existing handleAction:
                         handleAction('CHAT', {
-                            text: `🎲 Rolagem Física: ${pendingRoll.expression} = **${finalResult}** (${physicalTotal} + ${pendingRoll.modifier})`,
+                            text: `Rolagem fisica: ${pendingRoll.expression} = **${finalResult}** (${physicalTotal} + ${pendingRoll.modifier})`,
                             author: 'Sistema'
                         });
 
@@ -622,10 +1053,16 @@ export default function PlayPage() {
             <LiveWarRoom
                 campaignId={campaignId}
                 campaignName={context?.campaign?.name}
+                isCombatActive={liveCombat?.isActive ?? false}
+                monitorMode={monitorMode}
+                narrativeContext={narrativeContext}
+                combatTurn={combatTurn}
                 mapTokens={mapTokens}
                 pins={pins}
                 onTokenMove={handleTokenMove}
                 onPinCreate={handlePinCreate}
+                onTurnNext={() => void handleCombatTurn("next")}
+                onTurnPrev={() => void handleCombatTurn("prev")}
                 onRollDice={({ expression, modifier, count, diceArray }) => {
                     setPendingRoll({ expression, modifier, count });
                     diceRef.current?.roll(diceArray);
@@ -635,6 +1072,7 @@ export default function PlayPage() {
             <LiveOperationsSidebar
                 campaignId={campaignId}
                 campaignName={context.campaign.name}
+                roomCode={context.campaign.roomCode}
                 worldId={context.worldId}
                 prepPacket={prepPacket}
                 activeScene={activeScene}
@@ -643,9 +1081,20 @@ export default function PlayPage() {
                 currentPublicAsset={currentPublicAsset}
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
+                monitorMode={monitorMode}
+                tableFocusMode={tableFocusMode}
+                panelVisibility={cockpitPanels}
+                showHistoryChat={showHistoryChat}
+                soundtrack={soundtrack}
+                gmScratchpad={gmScratchpad}
+                flowChecklist={flowChecklist}
+                publicLayerLocked={publicLayerLocked}
+                partyStatus={partyStatus}
                 revealingId={revealingId}
                 secondScreenReady={Boolean(context.campaign.roomCode)}
                 activeInspectEntityId={inspectId}
+                spawningEncounterEnemyId={spawningEncounterEnemyId}
+                spawnStatusMessage={spawnStatusMessage}
                 inspectQuery={inspectQuery}
                 inspectCandidates={inspectCandidates}
                 inspectId={inspectId}
@@ -656,13 +1105,99 @@ export default function PlayPage() {
                 timelineFilter={timelineFilter}
                 chatInput={chatInput}
                 scrollRef={scrollRef}
-                onOpenAtlas={() => router.push(`/app/worlds/${context.worldId}/map`)}
+                onOpenAtlas={() => {
+                    window.open(`/app/worlds/${context.worldId}/map`, "_blank", "noopener,noreferrer");
+                }}
+                onOpenSecondScreen={() => {
+                    if (!context.campaign.roomCode) return;
+                    window.open(`/play/${context.campaign.roomCode}`, "_blank", "noopener,noreferrer");
+                }}
                 onSummarize={handleSummarize}
+                onToggleMonitorMode={() => {
+                    setMonitorMode((current) => {
+                        const next = !current;
+                        if (campaignId) {
+                            try {
+                                window.localStorage.setItem(`t20.live.monitor-mode.${campaignId}`, String(next));
+                            } catch (error) {
+                                console.error("Failed to persist monitor mode", error);
+                            }
+                        }
+                        return next;
+                    });
+                }}
+                onTableFocusModeChange={(next) => {
+                    setTableFocusMode(next);
+                    if (campaignId) {
+                        try {
+                            window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, next);
+                        } catch (error) {
+                            console.error("Failed to persist table focus mode", error);
+                        }
+                    }
+                }}
+                onPanelVisibilityChange={(next) => {
+                    setCockpitPanels(next);
+                    if (campaignId) {
+                        try {
+                            window.localStorage.setItem(
+                                `t20.live.cockpit-panels.${campaignId}`,
+                                JSON.stringify(next),
+                            );
+                        } catch (error) {
+                            console.error("Failed to persist cockpit panel visibility", error);
+                        }
+                    }
+                }}
+                onToggleHistoryChat={() => {
+                    setShowHistoryChat((current) => {
+                        const next = !current;
+                        if (campaignId) {
+                            try {
+                                window.localStorage.setItem(`t20.live.history-chat.${campaignId}`, String(next));
+                            } catch (error) {
+                                console.error("Failed to persist history chat visibility", error);
+                            }
+                        }
+                        return next;
+                    });
+                }}
+                onApplyCockpitPreset={(preset) => {
+                    const nextFocus = preset === "tactical" ? "tactical" : "narrative";
+                    const nextPanels =
+                        preset === "tactical"
+                            ? { showSupport: true, showCodex: false }
+                            : { showSupport: true, showCodex: true };
+                    const nextHistory = preset !== "tactical";
+
+                    setTableFocusMode(nextFocus);
+                    setCockpitPanels(nextPanels);
+                    setShowHistoryChat(nextHistory);
+
+                    if (campaignId) {
+                        try {
+                            window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, nextFocus);
+                            window.localStorage.setItem(
+                                `t20.live.cockpit-panels.${campaignId}`,
+                                JSON.stringify(nextPanels),
+                            );
+                            window.localStorage.setItem(
+                                `t20.live.history-chat.${campaignId}`,
+                                String(nextHistory),
+                            );
+                        } catch (error) {
+                            console.error("Failed to persist cockpit preset", error);
+                        }
+                    }
+                }}
                 onFocusScene={setFocusedSceneId}
                 onInspectEntity={setInspectId}
                 onReveal={(revealId) => void handleLiveReveal(revealId)}
                 onPresentAsset={(entityId, imageUrl, title) =>
                     void handlePresentSceneAsset(entityId, imageUrl, title)
+                }
+                onSpawnEncounterEnemy={(enemy, enemyIndex) =>
+                    void handleSpawnEncounterEnemy(enemy, enemyIndex)
                 }
                 onInspectQueryChange={setInspectQuery}
                 onInspectIdChange={(value) => {
@@ -686,6 +1221,27 @@ export default function PlayPage() {
                 onVoiceTranscription={(text) => {
                     handleAction('CHAT', { text, author: 'Mestre (Voz)' });
                     processVoiceCommand(text);
+                }}
+                onCombatChange={() => void refreshLiveCombatNow()}
+                onSaveSoundtrack={handleSaveSoundtrack}
+                onGmScratchpadChange={handleGmScratchpadChange}
+                onFlowChecklistToggle={handleFlowChecklistToggle}
+                onFlowChecklistSetAll={handleFlowChecklistSetAll}
+                onTogglePublicLayerLock={() => {
+                    setPublicLayerLocked((current) => {
+                        const next = !current;
+                        if (campaignId) {
+                            try {
+                                window.localStorage.setItem(
+                                    `t20.live.public-layer-lock.${campaignId}`,
+                                    String(next),
+                                );
+                            } catch (error) {
+                                console.error("Failed to persist public layer lock", error);
+                            }
+                        }
+                        return next;
+                    });
                 }}
             />
         </div>
