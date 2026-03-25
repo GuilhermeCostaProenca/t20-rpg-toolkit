@@ -132,6 +132,7 @@ type LiveOperationsSidebarProps = {
         enemy: SessionForgeEncounter["enemies"][number],
         enemyIndex: number,
     ) => void | Promise<void>;
+    onSpawnEncounterRemaining: () => void | Promise<void>;
     onMarkActiveSceneExecuted: () => void | Promise<void>;
     onMarkActiveSubsceneExecuted: () => void | Promise<void>;
     onMarkDramaticExecuted: (
@@ -211,6 +212,7 @@ export function LiveOperationsSidebar({
     onReveal,
     onPresentAsset,
     onSpawnEncounterEnemy,
+    onSpawnEncounterRemaining,
     onMarkActiveSceneExecuted,
     onMarkActiveSubsceneExecuted,
     onMarkDramaticExecuted,
@@ -306,6 +308,7 @@ export function LiveOperationsSidebar({
                 onReveal={onReveal}
                 onPresentAsset={onPresentAsset}
                 onSpawnEncounterEnemy={onSpawnEncounterEnemy}
+                onSpawnEncounterRemaining={onSpawnEncounterRemaining}
                 onMarkActiveSceneExecuted={onMarkActiveSceneExecuted}
                 onMarkActiveSubsceneExecuted={onMarkActiveSubsceneExecuted}
                 onMarkDramaticExecuted={onMarkDramaticExecuted}
