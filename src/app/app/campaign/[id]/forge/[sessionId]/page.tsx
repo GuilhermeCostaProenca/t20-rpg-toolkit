@@ -1237,6 +1237,46 @@ export default function SessionForgePage() {
                           )}
                         </div>
                       </div>
+                      {(() => {
+                        const linkedReveals = forge.reveals.filter((reveal) =>
+                          scene.linkedRevealIds.includes(reveal.id)
+                        );
+                        if (linkedReveals.length === 0) return null;
+                        return (
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                              Operar reveals da cena
+                            </p>
+                            <div className="space-y-2">
+                              {linkedReveals.slice(0, 4).map((reveal) => (
+                                <div
+                                  key={`scene-linked-reveal-${scene.id}-${reveal.id}`}
+                                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 p-2"
+                                >
+                                  <div className="min-w-0">
+                                    <p className="truncate text-xs font-semibold text-foreground">
+                                      {reveal.title || "Revelacao sem titulo"}
+                                    </p>
+                                    <p className="text-[10px] uppercase tracking-[0.12em] text-white/60">
+                                      {reveal.status}
+                                    </p>
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-primary/20 bg-primary/10 text-primary"
+                                    onClick={() => void handleRevealNow(reveal)}
+                                    disabled={revealingId === reveal.id || !campaign.roomCode}
+                                  >
+                                    <Eye className="mr-2 h-3.5 w-3.5" />
+                                    {revealingId === reveal.id ? "Enviando..." : "Enviar para mesa"}
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {(() => {
                         const revealVisuals = forge.reveals
@@ -1534,6 +1574,46 @@ export default function SessionForgePage() {
                                     </div>
                                   )}
                                 </div>
+                                {(() => {
+                                  const linkedReveals = forge.reveals.filter((reveal) =>
+                                    subscene.linkedRevealIds.includes(reveal.id)
+                                  );
+                                  if (linkedReveals.length === 0) return null;
+                                  return (
+                                    <div className="space-y-2">
+                                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                                        Operar reveals da subcena
+                                      </p>
+                                      <div className="space-y-2">
+                                        {linkedReveals.slice(0, 3).map((reveal) => (
+                                          <div
+                                            key={`subscene-linked-reveal-${subscene.id}-${reveal.id}`}
+                                            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 p-2"
+                                          >
+                                            <div className="min-w-0">
+                                              <p className="truncate text-xs font-semibold text-foreground">
+                                                {reveal.title || "Revelacao sem titulo"}
+                                              </p>
+                                              <p className="text-[10px] uppercase tracking-[0.12em] text-white/60">
+                                                {reveal.status}
+                                              </p>
+                                            </div>
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              className="border-primary/20 bg-primary/10 text-primary"
+                                              onClick={() => void handleRevealNow(reveal)}
+                                              disabled={revealingId === reveal.id || !campaign.roomCode}
+                                            >
+                                              <Eye className="mr-2 h-3.5 w-3.5" />
+                                              {revealingId === reveal.id ? "Enviando..." : "Enviar para mesa"}
+                                            </Button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
                                 {(() => {
                                   const revealVisuals = forge.reveals
                                     .filter(

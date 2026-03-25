@@ -165,8 +165,8 @@ A forja nao pode ser uma ilha.
 - [-] F4.2 Permitir anexar imagens e assets visuais
   Notas: `reveals` ja aceitam `imageUrl`, reaproveitam imagens de entidades do Codex e a forja agora monta um `pacote visual da mesa` com assets puxados do preparo. `RPG-96` adicionou previas visuais inline de cena/subcena (reveals com imagem + entidades vinculadas com portrait/cover) para validacao rapida sem trocar de tela. Ainda falta curadoria mais profunda de assets da biblioteca visual.
 
-- [ ] F4.3 Permitir preparar reveals ligados a cena
-  Notas: Cenas e subcenas ja prendem `reveals` por ID; esses reveals agora podem inclusive ser enviados para a mesa.
+- [-] F4.3 Permitir preparar reveals ligados a cena
+  Notas: Cenas e subcenas ja prendem `reveals` por ID. `RPG-97` adicionou operacao direta de reveal no proprio contexto de cena/subcena (`Enviar para mesa`), sem precisar abrir o painel geral de revelacoes.
 
 - [-] F4.4 Permitir referencia cruzada para lugar, faccao e personagem
   Notas: `RPG-95` adicionou atalhos de referencia cruzada por tipo (personagem, NPC, faccao, casa e lugar) dentro dos blocos de cena e subcena, abrindo o Codex ja filtrado para consulta rapida durante o preparo.
