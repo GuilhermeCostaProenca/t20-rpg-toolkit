@@ -496,6 +496,7 @@ export default function SessionForgePage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [dramaticStatusFilter, setDramaticStatusFilter] = useState<"all" | SessionForgeDramaticStatus>("all");
+  const [dramaticCollectionFilter, setDramaticCollectionFilter] = useState<"all" | "hooks" | "secrets" | "reveals">("all");
   const [dramaticSearchQuery, setDramaticSearchQuery] = useState("");
   const [revealAssetKindFilter, setRevealAssetKindFilter] = useState<"all" | string>("all");
   const [revealAssetSearchQuery, setRevealAssetSearchQuery] = useState("");
@@ -696,6 +697,15 @@ export default function SessionForgePage() {
     }
     return counts;
   }, [dramaticItems]);
+  const dramaticCollectionCounts = useMemo(
+    () => ({
+      all: dramaticItems.length,
+      hooks: forge.hooks.length,
+      secrets: forge.secrets.length,
+      reveals: forge.reveals.length,
+    }),
+    [dramaticItems.length, forge.hooks.length, forge.reveals.length, forge.secrets.length]
+  );
   const normalizedDramaticSearch = dramaticSearchQuery.trim().toLowerCase();
 
   const readyScenes = useMemo(
@@ -2587,6 +2597,39 @@ export default function SessionForgePage() {
                   type="button"
                   variant="outline"
                   className={
+                    dramaticCollectionFilter === "all"
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : "border-white/10 bg-white/5"
+                  }
+                  onClick={() => setDramaticCollectionFilter("all")}
+                >
+                  Todas ({dramaticCollectionCounts.all})
+                </Button>
+                {([
+                  { key: "hooks", label: "Ganchos" },
+                  { key: "secrets", label: "Segredos" },
+                  { key: "reveals", label: "Revelacoes" },
+                ] as const).map((option) => (
+                  <Button
+                    key={`dramatic-collection-filter-${option.key}`}
+                    type="button"
+                    variant="outline"
+                    className={
+                      dramaticCollectionFilter === option.key
+                        ? "border-primary/30 bg-primary/10 text-primary"
+                        : "border-white/10 bg-white/5"
+                    }
+                    onClick={() => setDramaticCollectionFilter(option.key)}
+                  >
+                    {option.label} ({dramaticCollectionCounts[option.key]})
+                  </Button>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={
                     dramaticStatusFilter === "all"
                       ? "border-primary/30 bg-primary/10 text-primary"
                       : "border-white/10 bg-white/5"
@@ -2622,7 +2665,12 @@ export default function SessionForgePage() {
                 { key: "hooks", title: "Ganchos", singular: "Gancho", description: "O que deve puxar a mesa para frente." },
                 { key: "secrets", title: "Segredos", singular: "Segredo", description: "O que so o mestre ou poucos sabem." },
                 { key: "reveals", title: "Revelacoes", singular: "Revelacao", description: "O que pode explodir na sessao." },
-              ] as const).map((column) => {
+              ] as const)
+                .filter(
+                  (column) =>
+                    dramaticCollectionFilter === "all" || column.key === dramaticCollectionFilter
+                )
+                .map((column) => {
                 const statusItems =
                   dramaticStatusFilter === "all"
                     ? forge[column.key]
