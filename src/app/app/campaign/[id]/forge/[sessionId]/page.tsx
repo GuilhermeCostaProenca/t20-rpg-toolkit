@@ -1183,6 +1183,32 @@ export default function SessionForgePage() {
                           variant="outline"
                           className="border-white/10 bg-white/5"
                           onClick={() =>
+                            setForge((current) => {
+                              const source = current.scenes[sceneIndex];
+                              if (!source) return current;
+                              const clonedScene: SessionForgeScene = {
+                                ...source,
+                                id: `scene-${Math.random().toString(36).slice(2, 10)}`,
+                                subscenes: source.subscenes.map((subscene) => ({
+                                  ...subscene,
+                                  id: `subscene-${Math.random().toString(36).slice(2, 10)}`,
+                                })),
+                              };
+                              const nextScenes = [...current.scenes];
+                              nextScenes.splice(sceneIndex + 1, 0, clonedScene);
+                              return {
+                                ...current,
+                                scenes: nextScenes,
+                              };
+                            })
+                          }
+                        >
+                          Duplicar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
                             setForge((current) => ({
                               ...current,
                               scenes: current.scenes.filter((item) => item.id !== scene.id),
