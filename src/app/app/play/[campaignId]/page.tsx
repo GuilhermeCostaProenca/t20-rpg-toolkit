@@ -189,6 +189,7 @@ export default function PlayPage() {
     const [requestedSheetCharacterId, setRequestedSheetCharacterId] = useState<string | null>(null);
     const wasCombatActiveRef = useRef(false);
     const hasAppliedRouteFocusRef = useRef(false);
+    const routeSessionId = searchParams.get("sessionId");
     const routeSceneId = searchParams.get("sceneId");
     const routeSubsceneId = searchParams.get("subsceneId");
 
@@ -219,7 +220,7 @@ export default function PlayPage() {
 
     useEffect(() => {
         hasAppliedRouteFocusRef.current = false;
-    }, [campaignId, routeSceneId, routeSubsceneId]);
+    }, [campaignId, routeSessionId, routeSceneId, routeSubsceneId]);
 
     useEffect(() => {
         hasHydratedEventsRef.current = false;
@@ -467,7 +468,10 @@ export default function PlayPage() {
                     return leftDate - rightDate;
                 });
 
-                const target = ordered.find((session) => session.status === "active")
+                const target = (routeSessionId
+                    ? ordered.find((session) => session.id === routeSessionId)
+                    : null)
+                    ?? ordered.find((session) => session.status === "active")
                     ?? ordered.find((session) => session.status === "planned")
                     ?? null;
 
@@ -486,7 +490,7 @@ export default function PlayPage() {
         };
 
         void loadPrepPacket();
-    }, [campaignId]);
+    }, [campaignId, routeSessionId]);
 
     useEffect(() => {
         if (!campaignId) return;
