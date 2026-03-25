@@ -1784,18 +1784,46 @@ export default function SessionForgePage() {
                       <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
                         Beat {index + 1}
                       </p>
-                      <Button
-                        variant="outline"
-                        className="border-white/10 bg-white/5"
-                        onClick={() =>
-                          setForge((current) => ({
-                            ...current,
-                            beats: current.beats.filter((item) => item.id !== beat.id),
-                          }))
-                        }
-                      >
-                        Remover
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setForge((current) => ({
+                              ...current,
+                              beats: moveItem(current.beats, index, "up"),
+                            }))
+                          }
+                          disabled={index === 0}
+                        >
+                          <ArrowUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setForge((current) => ({
+                              ...current,
+                              beats: moveItem(current.beats, index, "down"),
+                            }))
+                          }
+                          disabled={index === forge.beats.length - 1}
+                        >
+                          <ArrowDown className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setForge((current) => ({
+                              ...current,
+                              beats: current.beats.filter((item) => item.id !== beat.id),
+                            }))
+                          }
+                        >
+                          Remover
+                        </Button>
+                      </div>
                     </div>
                     <div className="mt-4 grid gap-3">
                       <Input
