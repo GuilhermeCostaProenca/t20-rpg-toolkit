@@ -1296,11 +1296,31 @@ export default function PlayPage() {
         }
 
         const previousPacket = prepPacket;
+        const dramaticExecutionKey = `live-execution:${collection}:${itemId}`;
+        const hasDramaticMemoryEntry = previousPacket.forge.memory.changes.some((item) =>
+            item.notes.includes(dramaticExecutionKey)
+        );
+        const dramaticLinkedEntityIds =
+            activeScene?.linkedEntityIds ?? previousPacket.forge.linkedEntityIds ?? [];
+        const dramaticMemoryEntry = hasDramaticMemoryEntry
+            ? []
+            : [{
+                id: `change-${Math.random().toString(36).slice(2, 10)}`,
+                title: `${targetLabel} executado: ${target.title || `${targetLabel} sem titulo`}`,
+                type: collection === "secrets" ? "secret" as const : "status" as const,
+                notes: `${dramaticExecutionKey}\nFechamento dramatico registrado durante operacao ao vivo.`,
+                linkedEntityIds: dramaticLinkedEntityIds,
+                visibility: "MASTER" as const,
+            }];
         const nextForge: SessionForgeState = {
             ...previousPacket.forge,
             [collection]: previousPacket.forge[collection].map((item) =>
                 item.id === itemId ? { ...item, status: "executed" } : item,
             ),
+            memory: {
+                ...previousPacket.forge.memory,
+                changes: [...previousPacket.forge.memory.changes, ...dramaticMemoryEntry],
+            },
         };
         const nextMetadata = buildSessionMetadata(nextForge, previousPacket.session.metadata);
         const dramaticItemKey = `${collection}:${itemId}`;
