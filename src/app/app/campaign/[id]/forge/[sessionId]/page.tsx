@@ -2297,6 +2297,7 @@ export default function SessionForgePage() {
                 </div>
               </div>
               <Textarea
+                id="forge-section-memory"
                 rows={4}
                 value={forge.memory.publicSummary}
                 onChange={(event) =>
