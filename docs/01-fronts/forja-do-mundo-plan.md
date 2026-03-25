@@ -197,8 +197,8 @@ Arvores familiares e linhagens sao parte central de campanhas politicas e dinast
 - [-] W3.3 Permitir marcar legitimidade, bastardia, adocao, casas menores e ramos
   Notas: A oficina agora grava marcadores formais em `EntityRelationship.metadata.genealogy.marker` (`legitimate`, `bastard`, `adopted`, `cadet_branch`, `secret_union`) e ja os le como badges e lentes. Ainda falta deixar essa leitura mais forte no proprio board.
 
-- [ ] W3.4 Permitir arrastar, reorganizar e ligar entidades dentro do board genealogico
-  Notas: Ainda pendente. O board genealogico atual ja permite lentes e ligacao por clique a partir da entidade inspecionada, mas ainda nao oferece drag-and-drop nem reorganizacao manual de ramos.
+- [-] W3.4 Permitir arrastar, reorganizar e ligar entidades dentro do board genealogico
+  Notas: `RPG-81` adicionou reorganizacao manual de ramos na propria oficina de genealogia, com acoes de mover para frente/tras por entidade e persistencia de ordem em `Entity.metadata.genealogy.order`, refletida no `NarrativeGraphBoard` em modo genealogico. Ainda falta o arraste direto no board (drag-and-drop) para fechar o item.
 
 - [x] W3.5 Permitir navegar da genealogia para o workspace da entidade
   Notas: A oficina genealogica ja abre Codex e Grafo a partir da entidade selecionada.

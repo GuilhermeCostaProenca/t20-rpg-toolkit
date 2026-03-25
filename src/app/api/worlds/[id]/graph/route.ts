@@ -94,6 +94,19 @@ export async function GET(req: Request, { params }: Context) {
       name: entity.name,
       type: entity.type,
       status: entity.status,
+      orderHint:
+        entity.metadata &&
+        typeof entity.metadata === "object" &&
+        typeof (entity.metadata as Record<string, unknown>).genealogy === "object" &&
+        (entity.metadata as Record<string, unknown>).genealogy !== null &&
+        typeof ((entity.metadata as Record<string, unknown>).genealogy as Record<string, unknown>).order ===
+          "number"
+          ? (((entity.metadata as Record<string, unknown>).genealogy as Record<string, unknown>).order as number)
+          : null,
+      metadata:
+        entity.metadata && typeof entity.metadata === "object"
+          ? (entity.metadata as Record<string, unknown>)
+          : null,
       summary: entity.summary,
       campaignId: entity.campaignId,
       campaignName: entity.campaign?.name ?? null,
