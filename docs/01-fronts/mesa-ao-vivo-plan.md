@@ -193,8 +193,8 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
 Contexto tecnico:
 Operar a mesa nao e so combate e reveal; envolve trilha, estado de ficha e apoio rapido ao mestre.
 
-- [ ] M5.1 Definir superficie para trilha e playlist da sessao
-  Notas:
+- [-] M5.1 Definir superficie para trilha e playlist da sessao
+  Notas: `M5.1` adicionou o card `Trilha da sessao` no sidebar ao vivo com slots separados de URL (`Ambiental` e `Combate`), abertura rapida por modo atual da mesa e persistencia local por campanha (`localStorage`) para reduzir troca de contexto durante operacao.
 
 - [ ] M5.2 Integrar o estado operacional de PCs e NPCs
   Notas:

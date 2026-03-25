@@ -73,6 +73,11 @@ type LivePublicAsset = {
     detail: string;
 };
 
+type SessionSoundtrack = {
+    ambientUrl: string;
+    combatUrl: string;
+};
+
 export default function PlayPage() {
     const params = useParams();
     const router = useRouter();
@@ -104,6 +109,10 @@ export default function PlayPage() {
     const [currentPublicAsset, setCurrentPublicAsset] = useState<LivePublicAsset | null>(null);
     const [spawningEncounterEnemyId, setSpawningEncounterEnemyId] = useState<string | null>(null);
     const [spawnStatusMessage, setSpawnStatusMessage] = useState<LiveOpsStatusMessage | null>(null);
+    const [soundtrack, setSoundtrack] = useState<SessionSoundtrack>({
+        ambientUrl: "",
+        combatUrl: "",
+    });
 
     const loadLiveCombat = useCallback(async () => {
         if (!campaignId) return;
@@ -134,6 +143,25 @@ export default function PlayPage() {
         hasHydratedEventsRef.current = false;
         processedEventsRef.current = new Set();
         setEvents([]);
+    }, [campaignId]);
+
+    useEffect(() => {
+        if (!campaignId) return;
+        try {
+            const raw = window.localStorage.getItem(`t20.live.soundtrack.${campaignId}`);
+            if (!raw) {
+                setSoundtrack({ ambientUrl: "", combatUrl: "" });
+                return;
+            }
+            const parsed = JSON.parse(raw) as Partial<SessionSoundtrack>;
+            setSoundtrack({
+                ambientUrl: typeof parsed.ambientUrl === "string" ? parsed.ambientUrl : "",
+                combatUrl: typeof parsed.combatUrl === "string" ? parsed.combatUrl : "",
+            });
+        } catch (error) {
+            console.error("Failed to load soundtrack presets", error);
+            setSoundtrack({ ambientUrl: "", combatUrl: "" });
+        }
     }, [campaignId]);
 
     // Token Sync (Optimistic + DB)
@@ -472,6 +500,16 @@ export default function PlayPage() {
         await loadLiveCombat();
     }
 
+    function handleSaveSoundtrack(next: SessionSoundtrack) {
+        setSoundtrack(next);
+        if (!campaignId) return;
+        try {
+            window.localStorage.setItem(`t20.live.soundtrack.${campaignId}`, JSON.stringify(next));
+        } catch (error) {
+            console.error("Failed to persist soundtrack presets", error);
+        }
+    }
+
     async function handleSpawnEncounterEnemy(enemy: SessionForgeEncounterEnemy, enemyIndex: number) {
         if (spawningEncounterEnemyId) return;
         if (!campaignId || !liveCombat?.isActive || !enemy.npcId) return;
@@ -743,6 +781,7 @@ export default function PlayPage() {
                 currentPublicAsset={currentPublicAsset}
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
+                soundtrack={soundtrack}
                 revealingId={revealingId}
                 secondScreenReady={Boolean(context.campaign.roomCode)}
                 activeInspectEntityId={inspectId}
@@ -793,6 +832,7 @@ export default function PlayPage() {
                     processVoiceCommand(text);
                 }}
                 onCombatChange={() => void refreshLiveCombatNow()}
+                onSaveSoundtrack={handleSaveSoundtrack}
             />
         </div>
     );

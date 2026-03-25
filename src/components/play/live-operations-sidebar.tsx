@@ -7,6 +7,7 @@ import { CombatTracker } from "@/components/play/combat-tracker";
 import { LiveCodexInspect, type LiveCodexEntity, type LiveEntityDetail } from "@/components/play/live-codex-inspect";
 import { LiveHistoryChatStack } from "@/components/play/live-history-chat-stack";
 import { LivePrepCockpit } from "@/components/play/live-prep-cockpit";
+import { LiveSessionSoundtrack } from "@/components/play/live-session-soundtrack";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { LiveCombat, LiveOpsStatusMessage } from "@/lib/live-combat";
@@ -61,6 +62,10 @@ type LiveOperationsSidebarProps = {
         role: "portrait" | "location";
     }[];
     liveCombat: LiveCombat | null;
+    soundtrack: {
+        ambientUrl: string;
+        combatUrl: string;
+    };
     revealingId: string | null;
     secondScreenReady: boolean;
     activeInspectEntityId: string | null;
@@ -95,6 +100,7 @@ type LiveOperationsSidebarProps = {
     onChatSubmit: (event: FormEvent) => void;
     onVoiceTranscription: (text: string) => void;
     onCombatChange: () => void | Promise<void>;
+    onSaveSoundtrack: (next: { ambientUrl: string; combatUrl: string }) => void;
 };
 
 export function LiveOperationsSidebar({
@@ -108,6 +114,7 @@ export function LiveOperationsSidebar({
     currentPublicAsset,
     sceneVisualEntities,
     liveCombat,
+    soundtrack,
     revealingId,
     secondScreenReady,
     activeInspectEntityId,
@@ -139,6 +146,7 @@ export function LiveOperationsSidebar({
     onChatSubmit,
     onVoiceTranscription,
     onCombatChange,
+    onSaveSoundtrack,
 }: LiveOperationsSidebarProps) {
     return (
         <div className="z-[60] flex w-full flex-col border-l border-white/10 bg-sidebar md:w-[350px]">
@@ -169,6 +177,14 @@ export function LiveOperationsSidebar({
                     campaignId={campaignId}
                     liveCombat={liveCombat}
                     onCombatChange={onCombatChange}
+                />
+            </div>
+
+            <div className="px-3 pt-3">
+                <LiveSessionSoundtrack
+                    isCombatActive={Boolean(liveCombat?.isActive)}
+                    soundtrack={soundtrack}
+                    onSave={onSaveSoundtrack}
                 />
             </div>
 
