@@ -220,14 +220,14 @@ Operar a mesa nao e so combate e reveal; envolve trilha, estado de ficha e apoio
 Contexto tecnico:
 Essa frente mede o sucesso operacional da mesa.
 
-- [ ] M6.1 Revisar pontos onde o mestre ainda precisa sair da tela principal
-  Notas:
+- [-] M6.1 Revisar pontos onde o mestre ainda precisa sair da tela principal
+  Notas: `M6.1` reduziu ruptura no acesso ao Atlas durante mesa: o atalho `Abrir Atlas` no sidebar agora abre em nova aba, preservando o cockpit ao vivo na aba principal.
 
 - [-] M6.2 Consolidar acessos rapidos mais frequentes
   Notas: `RPG-33` consolidou o pacote de preparo em um componente proprio, `RPG-34` fez o mesmo com o quick inspect e `RPG-35` isolou o historico/chat. O cockpit agora esta mais modular sem mudar o fluxo do mestre.
 
 - [-] M6.3 Reduzir rotas e modais desnecessarios durante sessao
-  Notas: `RPG-43` reduziu a ambiguidade dentro do proprio cockpit ao vivo, sem criar nova rota ou modal, deixando claro o que e superficie publica para jogadores e o que continua privado para consulta operacional do mestre.
+  Notas: `RPG-43` reduziu a ambiguidade dentro do proprio cockpit ao vivo, sem criar nova rota ou modal, deixando claro o que e superficie publica para jogadores e o que continua privado para consulta operacional do mestre. `M6.1` tambem evitou troca forcada de rota no atalho de Atlas, mantendo a mesa aberta enquanto o mapa detalhado abre em aba separada.
 
 - [ ] M6.4 Validar o fluxo com cenarios completos de mesa
   Notas:

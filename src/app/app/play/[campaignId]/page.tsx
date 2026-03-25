@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, useRef, FormEvent } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { QuickSheet } from "./quick-sheet";
 import {
     type LiveCodexEntity,
@@ -103,7 +103,6 @@ const EMPTY_PARTY_STATUS: LivePartyStatusSnapshot = {
 
 export default function PlayPage() {
     const params = useParams();
-    const router = useRouter();
     const campaignId = params?.campaignId as string;
     const [events, setEvents] = useState<GameEvent[]>([]);
     const [chatInput, setChatInput] = useState("");
@@ -933,7 +932,9 @@ export default function PlayPage() {
                 timelineFilter={timelineFilter}
                 chatInput={chatInput}
                 scrollRef={scrollRef}
-                onOpenAtlas={() => router.push(`/app/worlds/${context.worldId}/map`)}
+                onOpenAtlas={() => {
+                    window.open(`/app/worlds/${context.worldId}/map`, "_blank", "noopener,noreferrer");
+                }}
                 onSummarize={handleSummarize}
                 onFocusScene={setFocusedSceneId}
                 onInspectEntity={setInspectId}
