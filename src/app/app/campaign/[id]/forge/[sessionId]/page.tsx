@@ -750,6 +750,15 @@ export default function SessionForgePage() {
       ),
     [forge.scenes]
   );
+  const encounterCountBySceneId = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const encounter of forge.encounters) {
+      if (!encounter.linkedSceneId) continue;
+      const current = counts.get(encounter.linkedSceneId) ?? 0;
+      counts.set(encounter.linkedSceneId, current + 1);
+    }
+    return counts;
+  }, [forge.encounters]);
   const activeSceneRailIndex = useMemo(
     () =>
       activeSceneRailId
@@ -1399,29 +1408,37 @@ export default function SessionForgePage() {
                   </div>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {forge.scenes.map((scene, sceneIndex) => (
-                    <Button
-                      key={`scene-rail-${scene.id}`}
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className={
-                        activeSceneRailId === scene.id
-                          ? "border-primary/35 bg-primary/15 text-primary text-xs"
-                          : "border-white/10 bg-white/5 text-xs"
-                      }
-                      onClick={() => jumpToSceneCard(scene.id)}
-                    >
-                      C{sceneIndex + 1}
-                      <span className="mx-1 text-white/40">-</span>
-                      <span className="max-w-[12rem] truncate">
-                        {scene.title?.trim() || "Cena sem titulo"}
-                      </span>
-                      <span className="ml-2 rounded border border-white/15 px-1 py-0.5 text-[10px] uppercase tracking-[0.12em] text-white/65">
-                        {scene.status}
-                      </span>
-                    </Button>
-                  ))}
+                  {forge.scenes.map((scene, sceneIndex) => {
+                    const linkedEncounterCount = encounterCountBySceneId.get(scene.id) ?? 0;
+                    return (
+                      <Button
+                        key={`scene-rail-${scene.id}`}
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className={
+                          activeSceneRailId === scene.id
+                            ? "border-primary/35 bg-primary/15 text-primary text-xs"
+                            : "border-white/10 bg-white/5 text-xs"
+                        }
+                        onClick={() => jumpToSceneCard(scene.id)}
+                      >
+                        C{sceneIndex + 1}
+                        <span className="mx-1 text-white/40">-</span>
+                        <span className="max-w-[12rem] truncate">
+                          {scene.title?.trim() || "Cena sem titulo"}
+                        </span>
+                        <span className="ml-2 rounded border border-white/15 px-1 py-0.5 text-[10px] uppercase tracking-[0.12em] text-white/65">
+                          {scene.status}
+                        </span>
+                        {linkedEncounterCount > 0 ? (
+                          <span className="ml-2 rounded border border-primary/25 bg-primary/10 px-1 py-0.5 text-[10px] uppercase tracking-[0.12em] text-primary">
+                            {linkedEncounterCount} enc
+                          </span>
+                        ) : null}
+                      </Button>
+                    );
+                  })}
                 </div>
                 <p className="mt-2 text-[10px] uppercase tracking-[0.12em] text-white/45">
                   Atalhos: [ anterior cena | ] proxima cena
@@ -1496,6 +1513,7 @@ export default function SessionForgePage() {
                   const isSceneCollapsed = collapsedSceneIds.has(scene.id);
                   const isSceneDropTarget =
                     !!draggedSceneId && sceneDropTargetId === scene.id && draggedSceneId !== scene.id;
+                  const linkedEncounterCount = encounterCountBySceneId.get(scene.id) ?? 0;
                   return (
                   <div
                     id={`forge-scene-${scene.id}`}
@@ -1528,6 +1546,12 @@ export default function SessionForgePage() {
                         <p className="text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
                           Cena {sceneIndex + 1}
                         </p>
+                        {linkedEncounterCount > 0 ? (
+                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-primary">
+                            {linkedEncounterCount} encontro{linkedEncounterCount > 1 ? "s" : ""} vinculado
+                            {linkedEncounterCount > 1 ? "s" : ""}
+                          </p>
+                        ) : null}
                         {isSceneDropTarget ? (
                           <p className="mt-1 text-xs uppercase tracking-[0.12em] text-primary">
                             Solte para mover antes desta cena
