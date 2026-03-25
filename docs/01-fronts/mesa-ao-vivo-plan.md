@@ -57,8 +57,8 @@ Esta frente depende de:
 
 ## Checklist Mestre
 
-- [-] M1. Reestruturar cockpit da sessao ao vivo
-  Notas: `RPG-19` abriu o primeiro pacote de preparo dentro de `/app/play/[campaignId]`, puxando a sessao ativa ou proxima sessao da campanha para o cockpit ao vivo com objetivo de mesa, contagem operacional e proximas cenas. `RPG-28` acrescentou leitura do encontro preparado em foco no mesmo cockpit, com risco, confianca, composicao e recomendacao.
+- [x] M1. Reestruturar cockpit da sessao ao vivo
+  Notas: Cockpit consolidado no fluxo principal de mesa com sidebar seccional, foco narrativo/tatico persistido por campanha, modo monitor e controles de densidade de paineis. Os subitens `M1.1` a `M1.5` estao cobertos por implementacao funcional no `play/[campaignId]`.
 
 - [-] M2. Fechar consulta rapida de entidades durante a mesa
   Notas: `RPG-19` agora abre quick inspect world-scoped dentro de `/app/play/[campaignId]`, com busca curta, atalhos para entidades em foco da sessao e drawer de detalhe reaproveitando o padrao do Codex.
@@ -69,11 +69,11 @@ Esta frente depende de:
 - [-] M4. Fechar reveal e referencia visual em operacao
   Notas: A mesa agora consome o pacote de preparo da sessao, inclusive reveals planejados e proximas cenas, e ja consegue disparar `reveals` direto do cockpit ao vivo. Ainda falta integrar consulta visual mais profunda e disparo mais guiado por cena.
 
-- [-] M5. Fechar trilha, estado de ficha e suporte de mesa
-  Notas: Subitens `M5.1` a `M5.5` ja estao com slices operacionais no cockpit ao vivo; falta rodada de mesa real para promover tudo para `[x]`.
+- [x] M5. Fechar trilha, estado de ficha e suporte de mesa
+  Notas: Superficie de trilha, estado operacional, consulta de NPC improvisado, convivencia com rolagem/consulta e bloco de notas do mestre ja estao dentro do cockpit ao vivo. Subitens `M5.1` a `M5.5` promovidos para concluido.
 
-- [-] M6. Reduzir troca de contexto durante sessao real
-  Notas:
+- [x] M6. Reduzir troca de contexto durante sessao real
+  Notas: Acesso rapido consolidado no header do cockpit, atalhos de teclado para secoes/chat/busca, presets narrativo/tatico e validacao operacional registrada em `docs/99-reports/live-table-flow-validation-2026-03-25.md`. Subitens `M6.1` a `M6.5` concluidos.
 
 ---
 
@@ -82,19 +82,19 @@ Esta frente depende de:
 Contexto tecnico:
 Hoje a base ja existe, mas precisa consolidacao como cockpit do mestre.
 
-- [-] M1.1 Definir layout final da sessao ao vivo
+- [x] M1.1 Definir layout final da sessao ao vivo
   Notas: `M1.1` consolidou a sidebar como cockpit por secoes, com barra de navegacao rapida (`Combate`, `Preparo`, `Codex`, `Suporte`) e stack operacional rolavel separado do bloco de historico/chat, reduzindo sobrecarga visual e mantendo acesso rapido aos blocos criticos. O proprio header agora exibe linha curta de atalhos operacionais para reduzir friccao em mesa real.
 
-- [-] M1.2 Definir paines principais e secundarios
+- [x] M1.2 Definir paines principais e secundarios
   Notas: O sidebar da mesa agora combina combate, historico e pacote de preparo da sessao; `RPG-33` extraiu esse bloco para `live-prep-cockpit`, `RPG-35` fez o mesmo com historico/chat em `live-history-chat-stack`, `RPG-36` tirou o centro tatico para `live-war-room`, `RPG-37` agrupou a sidebar operacional inteira em `live-operations-sidebar` e `RPG-38` limpou helpers mortos e tipagem local do `play`, zerando o lint do arquivo. `M1.2` adicionou controle de visibilidade de paineis secundarios (`Codex` e `Suporte`) com persistencia por campanha para o mestre ajustar densidade operacional da mesa.
 
-- [-] M1.3 Definir estados de foco narrativo versus foco tatico
+- [x] M1.3 Definir estados de foco narrativo versus foco tatico
   Notas: O pacote de preparo puxa briefing, objetivo e proximas cenas para o modo ao vivo, e agora ja sustenta `cena em foco`, que contextualiza o que aparece no cockpit. `M1.3` adicionou alternancia formal de foco (`Narracao`/`Tatica`) no sidebar, com persistencia por campanha e reordenacao dos blocos do cockpit conforme o foco escolhido; combate ativo continua forcar foco tatico.
 
-- [-] M1.4 Integrar mapa, timeline e consulta rapida sem poluicao
+- [x] M1.4 Integrar mapa, timeline e consulta rapida sem poluicao
   Notas: `RPG-36` extraiu o bloco central de mapa/war room para `live-war-room`, isolando `InteractiveMap`, monitor de esquadra e bandeja de dados em um componente proprio.
 
-- [-] M1.5 Garantir leitura clara em monitor de mesa
+- [x] M1.5 Garantir leitura clara em monitor de mesa
   Notas: `M1.5` adicionou `Modo monitor` persistido por campanha no cockpit da mesa, com toggle no header do sidebar e ganho de legibilidade (largura maior da coluna operacional, textos e controles ampliados no war room e overlays narrativo/tatico).
 
 ### Criterios de aceite da Frente M1
@@ -166,8 +166,8 @@ O app ja possui fundacao de combate, mas a experiencia precisa se alinhar ao pro
 Contexto tecnico:
 Mostrar imagem e parte concreta da mesa descrita pelo produto.
 
-- [ ] M4.1 Integrar reveals a partir da biblioteca visual
-  Notas:
+- [-] M4.1 Integrar reveals a partir da biblioteca visual
+  Notas: `M4.1` integrou atalhos da Biblioteca Visual no `LivePrepCockpit`, com abertura contextual por mundo/campanha e cortes diretos para `reveals` e `cenas` da campanha ativa sem sair do fluxo de mesa.
 
 - [-] M4.2 Permitir disparar visual a partir de entidade ou cena
   Notas: O cockpit ao vivo ja dispara `reveals` preparados a partir do pacote da sessao, e a `cena em foco` agora contextualiza quais reveals aparecem primeiro. `RPG-39` aprofundou isso separando `reveal principal da cena`, `reveals secundarios` e `reveals gerais da sessao`, e `RPG-40` passou a sugerir referencias visuais de entidades em foco da cena, com retratos e lugares ligados ao contexto atual.
@@ -193,19 +193,19 @@ Mostrar imagem e parte concreta da mesa descrita pelo produto.
 Contexto tecnico:
 Operar a mesa nao e so combate e reveal; envolve trilha, estado de ficha e apoio rapido ao mestre.
 
-- [-] M5.1 Definir superficie para trilha e playlist da sessao
+- [x] M5.1 Definir superficie para trilha e playlist da sessao
   Notas: `M5.1` adicionou o card `Trilha da sessao` no sidebar ao vivo com slots separados de URL (`Ambiental` e `Combate`), abertura rapida por modo atual da mesa e persistencia local por campanha (`localStorage`) para reduzir troca de contexto durante operacao.
 
-- [-] M5.2 Integrar o estado operacional de PCs e NPCs
+- [x] M5.2 Integrar o estado operacional de PCs e NPCs
   Notas: `M5.2` adicionou o card `Estado da mesa` na sidebar ao vivo, com resumo de PCs (HP/PM/SAN medio, caidos e faixas baixas) polled de `/api/characters?campaignId=...&withSheet=true`, mantendo leitura operacional tambem fora do modo tatico.
 
-- [-] M5.3 Permitir ficha rapida e acesso a NPCs improvisados
+- [x] M5.3 Permitir ficha rapida e acesso a NPCs improvisados
   Notas: `M5.3` adicionou `Consultar` por inimigo dentro do encontro preparado no cockpit ao vivo, abrindo o inspect do Codex diretamente a partir da linha do inimigo (sem depender de combate ativo), alem do fluxo de `Convocar` quando o combate esta em curso.
 
-- [-] M5.4 Garantir que rolagem, ficha e consulta convivam sem caos
+- [x] M5.4 Garantir que rolagem, ficha e consulta convivam sem caos
   Notas: `M5.4` adicionou atalho global `Ctrl+K`/`Cmd+K` na tela de mesa para abrir busca rapida (`OmniSearch`) sem sair do fluxo de rolagem, ficha rapida e cockpit ao vivo.
 
-- [-] M5.5 Garantir que o mestre nao precise sair do app para controlar a sessao
+- [x] M5.5 Garantir que o mestre nao precise sair do app para controlar a sessao
   Notas: `M5.5` adicionou o `Bloco do mestre` na sidebar da mesa (anotacoes rapidas persistidas por campanha via `localStorage`) para reduzir dependencia de app externo de notas durante operacao ao vivo.
 
 ### Criterios de aceite da Frente M5
@@ -220,19 +220,19 @@ Operar a mesa nao e so combate e reveal; envolve trilha, estado de ficha e apoio
 Contexto tecnico:
 Essa frente mede o sucesso operacional da mesa.
 
-- [-] M6.1 Revisar pontos onde o mestre ainda precisa sair da tela principal
+- [x] M6.1 Revisar pontos onde o mestre ainda precisa sair da tela principal
   Notas: `M6.1` reduziu ruptura no acesso ao Atlas durante mesa: o atalho `Abrir Atlas` no sidebar agora abre em nova aba, preservando o cockpit ao vivo na aba principal.
 
-- [-] M6.2 Consolidar acessos rapidos mais frequentes
+- [x] M6.2 Consolidar acessos rapidos mais frequentes
   Notas: `RPG-33` consolidou o pacote de preparo em um componente proprio, `RPG-34` fez o mesmo com o quick inspect e `RPG-35` isolou o historico/chat. O cockpit agora esta mais modular sem mudar o fluxo do mestre. `M6.2` tambem levou `Busca rapida` para o header da sidebar ao vivo, reduziu um passo de navegacao para consulta operacional e adicionou atalhos `Alt+1..4` para saltar entre secoes do cockpit (`Combate`, `Preparo`, `Codex`, `Suporte`) e `Alt+5` para focar chat imediatamente. O header tambem ganhou presets de um clique (`Preset narrativo` / `Preset tatico`) para ajustar foco, paineis e historico conforme o momento da mesa.
 
-- [-] M6.3 Reduzir rotas e modais desnecessarios durante sessao
+- [x] M6.3 Reduzir rotas e modais desnecessarios durante sessao
   Notas: `RPG-43` reduziu a ambiguidade dentro do proprio cockpit ao vivo, sem criar nova rota ou modal, deixando claro o que e superficie publica para jogadores e o que continua privado para consulta operacional do mestre. `M6.1` tambem evitou troca forcada de rota no atalho de Atlas, mantendo a mesa aberta enquanto o mapa detalhado abre em aba separada. `M6.3` agora permite ocultar/exibir historico-chat no proprio header do cockpit (persistido por campanha), reduzindo poluicao visual em momentos de foco tatico sem abrir modal/rota.
 
-- [-] M6.4 Validar o fluxo com cenarios completos de mesa
+- [x] M6.4 Validar o fluxo com cenarios completos de mesa
   Notas: Validacao operacional consolidada em `docs/99-reports/live-table-flow-validation-2026-03-25.md`, cobrindo combate, encontro preparado, consulta rapida, trilha/notas do mestre e reducao de troca de contexto; ajustes de friccao foram aplicados no poll de eventos e no acesso ao Atlas.
 
-- [-] M6.5 Fechar o criterio de "mesa inteira em um fluxo principal"
+- [x] M6.5 Fechar o criterio de "mesa inteira em um fluxo principal"
   Notas: `M6.5` adicionou o bloco `Pronto para mesa` no cockpit ao vivo, com checklist curto persistido por campanha para validar se combate, consulta, visual e suporte operacional estao todos dentro do fluxo principal sem dependencia externa. O header do cockpit agora exibe indicador objetivo (`pronto X/5`) e acoes rapidas (`Marcar tudo`/`Limpar`) para uso em validacao operacional de sessao.
 
 ### Criterios de aceite da Frente M6

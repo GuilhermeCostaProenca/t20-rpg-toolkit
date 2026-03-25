@@ -62,6 +62,8 @@ type PublicQueueCandidate = {
 };
 
 type LivePrepCockpitProps = {
+  worldId: string;
+  campaignId: string;
   prepPacket: PrepSessionPacket | null;
   activeScene: SessionForgeScene | null;
   activeEncounter: SessionForgeEncounter | null;
@@ -415,6 +417,8 @@ function getPublicAdvanceCue(
 }
 
 export function LivePrepCockpit({
+  worldId,
+  campaignId,
   prepPacket,
   activeScene,
   activeEncounter,
@@ -433,6 +437,15 @@ export function LivePrepCockpit({
   onPresentAsset,
   onSpawnEncounterEnemy,
 }: LivePrepCockpitProps) {
+  const openVisualLibrary = (preset?: "reveals" | "scenes") => {
+    const params = new URLSearchParams();
+    params.set("campaignId", campaignId);
+    if (preset) params.set("preset", preset);
+    const suffix = params.toString();
+    const href = `/app/worlds/${worldId}/visual-library${suffix ? `?${suffix}` : ""}`;
+    window.open(href, "_blank", "noopener,noreferrer");
+  };
+
   const livePressure =
     liveCombat?.isActive && liveCombat.combatants.length > 0
       ? analyzeLiveCombatPressure(liveCombat.combatants)
@@ -1594,6 +1607,41 @@ export function LivePrepCockpit({
                 </div>
               </div>
             ) : null}
+
+            <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                Biblioteca visual
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Atalhos de curadoria visual ligados ao mundo e campanha em foco, sem sair do fluxo da mesa.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-white/10 bg-white/5"
+                  onClick={() => openVisualLibrary()}
+                >
+                  Abrir biblioteca
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-white/10 bg-white/5"
+                  onClick={() => openVisualLibrary("reveals")}
+                >
+                  Reveals da campanha
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-white/10 bg-white/5"
+                  onClick={() => openVisualLibrary("scenes")}
+                >
+                  Cenas da campanha
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       ) : (

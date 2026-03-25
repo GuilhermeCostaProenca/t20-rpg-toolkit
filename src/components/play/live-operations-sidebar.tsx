@@ -254,6 +254,8 @@ export function LiveOperationsSidebar({
     const prepSection = (
         <div id="live-section-preparo" className="px-3 py-3">
             <LivePrepCockpit
+                worldId={worldId}
+                campaignId={campaignId}
                 prepPacket={prepPacket}
                 activeScene={activeScene}
                 activeEncounter={activeEncounter}
