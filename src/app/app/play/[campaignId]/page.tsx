@@ -113,6 +113,7 @@ export default function PlayPage() {
     const [pendingRoll, setPendingRoll] = useState<{ expression: string, modifier: number, count: number } | null>(null);
     const processedEventsRef = useRef<Set<string>>(new Set());
     const hasHydratedEventsRef = useRef(false);
+    const lastEventsFingerprintRef = useRef("");
     const [searchOpen, setSearchOpen] = useState(false);
     const [viewingGrimoireItem, setViewingGrimoireItem] = useState<GrimoireItem | null>(null);
     const [pins, setPins] = useState<Pin[]>([]);
@@ -166,6 +167,7 @@ export default function PlayPage() {
     useEffect(() => {
         hasHydratedEventsRef.current = false;
         processedEventsRef.current = new Set();
+        lastEventsFingerprintRef.current = "";
         setEvents([]);
     }, [campaignId]);
 
@@ -291,7 +293,11 @@ export default function PlayPage() {
                         hasHydratedEventsRef.current = true;
                     }
 
-                    setEvents(campaignEvents);
+                    const fingerprint = campaignEvents.map((event) => `${event.id}:${event.ts}`).join("|");
+                    if (fingerprint !== lastEventsFingerprintRef.current) {
+                        lastEventsFingerprintRef.current = fingerprint;
+                        setEvents(campaignEvents);
+                    }
                 }
             } catch (e) { console.error("Poll fail", e); }
         };

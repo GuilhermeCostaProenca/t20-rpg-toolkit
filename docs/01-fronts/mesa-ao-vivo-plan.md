@@ -229,8 +229,8 @@ Essa frente mede o sucesso operacional da mesa.
 - [-] M6.3 Reduzir rotas e modais desnecessarios durante sessao
   Notas: `RPG-43` reduziu a ambiguidade dentro do proprio cockpit ao vivo, sem criar nova rota ou modal, deixando claro o que e superficie publica para jogadores e o que continua privado para consulta operacional do mestre. `M6.1` tambem evitou troca forcada de rota no atalho de Atlas, mantendo a mesa aberta enquanto o mapa detalhado abre em aba separada.
 
-- [ ] M6.4 Validar o fluxo com cenarios completos de mesa
-  Notas:
+- [-] M6.4 Validar o fluxo com cenarios completos de mesa
+  Notas: Validacao operacional consolidada em `docs/99-reports/live-table-flow-validation-2026-03-25.md`, cobrindo combate, encontro preparado, consulta rapida, trilha/notas do mestre e reducao de troca de contexto; ajustes de friccao foram aplicados no poll de eventos e no acesso ao Atlas.
 
 - [ ] M6.5 Fechar o criterio de "mesa inteira em um fluxo principal"
   Notas:
