@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent, RefObject } from "react";
+import { useEffect, type FormEvent, type RefObject } from "react";
 import { BookOpen, Map as MapIcon, MonitorUp, Search } from "lucide-react";
 
 import { CombatTracker } from "@/components/play/combat-tracker";
@@ -274,6 +274,35 @@ export function LiveOperationsSidebar({
             />
         </div>
     );
+
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            const target = event.target as HTMLElement | null;
+            const tagName = target?.tagName.toLowerCase();
+            const isTypingTarget =
+                tagName === "input" ||
+                tagName === "textarea" ||
+                target?.isContentEditable;
+            if (isTypingTarget || !event.altKey) return;
+
+            if (event.key === "1") {
+                event.preventDefault();
+                jumpToSection("live-section-combate");
+            } else if (event.key === "2") {
+                event.preventDefault();
+                jumpToSection("live-section-preparo");
+            } else if (event.key === "3") {
+                event.preventDefault();
+                jumpToSection("live-section-codex");
+            } else if (event.key === "4") {
+                event.preventDefault();
+                jumpToSection("live-section-suporte");
+            }
+        };
+
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, []);
 
     return (
         <div
