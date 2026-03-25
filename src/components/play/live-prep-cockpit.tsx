@@ -81,6 +81,8 @@ type LivePrepCockpitProps = {
   spawnStatusMessage?: LiveOpsStatusMessage | null;
   executionStatusMessage?: LiveOpsStatusMessage | null;
   executingScope?: "scene" | "subscene" | null;
+  dramaticExecutionStatusMessage?: LiveOpsStatusMessage | null;
+  executingDramaticId?: string | null;
   publicLayerLocked: boolean;
   onFocusScene: (sceneId: string) => void;
   onInspectEntity: (entityId: string) => void;
@@ -92,6 +94,10 @@ type LivePrepCockpitProps = {
   ) => void | Promise<void>;
   onMarkActiveSceneExecuted: () => void | Promise<void>;
   onMarkActiveSubsceneExecuted: () => void | Promise<void>;
+  onMarkDramaticExecuted: (
+    collection: "hooks" | "secrets",
+    itemId: string,
+  ) => void | Promise<void>;
   onTogglePublicLayerLock: () => void;
 };
 
@@ -439,6 +445,8 @@ export function LivePrepCockpit({
   spawnStatusMessage,
   executionStatusMessage,
   executingScope,
+  dramaticExecutionStatusMessage,
+  executingDramaticId,
   publicLayerLocked,
   onFocusScene,
   onInspectEntity,
@@ -447,6 +455,7 @@ export function LivePrepCockpit({
   onSpawnEncounterEnemy,
   onMarkActiveSceneExecuted,
   onMarkActiveSubsceneExecuted,
+  onMarkDramaticExecuted,
   onTogglePublicLayerLock,
 }: LivePrepCockpitProps) {
   const openVisualLibrary = (preset?: "reveals" | "scenes") => {
@@ -480,6 +489,20 @@ export function LivePrepCockpit({
     : activeSceneReveals;
   const activeSceneBeats = activeScene && prepPacket
     ? prepPacket.forge.beats.filter((beat) => activeScene.linkedBeatIds.includes(beat.id))
+    : [];
+  const actionableDramaticItems = prepPacket
+    ? [
+        ...prepPacket.forge.hooks.map((item) => ({
+          ...item,
+          collection: "hooks" as const,
+          label: "Gancho",
+        })),
+        ...prepPacket.forge.secrets.map((item) => ({
+          ...item,
+          collection: "secrets" as const,
+          label: "Segredo",
+        })),
+      ].filter((item) => item.status !== "executed" && item.status !== "canceled")
     : [];
   const activeSubscene =
     activeScene?.subscenes.find((subscene) => subscene.status !== "discarded") ?? null;
@@ -1623,6 +1646,57 @@ export function LivePrepCockpit({
                     }`}
                   >
                     {spawnStatusMessage.message}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
+            {actionableDramaticItems.length > 0 ? (
+              <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">
+                  Fechamento dramatico
+                </p>
+                <div className="mt-3 space-y-2">
+                  {actionableDramaticItems.slice(0, 4).map((item) => {
+                    const dramaticItemId = `${item.collection}:${item.id}`;
+                    const isExecuting = executingDramaticId === dramaticItemId;
+                    return (
+                      <div
+                        key={dramaticItemId}
+                        className="flex items-center justify-between gap-2 rounded-xl border border-white/8 bg-sidebar/60 px-3 py-2"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-foreground">
+                            {item.title || `${item.label} sem titulo`}
+                          </p>
+                          <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                            {item.label} · {item.status}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-primary/20 bg-primary/10 text-primary"
+                          disabled={isExecuting}
+                          onClick={() => void onMarkDramaticExecuted(item.collection, item.id)}
+                        >
+                          {isExecuting ? "Salvando..." : "Marcar como executado"}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+                {dramaticExecutionStatusMessage ? (
+                  <p
+                    className={`mt-2 text-xs ${
+                      dramaticExecutionStatusMessage.kind === "error"
+                        ? "text-red-300"
+                        : dramaticExecutionStatusMessage.kind === "success"
+                          ? "text-emerald-300"
+                          : "text-white/70"
+                    }`}
+                  >
+                    {dramaticExecutionStatusMessage.message}
                   </p>
                 ) : null}
               </div>

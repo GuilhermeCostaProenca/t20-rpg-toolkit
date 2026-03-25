@@ -179,6 +179,8 @@ export default function PlayPage() {
     const [spawnStatusMessage, setSpawnStatusMessage] = useState<LiveOpsStatusMessage | null>(null);
     const [executionStatusMessage, setExecutionStatusMessage] = useState<LiveOpsStatusMessage | null>(null);
     const [executingScope, setExecutingScope] = useState<"scene" | "subscene" | null>(null);
+    const [dramaticExecutionStatusMessage, setDramaticExecutionStatusMessage] = useState<LiveOpsStatusMessage | null>(null);
+    const [executingDramaticId, setExecutingDramaticId] = useState<string | null>(null);
     const [soundtrack, setSoundtrack] = useState<SessionSoundtrack>({
         ambientUrl: "",
         combatUrl: "",
@@ -674,6 +676,12 @@ export default function PlayPage() {
         const timer = setTimeout(() => setExecutionStatusMessage(null), LIVE_SPAWN_STATUS_MS);
         return () => clearTimeout(timer);
     }, [executionStatusMessage]);
+
+    useEffect(() => {
+        if (!dramaticExecutionStatusMessage) return;
+        const timer = setTimeout(() => setDramaticExecutionStatusMessage(null), LIVE_SPAWN_STATUS_MS);
+        return () => clearTimeout(timer);
+    }, [dramaticExecutionStatusMessage]);
 
     useEffect(() => {
         const isCombatActive = Boolean(liveCombat?.isActive);
@@ -1264,6 +1272,100 @@ export default function PlayPage() {
         }
     }
 
+    async function handleMarkDramaticExecuted(
+        collection: "hooks" | "secrets",
+        itemId: string,
+    ) {
+        if (!prepPacket || executingDramaticId) return;
+
+        const target = prepPacket.forge[collection].find((item) => item.id === itemId);
+        const targetLabel = collection === "hooks" ? "Gancho" : "Segredo";
+        if (!target) {
+            setDramaticExecutionStatusMessage({
+                kind: "error",
+                message: `${targetLabel} nao encontrado no pacote da sessao.`,
+            });
+            return;
+        }
+        if (target.status === "executed") {
+            setDramaticExecutionStatusMessage({
+                kind: "info",
+                message: `${targetLabel} ja marcado como executado.`,
+            });
+            return;
+        }
+
+        const previousPacket = prepPacket;
+        const nextForge: SessionForgeState = {
+            ...previousPacket.forge,
+            [collection]: previousPacket.forge[collection].map((item) =>
+                item.id === itemId ? { ...item, status: "executed" } : item,
+            ),
+        };
+        const nextMetadata = buildSessionMetadata(nextForge, previousPacket.session.metadata);
+        const dramaticItemKey = `${collection}:${itemId}`;
+
+        setExecutingDramaticId(dramaticItemKey);
+        setDramaticExecutionStatusMessage(null);
+        setPrepPacket((current) =>
+            current
+                ? {
+                    ...current,
+                    forge: nextForge,
+                    session: { ...current.session, metadata: nextMetadata },
+                }
+                : current,
+        );
+
+        try {
+            const response = await fetch(`/api/sessions/${previousPacket.session.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: previousPacket.session.title,
+                    description: previousPacket.session.description ?? undefined,
+                    coverUrl: previousPacket.session.coverUrl ?? undefined,
+                    scheduledAt: previousPacket.session.scheduledAt ?? undefined,
+                    status: previousPacket.session.status ?? "planned",
+                    metadata: nextMetadata,
+                }),
+            });
+
+            const json = await response.json().catch(() => null);
+            if (!response.ok) {
+                const message =
+                    (json?.error as string | undefined) ??
+                    `Falha ao registrar ${targetLabel.toLowerCase()} como executado.`;
+                throw new Error(message);
+            }
+
+            const updatedSession = (json?.data as SessionRecord | undefined) ?? null;
+            if (updatedSession) {
+                setPrepPacket({
+                    session: updatedSession,
+                    forge: normalizeSessionForgeState(updatedSession.metadata),
+                });
+            }
+
+            setDramaticExecutionStatusMessage({
+                kind: "success",
+                message: `${targetLabel} marcado como executado.`,
+            });
+        } catch (error) {
+            console.error("Mark dramatic item executed failed", error);
+            setPrepPacket(previousPacket);
+            setDramaticExecutionStatusMessage({
+                kind: "error",
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : `Falha ao registrar ${targetLabel.toLowerCase()} como executado.`,
+            });
+        } finally {
+            setExecutingDramaticId(null);
+        }
+    }
+
     const narrativeContext = activeScene
         ? {
             sceneTitle: activeScene.title || "Cena sem titulo",
@@ -1414,6 +1516,8 @@ export default function PlayPage() {
                 spawnStatusMessage={spawnStatusMessage}
                 executionStatusMessage={executionStatusMessage}
                 executingScope={executingScope}
+                dramaticExecutionStatusMessage={dramaticExecutionStatusMessage}
+                executingDramaticId={executingDramaticId}
                 inspectQuery={inspectQuery}
                 inspectCandidates={inspectCandidates}
                 inspectId={inspectId}
@@ -1523,6 +1627,9 @@ export default function PlayPage() {
                 }
                 onMarkActiveSceneExecuted={() => void handleMarkActiveExecuted("scene")}
                 onMarkActiveSubsceneExecuted={() => void handleMarkActiveExecuted("subscene")}
+                onMarkDramaticExecuted={(collection, itemId) =>
+                    void handleMarkDramaticExecuted(collection, itemId)
+                }
                 onInspectQueryChange={setInspectQuery}
                 onInspectIdChange={(value) => {
                     setInspectId(value);
