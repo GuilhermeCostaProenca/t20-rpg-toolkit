@@ -438,6 +438,15 @@ function moveItemById<T extends { id: string }>(items: T[], sourceId: string, ta
   return next;
 }
 
+function moveItemToEndById<T extends { id: string }>(items: T[], sourceId: string) {
+  const sourceIndex = items.findIndex((item) => item.id === sourceId);
+  if (sourceIndex === -1 || sourceIndex === items.length - 1) return items;
+  const next = [...items];
+  const [moved] = next.splice(sourceIndex, 1);
+  next.push(moved);
+  return next;
+}
+
 function buildLiveTableHref(
   campaignId: string,
   sessionId: string,
@@ -1006,6 +1015,17 @@ export default function SessionForgePage() {
     }));
     setActiveSceneRailId(sourceSceneId);
   }, [draggedSceneId]);
+  const handleDropSceneToEnd = useCallback(() => {
+    const sourceSceneId = draggedSceneId;
+    setDraggedSceneId(null);
+    setSceneDropTargetId(null);
+    if (!sourceSceneId) return;
+    setForge((current) => ({
+      ...current,
+      scenes: moveItemToEndById(current.scenes, sourceSceneId),
+    }));
+    setActiveSceneRailId(sourceSceneId);
+  }, [draggedSceneId]);
 
   const handleDropSubscene = useCallback((sceneId: string, targetSubsceneId: string) => {
     const sourceKey = draggedSubsceneKey;
@@ -1018,6 +1038,19 @@ export default function SessionForgePage() {
     updateScene(sceneId, (current) => ({
       ...current,
       subscenes: moveItemById(current.subscenes, sourceSubsceneId, targetSubsceneId),
+    }));
+  }, [draggedSubsceneKey]);
+  const handleDropSubsceneToEnd = useCallback((sceneId: string) => {
+    const sourceKey = draggedSubsceneKey;
+    setDraggedSubsceneKey(null);
+    setSubsceneDropTargetKey(null);
+    if (!sourceKey) return;
+    const [sourceSceneId, sourceSubsceneId] = sourceKey.split(":");
+    if (!sourceSceneId || !sourceSubsceneId) return;
+    if (sourceSceneId !== sceneId) return;
+    updateScene(sceneId, (current) => ({
+      ...current,
+      subscenes: moveItemToEndById(current.subscenes, sourceSubsceneId),
     }));
   }, [draggedSubsceneKey]);
 
@@ -1937,7 +1970,8 @@ export default function SessionForgePage() {
 
                       <div className="mt-4 space-y-3">
                         {scene.subscenes.length > 0 ? (
-                          scene.subscenes.map((subscene, subsceneIndex) => {
+                          <>
+                          {scene.subscenes.map((subscene, subsceneIndex) => {
                             const subsceneCollapseKey = `${scene.id}:${subscene.id}`;
                             const isSubsceneCollapsed = collapsedSubsceneIds.has(subsceneCollapseKey);
                             return (
@@ -2402,7 +2436,33 @@ export default function SessionForgePage() {
                               </div>
                             </div>
                           );
-                          })
+                          })}
+                          {draggedSubsceneKey && draggedSubsceneKey.startsWith(`${scene.id}:`) ? (
+                            <div
+                              className={`rounded-2xl border border-dashed px-4 py-3 text-sm transition ${
+                                subsceneDropTargetKey === `${scene.id}:__end__`
+                                  ? "border-primary/40 bg-primary/10 text-primary"
+                                  : "border-white/20 bg-black/10 text-muted-foreground"
+                              }`}
+                              onDragOver={(event) => {
+                                event.preventDefault();
+                                event.dataTransfer.dropEffect = "move";
+                                setSubsceneDropTargetKey(`${scene.id}:__end__`);
+                              }}
+                              onDrop={(event) => {
+                                event.preventDefault();
+                                void handleDropSubsceneToEnd(scene.id);
+                              }}
+                              onDragLeave={() => {
+                                if (subsceneDropTargetKey === `${scene.id}:__end__`) {
+                                  setSubsceneDropTargetKey(null);
+                                }
+                              }}
+                            >
+                              Solte aqui para mover a subcena para o fim desta cena
+                            </div>
+                          ) : null}
+                          </>
                         ) : (
                           <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-muted-foreground">
                             Nenhuma subcena ainda.
@@ -2413,6 +2473,31 @@ export default function SessionForgePage() {
                   </div>
                 );
                 })}
+                {draggedSceneId ? (
+                  <div
+                    className={`rounded-2xl border border-dashed px-4 py-3 text-sm transition ${
+                      sceneDropTargetId === "__scene_end__"
+                        ? "border-primary/40 bg-primary/10 text-primary"
+                        : "border-white/20 bg-black/10 text-muted-foreground"
+                    }`}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "move";
+                      setSceneDropTargetId("__scene_end__");
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      void handleDropSceneToEnd();
+                    }}
+                    onDragLeave={() => {
+                      if (sceneDropTargetId === "__scene_end__") {
+                        setSceneDropTargetId(null);
+                      }
+                    }}
+                  >
+                    Solte aqui para mover a cena para o fim da lista
+                  </div>
+                ) : null}
               </div>
             )}
           </section>
