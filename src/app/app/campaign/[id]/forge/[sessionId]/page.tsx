@@ -1818,6 +1818,28 @@ export default function SessionForgePage() {
                           variant="outline"
                           className="border-white/10 bg-white/5"
                           onClick={() =>
+                            setForge((current) => {
+                              const source = current.beats[index];
+                              if (!source) return current;
+                              const cloned: SessionForgeBeat = {
+                                ...source,
+                                id: `beat-${Math.random().toString(36).slice(2, 10)}`,
+                              };
+                              const nextBeats = [...current.beats];
+                              nextBeats.splice(index + 1, 0, cloned);
+                              return {
+                                ...current,
+                                beats: nextBeats,
+                              };
+                            })
+                          }
+                        >
+                          Duplicar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
                             setForge((current) => ({
                               ...current,
                               beats: current.beats.filter((item) => item.id !== beat.id),
