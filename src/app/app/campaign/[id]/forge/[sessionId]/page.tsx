@@ -4645,6 +4645,19 @@ export default function SessionForgePage() {
                                       ? "border-amber-500/30 bg-amber-500/10 text-amber-100"
                                       : "border-white/10 bg-white/5 text-white/60"
                                 }
+                                title={`${
+                                  group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
+                                    ? "Concluida"
+                                    : group.sceneRevealProgress.executed > 0
+                                      ? "Em andamento"
+                                      : "Nao iniciada"
+                                } · Reveals executados ${group.sceneRevealProgress.executed}/${
+                                  group.sceneRevealProgress.total
+                                } (${Math.round(
+                                  (group.sceneRevealProgress.executed /
+                                    Math.max(1, group.sceneRevealProgress.total)) *
+                                    100
+                                )}%)`}
                               >
                                 {group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
                                   ? "Concluida"
