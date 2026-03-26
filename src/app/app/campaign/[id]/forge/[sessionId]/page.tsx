@@ -972,8 +972,16 @@ export default function SessionForgePage() {
     const sortLabel = encounterSortBy === "scene" ? "Cena" : "Risco";
     const visibleCount = filteredEncounters.length;
     const totalCount = forge.encounters.length;
-    return `Visiveis: ${visibleCount}/${totalCount} • Cena: ${sceneLabel} • Risco: ${ratingLabel} • Ordenacao: ${sortLabel}`;
-  }, [encounterRatingFilter, encounterSceneFilter, encounterSortBy, filteredEncounters.length, forge.encounters.length, forge.scenes]);
+    const visibleEnemies = filteredEncounters.reduce(
+      (sum, encounter) => sum + encounter.enemies.reduce((inner, enemy) => inner + enemy.quantity, 0),
+      0
+    );
+    const totalEnemies = forge.encounters.reduce(
+      (sum, encounter) => sum + encounter.enemies.reduce((inner, enemy) => inner + enemy.quantity, 0),
+      0
+    );
+    return `Visiveis: ${visibleCount}/${totalCount} • Inimigos: ${visibleEnemies}/${totalEnemies} • Cena: ${sceneLabel} • Risco: ${ratingLabel} • Ordenacao: ${sortLabel}`;
+  }, [encounterRatingFilter, encounterSceneFilter, encounterSortBy, filteredEncounters, forge.encounters, forge.scenes]);
   const collapsedEncounterGroupCount = useMemo(() => {
     if (groupedFilteredEncounters.length === 0) return 0;
     const keys = new Set(groupedFilteredEncounters.map((group) => group.key));
