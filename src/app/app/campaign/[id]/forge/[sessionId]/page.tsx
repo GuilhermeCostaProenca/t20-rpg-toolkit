@@ -1263,6 +1263,10 @@ export default function SessionForgePage() {
     (confidence: number) => `Confianca ${formatBalanceConfidence(confidence)}`,
     []
   );
+  const getEncounterRatingLabel = useCallback(
+    (rating: SessionForgeEncounter["rating"]) => formatEncounterRating(rating),
+    []
+  );
   const getTopEnemiesPreviewLabel = useCallback(
     (topEnemies: string[]) => `Ameacas principais: ${topEnemies.join(" | ")}`,
     []
@@ -4832,7 +4836,7 @@ export default function SessionForgePage() {
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <div className="flex flex-wrap items-center gap-2">
                                 <Badge className="border-primary/20 bg-primary/10 text-primary">
-                                  {formatEncounterRating(encounter.rating)}
+                                  {getEncounterRatingLabel(encounter.rating)}
                                 </Badge>
                                 <Badge className="border-white/10 bg-white/5 text-white/75">
                                   {getEncounterBalanceConfidenceLabel(encounter.confidence)}
