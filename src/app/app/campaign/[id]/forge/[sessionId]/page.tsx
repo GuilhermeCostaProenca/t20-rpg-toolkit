@@ -1214,6 +1214,27 @@ export default function SessionForgePage() {
   ]);
   const encounterQuickActionCount = encounterToolbarActions.length;
   const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0;
+  const getSceneRevealProgressMeta = useCallback(
+    (progress: { executed: number; total: number }) => {
+      if (progress.total <= 0) return null;
+      const percent = Math.round((progress.executed / Math.max(1, progress.total)) * 100);
+      const phase =
+        progress.executed >= progress.total
+          ? "Concluida"
+          : progress.executed > 0
+            ? "Em andamento"
+            : "Nao iniciada";
+      const className =
+        progress.executed >= progress.total
+          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
+          : progress.executed > 0
+            ? "border-amber-500/30 bg-amber-500/10 text-amber-100"
+            : "border-white/10 bg-white/5 text-white/60";
+      const summary = `${phase} · Reveals executados ${progress.executed}/${progress.total} (${percent}%)`;
+      return { phase, percent, className, summary };
+    },
+    []
+  );
   useEffect(() => {
     if (!encounterFiltersStorageKey || typeof window === "undefined") return;
     const raw = window.localStorage.getItem(encounterFiltersStorageKey);
@@ -4581,6 +4602,7 @@ export default function SessionForgePage() {
                   {groupedFilteredEncounters.length > 0 ? (
                     groupedFilteredEncounters.map((group) => {
                       const isCollapsed = collapsedEncounterGroupKeys.has(group.key);
+                      const revealProgressMeta = getSceneRevealProgressMeta(group.sceneRevealProgress);
                       return (
                       <div key={group.key} className="space-y-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -4636,56 +4658,15 @@ export default function SessionForgePage() {
                                   : "reveals ligados"}
                               </Badge>
                             ) : null}
-                            {group.sceneId && group.sceneRevealProgress.total > 0 ? (
+                            {group.sceneId && revealProgressMeta ? (
                               <Badge
-                                className={
-                                  group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
-                                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
-                                    : group.sceneRevealProgress.executed > 0
-                                      ? "border-amber-500/30 bg-amber-500/10 text-amber-100"
-                                      : "border-white/10 bg-white/5 text-white/60"
-                                }
-                                title={`${
-                                  group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
-                                    ? "Concluida"
-                                    : group.sceneRevealProgress.executed > 0
-                                      ? "Em andamento"
-                                      : "Nao iniciada"
-                                } · Reveals executados ${group.sceneRevealProgress.executed}/${
-                                  group.sceneRevealProgress.total
-                                } (${Math.round(
-                                  (group.sceneRevealProgress.executed /
-                                    Math.max(1, group.sceneRevealProgress.total)) *
-                                    100
-                                )}%)`}
-                                aria-label={`${
-                                  group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
-                                    ? "Concluida"
-                                    : group.sceneRevealProgress.executed > 0
-                                      ? "Em andamento"
-                                      : "Nao iniciada"
-                                } · Reveals executados ${group.sceneRevealProgress.executed}/${
-                                  group.sceneRevealProgress.total
-                                } (${Math.round(
-                                  (group.sceneRevealProgress.executed /
-                                    Math.max(1, group.sceneRevealProgress.total)) *
-                                    100
-                                )}%)`}
+                                className={revealProgressMeta.className}
+                                title={revealProgressMeta.summary}
+                                aria-label={revealProgressMeta.summary}
                               >
-                                {group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
-                                  ? "Concluida"
-                                  : group.sceneRevealProgress.executed > 0
-                                    ? "Em andamento"
-                                    : "Nao iniciada"}{" "}
-                                ·{" "}
-                                Reveals exec. {group.sceneRevealProgress.executed}/
-                                {group.sceneRevealProgress.total} ·{" "}
-                                {Math.round(
-                                  (group.sceneRevealProgress.executed /
-                                    Math.max(1, group.sceneRevealProgress.total)) *
-                                    100
-                                )}
-                                %
+                                {revealProgressMeta.phase} · Reveals exec.{" "}
+                                {group.sceneRevealProgress.executed}/
+                                {group.sceneRevealProgress.total} · {revealProgressMeta.percent}%
                               </Badge>
                             ) : null}
                           </div>
