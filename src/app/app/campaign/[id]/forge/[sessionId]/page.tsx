@@ -545,6 +545,7 @@ export default function SessionForgePage() {
   const [encounterSceneFilter, setEncounterSceneFilter] = useState<string>("all");
   const [encounterRatingFilter, setEncounterRatingFilter] = useState<"all" | (typeof encounterRatingOptions)[number]>("all");
   const [encounterSortBy, setEncounterSortBy] = useState<"scene" | "risk">("scene");
+  const [collapsedEncounterGroupKeys, setCollapsedEncounterGroupKeys] = useState<Set<string>>(new Set());
   const [collapsedSceneIds, setCollapsedSceneIds] = useState<Set<string>>(new Set());
   const [collapsedSubsceneIds, setCollapsedSubsceneIds] = useState<Set<string>>(new Set());
   const [activeSceneRailId, setActiveSceneRailId] = useState<string | null>(null);
@@ -952,6 +953,14 @@ export default function SessionForgePage() {
     setEncounterSceneFilter("all");
     setEncounterRatingFilter("all");
   }
+  useEffect(() => {
+    setCollapsedEncounterGroupKeys((current) => {
+      if (current.size === 0) return current;
+      const valid = new Set(groupedFilteredEncounters.map((group) => group.key));
+      const next = new Set([...current].filter((key) => valid.has(key)));
+      return next.size === current.size ? current : next;
+    });
+  }, [groupedFilteredEncounters]);
   const activeSceneRailIndex = useMemo(
     () =>
       activeSceneRailId
@@ -4212,8 +4221,38 @@ export default function SessionForgePage() {
                       </Button>
                     </div>
                   ) : null}
+                  {groupedFilteredEncounters.length > 1 ? (
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        onClick={() =>
+                          setCollapsedEncounterGroupKeys(
+                            new Set(groupedFilteredEncounters.map((group) => group.key))
+                          )
+                        }
+                        disabled={collapsedEncounterGroupKeys.size === groupedFilteredEncounters.length}
+                      >
+                        Recolher grupos
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        onClick={() => setCollapsedEncounterGroupKeys(new Set())}
+                        disabled={collapsedEncounterGroupKeys.size === 0}
+                      >
+                        Expandir grupos
+                      </Button>
+                    </div>
+                  ) : null}
                   {groupedFilteredEncounters.length > 0 ? (
-                    groupedFilteredEncounters.map((group) => (
+                    groupedFilteredEncounters.map((group) => {
+                      const isCollapsed = collapsedEncounterGroupKeys.has(group.key);
+                      return (
                       <div key={group.key} className="space-y-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex flex-wrap items-center gap-2">
@@ -4237,19 +4276,52 @@ export default function SessionForgePage() {
                               {formatBalanceConfidence(group.confidenceSum / Math.max(1, group.encounters.length))}
                             </Badge>
                           </div>
-                          {group.sceneId ? (
+                          <div className="flex items-center gap-2">
+                            {group.sceneId ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                className="border-white/10 bg-white/5"
+                                onClick={() => jumpToSceneCard(group.sceneId!)}
+                              >
+                                Ir para cena
+                                <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                              </Button>
+                            ) : null}
                             <Button
                               type="button"
                               size="sm"
                               variant="outline"
                               className="border-white/10 bg-white/5"
-                              onClick={() => jumpToSceneCard(group.sceneId!)}
+                              onClick={() =>
+                                setCollapsedEncounterGroupKeys((current) => {
+                                  const next = new Set(current);
+                                  if (next.has(group.key)) {
+                                    next.delete(group.key);
+                                  } else {
+                                    next.add(group.key);
+                                  }
+                                  return next;
+                                })
+                              }
                             >
-                              Ir para cena
-                              <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                              {isCollapsed ? (
+                                <>
+                                  <ChevronDown className="mr-2 h-3.5 w-3.5" />
+                                  Expandir
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronUp className="mr-2 h-3.5 w-3.5" />
+                                  Recolher
+                                </>
+                              )}
                             </Button>
-                          ) : null}
+                          </div>
                         </div>
+                        {!isCollapsed ? (
+                        <>
                         {group.sceneObjective ? (
                           <p className="text-xs leading-6 text-muted-foreground">
                             {group.sceneObjective}
@@ -4311,8 +4383,11 @@ export default function SessionForgePage() {
                             </p>
                           </div>
                         ))}
+                        </>
+                        ) : null}
                       </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
                       Nenhum encontro corresponde ao filtro selecionado.
