@@ -1235,6 +1235,32 @@ export default function SessionForgePage() {
     },
     []
   );
+  const getCollapsedEncounterGroupSummary = useCallback(
+    (input: {
+      encounterCount: number;
+      totalEnemies: number;
+      sceneId: string | null;
+      sceneActiveSubsceneCount: number;
+      sceneLinkedBeatCount: number;
+      sceneLinkedEntityCount: number;
+      revealProgressSummary: string | null;
+    }) => {
+      const base = `Grupo recolhido: ${input.encounterCount} ${
+        input.encounterCount === 1 ? "encontro" : "encontros"
+      } e ${input.totalEnemies} inimigos`;
+      if (!input.sceneId) return `${base}.`;
+      const details = [
+        `Subcenas ativas: ${input.sceneActiveSubsceneCount}`,
+        `Beats: ${input.sceneLinkedBeatCount}`,
+        `Entidades: ${input.sceneLinkedEntityCount}`,
+      ];
+      if (input.revealProgressSummary) {
+        details.push(input.revealProgressSummary);
+      }
+      return `${base} | ${details.join(" | ")}.`;
+    },
+    []
+  );
   useEffect(() => {
     if (!encounterFiltersStorageKey || typeof window === "undefined") return;
     const raw = window.localStorage.getItem(encounterFiltersStorageKey);
@@ -4780,15 +4806,15 @@ export default function SessionForgePage() {
                           </>
                         ) : (
                           <p className="text-xs leading-6 text-muted-foreground">
-                            Grupo recolhido: {group.encounters.length}{" "}
-                            {group.encounters.length === 1 ? "encontro" : "encontros"} e{" "}
-                            {group.totalEnemies} inimigos
-                            {group.sceneId
-                              ? ` | Subcenas ativas: ${group.sceneActiveSubsceneCount} | Beats: ${group.sceneLinkedBeatCount} | Entidades: ${group.sceneLinkedEntityCount}${
-                                  revealProgressMeta ? ` | ${revealProgressMeta.summary}` : ""
-                                }`
-                              : ""}
-                            .
+                            {getCollapsedEncounterGroupSummary({
+                              encounterCount: group.encounters.length,
+                              totalEnemies: group.totalEnemies,
+                              sceneId: group.sceneId,
+                              sceneActiveSubsceneCount: group.sceneActiveSubsceneCount,
+                              sceneLinkedBeatCount: group.sceneLinkedBeatCount,
+                              sceneLinkedEntityCount: group.sceneLinkedEntityCount,
+                              revealProgressSummary: revealProgressMeta?.summary ?? null,
+                            })}
                           </p>
                         )}
                       </div>
