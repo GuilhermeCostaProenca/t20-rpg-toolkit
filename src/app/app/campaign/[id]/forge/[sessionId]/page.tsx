@@ -1279,6 +1279,13 @@ export default function SessionForgePage() {
     ],
     []
   );
+  const getCollapsedSummaryFinalDetails = useCallback(
+    (input: { narrativeDetails: string[]; revealProgressSummary: string | null }) => {
+      if (!input.revealProgressSummary) return input.narrativeDetails;
+      return [...input.narrativeDetails, input.revealProgressSummary];
+    },
+    []
+  );
   const getCollapsedEncounterGroupSummary = useCallback(
     (input: {
       encounterCount: number;
@@ -1291,17 +1298,22 @@ export default function SessionForgePage() {
     }) => {
       const base = `Grupo recolhido: ${getEncounterCountLabel(input.encounterCount)} e ${input.totalEnemies} inimigos`;
       if (!input.sceneId) return `${base}.`;
-      const details = getCollapsedSummaryNarrativeDetails({
+      const narrativeDetails = getCollapsedSummaryNarrativeDetails({
         sceneActiveSubsceneCount: input.sceneActiveSubsceneCount,
         sceneLinkedBeatCount: input.sceneLinkedBeatCount,
         sceneLinkedEntityCount: input.sceneLinkedEntityCount,
       });
-      if (input.revealProgressSummary) {
-        details.push(input.revealProgressSummary);
-      }
+      const details = getCollapsedSummaryFinalDetails({
+        narrativeDetails,
+        revealProgressSummary: input.revealProgressSummary,
+      });
       return `${base} | ${details.join(" | ")}.`;
     },
-    [getCollapsedSummaryNarrativeDetails, getEncounterCountLabel]
+    [
+      getCollapsedSummaryFinalDetails,
+      getCollapsedSummaryNarrativeDetails,
+      getEncounterCountLabel,
+    ]
   );
   const getEncounterGroupNarrativeBadgeLabels = useCallback(
     (input: {
