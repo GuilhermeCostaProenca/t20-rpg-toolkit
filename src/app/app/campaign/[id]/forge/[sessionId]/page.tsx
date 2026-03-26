@@ -892,6 +892,7 @@ export default function SessionForgePage() {
         totalEnemies: number;
         confidenceSum: number;
         topEnemies: string[];
+        ratingCounts: Record<(typeof encounterRatingOptions)[number], number>;
         encounters: (typeof sortedFilteredEncounters)[number][];
       }
     >();
@@ -906,6 +907,7 @@ export default function SessionForgePage() {
         current.encounters.push(encounter);
         current.totalEnemies += encounterEnemyTotal;
         current.confidenceSum += encounter.confidence;
+        current.ratingCounts[encounter.rating] += 1;
       } else {
         groups.set(key, {
           key,
@@ -916,6 +918,12 @@ export default function SessionForgePage() {
           totalEnemies: encounterEnemyTotal,
           confidenceSum: encounter.confidence,
           topEnemies: [],
+          ratingCounts: {
+            trivial: encounter.rating === "trivial" ? 1 : 0,
+            manageable: encounter.rating === "manageable" ? 1 : 0,
+            risky: encounter.rating === "risky" ? 1 : 0,
+            deadly: encounter.rating === "deadly" ? 1 : 0,
+          },
           encounters: [encounter],
         });
       }
@@ -4252,6 +4260,18 @@ export default function SessionForgePage() {
                             Ameacas principais: {group.topEnemies.join(" • ")}
                           </p>
                         ) : null}
+                        <div className="flex flex-wrap gap-2">
+                          {encounterRatingOptions.map((rating) =>
+                            group.ratingCounts[rating] > 0 ? (
+                              <Badge
+                                key={`${group.key}-risk-${rating}`}
+                                className="border-white/10 bg-white/5 text-white/60"
+                              >
+                                {formatEncounterRating(rating)} {group.ratingCounts[rating]}
+                              </Badge>
+                            ) : null
+                          )}
+                        </div>
                         {group.encounters.map((encounter) => (
                           <div key={encounter.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
                             <div className="flex flex-wrap items-center justify-between gap-2">
