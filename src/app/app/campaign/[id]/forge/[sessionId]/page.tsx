@@ -4646,6 +4646,12 @@ export default function SessionForgePage() {
                                       : "border-white/10 bg-white/5 text-white/60"
                                 }
                               >
+                                {group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
+                                  ? "Concluida"
+                                  : group.sceneRevealProgress.executed > 0
+                                    ? "Em andamento"
+                                    : "Nao iniciada"}{" "}
+                                ·{" "}
                                 Reveals exec. {group.sceneRevealProgress.executed}/
                                 {group.sceneRevealProgress.total}
                               </Badge>
