@@ -957,6 +957,10 @@ export default function SessionForgePage() {
   }, [sceneContextById, sceneTitleById, sortedFilteredEncounters]);
   const hasActiveEncounterFilters =
     encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
+  const jumpToFilteredSceneId =
+    encounterSceneFilter !== "all" && encounterSceneFilter !== "__unlinked__"
+      ? encounterSceneFilter
+      : null;
   const encounterViewSummary = useMemo(() => {
     const sceneLabel =
       encounterSceneFilter === "all"
@@ -4336,6 +4340,20 @@ export default function SessionForgePage() {
                   <p className="text-xs leading-6 text-muted-foreground">
                     {encounterViewSummary}
                   </p>
+                  {jumpToFilteredSceneId ? (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        onClick={() => jumpToSceneCard(jumpToFilteredSceneId)}
+                      >
+                        Ir para cena filtrada
+                        <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ) : null}
                   {hasActiveEncounterFilters ? (
                     <div className="flex justify-end">
                       <Button
