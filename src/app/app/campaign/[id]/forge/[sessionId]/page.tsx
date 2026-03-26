@@ -4167,19 +4167,33 @@ export default function SessionForgePage() {
                   {groupedFilteredEncounters.length > 0 ? (
                     groupedFilteredEncounters.map((group) => (
                       <div key={group.key} className="space-y-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Badge className="border-white/10 bg-white/5 text-white/75">
-                            {group.title}
-                          </Badge>
-                          {group.sceneStatus ? (
-                            <Badge className="border-white/10 bg-white/5 text-white/60">
-                              {formatSceneStatusLabel(group.sceneStatus)}
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge className="border-white/10 bg-white/5 text-white/75">
+                              {group.title}
                             </Badge>
+                            {group.sceneStatus ? (
+                              <Badge className="border-white/10 bg-white/5 text-white/60">
+                                {formatSceneStatusLabel(group.sceneStatus)}
+                              </Badge>
+                            ) : null}
+                            <Badge className="border-white/10 bg-white/5 text-white/60">
+                              {group.encounters.length}{" "}
+                              {group.encounters.length === 1 ? "encontro" : "encontros"}
+                            </Badge>
+                          </div>
+                          {group.sceneId ? (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="border-white/10 bg-white/5"
+                              onClick={() => jumpToSceneCard(group.sceneId!)}
+                            >
+                              Ir para cena
+                              <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                            </Button>
                           ) : null}
-                          <Badge className="border-white/10 bg-white/5 text-white/60">
-                            {group.encounters.length}{" "}
-                            {group.encounters.length === 1 ? "encontro" : "encontros"}
-                          </Badge>
                         </div>
                         {group.sceneObjective ? (
                           <p className="text-xs leading-6 text-muted-foreground">
