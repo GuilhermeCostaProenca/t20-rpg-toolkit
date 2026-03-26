@@ -1214,6 +1214,11 @@ export default function SessionForgePage() {
   ]);
   const encounterQuickActionCount = encounterToolbarActions.length;
   const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0;
+  const getSceneRevealProgressBadgeLabel = useCallback(
+    (input: { phase: string; executed: number; total: number; percent: number }) =>
+      `${input.phase} · Reveals exec. ${input.executed}/${input.total} · ${input.percent}%`,
+    []
+  );
   const getSceneRevealProgressMeta = useCallback(
     (progress: { executed: number; total: number }) => {
       if (progress.total <= 0) return null;
@@ -1231,9 +1236,15 @@ export default function SessionForgePage() {
             ? "border-amber-500/30 bg-amber-500/10 text-amber-100"
             : "border-white/10 bg-white/5 text-white/60";
       const summary = `${phase} · Reveals executados ${progress.executed}/${progress.total} (${percent}%)`;
-      return { phase, percent, className, summary };
+      const badgeLabel = getSceneRevealProgressBadgeLabel({
+        phase,
+        executed: progress.executed,
+        total: progress.total,
+        percent,
+      });
+      return { phase, percent, className, summary, badgeLabel };
     },
-    []
+    [getSceneRevealProgressBadgeLabel]
   );
   const getEncounterCountLabel = useCallback(
     (encounterCount: number) =>
@@ -4712,9 +4723,7 @@ export default function SessionForgePage() {
                                 title={revealProgressMeta.summary}
                                 aria-label={revealProgressMeta.summary}
                               >
-                                {revealProgressMeta.phase} · Reveals exec.{" "}
-                                {group.sceneRevealProgress.executed}/
-                                {group.sceneRevealProgress.total} · {revealProgressMeta.percent}%
+                                {revealProgressMeta.badgeLabel}
                               </Badge>
                             ) : null}
                           </div>
