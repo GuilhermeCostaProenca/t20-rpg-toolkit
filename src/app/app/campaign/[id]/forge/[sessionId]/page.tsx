@@ -1077,6 +1077,15 @@ export default function SessionForgePage() {
       return next.size === current.size ? current : next;
     });
   }, [groupedFilteredEncounters]);
+  useEffect(() => {
+    if (encounterSceneFilter === "all" || encounterSceneFilter === "__unlinked__") return;
+    setCollapsedEncounterGroupKeys((current) => {
+      if (!current.has(encounterSceneFilter)) return current;
+      const next = new Set(current);
+      next.delete(encounterSceneFilter);
+      return next;
+    });
+  }, [encounterSceneFilter]);
   const activeSceneRailIndex = useMemo(
     () =>
       activeSceneRailId
