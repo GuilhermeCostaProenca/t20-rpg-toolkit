@@ -936,6 +936,16 @@ export default function SessionForgePage() {
     }
     return counts;
   }, [forge.scenes]);
+  const sceneActiveSubsceneCountById = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const scene of forge.scenes) {
+      counts.set(
+        scene.id,
+        scene.subscenes.filter((subscene) => subscene.status !== "discarded").length
+      );
+    }
+    return counts;
+  }, [forge.scenes]);
   const groupedFilteredEncounters = useMemo(() => {
     const groups = new Map<
       string,
@@ -945,6 +955,7 @@ export default function SessionForgePage() {
         title: string;
         sceneStatus?: SessionForgeSceneStatus;
         sceneObjective?: string;
+        sceneActiveSubsceneCount: number;
         sceneLinkedBeatCount: number;
         sceneLinkedEntityCount: number;
         sceneLinkedRevealCount: number;
@@ -974,6 +985,7 @@ export default function SessionForgePage() {
           title,
           sceneStatus: sceneContext?.status,
           sceneObjective: sceneContext?.objective,
+          sceneActiveSubsceneCount: sceneId ? (sceneActiveSubsceneCountById.get(sceneId) ?? 0) : 0,
           sceneLinkedBeatCount: sceneId ? (sceneLinkedBeatCountById.get(sceneId) ?? 0) : 0,
           sceneLinkedEntityCount: sceneId ? (sceneLinkedEntityCountById.get(sceneId) ?? 0) : 0,
           sceneLinkedRevealCount: sceneId ? (sceneLinkedRevealCountById.get(sceneId) ?? 0) : 0,
@@ -1008,6 +1020,7 @@ export default function SessionForgePage() {
       };
     });
   }, [
+    sceneActiveSubsceneCountById,
     sceneContextById,
     sceneLinkedBeatCountById,
     sceneLinkedEntityCountById,
@@ -4555,6 +4568,14 @@ export default function SessionForgePage() {
                               Confianca media{" "}
                               {formatBalanceConfidence(group.confidenceSum / Math.max(1, group.encounters.length))}
                             </Badge>
+                            {group.sceneId ? (
+                              <Badge className="border-white/10 bg-white/5 text-white/60">
+                                {group.sceneActiveSubsceneCount}{" "}
+                                {group.sceneActiveSubsceneCount === 1
+                                  ? "subcena ativa"
+                                  : "subcenas ativas"}
+                              </Badge>
+                            ) : null}
                             {group.sceneId ? (
                               <Badge className="border-white/10 bg-white/5 text-white/60">
                                 {group.sceneLinkedBeatCount}{" "}
