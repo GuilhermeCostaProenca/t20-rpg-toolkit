@@ -989,11 +989,6 @@ export default function SessionForgePage() {
     }
     return count;
   }, [collapsedEncounterGroupKeys, groupedFilteredEncounters]);
-  function clearEncounterFilters() {
-    setEncounterSceneFilter("all");
-    setEncounterRatingFilter("all");
-    setEncounterSortBy("scene");
-  }
   const hasEncounterViewCustomizations =
     hasActiveEncounterFilters || encounterSortBy !== "scene" || collapsedEncounterGroupCount > 0;
   const hasClearSceneAction = encounterSceneFilter !== "all";
@@ -1003,77 +998,105 @@ export default function SessionForgePage() {
   const hasResetViewAction = hasEncounterViewCustomizations;
   const hasJumpToFilteredSceneAction = Boolean(jumpToFilteredSceneId);
   const hasGroupControlsAction = groupedFilteredEncounters.length > 1;
-  const encounterToolbarActions: Array<{
-    key: string;
-    label: string;
-    onClick: () => void;
-    disabled?: boolean;
-    showArrow?: boolean;
-  }> = [];
-  if (hasJumpToFilteredSceneAction) {
-    encounterToolbarActions.push({
-      key: "jump-filtered-scene",
-      label: "Ir para cena filtrada",
-      onClick: () => jumpToSceneCard(jumpToFilteredSceneId!),
-      showArrow: true,
-    });
-  }
-  if (hasClearSceneAction) {
-    encounterToolbarActions.push({
-      key: "clear-scene",
-      label: "Limpar cena",
-      onClick: () => setEncounterSceneFilter("all"),
-    });
-  }
-  if (hasClearRiskAction) {
-    encounterToolbarActions.push({
-      key: "clear-risk",
-      label: "Limpar risco",
-      onClick: () => setEncounterRatingFilter("all"),
-    });
-  }
-  if (hasClearSortAction) {
-    encounterToolbarActions.push({
-      key: "clear-sort",
-      label: "Limpar ordenacao",
-      onClick: () => setEncounterSortBy("scene"),
-    });
-  }
-  if (hasClearFiltersAction) {
-    encounterToolbarActions.push({
-      key: "clear-filters",
-      label: "Limpar filtros",
-      onClick: clearEncounterFilters,
-    });
-  }
-  if (hasResetViewAction) {
-    encounterToolbarActions.push({
-      key: "reset-view",
-      label: "Resetar visao",
-      onClick: resetEncounterView,
-    });
-  }
-  if (hasGroupControlsAction) {
-    encounterToolbarActions.push({
-      key: "collapse-groups",
-      label: "Recolher grupos",
-      onClick: () =>
-        setCollapsedEncounterGroupKeys(new Set(groupedFilteredEncounters.map((group) => group.key))),
-      disabled: collapsedEncounterGroupKeys.size === groupedFilteredEncounters.length,
-    });
-    encounterToolbarActions.push({
-      key: "expand-groups",
-      label: "Expandir grupos",
-      onClick: () => setCollapsedEncounterGroupKeys(new Set()),
-      disabled: collapsedEncounterGroupKeys.size === 0,
-    });
-  }
+  const encounterToolbarActions = useMemo<
+    Array<{
+      key: string;
+      label: string;
+      onClick: () => void;
+      disabled?: boolean;
+      showArrow?: boolean;
+    }>
+  >(() => {
+    const actions: Array<{
+      key: string;
+      label: string;
+      onClick: () => void;
+      disabled?: boolean;
+      showArrow?: boolean;
+    }> = [];
+    if (hasJumpToFilteredSceneAction) {
+      actions.push({
+        key: "jump-filtered-scene",
+        label: "Ir para cena filtrada",
+        onClick: () => jumpToSceneCard(jumpToFilteredSceneId!),
+        showArrow: true,
+      });
+    }
+    if (hasClearSceneAction) {
+      actions.push({
+        key: "clear-scene",
+        label: "Limpar cena",
+        onClick: () => setEncounterSceneFilter("all"),
+      });
+    }
+    if (hasClearRiskAction) {
+      actions.push({
+        key: "clear-risk",
+        label: "Limpar risco",
+        onClick: () => setEncounterRatingFilter("all"),
+      });
+    }
+    if (hasClearSortAction) {
+      actions.push({
+        key: "clear-sort",
+        label: "Limpar ordenacao",
+        onClick: () => setEncounterSortBy("scene"),
+      });
+    }
+    if (hasClearFiltersAction) {
+      actions.push({
+        key: "clear-filters",
+        label: "Limpar filtros",
+        onClick: () => {
+          setEncounterSceneFilter("all");
+          setEncounterRatingFilter("all");
+          setEncounterSortBy("scene");
+        },
+      });
+    }
+    if (hasResetViewAction) {
+      actions.push({
+        key: "reset-view",
+        label: "Resetar visao",
+        onClick: () => {
+          setEncounterSceneFilter("all");
+          setEncounterRatingFilter("all");
+          setEncounterSortBy("scene");
+          setCollapsedEncounterGroupKeys(new Set());
+        },
+      });
+    }
+    if (hasGroupControlsAction) {
+      actions.push({
+        key: "collapse-groups",
+        label: "Recolher grupos",
+        onClick: () =>
+          setCollapsedEncounterGroupKeys(new Set(groupedFilteredEncounters.map((group) => group.key))),
+        disabled: collapsedEncounterGroupKeys.size === groupedFilteredEncounters.length,
+      });
+      actions.push({
+        key: "expand-groups",
+        label: "Expandir grupos",
+        onClick: () => setCollapsedEncounterGroupKeys(new Set()),
+        disabled: collapsedEncounterGroupKeys.size === 0,
+      });
+    }
+    return actions;
+  }, [
+    collapsedEncounterGroupKeys.size,
+    groupedFilteredEncounters,
+    hasClearFiltersAction,
+    hasClearRiskAction,
+    hasClearSceneAction,
+    hasClearSortAction,
+    hasGroupControlsAction,
+    hasJumpToFilteredSceneAction,
+    hasResetViewAction,
+    jumpToFilteredSceneId,
+    jumpToSceneCard,
+  ]);
   const encounterQuickActionCount = encounterToolbarActions.length;
   const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0;
-  function resetEncounterView() {
-    clearEncounterFilters();
-    setCollapsedEncounterGroupKeys(new Set());
-  }
   useEffect(() => {
     if (!encounterFiltersStorageKey || typeof window === "undefined") return;
     const raw = window.localStorage.getItem(encounterFiltersStorageKey);
@@ -4593,7 +4616,12 @@ export default function SessionForgePage() {
                             size="sm"
                             variant="outline"
                             className="border-white/10 bg-white/5"
-                            onClick={resetEncounterView}
+                            onClick={() => {
+                              setEncounterSceneFilter("all");
+                              setEncounterRatingFilter("all");
+                              setEncounterSortBy("scene");
+                              setCollapsedEncounterGroupKeys(new Set());
+                            }}
                           >
                             Resetar visao
                           </Button>
