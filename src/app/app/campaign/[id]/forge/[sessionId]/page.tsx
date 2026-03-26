@@ -4321,7 +4321,7 @@ export default function SessionForgePage() {
                           </div>
                         </div>
                         {!isCollapsed ? (
-                        <>
+                          <>
                         {group.sceneObjective ? (
                           <p className="text-xs leading-6 text-muted-foreground">
                             {group.sceneObjective}
@@ -4383,8 +4383,14 @@ export default function SessionForgePage() {
                             </p>
                           </div>
                         ))}
-                        </>
-                        ) : null}
+                          </>
+                        ) : (
+                          <p className="text-xs leading-6 text-muted-foreground">
+                            Grupo recolhido: {group.encounters.length}{" "}
+                            {group.encounters.length === 1 ? "encontro" : "encontros"} e{" "}
+                            {group.totalEnemies} inimigos.
+                          </p>
+                        )}
                       </div>
                       );
                     })
