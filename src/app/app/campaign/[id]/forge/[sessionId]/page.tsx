@@ -1259,6 +1259,10 @@ export default function SessionForgePage() {
       )}`,
     []
   );
+  const getEncounterBalanceConfidenceLabel = useCallback(
+    (confidence: number) => `Confianca ${formatBalanceConfidence(confidence)}`,
+    []
+  );
   const getCollapsedEncounterGroupSummary = useCallback(
     (input: {
       encounterCount: number;
@@ -4803,7 +4807,7 @@ export default function SessionForgePage() {
                                   {formatEncounterRating(encounter.rating)}
                                 </Badge>
                                 <Badge className="border-white/10 bg-white/5 text-white/75">
-                                  Confianca {formatBalanceConfidence(encounter.confidence)}
+                                  {getEncounterBalanceConfidenceLabel(encounter.confidence)}
                                 </Badge>
                               </div>
                               {encounter.linkedSceneId && group.sceneId ? (
