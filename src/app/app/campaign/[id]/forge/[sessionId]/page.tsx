@@ -1235,6 +1235,11 @@ export default function SessionForgePage() {
     },
     []
   );
+  const getEncounterCountLabel = useCallback(
+    (encounterCount: number) =>
+      `${encounterCount} ${encounterCount === 1 ? "encontro" : "encontros"}`,
+    []
+  );
   const getCollapsedEncounterGroupSummary = useCallback(
     (input: {
       encounterCount: number;
@@ -1245,9 +1250,7 @@ export default function SessionForgePage() {
       sceneLinkedEntityCount: number;
       revealProgressSummary: string | null;
     }) => {
-      const base = `Grupo recolhido: ${input.encounterCount} ${
-        input.encounterCount === 1 ? "encontro" : "encontros"
-      } e ${input.totalEnemies} inimigos`;
+      const base = `Grupo recolhido: ${getEncounterCountLabel(input.encounterCount)} e ${input.totalEnemies} inimigos`;
       if (!input.sceneId) return `${base}.`;
       const details = [
         `Subcenas ativas: ${input.sceneActiveSubsceneCount}`,
@@ -1259,7 +1262,7 @@ export default function SessionForgePage() {
       }
       return `${base} | ${details.join(" | ")}.`;
     },
-    []
+    [getEncounterCountLabel]
   );
   const getEncounterGroupNarrativeBadgeLabels = useCallback(
     (input: {
@@ -4686,8 +4689,7 @@ export default function SessionForgePage() {
                               </Badge>
                             ) : null}
                             <Badge className="border-white/10 bg-white/5 text-white/60">
-                              {group.encounters.length}{" "}
-                              {group.encounters.length === 1 ? "encontro" : "encontros"}
+                              {getEncounterCountLabel(group.encounters.length)}
                             </Badge>
                             <Badge className="border-white/10 bg-white/5 text-white/60">
                               {group.totalEnemies} inimigos
