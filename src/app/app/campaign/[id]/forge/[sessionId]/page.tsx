@@ -876,6 +876,7 @@ export default function SessionForgePage() {
         sceneObjective?: string;
         totalEnemies: number;
         confidenceSum: number;
+        topEnemies: string[];
         encounters: (typeof sortedFilteredEncounters)[number][];
       }
     >();
@@ -884,10 +885,11 @@ export default function SessionForgePage() {
       const key = sceneId ?? "__unlinked__";
       const title = sceneId ? (sceneTitleById.get(sceneId) ?? "Cena sem titulo") : "Sem cena vinculada";
       const sceneContext = sceneId ? sceneContextById.get(sceneId) : null;
+      const encounterEnemyTotal = encounter.enemies.reduce((sum, enemy) => sum + enemy.quantity, 0);
       const current = groups.get(key);
       if (current) {
         current.encounters.push(encounter);
-        current.totalEnemies += encounter.enemies.reduce((sum, enemy) => sum + enemy.quantity, 0);
+        current.totalEnemies += encounterEnemyTotal;
         current.confidenceSum += encounter.confidence;
       } else {
         groups.set(key, {
@@ -896,13 +898,30 @@ export default function SessionForgePage() {
           title,
           sceneStatus: sceneContext?.status,
           sceneObjective: sceneContext?.objective,
-          totalEnemies: encounter.enemies.reduce((sum, enemy) => sum + enemy.quantity, 0),
+          totalEnemies: encounterEnemyTotal,
           confidenceSum: encounter.confidence,
+          topEnemies: [],
           encounters: [encounter],
         });
       }
     }
-    return [...groups.values()];
+    return [...groups.values()].map((group) => {
+      const enemyCounts = new Map<string, number>();
+      for (const encounter of group.encounters) {
+        for (const enemy of encounter.enemies) {
+          const label = (enemy.label || "Ameaca sem nome").trim();
+          enemyCounts.set(label, (enemyCounts.get(label) ?? 0) + enemy.quantity);
+        }
+      }
+      const topEnemies = [...enemyCounts.entries()]
+        .sort((left, right) => right[1] - left[1])
+        .slice(0, 3)
+        .map(([label, quantity]) => `${quantity}x ${label}`);
+      return {
+        ...group,
+        topEnemies,
+      };
+    });
   }, [sceneContextById, sceneTitleById, sortedFilteredEncounters]);
   const hasActiveEncounterFilters =
     encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
@@ -4211,6 +4230,11 @@ export default function SessionForgePage() {
                         {group.sceneObjective ? (
                           <p className="text-xs leading-6 text-muted-foreground">
                             {group.sceneObjective}
+                          </p>
+                        ) : null}
+                        {group.topEnemies.length > 0 ? (
+                          <p className="text-xs leading-6 text-muted-foreground">
+                            Ameacas principais: {group.topEnemies.join(" • ")}
                           </p>
                         ) : null}
                         {group.encounters.map((encounter) => (
