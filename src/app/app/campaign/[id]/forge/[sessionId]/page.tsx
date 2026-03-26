@@ -1003,14 +1003,72 @@ export default function SessionForgePage() {
   const hasResetViewAction = hasEncounterViewCustomizations;
   const hasJumpToFilteredSceneAction = Boolean(jumpToFilteredSceneId);
   const hasGroupControlsAction = groupedFilteredEncounters.length > 1;
-  const encounterQuickActionCount =
-    Number(hasJumpToFilteredSceneAction) +
-    Number(hasClearSceneAction) +
-    Number(hasClearRiskAction) +
-    Number(hasClearSortAction) +
-    Number(hasClearFiltersAction) +
-    Number(hasResetViewAction) +
-    Number(hasGroupControlsAction) * 2;
+  const encounterToolbarActions: Array<{
+    key: string;
+    label: string;
+    onClick: () => void;
+    disabled?: boolean;
+    showArrow?: boolean;
+  }> = [];
+  if (hasJumpToFilteredSceneAction) {
+    encounterToolbarActions.push({
+      key: "jump-filtered-scene",
+      label: "Ir para cena filtrada",
+      onClick: () => jumpToSceneCard(jumpToFilteredSceneId!),
+      showArrow: true,
+    });
+  }
+  if (hasClearSceneAction) {
+    encounterToolbarActions.push({
+      key: "clear-scene",
+      label: "Limpar cena",
+      onClick: () => setEncounterSceneFilter("all"),
+    });
+  }
+  if (hasClearRiskAction) {
+    encounterToolbarActions.push({
+      key: "clear-risk",
+      label: "Limpar risco",
+      onClick: () => setEncounterRatingFilter("all"),
+    });
+  }
+  if (hasClearSortAction) {
+    encounterToolbarActions.push({
+      key: "clear-sort",
+      label: "Limpar ordenacao",
+      onClick: () => setEncounterSortBy("scene"),
+    });
+  }
+  if (hasClearFiltersAction) {
+    encounterToolbarActions.push({
+      key: "clear-filters",
+      label: "Limpar filtros",
+      onClick: clearEncounterFilters,
+    });
+  }
+  if (hasResetViewAction) {
+    encounterToolbarActions.push({
+      key: "reset-view",
+      label: "Resetar visao",
+      onClick: resetEncounterView,
+    });
+  }
+  if (hasGroupControlsAction) {
+    encounterToolbarActions.push({
+      key: "collapse-groups",
+      label: "Recolher grupos",
+      onClick: () =>
+        setCollapsedEncounterGroupKeys(new Set(groupedFilteredEncounters.map((group) => group.key))),
+      disabled: collapsedEncounterGroupKeys.size === groupedFilteredEncounters.length,
+    });
+    encounterToolbarActions.push({
+      key: "expand-groups",
+      label: "Expandir grupos",
+      onClick: () => setCollapsedEncounterGroupKeys(new Set()),
+      disabled: collapsedEncounterGroupKeys.size === 0,
+    });
+  }
+  const encounterQuickActionCount = encounterToolbarActions.length;
   const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0;
   function resetEncounterView() {
     clearEncounterFilters();
@@ -4363,101 +4421,20 @@ export default function SessionForgePage() {
                         ) : null}
                       </div>
                       <div className="flex flex-wrap items-center justify-end gap-2">
-                        {hasJumpToFilteredSceneAction ? (
+                        {encounterToolbarActions.map((action) => (
                           <Button
+                            key={action.key}
                             type="button"
                             size="sm"
                             variant="outline"
                             className="border-white/10 bg-white/5"
-                            onClick={() => jumpToSceneCard(jumpToFilteredSceneId!)}
+                            onClick={action.onClick}
+                            disabled={action.disabled}
                           >
-                            Ir para cena filtrada
-                            <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                            {action.label}
+                            {action.showArrow ? <ArrowRight className="ml-2 h-3.5 w-3.5" /> : null}
                           </Button>
-                        ) : null}
-                        {hasClearSceneAction ? (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="border-white/10 bg-white/5"
-                            onClick={() => setEncounterSceneFilter("all")}
-                          >
-                            Limpar cena
-                          </Button>
-                        ) : null}
-                        {hasClearRiskAction ? (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="border-white/10 bg-white/5"
-                            onClick={() => setEncounterRatingFilter("all")}
-                          >
-                            Limpar risco
-                          </Button>
-                        ) : null}
-                        {hasClearSortAction ? (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="border-white/10 bg-white/5"
-                            onClick={() => setEncounterSortBy("scene")}
-                          >
-                            Limpar ordenacao
-                          </Button>
-                        ) : null}
-                        {hasClearFiltersAction ? (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="border-white/10 bg-white/5"
-                            onClick={clearEncounterFilters}
-                          >
-                            Limpar filtros
-                          </Button>
-                        ) : null}
-                        {hasResetViewAction ? (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="border-white/10 bg-white/5"
-                            onClick={resetEncounterView}
-                          >
-                            Resetar visao
-                          </Button>
-                        ) : null}
-                        {hasGroupControlsAction ? (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="border-white/10 bg-white/5"
-                            onClick={() =>
-                              setCollapsedEncounterGroupKeys(
-                                new Set(groupedFilteredEncounters.map((group) => group.key))
-                              )
-                            }
-                            disabled={collapsedEncounterGroupKeys.size === groupedFilteredEncounters.length}
-                          >
-                            Recolher grupos
-                          </Button>
-                        ) : null}
-                        {hasGroupControlsAction ? (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="border-white/10 bg-white/5"
-                            onClick={() => setCollapsedEncounterGroupKeys(new Set())}
-                            disabled={collapsedEncounterGroupKeys.size === 0}
-                          >
-                            Expandir grupos
-                          </Button>
-                        ) : null}
+                        ))}
                       </div>
                     </div>
                   ) : null}
