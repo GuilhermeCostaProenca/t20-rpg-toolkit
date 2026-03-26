@@ -1251,6 +1251,7 @@ export default function SessionForgePage() {
       `${encounterCount} ${encounterCount === 1 ? "encontro" : "encontros"}`,
     []
   );
+  const getEnemyCountLabel = useCallback((enemyCount: number) => `${enemyCount} inimigos`, []);
   const getCollapsedEncounterGroupSummary = useCallback(
     (input: {
       encounterCount: number;
@@ -4703,7 +4704,7 @@ export default function SessionForgePage() {
                               {getEncounterCountLabel(group.encounters.length)}
                             </Badge>
                             <Badge className="border-white/10 bg-white/5 text-white/60">
-                              {group.totalEnemies} inimigos
+                              {getEnemyCountLabel(group.totalEnemies)}
                             </Badge>
                             <Badge className="border-white/10 bg-white/5 text-white/60">
                               Confianca media{" "}
