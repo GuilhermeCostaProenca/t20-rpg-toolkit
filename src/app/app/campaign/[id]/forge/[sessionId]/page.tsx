@@ -553,6 +553,10 @@ export default function SessionForgePage() {
   const [sceneDropTargetId, setSceneDropTargetId] = useState<string | null>(null);
   const [draggedSubsceneKey, setDraggedSubsceneKey] = useState<string | null>(null);
   const [subsceneDropTargetKey, setSubsceneDropTargetKey] = useState<string | null>(null);
+  const collapsedEncounterGroupsStorageKey = useMemo(
+    () => (campaignId && sessionId ? `t20:forge:${campaignId}:${sessionId}:collapsedEncounterGroups` : null),
+    [campaignId, sessionId]
+  );
 
   const loadWorkspace = useCallback(async () => {
     if (!campaignId) return;
@@ -962,6 +966,26 @@ export default function SessionForgePage() {
     setEncounterSceneFilter("all");
     setEncounterRatingFilter("all");
   }
+  useEffect(() => {
+    if (!collapsedEncounterGroupsStorageKey || typeof window === "undefined") return;
+    const raw = window.localStorage.getItem(collapsedEncounterGroupsStorageKey);
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return;
+      const keys = parsed.filter((item): item is string => typeof item === "string");
+      setCollapsedEncounterGroupKeys(new Set(keys));
+    } catch {
+      window.localStorage.removeItem(collapsedEncounterGroupsStorageKey);
+    }
+  }, [collapsedEncounterGroupsStorageKey]);
+  useEffect(() => {
+    if (!collapsedEncounterGroupsStorageKey || typeof window === "undefined") return;
+    window.localStorage.setItem(
+      collapsedEncounterGroupsStorageKey,
+      JSON.stringify([...collapsedEncounterGroupKeys])
+    );
+  }, [collapsedEncounterGroupKeys, collapsedEncounterGroupsStorageKey]);
   useEffect(() => {
     setCollapsedEncounterGroupKeys((current) => {
       if (current.size === 0) return current;
