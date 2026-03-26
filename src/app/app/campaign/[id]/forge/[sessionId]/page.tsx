@@ -957,6 +957,21 @@ export default function SessionForgePage() {
   }, [sceneContextById, sceneTitleById, sortedFilteredEncounters]);
   const hasActiveEncounterFilters =
     encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
+  const encounterViewSummary = useMemo(() => {
+    const sceneLabel =
+      encounterSceneFilter === "all"
+        ? "Todas as cenas"
+        : encounterSceneFilter === "__unlinked__"
+          ? "Sem cena"
+          : (() => {
+              const scene = forge.scenes.find((item) => item.id === encounterSceneFilter);
+              return scene ? scene.title?.trim() || "Cena sem titulo" : "Cena";
+            })();
+    const ratingLabel =
+      encounterRatingFilter === "all" ? "Todos os riscos" : formatEncounterRating(encounterRatingFilter);
+    const sortLabel = encounterSortBy === "scene" ? "Cena" : "Risco";
+    return `Cena: ${sceneLabel} • Risco: ${ratingLabel} • Ordenacao: ${sortLabel}`;
+  }, [encounterRatingFilter, encounterSceneFilter, encounterSortBy, forge.scenes]);
   const collapsedEncounterGroupCount = useMemo(() => {
     if (groupedFilteredEncounters.length === 0) return 0;
     const keys = new Set(groupedFilteredEncounters.map((group) => group.key));
@@ -4293,6 +4308,9 @@ export default function SessionForgePage() {
                       Risco
                     </Button>
                   </div>
+                  <p className="text-xs leading-6 text-muted-foreground">
+                    {encounterViewSummary}
+                  </p>
                   {hasActiveEncounterFilters ? (
                     <div className="flex justify-end">
                       <Button
