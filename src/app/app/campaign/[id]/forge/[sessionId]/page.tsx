@@ -4755,7 +4755,11 @@ export default function SessionForgePage() {
                           <p className="text-xs leading-6 text-muted-foreground">
                             Grupo recolhido: {group.encounters.length}{" "}
                             {group.encounters.length === 1 ? "encontro" : "encontros"} e{" "}
-                            {group.totalEnemies} inimigos.
+                            {group.totalEnemies} inimigos
+                            {group.sceneId
+                              ? ` | Subcenas ativas: ${group.sceneActiveSubsceneCount} | Beats: ${group.sceneLinkedBeatCount} | Entidades: ${group.sceneLinkedEntityCount} | Reveals exec.: ${group.sceneRevealProgress.executed}/${group.sceneRevealProgress.total}`
+                              : ""}
+                            .
                           </p>
                         )}
                       </div>
