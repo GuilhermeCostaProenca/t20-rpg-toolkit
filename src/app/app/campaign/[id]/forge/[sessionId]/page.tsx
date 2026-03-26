@@ -4329,7 +4329,7 @@ export default function SessionForgePage() {
                         ) : null}
                         {group.topEnemies.length > 0 ? (
                           <p className="text-xs leading-6 text-muted-foreground">
-                            Ameacas principais: {group.topEnemies.join(" • ")}
+                            Ameacas principais: {group.topEnemies.join(" | ")}
                           </p>
                         ) : null}
                         <div className="flex flex-wrap gap-2">
