@@ -949,6 +949,15 @@ export default function SessionForgePage() {
   }, [sceneContextById, sceneTitleById, sortedFilteredEncounters]);
   const hasActiveEncounterFilters =
     encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
+  const collapsedEncounterGroupCount = useMemo(() => {
+    if (groupedFilteredEncounters.length === 0) return 0;
+    const keys = new Set(groupedFilteredEncounters.map((group) => group.key));
+    let count = 0;
+    for (const key of collapsedEncounterGroupKeys) {
+      if (keys.has(key)) count += 1;
+    }
+    return count;
+  }, [collapsedEncounterGroupKeys, groupedFilteredEncounters]);
   function clearEncounterFilters() {
     setEncounterSceneFilter("all");
     setEncounterRatingFilter("all");
@@ -4223,6 +4232,9 @@ export default function SessionForgePage() {
                   ) : null}
                   {groupedFilteredEncounters.length > 1 ? (
                     <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Badge className="border-white/10 bg-white/5 text-white/60">
+                        {collapsedEncounterGroupCount}/{groupedFilteredEncounters.length} recolhidos
+                      </Badge>
                       <Button
                         type="button"
                         size="sm"
