@@ -1002,6 +1002,7 @@ export default function SessionForgePage() {
   const hasClearFiltersAction = hasActiveEncounterFilters;
   const hasResetViewAction = hasEncounterViewCustomizations;
   const hasJumpToFilteredSceneAction = Boolean(jumpToFilteredSceneId);
+  const hasGroupControlsAction = groupedFilteredEncounters.length > 1;
   const encounterQuickActionCount =
     Number(hasJumpToFilteredSceneAction) +
     Number(hasClearSceneAction) +
@@ -1009,7 +1010,7 @@ export default function SessionForgePage() {
     Number(hasClearSortAction) +
     Number(hasClearFiltersAction) +
     Number(hasResetViewAction);
-  const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0;
+  const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0 || hasGroupControlsAction;
   function resetEncounterView() {
     clearEncounterFilters();
     setCollapsedEncounterGroupKeys(new Set());
@@ -4420,37 +4421,39 @@ export default function SessionForgePage() {
                           Resetar visao
                         </Button>
                       ) : null}
-                    </div>
-                  ) : null}
-                  {groupedFilteredEncounters.length > 1 ? (
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      <Badge className="border-white/10 bg-white/5 text-white/60">
-                        {collapsedEncounterGroupCount}/{groupedFilteredEncounters.length} recolhidos
-                      </Badge>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="border-white/10 bg-white/5"
-                        onClick={() =>
-                          setCollapsedEncounterGroupKeys(
-                            new Set(groupedFilteredEncounters.map((group) => group.key))
-                          )
-                        }
-                        disabled={collapsedEncounterGroupKeys.size === groupedFilteredEncounters.length}
-                      >
-                        Recolher grupos
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="border-white/10 bg-white/5"
-                        onClick={() => setCollapsedEncounterGroupKeys(new Set())}
-                        disabled={collapsedEncounterGroupKeys.size === 0}
-                      >
-                        Expandir grupos
-                      </Button>
+                      {hasGroupControlsAction ? (
+                        <Badge className="border-white/10 bg-white/5 text-white/60">
+                          {collapsedEncounterGroupCount}/{groupedFilteredEncounters.length} recolhidos
+                        </Badge>
+                      ) : null}
+                      {hasGroupControlsAction ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() =>
+                            setCollapsedEncounterGroupKeys(
+                              new Set(groupedFilteredEncounters.map((group) => group.key))
+                            )
+                          }
+                          disabled={collapsedEncounterGroupKeys.size === groupedFilteredEncounters.length}
+                        >
+                          Recolher grupos
+                        </Button>
+                      ) : null}
+                      {hasGroupControlsAction ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() => setCollapsedEncounterGroupKeys(new Set())}
+                          disabled={collapsedEncounterGroupKeys.size === 0}
+                        >
+                          Expandir grupos
+                        </Button>
+                      ) : null}
                     </div>
                   ) : null}
                   {groupedFilteredEncounters.length > 0 ? (
