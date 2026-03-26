@@ -903,6 +903,37 @@ export default function SessionForgePage() {
     }
     return counts;
   }, [forge.scenes]);
+  const sceneRevealProgressById = useMemo(() => {
+    const revealStatusById = new Map(
+      forge.reveals.map((reveal) => [reveal.id, reveal.status] as const)
+    );
+    const progress = new Map<string, { executed: number; total: number }>();
+    for (const scene of forge.scenes) {
+      const revealIds = new Set<string>();
+      for (const revealId of scene.linkedRevealIds) {
+        if (typeof revealId === "string" && revealId.trim().length > 0) {
+          revealIds.add(revealId);
+        }
+      }
+      for (const subscene of scene.subscenes) {
+        for (const revealId of subscene.linkedRevealIds) {
+          if (typeof revealId === "string" && revealId.trim().length > 0) {
+            revealIds.add(revealId);
+          }
+        }
+      }
+      let total = 0;
+      let executed = 0;
+      for (const revealId of revealIds) {
+        const status = revealStatusById.get(revealId);
+        if (status === "canceled") continue;
+        total += 1;
+        if (status === "executed") executed += 1;
+      }
+      progress.set(scene.id, { executed, total });
+    }
+    return progress;
+  }, [forge.reveals, forge.scenes]);
   const sceneLinkedEntityCountById = useMemo(() => {
     const counts = new Map<string, number>();
     for (const scene of forge.scenes) {
@@ -959,6 +990,7 @@ export default function SessionForgePage() {
         sceneLinkedBeatCount: number;
         sceneLinkedEntityCount: number;
         sceneLinkedRevealCount: number;
+        sceneRevealProgress: { executed: number; total: number };
         totalEnemies: number;
         confidenceSum: number;
         topEnemies: string[];
@@ -989,6 +1021,9 @@ export default function SessionForgePage() {
           sceneLinkedBeatCount: sceneId ? (sceneLinkedBeatCountById.get(sceneId) ?? 0) : 0,
           sceneLinkedEntityCount: sceneId ? (sceneLinkedEntityCountById.get(sceneId) ?? 0) : 0,
           sceneLinkedRevealCount: sceneId ? (sceneLinkedRevealCountById.get(sceneId) ?? 0) : 0,
+          sceneRevealProgress: sceneId
+            ? (sceneRevealProgressById.get(sceneId) ?? { executed: 0, total: 0 })
+            : { executed: 0, total: 0 },
           totalEnemies: encounterEnemyTotal,
           confidenceSum: encounter.confidence,
           topEnemies: [],
@@ -1025,6 +1060,7 @@ export default function SessionForgePage() {
     sceneLinkedBeatCountById,
     sceneLinkedEntityCountById,
     sceneLinkedRevealCountById,
+    sceneRevealProgressById,
     sceneTitleById,
     sortedFilteredEncounters,
   ]);
@@ -4598,6 +4634,12 @@ export default function SessionForgePage() {
                                 {group.sceneLinkedRevealCount === 1
                                   ? "reveal ligado"
                                   : "reveals ligados"}
+                              </Badge>
+                            ) : null}
+                            {group.sceneId && group.sceneRevealProgress.total > 0 ? (
+                              <Badge className="border-white/10 bg-white/5 text-white/60">
+                                Reveals exec. {group.sceneRevealProgress.executed}/
+                                {group.sceneRevealProgress.total}
                               </Badge>
                             ) : null}
                           </div>
