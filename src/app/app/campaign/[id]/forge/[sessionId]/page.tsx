@@ -989,6 +989,15 @@ export default function SessionForgePage() {
     }
     return count;
   }, [collapsedEncounterGroupKeys, groupedFilteredEncounters]);
+  const clearEncounterFilters = useCallback(() => {
+    setEncounterSceneFilter("all");
+    setEncounterRatingFilter("all");
+    setEncounterSortBy("scene");
+  }, []);
+  const resetEncounterView = useCallback(() => {
+    clearEncounterFilters();
+    setCollapsedEncounterGroupKeys(new Set());
+  }, [clearEncounterFilters]);
   const hasEncounterViewCustomizations =
     hasActiveEncounterFilters || encounterSortBy !== "scene" || collapsedEncounterGroupCount > 0;
   const hasClearSceneAction = encounterSceneFilter !== "all";
@@ -1047,23 +1056,14 @@ export default function SessionForgePage() {
       actions.push({
         key: "clear-filters",
         label: "Limpar filtros",
-        onClick: () => {
-          setEncounterSceneFilter("all");
-          setEncounterRatingFilter("all");
-          setEncounterSortBy("scene");
-        },
+        onClick: clearEncounterFilters,
       });
     }
     if (hasResetViewAction) {
       actions.push({
         key: "reset-view",
         label: "Resetar visao",
-        onClick: () => {
-          setEncounterSceneFilter("all");
-          setEncounterRatingFilter("all");
-          setEncounterSortBy("scene");
-          setCollapsedEncounterGroupKeys(new Set());
-        },
+        onClick: resetEncounterView,
       });
     }
     if (hasGroupControlsAction) {
@@ -1092,8 +1092,10 @@ export default function SessionForgePage() {
     hasGroupControlsAction,
     hasJumpToFilteredSceneAction,
     hasResetViewAction,
+    clearEncounterFilters,
     jumpToFilteredSceneId,
     jumpToSceneCard,
+    resetEncounterView,
   ]);
   const encounterQuickActionCount = encounterToolbarActions.length;
   const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0;
@@ -4616,12 +4618,7 @@ export default function SessionForgePage() {
                             size="sm"
                             variant="outline"
                             className="border-white/10 bg-white/5"
-                            onClick={() => {
-                              setEncounterSceneFilter("all");
-                              setEncounterRatingFilter("all");
-                              setEncounterSortBy("scene");
-                              setCollapsedEncounterGroupKeys(new Set());
-                            }}
+                            onClick={resetEncounterView}
                           >
                             Resetar visao
                           </Button>
