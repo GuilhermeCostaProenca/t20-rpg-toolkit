@@ -923,6 +923,19 @@ export default function SessionForgePage() {
     }
     return counts;
   }, [forge.scenes]);
+  const sceneLinkedBeatCountById = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const scene of forge.scenes) {
+      const beatIds = new Set<string>();
+      for (const beatId of scene.linkedBeatIds) {
+        if (typeof beatId === "string" && beatId.trim().length > 0) {
+          beatIds.add(beatId);
+        }
+      }
+      counts.set(scene.id, beatIds.size);
+    }
+    return counts;
+  }, [forge.scenes]);
   const groupedFilteredEncounters = useMemo(() => {
     const groups = new Map<
       string,
@@ -932,6 +945,7 @@ export default function SessionForgePage() {
         title: string;
         sceneStatus?: SessionForgeSceneStatus;
         sceneObjective?: string;
+        sceneLinkedBeatCount: number;
         sceneLinkedEntityCount: number;
         sceneLinkedRevealCount: number;
         totalEnemies: number;
@@ -960,6 +974,7 @@ export default function SessionForgePage() {
           title,
           sceneStatus: sceneContext?.status,
           sceneObjective: sceneContext?.objective,
+          sceneLinkedBeatCount: sceneId ? (sceneLinkedBeatCountById.get(sceneId) ?? 0) : 0,
           sceneLinkedEntityCount: sceneId ? (sceneLinkedEntityCountById.get(sceneId) ?? 0) : 0,
           sceneLinkedRevealCount: sceneId ? (sceneLinkedRevealCountById.get(sceneId) ?? 0) : 0,
           totalEnemies: encounterEnemyTotal,
@@ -994,6 +1009,7 @@ export default function SessionForgePage() {
     });
   }, [
     sceneContextById,
+    sceneLinkedBeatCountById,
     sceneLinkedEntityCountById,
     sceneLinkedRevealCountById,
     sceneTitleById,
@@ -4539,6 +4555,14 @@ export default function SessionForgePage() {
                               Confianca media{" "}
                               {formatBalanceConfidence(group.confidenceSum / Math.max(1, group.encounters.length))}
                             </Badge>
+                            {group.sceneId ? (
+                              <Badge className="border-white/10 bg-white/5 text-white/60">
+                                {group.sceneLinkedBeatCount}{" "}
+                                {group.sceneLinkedBeatCount === 1
+                                  ? "beat ligado"
+                                  : "beats ligados"}
+                              </Badge>
+                            ) : null}
                             {group.sceneId ? (
                               <Badge className="border-white/10 bg-white/5 text-white/60">
                                 {group.sceneLinkedEntityCount}{" "}
