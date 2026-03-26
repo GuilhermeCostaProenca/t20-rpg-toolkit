@@ -969,6 +969,7 @@ export default function SessionForgePage() {
   function clearEncounterFilters() {
     setEncounterSceneFilter("all");
     setEncounterRatingFilter("all");
+    setEncounterSortBy("scene");
   }
   useEffect(() => {
     if (!encounterFiltersStorageKey || typeof window === "undefined") return;
