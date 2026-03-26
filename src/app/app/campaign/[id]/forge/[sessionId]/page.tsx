@@ -874,6 +874,8 @@ export default function SessionForgePage() {
         title: string;
         sceneStatus?: SessionForgeSceneStatus;
         sceneObjective?: string;
+        totalEnemies: number;
+        confidenceSum: number;
         encounters: (typeof sortedFilteredEncounters)[number][];
       }
     >();
@@ -885,6 +887,8 @@ export default function SessionForgePage() {
       const current = groups.get(key);
       if (current) {
         current.encounters.push(encounter);
+        current.totalEnemies += encounter.enemies.reduce((sum, enemy) => sum + enemy.quantity, 0);
+        current.confidenceSum += encounter.confidence;
       } else {
         groups.set(key, {
           key,
@@ -892,6 +896,8 @@ export default function SessionForgePage() {
           title,
           sceneStatus: sceneContext?.status,
           sceneObjective: sceneContext?.objective,
+          totalEnemies: encounter.enemies.reduce((sum, enemy) => sum + enemy.quantity, 0),
+          confidenceSum: encounter.confidence,
           encounters: [encounter],
         });
       }
@@ -4180,6 +4186,13 @@ export default function SessionForgePage() {
                             <Badge className="border-white/10 bg-white/5 text-white/60">
                               {group.encounters.length}{" "}
                               {group.encounters.length === 1 ? "encontro" : "encontros"}
+                            </Badge>
+                            <Badge className="border-white/10 bg-white/5 text-white/60">
+                              {group.totalEnemies} inimigos
+                            </Badge>
+                            <Badge className="border-white/10 bg-white/5 text-white/60">
+                              Confianca media{" "}
+                              {formatBalanceConfidence(group.confidenceSum / Math.max(1, group.encounters.length))}
                             </Badge>
                           </div>
                           {group.sceneId ? (
