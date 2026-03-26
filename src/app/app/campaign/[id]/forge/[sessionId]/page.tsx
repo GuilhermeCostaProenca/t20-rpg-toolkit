@@ -903,6 +903,26 @@ export default function SessionForgePage() {
     }
     return counts;
   }, [forge.scenes]);
+  const sceneLinkedEntityCountById = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const scene of forge.scenes) {
+      const entityIds = new Set<string>();
+      for (const entityId of scene.linkedEntityIds) {
+        if (typeof entityId === "string" && entityId.trim().length > 0) {
+          entityIds.add(entityId);
+        }
+      }
+      for (const subscene of scene.subscenes) {
+        for (const entityId of subscene.linkedEntityIds) {
+          if (typeof entityId === "string" && entityId.trim().length > 0) {
+            entityIds.add(entityId);
+          }
+        }
+      }
+      counts.set(scene.id, entityIds.size);
+    }
+    return counts;
+  }, [forge.scenes]);
   const groupedFilteredEncounters = useMemo(() => {
     const groups = new Map<
       string,
@@ -912,6 +932,7 @@ export default function SessionForgePage() {
         title: string;
         sceneStatus?: SessionForgeSceneStatus;
         sceneObjective?: string;
+        sceneLinkedEntityCount: number;
         sceneLinkedRevealCount: number;
         totalEnemies: number;
         confidenceSum: number;
@@ -939,6 +960,7 @@ export default function SessionForgePage() {
           title,
           sceneStatus: sceneContext?.status,
           sceneObjective: sceneContext?.objective,
+          sceneLinkedEntityCount: sceneId ? (sceneLinkedEntityCountById.get(sceneId) ?? 0) : 0,
           sceneLinkedRevealCount: sceneId ? (sceneLinkedRevealCountById.get(sceneId) ?? 0) : 0,
           totalEnemies: encounterEnemyTotal,
           confidenceSum: encounter.confidence,
@@ -970,7 +992,13 @@ export default function SessionForgePage() {
         topEnemies,
       };
     });
-  }, [sceneContextById, sceneLinkedRevealCountById, sceneTitleById, sortedFilteredEncounters]);
+  }, [
+    sceneContextById,
+    sceneLinkedEntityCountById,
+    sceneLinkedRevealCountById,
+    sceneTitleById,
+    sortedFilteredEncounters,
+  ]);
   const hasActiveEncounterFilters =
     encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
   const jumpToFilteredSceneId =
@@ -4511,6 +4539,14 @@ export default function SessionForgePage() {
                               Confianca media{" "}
                               {formatBalanceConfidence(group.confidenceSum / Math.max(1, group.encounters.length))}
                             </Badge>
+                            {group.sceneId ? (
+                              <Badge className="border-white/10 bg-white/5 text-white/60">
+                                {group.sceneLinkedEntityCount}{" "}
+                                {group.sceneLinkedEntityCount === 1
+                                  ? "entidade ligada"
+                                  : "entidades ligadas"}
+                              </Badge>
+                            ) : null}
                             {group.sceneId ? (
                               <Badge className="border-white/10 bg-white/5 text-white/60">
                                 {group.sceneLinkedRevealCount}{" "}
