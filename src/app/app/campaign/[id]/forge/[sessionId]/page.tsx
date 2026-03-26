@@ -1252,6 +1252,13 @@ export default function SessionForgePage() {
     []
   );
   const getEnemyCountLabel = useCallback((enemyCount: number) => `${enemyCount} inimigos`, []);
+  const getGroupBalanceConfidenceLabel = useCallback(
+    (input: { confidenceSum: number; encounterCount: number }) =>
+      `Confianca media ${formatBalanceConfidence(
+        input.confidenceSum / Math.max(1, input.encounterCount)
+      )}`,
+    []
+  );
   const getCollapsedEncounterGroupSummary = useCallback(
     (input: {
       encounterCount: number;
@@ -4707,8 +4714,10 @@ export default function SessionForgePage() {
                               {getEnemyCountLabel(group.totalEnemies)}
                             </Badge>
                             <Badge className="border-white/10 bg-white/5 text-white/60">
-                              Confianca media{" "}
-                              {formatBalanceConfidence(group.confidenceSum / Math.max(1, group.encounters.length))}
+                              {getGroupBalanceConfidenceLabel({
+                                confidenceSum: group.confidenceSum,
+                                encounterCount: group.encounters.length,
+                              })}
                             </Badge>
                             {narrativeBadgeLabels.map((label) => (
                               <Badge
