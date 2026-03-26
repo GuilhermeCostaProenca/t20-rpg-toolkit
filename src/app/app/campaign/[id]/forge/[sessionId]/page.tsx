@@ -1261,6 +1261,17 @@ export default function SessionForgePage() {
     },
     []
   );
+  const toggleEncounterGroupCollapse = useCallback((groupKey: string) => {
+    setCollapsedEncounterGroupKeys((current) => {
+      const next = new Set(current);
+      if (next.has(groupKey)) {
+        next.delete(groupKey);
+      } else {
+        next.add(groupKey);
+      }
+      return next;
+    });
+  }, []);
   useEffect(() => {
     if (!encounterFiltersStorageKey || typeof window === "undefined") return;
     const raw = window.localStorage.getItem(encounterFiltersStorageKey);
@@ -4714,17 +4725,7 @@ export default function SessionForgePage() {
                               size="sm"
                               variant="outline"
                               className="border-white/10 bg-white/5"
-                              onClick={() =>
-                                setCollapsedEncounterGroupKeys((current) => {
-                                  const next = new Set(current);
-                                  if (next.has(group.key)) {
-                                    next.delete(group.key);
-                                  } else {
-                                    next.add(group.key);
-                                  }
-                                  return next;
-                                })
-                              }
+                              onClick={() => toggleEncounterGroupCollapse(group.key)}
                             >
                               {isCollapsed ? (
                                 <>
