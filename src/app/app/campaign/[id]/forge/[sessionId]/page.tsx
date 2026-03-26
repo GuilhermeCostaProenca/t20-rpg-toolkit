@@ -1261,6 +1261,32 @@ export default function SessionForgePage() {
     },
     []
   );
+  const getEncounterGroupNarrativeBadgeLabels = useCallback(
+    (input: {
+      sceneId: string | null;
+      sceneActiveSubsceneCount: number;
+      sceneLinkedBeatCount: number;
+      sceneLinkedEntityCount: number;
+      sceneLinkedRevealCount: number;
+    }) => {
+      if (!input.sceneId) return [] as string[];
+      return [
+        `${input.sceneActiveSubsceneCount} ${
+          input.sceneActiveSubsceneCount === 1 ? "subcena ativa" : "subcenas ativas"
+        }`,
+        `${input.sceneLinkedBeatCount} ${
+          input.sceneLinkedBeatCount === 1 ? "beat ligado" : "beats ligados"
+        }`,
+        `${input.sceneLinkedEntityCount} ${
+          input.sceneLinkedEntityCount === 1 ? "entidade ligada" : "entidades ligadas"
+        }`,
+        `${input.sceneLinkedRevealCount} ${
+          input.sceneLinkedRevealCount === 1 ? "reveal ligado" : "reveals ligados"
+        }`,
+      ];
+    },
+    []
+  );
   const toggleEncounterGroupCollapse = useCallback((groupKey: string) => {
     setCollapsedEncounterGroupKeys((current) => {
       const next = new Set(current);
@@ -4640,6 +4666,13 @@ export default function SessionForgePage() {
                     groupedFilteredEncounters.map((group) => {
                       const isCollapsed = collapsedEncounterGroupKeys.has(group.key);
                       const revealProgressMeta = getSceneRevealProgressMeta(group.sceneRevealProgress);
+                      const narrativeBadgeLabels = getEncounterGroupNarrativeBadgeLabels({
+                        sceneId: group.sceneId,
+                        sceneActiveSubsceneCount: group.sceneActiveSubsceneCount,
+                        sceneLinkedBeatCount: group.sceneLinkedBeatCount,
+                        sceneLinkedEntityCount: group.sceneLinkedEntityCount,
+                        sceneLinkedRevealCount: group.sceneLinkedRevealCount,
+                      });
                       return (
                       <div key={group.key} className="space-y-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -4663,38 +4696,14 @@ export default function SessionForgePage() {
                               Confianca media{" "}
                               {formatBalanceConfidence(group.confidenceSum / Math.max(1, group.encounters.length))}
                             </Badge>
-                            {group.sceneId ? (
-                              <Badge className="border-white/10 bg-white/5 text-white/60">
-                                {group.sceneActiveSubsceneCount}{" "}
-                                {group.sceneActiveSubsceneCount === 1
-                                  ? "subcena ativa"
-                                  : "subcenas ativas"}
+                            {narrativeBadgeLabels.map((label) => (
+                              <Badge
+                                key={`${group.key}-narrative-${label}`}
+                                className="border-white/10 bg-white/5 text-white/60"
+                              >
+                                {label}
                               </Badge>
-                            ) : null}
-                            {group.sceneId ? (
-                              <Badge className="border-white/10 bg-white/5 text-white/60">
-                                {group.sceneLinkedBeatCount}{" "}
-                                {group.sceneLinkedBeatCount === 1
-                                  ? "beat ligado"
-                                  : "beats ligados"}
-                              </Badge>
-                            ) : null}
-                            {group.sceneId ? (
-                              <Badge className="border-white/10 bg-white/5 text-white/60">
-                                {group.sceneLinkedEntityCount}{" "}
-                                {group.sceneLinkedEntityCount === 1
-                                  ? "entidade ligada"
-                                  : "entidades ligadas"}
-                              </Badge>
-                            ) : null}
-                            {group.sceneId ? (
-                              <Badge className="border-white/10 bg-white/5 text-white/60">
-                                {group.sceneLinkedRevealCount}{" "}
-                                {group.sceneLinkedRevealCount === 1
-                                  ? "reveal ligado"
-                                  : "reveals ligados"}
-                              </Badge>
-                            ) : null}
+                            ))}
                             {group.sceneId && revealProgressMeta ? (
                               <Badge
                                 className={revealProgressMeta.className}
