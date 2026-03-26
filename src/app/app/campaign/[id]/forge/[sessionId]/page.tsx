@@ -1267,6 +1267,18 @@ export default function SessionForgePage() {
     (topEnemies: string[]) => `Ameacas principais: ${topEnemies.join(" | ")}`,
     []
   );
+  const getCollapsedSummaryNarrativeDetails = useCallback(
+    (input: {
+      sceneActiveSubsceneCount: number;
+      sceneLinkedBeatCount: number;
+      sceneLinkedEntityCount: number;
+    }) => [
+      `Subcenas ativas: ${input.sceneActiveSubsceneCount}`,
+      `Beats: ${input.sceneLinkedBeatCount}`,
+      `Entidades: ${input.sceneLinkedEntityCount}`,
+    ],
+    []
+  );
   const getCollapsedEncounterGroupSummary = useCallback(
     (input: {
       encounterCount: number;
@@ -1279,17 +1291,17 @@ export default function SessionForgePage() {
     }) => {
       const base = `Grupo recolhido: ${getEncounterCountLabel(input.encounterCount)} e ${input.totalEnemies} inimigos`;
       if (!input.sceneId) return `${base}.`;
-      const details = [
-        `Subcenas ativas: ${input.sceneActiveSubsceneCount}`,
-        `Beats: ${input.sceneLinkedBeatCount}`,
-        `Entidades: ${input.sceneLinkedEntityCount}`,
-      ];
+      const details = getCollapsedSummaryNarrativeDetails({
+        sceneActiveSubsceneCount: input.sceneActiveSubsceneCount,
+        sceneLinkedBeatCount: input.sceneLinkedBeatCount,
+        sceneLinkedEntityCount: input.sceneLinkedEntityCount,
+      });
       if (input.revealProgressSummary) {
         details.push(input.revealProgressSummary);
       }
       return `${base} | ${details.join(" | ")}.`;
     },
-    [getEncounterCountLabel]
+    [getCollapsedSummaryNarrativeDetails, getEncounterCountLabel]
   );
   const getEncounterGroupNarrativeBadgeLabels = useCallback(
     (input: {
