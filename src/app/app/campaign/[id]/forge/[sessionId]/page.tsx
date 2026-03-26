@@ -4350,7 +4350,9 @@ export default function SessionForgePage() {
                   ) : null}
                   {encounterSceneFilter !== "all" ||
                   encounterRatingFilter !== "all" ||
-                  encounterSortBy !== "scene" ? (
+                  encounterSortBy !== "scene" ||
+                  hasActiveEncounterFilters ||
+                  hasEncounterViewCustomizations ? (
                     <div className="flex flex-wrap justify-end gap-2">
                       {encounterSceneFilter !== "all" ? (
                         <Button
@@ -4385,32 +4387,28 @@ export default function SessionForgePage() {
                           Limpar ordenacao
                         </Button>
                       ) : null}
-                    </div>
-                  ) : null}
-                  {hasActiveEncounterFilters ? (
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="border-white/10 bg-white/5"
-                        onClick={clearEncounterFilters}
-                      >
-                        Limpar filtros
-                      </Button>
-                    </div>
-                  ) : null}
-                  {hasEncounterViewCustomizations ? (
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="border-white/10 bg-white/5"
-                        onClick={resetEncounterView}
-                      >
-                        Resetar visao
-                      </Button>
+                      {hasActiveEncounterFilters ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={clearEncounterFilters}
+                        >
+                          Limpar filtros
+                        </Button>
+                      ) : null}
+                      {hasEncounterViewCustomizations ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={resetEncounterView}
+                        >
+                          Resetar visao
+                        </Button>
+                      ) : null}
                     </div>
                   ) : null}
                   {groupedFilteredEncounters.length > 1 ? (
