@@ -4653,7 +4653,13 @@ export default function SessionForgePage() {
                                     : "Nao iniciada"}{" "}
                                 ·{" "}
                                 Reveals exec. {group.sceneRevealProgress.executed}/
-                                {group.sceneRevealProgress.total}
+                                {group.sceneRevealProgress.total} ·{" "}
+                                {Math.round(
+                                  (group.sceneRevealProgress.executed /
+                                    Math.max(1, group.sceneRevealProgress.total)) *
+                                    100
+                                )}
+                                %
                               </Badge>
                             ) : null}
                           </div>
