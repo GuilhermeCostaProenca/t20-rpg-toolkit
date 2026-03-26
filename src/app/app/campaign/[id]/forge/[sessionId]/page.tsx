@@ -4658,6 +4658,19 @@ export default function SessionForgePage() {
                                     Math.max(1, group.sceneRevealProgress.total)) *
                                     100
                                 )}%)`}
+                                aria-label={`${
+                                  group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
+                                    ? "Concluida"
+                                    : group.sceneRevealProgress.executed > 0
+                                      ? "Em andamento"
+                                      : "Nao iniciada"
+                                } · Reveals executados ${group.sceneRevealProgress.executed}/${
+                                  group.sceneRevealProgress.total
+                                } (${Math.round(
+                                  (group.sceneRevealProgress.executed /
+                                    Math.max(1, group.sceneRevealProgress.total)) *
+                                    100
+                                )}%)`}
                               >
                                 {group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
                                   ? "Concluida"
