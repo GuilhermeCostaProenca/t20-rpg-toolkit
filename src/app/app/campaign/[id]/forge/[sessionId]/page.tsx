@@ -557,6 +557,10 @@ export default function SessionForgePage() {
     () => (campaignId && sessionId ? `t20:forge:${campaignId}:${sessionId}:collapsedEncounterGroups` : null),
     [campaignId, sessionId]
   );
+  const encounterFiltersStorageKey = useMemo(
+    () => (campaignId && sessionId ? `t20:forge:${campaignId}:${sessionId}:encounterFilters` : null),
+    [campaignId, sessionId]
+  );
 
   const loadWorkspace = useCallback(async () => {
     if (!campaignId) return;
@@ -966,6 +970,53 @@ export default function SessionForgePage() {
     setEncounterSceneFilter("all");
     setEncounterRatingFilter("all");
   }
+  useEffect(() => {
+    if (!encounterFiltersStorageKey || typeof window === "undefined") return;
+    const raw = window.localStorage.getItem(encounterFiltersStorageKey);
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as {
+        sceneFilter?: unknown;
+        ratingFilter?: unknown;
+        sortBy?: unknown;
+      };
+      const sceneFilter =
+        typeof parsed.sceneFilter === "string" ? parsed.sceneFilter : "all";
+      const ratingFilter =
+        typeof parsed.ratingFilter === "string" &&
+        (parsed.ratingFilter === "all" ||
+          encounterRatingOptions.includes(parsed.ratingFilter as (typeof encounterRatingOptions)[number]))
+          ? (parsed.ratingFilter as "all" | (typeof encounterRatingOptions)[number])
+          : "all";
+      const sortBy =
+        parsed.sortBy === "scene" || parsed.sortBy === "risk"
+          ? (parsed.sortBy as "scene" | "risk")
+          : "scene";
+      setEncounterSceneFilter(sceneFilter);
+      setEncounterRatingFilter(ratingFilter);
+      setEncounterSortBy(sortBy);
+    } catch {
+      window.localStorage.removeItem(encounterFiltersStorageKey);
+    }
+  }, [encounterFiltersStorageKey]);
+  useEffect(() => {
+    setEncounterSceneFilter((current) => {
+      if (current === "all" || current === "__unlinked__") return current;
+      const exists = forge.scenes.some((scene) => scene.id === current);
+      return exists ? current : "all";
+    });
+  }, [forge.scenes]);
+  useEffect(() => {
+    if (!encounterFiltersStorageKey || typeof window === "undefined") return;
+    window.localStorage.setItem(
+      encounterFiltersStorageKey,
+      JSON.stringify({
+        sceneFilter: encounterSceneFilter,
+        ratingFilter: encounterRatingFilter,
+        sortBy: encounterSortBy,
+      })
+    );
+  }, [encounterFiltersStorageKey, encounterRatingFilter, encounterSceneFilter, encounterSortBy]);
   useEffect(() => {
     if (!collapsedEncounterGroupsStorageKey || typeof window === "undefined") return;
     const raw = window.localStorage.getItem(collapsedEncounterGroupsStorageKey);
