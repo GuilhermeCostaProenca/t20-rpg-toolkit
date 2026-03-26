@@ -4521,7 +4521,20 @@ export default function SessionForgePage() {
                     })
                   ) : (
                     <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
-                      Nenhum encontro corresponde ao filtro selecionado.
+                      <p>Nenhum encontro corresponde ao filtro selecionado.</p>
+                      {hasEncounterViewCustomizations ? (
+                        <div className="mt-3">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="border-white/10 bg-white/5"
+                            onClick={resetEncounterView}
+                          >
+                            Resetar visao
+                          </Button>
+                        </div>
+                      ) : null}
                     </div>
                   )}
                 </>
