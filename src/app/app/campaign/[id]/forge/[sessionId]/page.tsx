@@ -1078,7 +1078,7 @@ export default function SessionForgePage() {
     });
   }, [groupedFilteredEncounters]);
   useEffect(() => {
-    if (encounterSceneFilter === "all" || encounterSceneFilter === "__unlinked__") return;
+    if (encounterSceneFilter === "all") return;
     setCollapsedEncounterGroupKeys((current) => {
       if (!current.has(encounterSceneFilter)) return current;
       const next = new Set(current);
