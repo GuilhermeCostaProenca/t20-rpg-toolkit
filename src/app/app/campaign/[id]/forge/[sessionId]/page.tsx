@@ -4637,7 +4637,15 @@ export default function SessionForgePage() {
                               </Badge>
                             ) : null}
                             {group.sceneId && group.sceneRevealProgress.total > 0 ? (
-                              <Badge className="border-white/10 bg-white/5 text-white/60">
+                              <Badge
+                                className={
+                                  group.sceneRevealProgress.executed >= group.sceneRevealProgress.total
+                                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
+                                    : group.sceneRevealProgress.executed > 0
+                                      ? "border-amber-500/30 bg-amber-500/10 text-amber-100"
+                                      : "border-white/10 bg-white/5 text-white/60"
+                                }
+                              >
                                 Reveals exec. {group.sceneRevealProgress.executed}/
                                 {group.sceneRevealProgress.total}
                               </Badge>
