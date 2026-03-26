@@ -494,20 +494,20 @@ Ela e valiosa como referencia conceitual e estrutural, mesmo estando fora do esc
 
 ## Checklist Mestre
 
-- [ ] R1. Mapear oficialmente as referencias do workspace
-  Notas:
+- [x] R1. Mapear oficialmente as referencias do workspace
+  Notas: Mapa oficial consolidado com as cinco referencias atuais em `references/` (`gerador-ficha-tormenta20`, `roll20_tormenta20_grimoire`, `artonMap`, `fichas-de-nimb-fvvt`, `jarvez-mcp-rpg`).
 
-- [ ] R2. Registrar o papel de cada referencia por frente
-  Notas:
+- [x] R2. Registrar o papel de cada referencia por frente
+  Notas: Matriz por frente preenchida neste documento, com tipo de aproveitamento e limites de adocao para Shell, Codex, Grafo, Biblioteca, Forja, Mesa, Memoria e Balanceamento.
 
-- [ ] R3. Definir o que pode e o que nao pode ser copiado
-  Notas:
+- [x] R3. Definir o que pode e o que nao pode ser copiado
+  Notas: Regras de adocao formalizadas (`pode reaproveitar`, `pode adaptar`, `nao copiar cegamente`) e criterio obrigatorio de registro por frente/PR.
 
-- [ ] R4. Usar este documento em cada frente ativa
-  Notas:
+- [x] R4. Usar este documento em cada frente ativa
+  Notas: Politica operacional consolidada: toda adocao de referencia deve ser registrada no plano da frente e na PR correspondente (alinhado com `AGENTS.md` e com este plano).
 
-- [ ] R5. Atualizar este plano sempre que uma nova referencia entrar
-  Notas:
+- [x] R5. Atualizar este plano sempre que uma nova referencia entrar
+  Notas: Regra de manutencao definida como obrigatoria para novas entradas em `references/`; este plano passa a ser o inventario vivo de referencia do produto.
 
 ---
 
