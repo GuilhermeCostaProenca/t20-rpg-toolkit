@@ -4064,8 +4064,9 @@ export default function SessionForgePage() {
                     >
                       Sem cena ({unlinkedEncounterCount})
                     </Button>
-                {forge.scenes.map((scene, sceneIndex) => {
+                    {forge.scenes.map((scene, sceneIndex) => {
                       const count = encounterCountBySceneId.get(scene.id) ?? 0;
+                      const sceneTitle = scene.title?.trim() || "Cena sem titulo";
                       return (
                         <Button
                           key={`encounter-filter-scene-${scene.id}`}
@@ -4078,11 +4079,15 @@ export default function SessionForgePage() {
                               : "border-white/10 bg-white/5"
                           }
                           onClick={() => setEncounterSceneFilter(scene.id)}
+                          title={`Cena ${sceneIndex + 1}: ${sceneTitle}`}
                         >
-                          C{sceneIndex + 1} ({count})
+                          <span className="max-w-[11rem] truncate">
+                            C{sceneIndex + 1} - {sceneTitle}
+                          </span>
+                          <span className="ml-1">({count})</span>
                         </Button>
                       );
-                })}
+                    })}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Button
