@@ -4784,7 +4784,9 @@ export default function SessionForgePage() {
                             {group.encounters.length === 1 ? "encontro" : "encontros"} e{" "}
                             {group.totalEnemies} inimigos
                             {group.sceneId
-                              ? ` | Subcenas ativas: ${group.sceneActiveSubsceneCount} | Beats: ${group.sceneLinkedBeatCount} | Entidades: ${group.sceneLinkedEntityCount} | Reveals exec.: ${group.sceneRevealProgress.executed}/${group.sceneRevealProgress.total}`
+                              ? ` | Subcenas ativas: ${group.sceneActiveSubsceneCount} | Beats: ${group.sceneLinkedBeatCount} | Entidades: ${group.sceneLinkedEntityCount}${
+                                  revealProgressMeta ? ` | ${revealProgressMeta.summary}` : ""
+                                }`
                               : ""}
                             .
                           </p>
