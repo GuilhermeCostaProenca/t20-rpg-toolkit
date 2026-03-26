@@ -986,6 +986,12 @@ export default function SessionForgePage() {
     setEncounterRatingFilter("all");
     setEncounterSortBy("scene");
   }
+  const hasEncounterViewCustomizations =
+    hasActiveEncounterFilters || encounterSortBy !== "scene" || collapsedEncounterGroupCount > 0;
+  function resetEncounterView() {
+    clearEncounterFilters();
+    setCollapsedEncounterGroupKeys(new Set());
+  }
   useEffect(() => {
     if (!encounterFiltersStorageKey || typeof window === "undefined") return;
     const raw = window.localStorage.getItem(encounterFiltersStorageKey);
@@ -4321,6 +4327,19 @@ export default function SessionForgePage() {
                         onClick={clearEncounterFilters}
                       >
                         Limpar filtros
+                      </Button>
+                    </div>
+                  ) : null}
+                  {hasEncounterViewCustomizations ? (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        onClick={resetEncounterView}
+                      >
+                        Resetar visao
                       </Button>
                     </div>
                   ) : null}
