@@ -783,6 +783,13 @@ export default function SessionForgePage() {
       ),
     [forge.scenes]
   );
+  const sceneOrderById = useMemo(
+    () =>
+      new Map(
+        forge.scenes.map((scene, index) => [scene.id, index])
+      ),
+    [forge.scenes]
+  );
   const sceneContextById = useMemo(
     () =>
       new Map(
@@ -851,10 +858,18 @@ export default function SessionForgePage() {
         const riskDiff = encounterRatingWeight[right.rating] - encounterRatingWeight[left.rating];
         if (riskDiff !== 0) return riskDiff;
       }
-      const leftScene = left.linkedSceneId ? (sceneTitleById.get(left.linkedSceneId) ?? "zzzz") : "zzzz";
-      const rightScene = right.linkedSceneId ? (sceneTitleById.get(right.linkedSceneId) ?? "zzzz") : "zzzz";
-      const sceneDiff = leftScene.localeCompare(rightScene, "pt-BR", { sensitivity: "base" });
-      if (sceneDiff !== 0) return sceneDiff;
+      const leftSceneOrder = left.linkedSceneId
+        ? (sceneOrderById.get(left.linkedSceneId) ?? Number.MAX_SAFE_INTEGER)
+        : Number.MAX_SAFE_INTEGER;
+      const rightSceneOrder = right.linkedSceneId
+        ? (sceneOrderById.get(right.linkedSceneId) ?? Number.MAX_SAFE_INTEGER)
+        : Number.MAX_SAFE_INTEGER;
+      const sceneOrderDiff = leftSceneOrder - rightSceneOrder;
+      if (sceneOrderDiff !== 0) return sceneOrderDiff;
+      const leftSceneTitle = left.linkedSceneId ? (sceneTitleById.get(left.linkedSceneId) ?? "zzzz") : "zzzz";
+      const rightSceneTitle = right.linkedSceneId ? (sceneTitleById.get(right.linkedSceneId) ?? "zzzz") : "zzzz";
+      const sceneTitleDiff = leftSceneTitle.localeCompare(rightSceneTitle, "pt-BR", { sensitivity: "base" });
+      if (sceneTitleDiff !== 0) return sceneTitleDiff;
       if (encounterSortBy === "scene") {
         const riskDiff = encounterRatingWeight[right.rating] - encounterRatingWeight[left.rating];
         if (riskDiff !== 0) return riskDiff;
@@ -864,7 +879,7 @@ export default function SessionForgePage() {
       return leftTitle.localeCompare(rightTitle, "pt-BR", { sensitivity: "base" });
     });
     return next;
-  }, [encounterSortBy, filteredEncounters, sceneTitleById]);
+  }, [encounterSortBy, filteredEncounters, sceneOrderById, sceneTitleById]);
   const groupedFilteredEncounters = useMemo(() => {
     const groups = new Map<
       string,
