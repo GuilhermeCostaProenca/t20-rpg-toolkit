@@ -4348,43 +4348,43 @@ export default function SessionForgePage() {
                       </Button>
                     </div>
                   ) : null}
-                  {encounterSceneFilter !== "all" ? (
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="border-white/10 bg-white/5"
-                        onClick={() => setEncounterSceneFilter("all")}
-                      >
-                        Limpar cena
-                      </Button>
-                    </div>
-                  ) : null}
-                  {encounterRatingFilter !== "all" ? (
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="border-white/10 bg-white/5"
-                        onClick={() => setEncounterRatingFilter("all")}
-                      >
-                        Limpar risco
-                      </Button>
-                    </div>
-                  ) : null}
-                  {encounterSortBy !== "scene" ? (
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="border-white/10 bg-white/5"
-                        onClick={() => setEncounterSortBy("scene")}
-                      >
-                        Limpar ordenacao
-                      </Button>
+                  {encounterSceneFilter !== "all" ||
+                  encounterRatingFilter !== "all" ||
+                  encounterSortBy !== "scene" ? (
+                    <div className="flex flex-wrap justify-end gap-2">
+                      {encounterSceneFilter !== "all" ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() => setEncounterSceneFilter("all")}
+                        >
+                          Limpar cena
+                        </Button>
+                      ) : null}
+                      {encounterRatingFilter !== "all" ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() => setEncounterRatingFilter("all")}
+                        >
+                          Limpar risco
+                        </Button>
+                      ) : null}
+                      {encounterSortBy !== "scene" ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-white/10 bg-white/5"
+                          onClick={() => setEncounterSortBy("scene")}
+                        >
+                          Limpar ordenacao
+                        </Button>
+                      ) : null}
                     </div>
                   ) : null}
                   {hasActiveEncounterFilters ? (
