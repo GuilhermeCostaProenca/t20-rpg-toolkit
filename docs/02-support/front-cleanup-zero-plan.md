@@ -54,8 +54,8 @@ Esta frente existe para:
 - [x] F4. Mapear paginas antigas que ainda sobrevivem como legado
   Notas: Rotas globais de personagens, NPCs, locais, diario e compendio viraram bridges oficiais para o fluxo world-scoped. Comunidade ficou em quarentena declarada.
 
-- [-] F5. Encerrar a frente com inventario fechado do que continua legado
-  Notas: Biblioteca documental foi alinhada ao novo shell; ainda falta decidir o destino final de `community` e de outras superfices secundarias apos o Codex.
+- [x] F5. Encerrar a frente com inventario fechado do que continua legado
+  Notas: Inventario de legado fechado para a Atualizacao 1: `community` permanece em quarentena declarada e rotas globais secundarias seguem como bridges de transicao ate os recortes dedicados do Codex/Shell, sem bloquear o caminho principal world-scoped.
 
 ---
 
