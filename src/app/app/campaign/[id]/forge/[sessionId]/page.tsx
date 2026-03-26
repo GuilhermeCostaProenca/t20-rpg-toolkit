@@ -1263,6 +1263,10 @@ export default function SessionForgePage() {
     (confidence: number) => `Confianca ${formatBalanceConfidence(confidence)}`,
     []
   );
+  const getTopEnemiesPreviewLabel = useCallback(
+    (topEnemies: string[]) => `Ameacas principais: ${topEnemies.join(" | ")}`,
+    []
+  );
   const getCollapsedEncounterGroupSummary = useCallback(
     (input: {
       encounterCount: number;
@@ -4784,7 +4788,7 @@ export default function SessionForgePage() {
                         ) : null}
                         {group.topEnemies.length > 0 ? (
                           <p className="text-xs leading-6 text-muted-foreground">
-                            Ameacas principais: {group.topEnemies.join(" | ")}
+                            {getTopEnemiesPreviewLabel(group.topEnemies)}
                           </p>
                         ) : null}
                         <div className="flex flex-wrap gap-2">
