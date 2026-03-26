@@ -996,6 +996,12 @@ export default function SessionForgePage() {
   }
   const hasEncounterViewCustomizations =
     hasActiveEncounterFilters || encounterSortBy !== "scene" || collapsedEncounterGroupCount > 0;
+  const encounterQuickActionCount =
+    Number(encounterSceneFilter !== "all") +
+    Number(encounterRatingFilter !== "all") +
+    Number(encounterSortBy !== "scene") +
+    Number(hasActiveEncounterFilters) +
+    Number(hasEncounterViewCustomizations);
   function resetEncounterView() {
     clearEncounterFilters();
     setCollapsedEncounterGroupKeys(new Set());
@@ -4353,7 +4359,10 @@ export default function SessionForgePage() {
                   encounterSortBy !== "scene" ||
                   hasActiveEncounterFilters ||
                   hasEncounterViewCustomizations ? (
-                    <div className="flex flex-wrap justify-end gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <Badge className="border-white/10 bg-white/5 text-white/60">
+                        Acoes rapidas: {encounterQuickActionCount}
+                      </Badge>
                       {encounterSceneFilter !== "all" ? (
                         <Button
                           type="button"
