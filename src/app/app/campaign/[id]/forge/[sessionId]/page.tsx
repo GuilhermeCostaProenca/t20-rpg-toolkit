@@ -996,12 +996,20 @@ export default function SessionForgePage() {
   }
   const hasEncounterViewCustomizations =
     hasActiveEncounterFilters || encounterSortBy !== "scene" || collapsedEncounterGroupCount > 0;
+  const hasClearSceneAction = encounterSceneFilter !== "all";
+  const hasClearRiskAction = encounterRatingFilter !== "all";
+  const hasClearSortAction = encounterSortBy !== "scene";
+  const hasClearFiltersAction = hasActiveEncounterFilters;
+  const hasResetViewAction = hasEncounterViewCustomizations;
+  const hasJumpToFilteredSceneAction = Boolean(jumpToFilteredSceneId);
   const encounterQuickActionCount =
-    Number(encounterSceneFilter !== "all") +
-    Number(encounterRatingFilter !== "all") +
-    Number(encounterSortBy !== "scene") +
-    Number(hasActiveEncounterFilters) +
-    Number(hasEncounterViewCustomizations);
+    Number(hasJumpToFilteredSceneAction) +
+    Number(hasClearSceneAction) +
+    Number(hasClearRiskAction) +
+    Number(hasClearSortAction) +
+    Number(hasClearFiltersAction) +
+    Number(hasResetViewAction);
+  const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0;
   function resetEncounterView() {
     clearEncounterFilters();
     setCollapsedEncounterGroupKeys(new Set());
@@ -4340,28 +4348,24 @@ export default function SessionForgePage() {
                   <p className="text-xs leading-6 text-muted-foreground">
                     {encounterViewSummary}
                   </p>
-                  {encounterSceneFilter !== "all" ||
-                  encounterRatingFilter !== "all" ||
-                  encounterSortBy !== "scene" ||
-                  hasActiveEncounterFilters ||
-                  hasEncounterViewCustomizations ? (
+                  {shouldShowEncounterActionToolbar ? (
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <Badge className="border-white/10 bg-white/5 text-white/60">
                         Acoes rapidas: {encounterQuickActionCount}
                       </Badge>
-                      {jumpToFilteredSceneId ? (
+                      {hasJumpToFilteredSceneAction ? (
                         <Button
                           type="button"
                           size="sm"
                           variant="outline"
                           className="border-white/10 bg-white/5"
-                          onClick={() => jumpToSceneCard(jumpToFilteredSceneId)}
+                          onClick={() => jumpToSceneCard(jumpToFilteredSceneId!)}
                         >
                           Ir para cena filtrada
                           <ArrowRight className="ml-2 h-3.5 w-3.5" />
                         </Button>
                       ) : null}
-                      {encounterSceneFilter !== "all" ? (
+                      {hasClearSceneAction ? (
                         <Button
                           type="button"
                           size="sm"
@@ -4372,7 +4376,7 @@ export default function SessionForgePage() {
                           Limpar cena
                         </Button>
                       ) : null}
-                      {encounterRatingFilter !== "all" ? (
+                      {hasClearRiskAction ? (
                         <Button
                           type="button"
                           size="sm"
@@ -4383,7 +4387,7 @@ export default function SessionForgePage() {
                           Limpar risco
                         </Button>
                       ) : null}
-                      {encounterSortBy !== "scene" ? (
+                      {hasClearSortAction ? (
                         <Button
                           type="button"
                           size="sm"
@@ -4394,7 +4398,7 @@ export default function SessionForgePage() {
                           Limpar ordenacao
                         </Button>
                       ) : null}
-                      {hasActiveEncounterFilters ? (
+                      {hasClearFiltersAction ? (
                         <Button
                           type="button"
                           size="sm"
@@ -4405,7 +4409,7 @@ export default function SessionForgePage() {
                           Limpar filtros
                         </Button>
                       ) : null}
-                      {hasEncounterViewCustomizations ? (
+                      {hasResetViewAction ? (
                         <Button
                           type="button"
                           size="sm"
