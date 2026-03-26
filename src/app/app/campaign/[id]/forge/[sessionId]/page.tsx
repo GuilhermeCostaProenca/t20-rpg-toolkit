@@ -1009,8 +1009,9 @@ export default function SessionForgePage() {
     Number(hasClearRiskAction) +
     Number(hasClearSortAction) +
     Number(hasClearFiltersAction) +
-    Number(hasResetViewAction);
-  const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0 || hasGroupControlsAction;
+    Number(hasResetViewAction) +
+    Number(hasGroupControlsAction) * 2;
+  const shouldShowEncounterActionToolbar = encounterQuickActionCount > 0;
   function resetEncounterView() {
     clearEncounterFilters();
     setCollapsedEncounterGroupKeys(new Set());
