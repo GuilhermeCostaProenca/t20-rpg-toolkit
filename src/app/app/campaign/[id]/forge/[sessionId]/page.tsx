@@ -883,6 +883,26 @@ export default function SessionForgePage() {
     });
     return next;
   }, [encounterSortBy, filteredEncounters, sceneOrderById, sceneTitleById]);
+  const sceneLinkedRevealCountById = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const scene of forge.scenes) {
+      const revealIds = new Set<string>();
+      for (const revealId of scene.linkedRevealIds) {
+        if (typeof revealId === "string" && revealId.trim().length > 0) {
+          revealIds.add(revealId);
+        }
+      }
+      for (const subscene of scene.subscenes) {
+        for (const revealId of subscene.linkedRevealIds) {
+          if (typeof revealId === "string" && revealId.trim().length > 0) {
+            revealIds.add(revealId);
+          }
+        }
+      }
+      counts.set(scene.id, revealIds.size);
+    }
+    return counts;
+  }, [forge.scenes]);
   const groupedFilteredEncounters = useMemo(() => {
     const groups = new Map<
       string,
@@ -892,6 +912,7 @@ export default function SessionForgePage() {
         title: string;
         sceneStatus?: SessionForgeSceneStatus;
         sceneObjective?: string;
+        sceneLinkedRevealCount: number;
         totalEnemies: number;
         confidenceSum: number;
         topEnemies: string[];
@@ -918,6 +939,7 @@ export default function SessionForgePage() {
           title,
           sceneStatus: sceneContext?.status,
           sceneObjective: sceneContext?.objective,
+          sceneLinkedRevealCount: sceneId ? (sceneLinkedRevealCountById.get(sceneId) ?? 0) : 0,
           totalEnemies: encounterEnemyTotal,
           confidenceSum: encounter.confidence,
           topEnemies: [],
@@ -948,7 +970,7 @@ export default function SessionForgePage() {
         topEnemies,
       };
     });
-  }, [sceneContextById, sceneTitleById, sortedFilteredEncounters]);
+  }, [sceneContextById, sceneLinkedRevealCountById, sceneTitleById, sortedFilteredEncounters]);
   const hasActiveEncounterFilters =
     encounterSceneFilter !== "all" || encounterRatingFilter !== "all";
   const jumpToFilteredSceneId =
@@ -4489,6 +4511,14 @@ export default function SessionForgePage() {
                               Confianca media{" "}
                               {formatBalanceConfidence(group.confidenceSum / Math.max(1, group.encounters.length))}
                             </Badge>
+                            {group.sceneId ? (
+                              <Badge className="border-white/10 bg-white/5 text-white/60">
+                                {group.sceneLinkedRevealCount}{" "}
+                                {group.sceneLinkedRevealCount === 1
+                                  ? "reveal ligado"
+                                  : "reveals ligados"}
+                              </Badge>
+                            ) : null}
                           </div>
                           <div className="flex items-center gap-2">
                             {group.sceneId ? (
