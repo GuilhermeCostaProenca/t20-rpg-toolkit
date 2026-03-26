@@ -4361,6 +4361,19 @@ export default function SessionForgePage() {
                       </Button>
                     </div>
                   ) : null}
+                  {encounterRatingFilter !== "all" ? (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        onClick={() => setEncounterRatingFilter("all")}
+                      >
+                        Limpar risco
+                      </Button>
+                    </div>
+                  ) : null}
                   {hasActiveEncounterFilters ? (
                     <div className="flex justify-end">
                       <Button
