@@ -732,12 +732,6 @@ export default function SessionForgePage() {
       setRevealAssetKindFilter("all");
     }
   }, [revealAssetKindFilter, revealAssetKindOptions]);
-  useEffect(() => {
-    if (encounterSceneFilter === "all" || encounterSceneFilter === "__unlinked__") return;
-    if (!forge.scenes.some((scene) => scene.id === encounterSceneFilter)) {
-      setEncounterSceneFilter("all");
-    }
-  }, [encounterSceneFilter, forge.scenes]);
 
   const dramaticItems = useMemo(
     () => [...forge.hooks, ...forge.secrets, ...forge.reveals],
