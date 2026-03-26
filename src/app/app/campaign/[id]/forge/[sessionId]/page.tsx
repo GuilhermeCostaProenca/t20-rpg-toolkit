@@ -805,6 +805,21 @@ export default function SessionForgePage() {
     }
     return counts;
   }, [forge.encounters]);
+  const maxEncounterRatingBySceneId = useMemo(() => {
+    const ratings = new Map<string, (typeof encounterRatingOptions)[number]>();
+    for (const encounter of forge.encounters) {
+      if (!encounter.linkedSceneId) continue;
+      const current = ratings.get(encounter.linkedSceneId);
+      if (!current) {
+        ratings.set(encounter.linkedSceneId, encounter.rating);
+        continue;
+      }
+      if (encounterRatingWeight[encounter.rating] > encounterRatingWeight[current]) {
+        ratings.set(encounter.linkedSceneId, encounter.rating);
+      }
+    }
+    return ratings;
+  }, [forge.encounters]);
   const unlinkedEncounterCount = useMemo(
     () => forge.encounters.filter((encounter) => !encounter.linkedSceneId).length,
     [forge.encounters]
@@ -1540,6 +1555,7 @@ export default function SessionForgePage() {
                 <div className="mt-2 flex flex-wrap gap-2">
                   {forge.scenes.map((scene, sceneIndex) => {
                     const linkedEncounterCount = encounterCountBySceneId.get(scene.id) ?? 0;
+                    const linkedEncounterMaxRating = maxEncounterRatingBySceneId.get(scene.id);
                     return (
                       <Button
                         key={`scene-rail-${scene.id}`}
@@ -1564,6 +1580,11 @@ export default function SessionForgePage() {
                         {linkedEncounterCount > 0 ? (
                           <span className="ml-2 rounded border border-primary/25 bg-primary/10 px-1 py-0.5 text-[10px] uppercase tracking-[0.12em] text-primary">
                             {linkedEncounterCount} enc
+                          </span>
+                        ) : null}
+                        {linkedEncounterMaxRating ? (
+                          <span className="ml-2 rounded border border-amber-300/25 bg-amber-300/10 px-1 py-0.5 text-[10px] uppercase tracking-[0.12em] text-amber-100">
+                            risco {formatEncounterRating(linkedEncounterMaxRating)}
                           </span>
                         ) : null}
                       </Button>
@@ -1644,6 +1665,7 @@ export default function SessionForgePage() {
                   const isSceneDropTarget =
                     !!draggedSceneId && sceneDropTargetId === scene.id && draggedSceneId !== scene.id;
                   const linkedEncounterCount = encounterCountBySceneId.get(scene.id) ?? 0;
+                  const linkedEncounterMaxRating = maxEncounterRatingBySceneId.get(scene.id);
                   return (
                   <div
                     id={`forge-scene-${scene.id}`}
@@ -1680,6 +1702,11 @@ export default function SessionForgePage() {
                           <p className="mt-1 text-xs uppercase tracking-[0.12em] text-primary">
                             {linkedEncounterCount} encontro{linkedEncounterCount > 1 ? "s" : ""} vinculado
                             {linkedEncounterCount > 1 ? "s" : ""}
+                          </p>
+                        ) : null}
+                        {linkedEncounterMaxRating ? (
+                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-amber-100">
+                            Risco maximo: {formatEncounterRating(linkedEncounterMaxRating)}
                           </p>
                         ) : null}
                         {isSceneDropTarget ? (
@@ -4037,7 +4064,7 @@ export default function SessionForgePage() {
                     >
                       Sem cena ({unlinkedEncounterCount})
                     </Button>
-                    {forge.scenes.map((scene, sceneIndex) => {
+                {forge.scenes.map((scene, sceneIndex) => {
                       const count = encounterCountBySceneId.get(scene.id) ?? 0;
                       return (
                         <Button
@@ -4055,7 +4082,7 @@ export default function SessionForgePage() {
                           C{sceneIndex + 1} ({count})
                         </Button>
                       );
-                    })}
+                })}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Button
