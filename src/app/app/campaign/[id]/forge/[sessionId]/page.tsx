@@ -4374,6 +4374,19 @@ export default function SessionForgePage() {
                       </Button>
                     </div>
                   ) : null}
+                  {encounterSortBy !== "scene" ? (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        onClick={() => setEncounterSortBy("scene")}
+                      >
+                        Limpar ordenacao
+                      </Button>
+                    </div>
+                  ) : null}
                   {hasActiveEncounterFilters ? (
                     <div className="flex justify-end">
                       <Button
