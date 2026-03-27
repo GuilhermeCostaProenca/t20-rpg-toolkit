@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { analyzeLiveCombatPressure, analyzeT20Encounter } from "@/lib/t20-balance";
+import {
+  analyzeLiveCombatPressure,
+  analyzeT20Encounter,
+  suggestLiveAdjustment,
+  type LivePressureSnapshot,
+} from "@/lib/t20-balance";
 
 describe("analyzeT20Encounter - non-trivial compositions", () => {
   const party = [
@@ -180,5 +185,60 @@ describe("analyzeLiveCombatPressure - resource-aware pressure", () => {
     expect(pressure.avgSanPercent).toBeNull();
     expect(pressure.lowPmCount).toBe(0);
     expect(pressure.lowSanCount).toBe(0);
+  });
+});
+
+describe("suggestLiveAdjustment - resource-aware guidance", () => {
+  function buildPressure(overrides: Partial<LivePressureSnapshot>): LivePressureSnapshot {
+    return {
+      state: "stable",
+      playerCount: 4,
+      hostileCount: 4,
+      playerHpRatio: 0.7,
+      hostileHpRatio: 0.7,
+      avgPmPercent: 60,
+      avgSanPercent: 60,
+      lowPmCount: 0,
+      lowSanCount: 0,
+      downedPlayers: 0,
+      downedHostiles: 0,
+      countDelta: 0,
+      summary: "Mesa sob controle.",
+      recommendation: "placeholder",
+      factors: [],
+      ...overrides,
+    };
+  }
+
+  it("adds explicit resource recovery action when pressure is critical and PM/SAN collapse", () => {
+    const guide = suggestLiveAdjustment(
+      buildPressure({
+        state: "critical",
+        avgPmPercent: 18,
+        avgSanPercent: 22,
+        lowPmCount: 3,
+        lowSanCount: 2,
+      }),
+      "deadly"
+    );
+
+    expect(guide.posture).toBe("ease");
+    expect(guide.actions.some((action) => action.includes("PM/SAN estao em colapso"))).toBe(true);
+  });
+
+  it("prioritizes resource caution in rising state even without numeric disadvantage", () => {
+    const guide = suggestLiveAdjustment(
+      buildPressure({
+        state: "rising",
+        countDelta: 1,
+        avgPmPercent: 35,
+        avgSanPercent: 45,
+        lowPmCount: 1,
+      }),
+      "manageable"
+    );
+
+    expect(guide.posture).toBe("hold");
+    expect(guide.actions.some((action) => action.includes("desgaste de PM/SAN"))).toBe(true);
   });
 });

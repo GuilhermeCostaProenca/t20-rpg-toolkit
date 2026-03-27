@@ -784,6 +784,18 @@ export function suggestLiveAdjustment(
   preparedRating?: string | null
 ): LiveAdjustmentGuide {
   const rating = preparedRating?.trim().toLowerCase() ?? "";
+  const halfParty = Math.max(1, Math.ceil(pressure.playerCount / 2));
+  const resourceCritical =
+    (pressure.avgPmPercent !== null && pressure.avgPmPercent <= 25) ||
+    (pressure.avgSanPercent !== null && pressure.avgSanPercent <= 25) ||
+    pressure.lowPmCount >= halfParty ||
+    pressure.lowSanCount >= halfParty;
+  const resourceStressed =
+    resourceCritical ||
+    (pressure.avgPmPercent !== null && pressure.avgPmPercent <= 40) ||
+    (pressure.avgSanPercent !== null && pressure.avgSanPercent <= 40) ||
+    pressure.lowPmCount > 0 ||
+    pressure.lowSanCount > 0;
 
   if (pressure.state === "critical") {
     return {
@@ -792,9 +804,11 @@ export function suggestLiveAdjustment(
       actions: [
         "Corte uma acao hostil secundaria ou atrase reforcos narrativos.",
         "Abra cobertura, rota de fuga ou janela para reorganizacao do grupo.",
-        rating === "deadly" || rating === "punitivo"
-          ? "Se o encontro ja era pesado no preparo, reduza dano ou HP de uma ameaca principal."
-          : "Mantenha a tensao, mas alivie economia de acao antes de derrubar mais alguem.",
+        resourceCritical
+          ? "PM/SAN estao em colapso: priorize rodada de respiro para recuperacao e reduza custo de recurso imediato."
+          : rating === "deadly" || rating === "punitivo"
+            ? "Se o encontro ja era pesado no preparo, reduza dano ou HP de uma ameaca principal."
+            : "Mantenha a tensao, mas alivie economia de acao antes de derrubar mais alguem.",
       ],
     };
   }
@@ -806,9 +820,11 @@ export function suggestLiveAdjustment(
       actions: [
         "Evite empilhar reforcos agora; deixe a pressao vir da posicao ou do objetivo.",
         "Se quiser escalar, prefira custo narrativo ou terreno em vez de dano bruto.",
-        pressure.countDelta < 0
-          ? "A vantagem numerica hostil ja faz parte da pressao. Nao precisa adicionar mais corpos por enquanto."
-          : "Observe recursos de cura e controle antes de decidir por um pico extra.",
+        resourceStressed
+          ? "Ha desgaste de PM/SAN em curso: segure picos e force decisao taticamente, nao por exaustao de recurso."
+          : pressure.countDelta < 0
+            ? "A vantagem numerica hostil ja faz parte da pressao. Nao precisa adicionar mais corpos por enquanto."
+            : "Observe recursos de cura e controle antes de decidir por um pico extra.",
       ],
     };
   }
@@ -818,9 +834,11 @@ export function suggestLiveAdjustment(
     posture: "escalate",
     actions: [
       "Suba a pressao por objetivo, prazo ou ameaca lateral antes de inflar HP aleatoriamente.",
-      rating === "trivial" || rating === "manageable" || rating === "jogavel"
-        ? "O encontro preparado ainda comporta uma escalada leve em dano, reforco ou terreno."
-        : "Mesmo sob controle, preserve o peso do encontro e escale em camadas pequenas.",
+      resourceStressed
+        ? "Mesmo sob controle, o grupo ja mostra desgaste de recurso: escale por objetivo/tempo e preserve PM/SAN."
+        : rating === "trivial" || rating === "manageable" || rating === "jogavel"
+          ? "O encontro preparado ainda comporta uma escalada leve em dano, reforco ou terreno."
+          : "Mesmo sob controle, preserve o peso do encontro e escale em camadas pequenas.",
       "Prefira revelar uma complicacao de cena ou reforco pontual em vez de mudar tudo de uma vez.",
     ],
   };

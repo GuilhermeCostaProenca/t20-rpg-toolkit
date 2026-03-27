@@ -157,3 +157,16 @@
   - Positivo: melhora confiabilidade do status executivo e reduz ambiguidade de priorizacao.
   - Negativo / trade-off: futuras melhorias de memoria passam a entrar como evolucao incremental, nao como pendencia de fechamento da frente.
 - Plano de revisao: reavaliar apenas se houver regressao funcional relevante na camada de memoria.
+
+### DEC-012: Ajuste rapido orientado por estresse de PM/SAN
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: apos integrar PM/SAN no `livePressure`, as acoes de `suggestLiveAdjustment` ainda eram genericas e nem sempre refletiam que a pressao vinha de exaustao de recurso.
+- Decisao: introduzir leitura explicita de `resourceStressed/resourceCritical` em `suggestLiveAdjustment`, priorizando acoes de respiro e preservacao de recurso quando PM/SAN estiverem baixos.
+- Alternativas consideradas:
+  - manter recomendacoes genericas e depender da leitura manual de fatores;
+  - criar novo card de ajuste exclusivo para recursos.
+- Impacto:
+  - Positivo: recomendacao tatico-narrativa mais acionavel em mesa ao vivo, sem alterar estrutura da UI.
+  - Negativo / trade-off: maior ramificacao textual no helper de ajuste, exigindo testes dedicados para evitar regressao.
+- Plano de revisao: reavaliar calibracao de limiares de recurso apos validacao de mesa real de A7/A9.

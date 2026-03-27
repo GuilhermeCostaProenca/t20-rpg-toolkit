@@ -368,3 +368,29 @@
   - abrir PR/merge do recorte `RPG-238`.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional completo de `RPG-238` e marcar issue em `Done`.
+
+### Sessao: 2026-03-27 - A9-R3 ajuste rapido orientado por PM/SAN
+- Objetivo da sessao: melhorar utilidade operacional do `Ajuste rapido` quando a pressao da mesa vem de desgaste de recursos.
+- O que foi feito:
+  - criada issue `RPG-239` no Linear e movida para `In Progress`.
+  - `suggestLiveAdjustment` passou a considerar sinais `resourceStressed/resourceCritical` para priorizar acoes de respiro e preservacao de PM/SAN.
+  - adicionados testes unitarios para garantir recomendacao explicita em cenarios criticos e de pressao crescente com desgaste de recurso.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/decisions.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `src/lib/t20-balance.ts`
+  - `src/lib/t20-balance.test.ts`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+  - `docs/01-fronts/balanceamento-t20-plan.md`
+  - `docs/00-strategy/attack-index.md`
+- Validacao executada:
+  - `npm run lint -- src/lib/t20-balance.ts src/lib/t20-balance.test.ts` -> ok.
+  - `npm run test:run` -> 6 arquivos / 26 testes passando.
+- Decisoes tomadas:
+  - DEC-012 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-239`.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional completo (`RPG-239`) e marcar issue em `Done`.
