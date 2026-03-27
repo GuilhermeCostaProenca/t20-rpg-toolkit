@@ -196,3 +196,16 @@
   - Positivo: recomendação mais aderente à urgência real da mesa, reduzindo risco de over-escalation com grupo quebrado.
   - Negativo / trade-off: texto do ajuste fica mais opinativo, exigindo calibragem futura em validação real.
 - Plano de revisao: revisar na validação de campo de A7/A9 se os novos textos estão acionáveis sem excesso de intervenção.
+
+### DEC-015: Postura conservadora em estado estavel para encontro preparado punitivo
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: o ramo `stable` de `suggestLiveAdjustment` sugeria escalada por padrao, mesmo quando o encontro preparado ja era `deadly/punitivo`.
+- Decisao: quando `preparedRating` for punitivo, trocar a postura de `escalate` para `hold`, com orientacoes de variacao controlada sem aumentar brutalidade.
+- Alternativas consideradas:
+  - manter escalada padrao e confiar apenas em julgamento manual do mestre;
+  - criar novo estado de pressao exclusivo para "estavel mas perigoso".
+- Impacto:
+  - Positivo: reduz incentivo de over-tuning em encontros ja pesados, mantendo consistencia com seguranca operacional da mesa.
+  - Negativo / trade-off: reduz agressividade narrativa sugerida em alguns cenarios estaveis onde o grupo ainda poderia absorver mais pressao.
+- Plano de revisao: validar em mesa real se a nova postura ficou conservadora demais para grupos de alta eficiencia.
