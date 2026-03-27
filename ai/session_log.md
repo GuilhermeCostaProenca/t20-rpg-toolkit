@@ -493,3 +493,26 @@
   - abrir PR/merge do recorte `RPG-243`.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional completo de `RPG-243` e fechar issue em `Done`.
+
+### Sessao: 2026-03-27 - A9-R6 closure readiness executivo
+- Objetivo da sessao: reduzir ambiguidade de fechamento da frente A9 com criterios executivos objetivos.
+- O que foi feito:
+  - criada issue `RPG-244` no Linear e movida para `In Progress`.
+  - criado report `docs/99-reports/t20-balance-a9-closure-readiness-2026-03-27.md` com evidencias entregues, gaps e criterio go/no-go.
+  - atualizado `attack-index` para referenciar o report e deixar explicito que falta validacao de campo para encerramento.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/decisions.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `docs/99-reports/t20-balance-a9-closure-readiness-2026-03-27.md`
+  - `docs/00-strategy/attack-index.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - revisao manual de consistencia entre `docs/01-fronts/balanceamento-t20-plan.md`, `attack-index` e report de readiness -> ok.
+- Decisoes tomadas:
+  - DEC-016 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-244`.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional de `RPG-244` e, em seguida, executar validacao real de mesa para fechamento formal de A9.

@@ -29,6 +29,7 @@
 - [x] [A9-R3] Qualificar `Ajuste rapido` com acoes orientadas a estresse de PM/SAN e testes dedicados (`RPG-239`).
 - [x] [A9-R4] Priorizar recuperacao de personagem caido no `Ajuste rapido` com testes dedicados (`RPG-242`).
 - [x] [A9-R5] Evitar escalada sugerida em estado `stable` quando encontro preparado ja e punitivo (`RPG-243`).
+- [x] [A9-R6] Consolidar readiness executivo de fechamento com criterios objetivos de saida (`RPG-244`).
 - [x] [DOCS-R1] Sanear referencias legadas de planos/indice para estrutura `00-strategy/01-fronts` (`RPG-237`).
 - [x] [A8-R8] Consolidar fechamento executivo da frente Memoria do Mundo no `attack-index` com report de readiness (`RPG-238`).
 - [x] [DOCS-R2] Executar varredura final de referencias legadas e alinhar docs ativos para caminhos canonicos (`RPG-240`).
