@@ -295,3 +295,29 @@
   - seguir em A9 com recorte estrutural do loop ao vivo.
 - Proximo passo recomendado:
   - abrir PR curta de `RPG-235`, executar squash merge em `master`, fechar issue no Linear e atualizar `attack-index`.
+
+### Sessao: 2026-03-27 - A9-R2 refactor estrutural do loop ao vivo
+- Objetivo da sessao: reduzir custo de manutencao do cockpit ao vivo removendo duplicacao estrutural entre os modos tatico e narrativo.
+- O que foi feito:
+  - criada issue `RPG-236` no Linear e movida para `In Progress` antes da implementacao.
+  - extraidos `LivePressureCard` e `LiveAdjustmentCard` em `live-prep-cockpit` para consolidar os blocos `Sinais ao vivo` e `Ajuste rapido`.
+  - substituidos os blocos duplicados das secoes taticas e narrativas pelos novos componentes reutilizaveis sem alterar comportamento funcional.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/decisions.md` e `docs/*` com o estado real do recorte.
+- Arquivos alterados:
+  - `src/components/play/live-prep-cockpit.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+  - `docs/01-fronts/balanceamento-t20-plan.md`
+  - `docs/00-strategy/attack-index.md`
+- Validacao executada:
+  - `npm run lint -- src/components/play/live-prep-cockpit.tsx` -> ok.
+  - `npm run test:run` -> 6 arquivos / 24 testes passando.
+- Decisoes tomadas:
+  - DEC-009 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-236`.
+  - fechar `RPG-236` no Linear com resumo tecnico.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional completo (commit, push, PR, squash merge, delete branch, retorno em `master`) e mover `RPG-236` para `Done`.
