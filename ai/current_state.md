@@ -26,6 +26,7 @@
 - Motor de pressao/ajuste ao vivo em A9 agora usa limiares nomeados (sem numeros magicos centrais), facilitando calibracao apos validacao de campo.
 - Documentacao de governanca (`AGENTS.md`, `ARCHITECTURE.md`, `CONTRIBUTING.md`) alinhada para caminhos canonicos `docs/00-strategy/*` e `docs/01-fronts/*` sem referencias legadas mapeadas.
 - Validacao A7-R3 agora possui run sheet operacional de campo com criterio final explicito (aprovado/ressalvas/reprovado).
+- Trial Jarvez + criacao de mundo do zero agora possui runbook dedicado para captura de friccoes e conversao direta em backlog.
 
 ## Em Andamento
 - A8 foi encerrada no `attack-index`; A1-A7 e A9 seguem em `[-]`.
@@ -37,6 +38,7 @@
 - Validar em mesa real o novo fluxo pos-combate e a leitura de ficha ao vivo (A7).
 - Fechar recortes finais de refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
 - Executar validacao de campo de mesa para fechar A9 com base no readiness report.
+- Executar trial Jarvez + mundo do zero e priorizar correcoes antes de abrir novos recortes de expansao.
 
 ## Problemas Conhecidos
 - Restam varreduras pontuais para garantir que referencias legadas de docs nao reaparecam em novos recortes.

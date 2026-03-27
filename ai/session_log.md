@@ -541,3 +541,25 @@
   - abrir PR/merge do recorte `RPG-245`.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional completo de `RPG-245` e usar as constantes como base de calibracao na validacao de campo.
+
+### Sessao: 2026-03-27 - TRIAL-R1 runbook Jarvez + world-from-zero
+- Objetivo da sessao: preparar um roteiro unico para validar Jarvez e a criacao de mundo do zero com captura estruturada de gaps.
+- O que foi feito:
+  - criada issue `RPG-246` no Linear e movida para `In Progress`.
+  - criado runbook `docs/99-reports/jarvez-world-zero-trial-runbook-2026-03-27.md`.
+  - o runbook cobre smoke test de Jarvez, fluxo de criacao de mundo do zero, diario de friccoes, conversao para backlog e priorizacao imediata.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `docs/99-reports/jarvez-world-zero-trial-runbook-2026-03-27.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - revisao manual de completude do runbook para uso em sessao real -> ok.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural (recorte operacional).
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-246`.
+  - executar o trial real e registrar backlog resultante.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional de `RPG-246` e iniciar execucao do trial usando o runbook.

@@ -7,6 +7,7 @@
 ## Backlog Ativo
 - [ ] [A7] Fechar recorte final de Mesa ao Vivo (validacao de mesa real apos ajustes de handoff/ficha).
 - [ ] [A9] Refinar loop de balanceamento ao vivo com leitura mais profunda de recursos de ficha.
+- [ ] [TRIAL] Executar trial Jarvez + criacao de mundo do zero e converter gaps em backlog priorizado.
 
 ## Em Execucao
 - [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional (`docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`).
@@ -35,6 +36,7 @@
 - [x] [A8-R8] Consolidar fechamento executivo da frente Memoria do Mundo no `attack-index` com report de readiness (`RPG-238`).
 - [x] [DOCS-R2] Executar varredura final de referencias legadas e alinhar docs ativos para caminhos canonicos (`RPG-240`).
 - [x] [A7-R4] Preparar run sheet operacional para execucao de campo da validacao A7-R3 (`RPG-241`).
+- [x] [TRIAL-R1] Preparar runbook de validacao Jarvez + world-from-zero com saida orientada a backlog (`RPG-246`).
 
 ## Template de Tarefa (copiar e preencher)
 ### `[ID opcional]` `[Nome da tarefa]`
