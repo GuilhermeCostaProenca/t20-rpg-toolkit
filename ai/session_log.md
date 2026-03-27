@@ -130,3 +130,27 @@
   - executar validacao real em mesa.
 - Proximo passo recomendado:
   - rodar A7-R3 em sessao real e fechar `RPG-232` com resultado (aprovado/aprovado com ressalvas/reprovado).
+
+### Sessao: 2026-03-27 - A8-R1 busca transversal de memoria
+- Objetivo da sessao: iniciar A8 com entrega tecnica concreta de busca transversal por memoria do mundo.
+- O que foi feito:
+  - criada issue `RPG-233` no Linear antes da implementacao.
+  - criado endpoint `GET /api/worlds/[id]/memory/search` com filtros de campanha, entidade, visibilidade, tipo, janela temporal e termo textual.
+  - integrado consumo inicial na estacao de campanha, ativando busca transversal quando a consulta textual tem 2+ caracteres.
+  - mantidos filtros existentes de memoria com fallback local quando nao ha consulta transversal ativa.
+- Arquivos alterados:
+  - `src/app/api/worlds/[id]/memory/search/route.ts`
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint \"src/app/api/worlds/[id]/memory/search/route.ts\" \"src/app/app/campaign/[id]/page.tsx\"` -> ok.
+  - `npm run test:run` -> 6 arquivos / 22 testes passando.
+- Decisoes tomadas:
+  - DEC-006 registrada.
+- Pendencias abertas:
+  - expandir busca transversal para outras superficies (A8-R2).
+- Proximo passo recomendado:
+  - integrar endpoint no cockpit do mundo e/ou inspect dedicado para fechamento progressivo de A8.

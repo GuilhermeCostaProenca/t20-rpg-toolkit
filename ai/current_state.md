@@ -10,6 +10,7 @@
 - Mesa ao Vivo com cockpit operacional, combate integrado, consulta rapida, reveal/segunda tela e suporte de mesa.
 - QuickSheet da Mesa ao Vivo agora acompanha estado vivo de ficha por polling e exibe DEF/SAN corretamente no `OrdemSheet`.
 - Encerramento de combate agora executa handoff narrativo completo (foco, paineis, historico e camada publica).
+- Busca transversal de memoria ganhou endpoint world-scoped e primeira integracao no painel de campanha.
 - Memoria do Mundo com consolidacao de sessao e sincronizacao para `WorldEvent`.
 - Balanceamento T20 com heuristica de risco e recomendacoes no fluxo de sessao/mesa.
 
@@ -21,7 +22,7 @@
 ## Pendencias
 - Regularizar encerramento formal das frentes no `attack-index` com base em criterios de aceite (hoje todas seguem em andamento).
 - Validar em mesa real o novo fluxo pos-combate e a leitura de ficha ao vivo (A7).
-- Aprofundar busca transversal e derivacao temporal na Memoria do Mundo (A8).
+- Aprofundar busca transversal (superfices adicionais + relevancia) e derivacao temporal na Memoria do Mundo (A8).
 - Fechar refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
 
 ## Problemas Conhecidos
@@ -31,7 +32,7 @@
 
 ## Proximos Passos Imediatos
 1. Executar validacao de mesa real para A7 usando checklist formal em `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`.
-2. Fechar recorte de busca transversal de memoria (A8) com criterio de aceite objetivo.
+2. Avancar A8-R2 levando a busca transversal para superficies alem da campanha (cockpit do mundo e inspect dedicado).
 3. Executar ciclo de regularizacao Git por frente (PR, squash merge, delete branch, retorno a `master`).
 
 ## Riscos Atuais

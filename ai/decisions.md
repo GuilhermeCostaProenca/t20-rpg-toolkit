@@ -79,3 +79,16 @@
   - Positivo: reduz friccao na saida de combate e melhora continuidade operacional da mesa.
   - Negativo / trade-off: menor liberdade de manter configuracao tatico-narrativa hibrida apos combate sem novo ajuste manual.
 - Plano de revisao: confirmar em mesa real se o reset automatico esta agressivo demais.
+
+### DEC-006: Busca transversal de memoria via endpoint world-scoped dedicado
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: filtros locais da campanha consultavam apenas recorte reduzido (`recentMemoryEvents`) e nao cobriam busca transversal forte de A8.
+- Decisao: criar `GET /api/worlds/[id]/memory/search` com filtros operacionais (`q`, `campaignId`, `entityId`, `visibility`, `tone`, `timeWindow`) e integrar primeiro consumo na estacao de campanha.
+- Alternativas consideradas:
+  - expandir apenas `recentMemoryEvents` em `GET /api/campaigns/[id]`;
+  - reutilizar `GET /api/worlds/[id]/events` sem semantica de memoria dedicada.
+- Impacto:
+  - Positivo: busca de memoria mais profunda sem quebrar contratos existentes de campanha/eventos.
+  - Negativo / trade-off: introduz novo endpoint e logica de filtro complementar em servidor.
+- Plano de revisao: medir uso real e decidir se consolidar tudo em um unico endpoint de memoria no fechamento de A8.
