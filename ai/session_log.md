@@ -345,3 +345,26 @@
   - abrir PR/merge do recorte `RPG-237`.
 - Proximo passo recomendado:
   - concluir ciclo Git completo de `RPG-237` (commit, push, PR, squash merge, branch delete, retorno em `master`) e marcar issue `Done`.
+
+### Sessao: 2026-03-27 - A8-R8 fechamento executivo da Memoria do Mundo
+- Objetivo da sessao: formalizar encerramento executivo da frente A8 no indice mestre sem alterar runtime.
+- O que foi feito:
+  - criada issue `RPG-238` no Linear e movida para `In Progress`.
+  - criado report `docs/99-reports/memory-world-a8-executive-closure-2026-03-27.md` com evidencias de fechamento da frente.
+  - `docs/00-strategy/attack-index.md` atualizado para marcar A8 como `[x]`.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/decisions.md` e `ai/session_log.md` com o novo estado executivo.
+- Arquivos alterados:
+  - `docs/99-reports/memory-world-a8-executive-closure-2026-03-27.md`
+  - `docs/00-strategy/attack-index.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - revisao manual de consistencia entre `docs/01-fronts/memoria-do-mundo-plan.md`, `docs/00-strategy/attack-index.md` e `ai/*` -> ok.
+- Decisoes tomadas:
+  - DEC-011 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-238`.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional completo de `RPG-238` e marcar issue em `Done`.

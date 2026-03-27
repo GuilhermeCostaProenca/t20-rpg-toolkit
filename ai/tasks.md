@@ -6,7 +6,6 @@
 
 ## Backlog Ativo
 - [ ] [A7] Fechar recorte final de Mesa ao Vivo (validacao de mesa real apos ajustes de handoff/ficha).
-- [ ] [A8] Consolidar fechamento executivo da frente de Memoria do Mundo (A8) apos derivacao temporal.
 - [ ] [A9] Refinar loop de balanceamento ao vivo com leitura mais profunda de recursos de ficha.
 - [ ] [DOCS] Executar varredura final de referencias legadas restantes apos `RPG-237`.
 
@@ -29,6 +28,7 @@
 - [x] [A9-R1] Aprofundar leitura ao vivo de recursos de ficha (PM/SAN) no `livePressure` e no bloco `Sinais ao vivo` (`RPG-235`).
 - [x] [A9-R2] Refatorar estrutura do loop ao vivo removendo duplicacao entre blocos tatico e narrativo (`RPG-236`).
 - [x] [DOCS-R1] Sanear referencias legadas de planos/indice para estrutura `00-strategy/01-fronts` (`RPG-237`).
+- [x] [A8-R8] Consolidar fechamento executivo da frente Memoria do Mundo no `attack-index` com report de readiness (`RPG-238`).
 
 ## Template de Tarefa (copiar e preencher)
 ### `[ID opcional]` `[Nome da tarefa]`
