@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, Dna } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { SQUAD_MONITOR_POLL_MS } from "@/lib/live-combat";
 
 import { OrdemSheet } from "@/components/sheet/ordem-sheet";
 
@@ -21,6 +22,8 @@ type CharacterSheet = {
     pvMax: number;
     pmCurrent: number;
     pmMax: number;
+    sanCurrent: number;
+    sanMax: number;
     defenseFinal: number;
 };
 
@@ -50,36 +53,52 @@ export function QuickSheet({
 }: QuickSheetProps) {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const mountedRef = useRef(true);
     const selectedStorageKey = `t20.live.quick-sheet.selected.${campaignId}`;
 
     useEffect(() => {
-        fetch(`/api/characters?campaignId=${campaignId}&withSheet=true`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.data) {
-                    const nextCharacters = data.data as Character[];
-                    let persistedSelectedId: string | null = null;
-                    try {
-                        persistedSelectedId = window.localStorage.getItem(selectedStorageKey);
-                    } catch (error) {
-                        console.error("Failed to load quick sheet selected character", error);
-                    }
-                    setCharacters(nextCharacters);
-                    setSelectedId((current) => {
-                        if (current && nextCharacters.some((character) => character.id === current)) {
-                            return current;
-                        }
-                        if (
-                            persistedSelectedId &&
-                            nextCharacters.some((character) => character.id === persistedSelectedId)
-                        ) {
-                            return persistedSelectedId;
-                        }
-                        return nextCharacters[0]?.id ?? null;
-                    });
+        mountedRef.current = true;
+        const loadCharacters = async () => {
+            try {
+                const response = await fetch(`/api/characters?campaignId=${campaignId}&withSheet=true`, {
+                    cache: "no-store",
+                });
+                const data = await response.json();
+                if (!mountedRef.current || !data.data) return;
+                const nextCharacters = data.data as Character[];
+                let persistedSelectedId: string | null = null;
+                try {
+                    persistedSelectedId = window.localStorage.getItem(selectedStorageKey);
+                } catch (error) {
+                    console.error("Failed to load quick sheet selected character", error);
                 }
-            })
-            .catch(console.error);
+                setCharacters(nextCharacters);
+                setSelectedId((current) => {
+                    if (current && nextCharacters.some((character) => character.id === current)) {
+                        return current;
+                    }
+                    if (
+                        persistedSelectedId &&
+                        nextCharacters.some((character) => character.id === persistedSelectedId)
+                    ) {
+                        return persistedSelectedId;
+                    }
+                    return nextCharacters[0]?.id ?? null;
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        void loadCharacters();
+        const interval = window.setInterval(() => {
+            void loadCharacters();
+        }, SQUAD_MONITOR_POLL_MS);
+
+        return () => {
+            mountedRef.current = false;
+            window.clearInterval(interval);
+        };
     }, [campaignId, selectedStorageKey]);
 
     useEffect(() => {
@@ -111,6 +130,7 @@ export function QuickSheet({
         },
         hp: { current: activeChar.sheet?.pvCurrent || 0, max: activeChar.sheet?.pvMax || 1 },
         pm: { current: activeChar.sheet?.pmCurrent || 0, max: activeChar.sheet?.pmMax || 1 },
+        san: { current: activeChar.sheet?.sanCurrent || 0, max: activeChar.sheet?.sanMax || 1 },
         def: activeChar.sheet?.defenseFinal || 10
     } : null;
 

@@ -53,3 +53,16 @@
   - Positivo: melhora confiabilidade da experiencia ao vivo e reduz debito estrutural.
   - Negativo / trade-off: pode adiar expansoes de escopo visivel no curto prazo.
 - Plano de revisao: apos fechamento do proximo recorte de A7 com validacao de uso real.
+
+### DEC-004: QuickSheet alinhada ao estado vivo da mesa
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: a leitura de ficha no fluxo ao vivo estava parcial (DEF/SAN inconsistentes) e desatualizada entre ajustes operacionais.
+- Decisao: sincronizar a `QuickSheet` por polling de `/api/characters?withSheet=true` e corrigir o `OrdemSheet` para usar DEF/SAN reais da ficha.
+- Alternativas consideradas:
+  - manter fetch unico e exigir reabertura manual da ficha;
+  - corrigir apenas UI de SAN sem sincronizacao viva.
+- Impacto:
+  - Positivo: consulta de ficha mais confiavel durante combate e narracao.
+  - Negativo / trade-off: aumento moderado de chamadas periodicas no cliente.
+- Plano de revisao: reavaliar cadence de polling apos validacao de mesa real.

@@ -63,3 +63,28 @@
   - fechamento operacional das pendencias A7/A8/A9.
 - Proximo passo recomendado:
   - abrir recorte tecnico focado em A7 e registrar criterio de aceite executado no fim da rodada.
+
+### Sessao: 2026-03-27 - A7-R1 leitura de ficha ao vivo na Mesa
+- Objetivo da sessao: retomar plano ativo e fechar um recorte real de A7 focado em leitura completa de ficha no fluxo ao vivo.
+- O que foi feito:
+  - Merge da PR `#167` em `master` e abertura de branch nova `codex/a7-live-end-combat-sheet-flow`.
+  - `QuickSheet` passou a fazer polling com `cache: no-store`, mantendo leitura viva dos dados de ficha.
+  - `QuickSheet` passou a propagar SAN para o `OrdemSheet`.
+  - `OrdemSheet` corrigido para usar DEF real e barras de PV/PM/SAN com percentuais coerentes.
+  - Tipagem local do `OrdemSheet` melhorada para remover `any` no escopo principal.
+- Arquivos alterados:
+  - `src/app/app/play/[campaignId]/quick-sheet.tsx`
+  - `src/components/sheet/ordem-sheet.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint \"src/app/app/play/[campaignId]/quick-sheet.tsx\" \"src/components/sheet/ordem-sheet.tsx\"` -> ok.
+  - `npm run test:run` -> 6 arquivos / 22 testes passando.
+- Decisoes tomadas:
+  - DEC-004 registrada.
+- Pendencias abertas:
+  - fechar A7-R2 (handoff de fim de combate no cockpit + validacao de mesa real).
+- Proximo passo recomendado:
+  - implementar ajuste final de handoff de fim de combate e validar fluxo completo narrativo-tatico em sessao real.
