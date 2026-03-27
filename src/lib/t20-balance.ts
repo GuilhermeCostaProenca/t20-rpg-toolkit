@@ -92,6 +92,23 @@ type LiveCombatantInput = {
   hpMax?: number | null;
 };
 
+const LIVE_PRESSURE_PLAYER_HP_CRITICAL = 0.35;
+const LIVE_PRESSURE_PLAYER_HP_STRESSED = 0.6;
+const LIVE_PRESSURE_HOSTILE_HP_COLLAPSING = 0.3;
+const LIVE_PRESSURE_HOSTILE_HP_WEAKENED = 0.55;
+const LIVE_PRESSURE_COUNT_DELTA_DISADVANTAGE = -2;
+const LIVE_PRESSURE_COUNT_DELTA_ADVANTAGE = 2;
+const LIVE_PRESSURE_SCORE_RISING = 1;
+const LIVE_PRESSURE_SCORE_CRITICAL = 4;
+
+const LIVE_RESOURCE_AVG_CRITICAL_PERCENT = 30;
+const LIVE_RESOURCE_AVG_STRESSED_PERCENT = 50;
+const LIVE_RESOURCE_AVG_RECOMMENDATION_PERCENT = 40;
+const LIVE_RESOURCE_MAJORITY_RATIO = 0.5;
+
+const LIVE_ADJUSTMENT_RESOURCE_CRITICAL_PERCENT = 25;
+const LIVE_ADJUSTMENT_RESOURCE_STRESSED_PERCENT = 40;
+
 export type LivePartyResourceSnapshot = {
   total: number;
   lowPm: number;
@@ -630,29 +647,29 @@ export function analyzeLiveCombatPressure(
     pressureScore -= 2;
   }
 
-  if (playerHpRatio <= 0.35) {
+  if (playerHpRatio <= LIVE_PRESSURE_PLAYER_HP_CRITICAL) {
     pressureScore += 3;
     factors.push("Grupo com HP medio muito baixo.");
-  } else if (playerHpRatio <= 0.6) {
+  } else if (playerHpRatio <= LIVE_PRESSURE_PLAYER_HP_STRESSED) {
     pressureScore += 1;
     factors.push("Grupo ja sentindo desgaste relevante.");
   }
 
-  if (hostileHpRatio <= 0.3) {
+  if (hostileHpRatio <= LIVE_PRESSURE_HOSTILE_HP_COLLAPSING) {
     pressureScore -= 2;
     factors.push("Hostis quase colapsando.");
-  } else if (hostileHpRatio <= 0.55) {
+  } else if (hostileHpRatio <= LIVE_PRESSURE_HOSTILE_HP_WEAKENED) {
     pressureScore -= 1;
     factors.push("Hostis ja perderam parte importante do folego.");
   }
 
-  if (countDelta <= -2) {
+  if (countDelta <= LIVE_PRESSURE_COUNT_DELTA_DISADVANTAGE) {
     pressureScore += 2;
     factors.push("Hostis com vantagem numerica clara.");
   } else if (countDelta < 0) {
     pressureScore += 1;
     factors.push("Hostis com leve vantagem numerica.");
-  } else if (countDelta >= 2) {
+  } else if (countDelta >= LIVE_PRESSURE_COUNT_DELTA_ADVANTAGE) {
     pressureScore -= 1;
     factors.push("Grupo com vantagem numerica clara.");
   }
@@ -668,38 +685,38 @@ export function analyzeLiveCombatPressure(
   }
 
   if (avgPmPercent !== null) {
-    if (avgPmPercent <= 30) {
+    if (avgPmPercent <= LIVE_RESOURCE_AVG_CRITICAL_PERCENT) {
       pressureScore += 2;
       factors.push("Recursos de PM muito baixos no grupo.");
-    } else if (avgPmPercent <= 50) {
+    } else if (avgPmPercent <= LIVE_RESOURCE_AVG_STRESSED_PERCENT) {
       pressureScore += 1;
       factors.push("PM do grupo em faixa de desgaste.");
     }
   }
 
   if (avgSanPercent !== null) {
-    if (avgSanPercent <= 30) {
+    if (avgSanPercent <= LIVE_RESOURCE_AVG_CRITICAL_PERCENT) {
       pressureScore += 2;
       factors.push("SAN do grupo em risco critico.");
-    } else if (avgSanPercent <= 50) {
+    } else if (avgSanPercent <= LIVE_RESOURCE_AVG_STRESSED_PERCENT) {
       pressureScore += 1;
       factors.push("SAN do grupo em faixa de atencao.");
     }
   }
 
-  if (lowPmRatio >= 0.5) {
+  if (lowPmRatio >= LIVE_RESOURCE_MAJORITY_RATIO) {
     pressureScore += 1;
     factors.push("Maioria do grupo ja esta com PM baixo.");
   }
 
-  if (lowSanRatio >= 0.5) {
+  if (lowSanRatio >= LIVE_RESOURCE_MAJORITY_RATIO) {
     pressureScore += 1;
     factors.push("Maioria do grupo ja esta com SAN baixa.");
   }
 
   let state: LivePressureState = "stable";
-  if (pressureScore >= 4) state = "critical";
-  else if (pressureScore >= 1) state = "rising";
+  if (pressureScore >= LIVE_PRESSURE_SCORE_CRITICAL) state = "critical";
+  else if (pressureScore >= LIVE_PRESSURE_SCORE_RISING) state = "rising";
 
   let summary = "Mesa sob controle.";
   let recommendation = "Se quiser elevar a tensao, mexa em objetivo, terreno ou reforco narrativo.";
@@ -712,10 +729,10 @@ export function analyzeLiveCombatPressure(
     recommendation = "Considere aliviar dano, cortar reforcos ou abrir uma saida tatica para nao quebrar a mesa.";
   }
 
-  if (state !== "stable" && avgPmPercent !== null && avgPmPercent <= 40) {
+  if (state !== "stable" && avgPmPercent !== null && avgPmPercent <= LIVE_RESOURCE_AVG_RECOMMENDATION_PERCENT) {
     recommendation += " Preservar PM (ou aliviar custo de recursos) pode evitar colapso do grupo.";
   }
-  if (state !== "stable" && avgSanPercent !== null && avgSanPercent <= 40) {
+  if (state !== "stable" && avgSanPercent !== null && avgSanPercent <= LIVE_RESOURCE_AVG_RECOMMENDATION_PERCENT) {
     recommendation += " Trate desgaste mental como prioridade antes de forcar nova escalada.";
   }
 
@@ -788,14 +805,14 @@ export function suggestLiveAdjustment(
   const hasDownedPlayers = pressure.downedPlayers > 0;
   const halfParty = Math.max(1, Math.ceil(pressure.playerCount / 2));
   const resourceCritical =
-    (pressure.avgPmPercent !== null && pressure.avgPmPercent <= 25) ||
-    (pressure.avgSanPercent !== null && pressure.avgSanPercent <= 25) ||
+    (pressure.avgPmPercent !== null && pressure.avgPmPercent <= LIVE_ADJUSTMENT_RESOURCE_CRITICAL_PERCENT) ||
+    (pressure.avgSanPercent !== null && pressure.avgSanPercent <= LIVE_ADJUSTMENT_RESOURCE_CRITICAL_PERCENT) ||
     pressure.lowPmCount >= halfParty ||
     pressure.lowSanCount >= halfParty;
   const resourceStressed =
     resourceCritical ||
-    (pressure.avgPmPercent !== null && pressure.avgPmPercent <= 40) ||
-    (pressure.avgSanPercent !== null && pressure.avgSanPercent <= 40) ||
+    (pressure.avgPmPercent !== null && pressure.avgPmPercent <= LIVE_ADJUSTMENT_RESOURCE_STRESSED_PERCENT) ||
+    (pressure.avgSanPercent !== null && pressure.avgSanPercent <= LIVE_ADJUSTMENT_RESOURCE_STRESSED_PERCENT) ||
     pressure.lowPmCount > 0 ||
     pressure.lowSanCount > 0;
 

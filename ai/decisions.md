@@ -222,3 +222,16 @@
   - Positivo: reduz ambiguidade de encerramento e melhora rastreabilidade executiva.
   - Negativo / trade-off: cria dependencia explicita de rodada de campo para fechamento formal.
 - Plano de revisao: reavaliar criterio apos primeira rodada de validacao real registrada.
+
+### DEC-017: Centralizar limiares de pressao/ajuste ao vivo em constantes
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: o motor de pressao ao vivo acumulou evolucoes de regra e ficou com limiares numericos dispersos, dificultando calibracao apos testes de campo.
+- Decisao: extrair thresholds relevantes para constantes nomeadas no `src/lib/t20-balance.ts`, preservando comportamento atual.
+- Alternativas consideradas:
+  - manter valores inline e calibrar por busca textual manual;
+  - introduzir configuracao persistida em banco antes da validacao de campo.
+- Impacto:
+  - Positivo: melhora manutencao, legibilidade e velocidade de ajuste fino.
+  - Negativo / trade-off: aumenta superficie de constantes que precisam ser mantidas coerentes entre si.
+- Plano de revisao: revisar apenas os valores das constantes apos rodada de validacao real (A7-R3).
