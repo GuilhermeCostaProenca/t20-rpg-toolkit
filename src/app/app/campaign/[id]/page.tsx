@@ -158,6 +158,16 @@ type WorldEvent = {
   visibility: string;
   meta?: Record<string, unknown> | null;
 };
+type MemoryTemporalBucket = { month: string; count: number };
+type MemoryTemporalMeta = {
+  last7d: number;
+  last30d: number;
+  last90d: number;
+  older: number;
+  byMonth: MemoryTemporalBucket[];
+  newestTs: string | null;
+  oldestTs: string | null;
+};
 
 type EntityRelationshipPreview = {
   id: string;
@@ -227,6 +237,20 @@ function formatDateTime(value: string | null | undefined) {
   });
 }
 
+function formatMonthBucketLabel(monthKey: string) {
+  const [yearRaw, monthRaw] = monthKey.split("-");
+  const year = Number(yearRaw);
+  const month = Number(monthRaw);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || month < 1 || month > 12) {
+    return monthKey;
+  }
+  return new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString("pt-BR", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 function isInsideTimeWindow(value: string, window: "ALL" | "7D" | "30D" | "90D") {
   if (window === "ALL") return true;
   const eventTime = new Date(value).getTime();
@@ -290,6 +314,7 @@ export default function CampaignPage() {
   const [crossMemoryEvents, setCrossMemoryEvents] = useState<WorldEvent[] | null>(null);
   const [crossMemoryLoading, setCrossMemoryLoading] = useState(false);
   const [crossMemoryScoreById, setCrossMemoryScoreById] = useState<Record<string, number>>({});
+  const [crossMemoryTemporal, setCrossMemoryTemporal] = useState<MemoryTemporalMeta | null>(null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
@@ -439,6 +464,7 @@ export default function CampaignPage() {
       setCrossMemoryEvents(null);
       setCrossMemoryLoading(false);
       setCrossMemoryScoreById({});
+      setCrossMemoryTemporal(null);
       return;
     }
 
@@ -462,12 +488,14 @@ export default function CampaignPage() {
         if (!cancelled) {
           setCrossMemoryEvents((payload.data as WorldEvent[] | undefined) ?? []);
           setCrossMemoryScoreById((payload.meta?.scores as Record<string, number> | undefined) ?? {});
+          setCrossMemoryTemporal((payload.meta?.temporal as MemoryTemporalMeta | undefined) ?? null);
         }
       } catch (error) {
         if (!cancelled) {
           console.error("Cross memory search failed", error);
           setCrossMemoryEvents([]);
           setCrossMemoryScoreById({});
+          setCrossMemoryTemporal(null);
         }
       } finally {
         if (!cancelled) {
@@ -1837,6 +1865,36 @@ export default function CampaignPage() {
                         {visibleCampaignMemoryEvents.length} marcos neste recorte
                         {isCrossMemoryMode ? " · busca transversal ativa" : ""}
                       </p>
+                      {isCrossMemoryMode && crossMemoryTemporal ? (
+                        <div className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3">
+                          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                            Pulso temporal da busca
+                          </p>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <Badge className="border-white/10 bg-white/5 text-white/75">
+                              7d: {crossMemoryTemporal.last7d}
+                            </Badge>
+                            <Badge className="border-white/10 bg-white/5 text-white/75">
+                              30d: {crossMemoryTemporal.last30d}
+                            </Badge>
+                            <Badge className="border-white/10 bg-white/5 text-white/75">
+                              90d: {crossMemoryTemporal.last90d}
+                            </Badge>
+                            <Badge className="border-white/10 bg-white/5 text-white/75">
+                              {'>'}90d: {crossMemoryTemporal.older}
+                            </Badge>
+                          </div>
+                          {crossMemoryTemporal.byMonth.length > 0 ? (
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {crossMemoryTemporal.byMonth.slice(0, 4).map((bucket) => (
+                                <Badge key={bucket.month} className="border-amber-300/20 bg-amber-300/10 text-amber-100">
+                                  {formatMonthBucketLabel(bucket.month)}: {bucket.count}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
                     {crossMemoryLoading ? (
                       <div className="rounded-2xl border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
