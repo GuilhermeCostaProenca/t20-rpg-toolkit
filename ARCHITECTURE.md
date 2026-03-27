@@ -308,9 +308,9 @@ Toda mudanca importante deve respeitar estas regras:
 - atualizar planos em `docs/` quando a frente evoluir
 
 Os documentos de execucao vivem em:
-- `docs/t20-toolkit-master-plan.md`
-- `docs/attack-index.md`
-- planos de frente em `docs/*-plan.md`
+- `docs/00-strategy/t20-toolkit-master-plan.md`
+- `docs/00-strategy/attack-index.md`
+- planos de frente em `docs/01-fronts/*-plan.md`
 
 ---
 

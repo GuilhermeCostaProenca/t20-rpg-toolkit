@@ -170,3 +170,16 @@
   - Positivo: recomendacao tatico-narrativa mais acionavel em mesa ao vivo, sem alterar estrutura da UI.
   - Negativo / trade-off: maior ramificacao textual no helper de ajuste, exigindo testes dedicados para evitar regressao.
 - Plano de revisao: reavaliar calibracao de limiares de recurso apos validacao de mesa real de A7/A9.
+
+### DEC-013: Encerrar referencias legadas de paths em docs ativos de governanca
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: mesmo apos saneamento inicial (`RPG-237`), documentos ativos de governanca ainda citavam caminhos antigos (`docs/*.md`) fora do padrao atual.
+- Decisao: padronizar `AGENTS.md`, `ARCHITECTURE.md` e `CONTRIBUTING.md` para caminhos canonicos (`docs/00-strategy/*` e `docs/01-fronts/*`) e usar varredura textual como validacao de fechamento.
+- Alternativas consideradas:
+  - manter caminhos legados por compatibilidade textual;
+  - corrigir apenas arquivos de onboarding e ignorar governanca tecnica.
+- Impacto:
+  - Positivo: reduz ambiguidade de fonte de verdade e previne regressao documental em novos recortes.
+  - Negativo / trade-off: exige manter regra de varredura textual nos fechamentos de docs.
+- Plano de revisao: repetir varredura de paths legados sempre que novos guias de contribuicao/governanca forem editados.
