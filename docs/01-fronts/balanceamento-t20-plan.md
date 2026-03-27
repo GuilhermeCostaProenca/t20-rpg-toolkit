@@ -186,13 +186,13 @@ Contexto tecnico:
 O mestre tambem precisa ajuste em tempo real.
 
 - [x] T5.1 Definir o que pode ser lido durante combate
-  Notas: `RPG-28` ja expoe o encontro preparado em foco com rating, confianca, composicao e recomendacao curta no cockpit ao vivo. `RPG-31` acrescentou leitura do combate ativo com round, HP medio do grupo/hostis, contagem viva, quedas e resumo de pressao.
+  Notas: `RPG-28` ja expoe o encontro preparado em foco com rating, confianca, composicao e recomendacao curta no cockpit ao vivo. `RPG-31` acrescentou leitura do combate ativo com round, HP medio do grupo/hostis, contagem viva, quedas e resumo de pressao. `RPG-235` aprofundou o recorte ao incorporar PM/SAN medio e contagem de recursos baixos na leitura ao vivo.
 
 - [x] T5.2 Definir alertas ou heuristicas de desbalanceamento ao vivo
-  Notas: `RPG-31` abriu o primeiro sinal ao vivo com estados `Sob controle`, `Pressao subindo` e `Critico`, baseado em HP medio, vantagem numerica e personagens caidos.
+  Notas: `RPG-31` abriu o primeiro sinal ao vivo com estados `Sob controle`, `Pressao subindo` e `Critico`, baseado em HP medio, vantagem numerica e personagens caidos. `RPG-235` passou a somar desgaste de PM/SAN nesses estados para reduzir falso conforto quando o grupo ainda tem HP, mas ja esta sem recurso.
 
 - [x] T5.3 Criar ferramentas de ajuste rapido
-  Notas: `RPG-32` abriu um primeiro bloco de `Ajuste rapido` no cockpit ao vivo, derivado de `livePressure` + encontro preparado, com sugestoes curtas de aliviar, segurar ou escalar a tensao sem automatizar a mesa.
+  Notas: `RPG-32` abriu um primeiro bloco de `Ajuste rapido` no cockpit ao vivo, derivado de `livePressure` + encontro preparado, com sugestoes curtas de aliviar, segurar ou escalar a tensao sem automatizar a mesa. `RPG-235` refinou esse ajuste para reagir tambem a estresse de PM/SAN.
 
 - [x] T5.4 Integrar com a mesa ao vivo sem poluicao visual
   Notas: `RPG-28` integrou a leitura do encontro ao pacote de preparo da mesa sem abrir nova superficie. `RPG-31` consolidou isso com o combate ativo no mesmo card stack do cockpit, sem abrir painel paralelo.

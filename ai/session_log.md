@@ -267,3 +267,31 @@
   - decisao executiva de encerramento formal da frente A8.
 - Proximo passo recomendado:
   - executar A7-R3 em mesa real e, em paralelo, preparar checklist final para marcar A8 como encerrada no `attack-index` quando os criterios estiverem 100% cobertos.
+
+### Sessao: 2026-03-27 - A9-R1 leitura de recursos PM/SAN no loop ao vivo
+- Objetivo da sessao: iniciar refinamento de A9 com leitura mais profunda de recursos de ficha durante combate.
+- O que foi feito:
+  - criada issue `RPG-235` no Linear e movida para `In Progress` antes da implementacao.
+  - `analyzeLiveCombatPressure` passou a aceitar snapshot de recursos da party (PM/SAN), incorporando esses sinais no score de pressao, fatores e recomendacao.
+  - `LivePrepCockpit` passou a exibir PM medio, SAN media e contagem de recursos baixos (PM/SAN) dentro de `Sinais ao vivo`.
+  - `LiveOperationsSidebar` passou a propagar `partyStatus` para o `LivePrepCockpit`, conectando o polling real de ficha ao motor de pressao.
+  - adicionados testes unitarios para garantir escalada de pressao com PM/SAN criticos e compatibilidade sem snapshot de recursos.
+- Arquivos alterados:
+  - `src/lib/t20-balance.ts`
+  - `src/components/play/live-prep-cockpit.tsx`
+  - `src/components/play/live-operations-sidebar.tsx`
+  - `src/lib/t20-balance.test.ts`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint \"src/lib/t20-balance.ts\" \"src/components/play/live-prep-cockpit.tsx\" \"src/components/play/live-operations-sidebar.tsx\" \"src/lib/t20-balance.test.ts\"` -> ok.
+  - `npm run test:run` -> 6 arquivos / 24 testes passando.
+- Decisoes tomadas:
+  - DEC-008 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-235`.
+  - seguir em A9 com recorte estrutural do loop ao vivo.
+- Proximo passo recomendado:
+  - abrir PR curta de `RPG-235`, executar squash merge em `master`, fechar issue no Linear e atualizar `attack-index`.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { analyzeT20Encounter } from "@/lib/t20-balance";
+import { analyzeLiveCombatPressure, analyzeT20Encounter } from "@/lib/t20-balance";
 
 describe("analyzeT20Encounter - non-trivial compositions", () => {
   const party = [
@@ -141,5 +141,44 @@ describe("analyzeT20Encounter - non-trivial compositions", () => {
     expect(uncertain.uncertaintySignals.some((signal) => signal.code === "missing_roles")).toBe(true);
     expect(uncertain.dataGaps.severity).not.toBe("none");
     expect(uncertain.partySummary.length).toBeGreaterThan(0);
+  });
+});
+
+describe("analyzeLiveCombatPressure - resource-aware pressure", () => {
+  it("escalates pressure when PM/SAN are critically low", () => {
+    const pressure = analyzeLiveCombatPressure(
+      [
+        { kind: "CHARACTER", hpCurrent: 20, hpMax: 50 },
+        { kind: "CHARACTER", hpCurrent: 16, hpMax: 50 },
+        { kind: "NPC", hpCurrent: 40, hpMax: 40 },
+        { kind: "NPC", hpCurrent: 38, hpMax: 40 },
+      ],
+      {
+        total: 2,
+        lowPm: 2,
+        lowSan: 2,
+        avgPmPercent: 20,
+        avgSanPercent: 25,
+      },
+    );
+
+    expect(pressure.state).toBe("critical");
+    expect(pressure.factors.some((item) => item.includes("PM muito baixos"))).toBe(true);
+    expect(pressure.factors.some((item) => item.includes("SAN do grupo em risco critico"))).toBe(true);
+    expect(pressure.lowPmCount).toBe(2);
+    expect(pressure.lowSanCount).toBe(2);
+  });
+
+  it("keeps compatibility when no resource snapshot is provided", () => {
+    const pressure = analyzeLiveCombatPressure([
+      { kind: "CHARACTER", hpCurrent: 45, hpMax: 50 },
+      { kind: "CHARACTER", hpCurrent: 40, hpMax: 50 },
+      { kind: "NPC", hpCurrent: 25, hpMax: 40 },
+    ]);
+
+    expect(pressure.avgPmPercent).toBeNull();
+    expect(pressure.avgSanPercent).toBeNull();
+    expect(pressure.lowPmCount).toBe(0);
+    expect(pressure.lowSanCount).toBe(0);
   });
 });
