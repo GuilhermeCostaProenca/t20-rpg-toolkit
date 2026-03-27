@@ -105,3 +105,16 @@
   - Positivo: melhora leitura de continuidade por janela temporal sem criar nova rota de consulta.
   - Negativo / trade-off: aumenta responsabilidade do endpoint de busca e tamanho do `meta` retornado.
 - Plano de revisao: validar em uso real se os buckets mensais atuais (top 6) sao suficientes para fechamento de A8.
+
+### DEC-008: Pressao ao vivo orientada por recursos de ficha (PM/SAN)
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: A9 ainda apontava lacuna de leitura profunda de recursos em mesa ao vivo; `livePressure` considerava sobretudo HP/contagem/quedas.
+- Decisao: expandir `analyzeLiveCombatPressure` para aceitar snapshot de recursos de party (PM/SAN medio + contagem em faixa baixa), ajustar score/fatores/recomendacao com esses sinais e expor os indicadores no bloco `Sinais ao vivo` do cockpit.
+- Alternativas consideradas:
+  - manter leitura de recursos apenas no card separado de estado da mesa;
+  - criar card novo exclusivo de recursos no cockpit.
+- Impacto:
+  - Positivo: ajuste rapido fica mais fiel ao desgaste real do grupo sem aumentar troca de contexto.
+  - Negativo / trade-off: heuristica de pressao ganha mais variaveis e pode exigir calibracao de thresholds.
+- Plano de revisao: validar em mesa real se os limites atuais (30%/50% e maioria em faixa baixa) estao calibrados para nao gerar falso critico.

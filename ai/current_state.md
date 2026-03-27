@@ -17,6 +17,7 @@
 - Estado executivo de A8 foi consolidado no `attack-index` com readiness report dedicado para merge.
 - Memoria do Mundo com consolidacao de sessao e sincronizacao para `WorldEvent`.
 - Balanceamento T20 com heuristica de risco e recomendacoes no fluxo de sessao/mesa.
+- Balanceamento ao vivo agora considera desgaste de PM/SAN no `livePressure` e exibe esses sinais no cockpit da mesa.
 
 ## Em Andamento
 - A1 a A9 no `attack-index` estao em `[-]` (nenhuma frente foi marcada como encerrada de ponta a ponta ainda).
@@ -37,7 +38,7 @@
 ## Proximos Passos Imediatos
 1. Executar validacao de mesa real para A7 usando checklist formal em `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`.
 2. Executar saneamento final de docs para refletir A8 apos `RPG-234` (incluindo criterio de encerramento da frente).
-3. Atacar A9 com recorte de leitura mais profunda de recursos de ficha ao vivo.
+3. Consolidar proximo recorte de A9 em refinamento estrutural do loop ao vivo apos `RPG-235`.
 
 ## Riscos Atuais
 - Branch discipline incompleta entre frentes pode gerar codigo funcional fora da linha principal - impacto: alto, mitigacao: encerrar por PR curta e merge sistematico.

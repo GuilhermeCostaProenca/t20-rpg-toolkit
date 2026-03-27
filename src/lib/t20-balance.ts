@@ -92,12 +92,24 @@ type LiveCombatantInput = {
   hpMax?: number | null;
 };
 
+export type LivePartyResourceSnapshot = {
+  total: number;
+  lowPm: number;
+  lowSan: number;
+  avgPmPercent: number;
+  avgSanPercent: number;
+};
+
 export type LivePressureSnapshot = {
   state: LivePressureState;
   playerCount: number;
   hostileCount: number;
   playerHpRatio: number;
   hostileHpRatio: number;
+  avgPmPercent: number | null;
+  avgSanPercent: number | null;
+  lowPmCount: number;
+  lowSanCount: number;
   downedPlayers: number;
   downedHostiles: number;
   countDelta: number;
@@ -579,7 +591,14 @@ export function analyzeT20Encounter(
   };
 }
 
-export function analyzeLiveCombatPressure(combatants: LiveCombatantInput[]): LivePressureSnapshot {
+function clampPercent(value: number) {
+  return Math.max(0, Math.min(100, value));
+}
+
+export function analyzeLiveCombatPressure(
+  combatants: LiveCombatantInput[],
+  resources?: LivePartyResourceSnapshot | null,
+): LivePressureSnapshot {
   const players = combatants.filter((combatant) => combatant.kind === "CHARACTER");
   const hostiles = combatants.filter((combatant) => combatant.kind !== "CHARACTER");
 
@@ -588,6 +607,15 @@ export function analyzeLiveCombatPressure(combatants: LiveCombatantInput[]): Liv
   const downedPlayers = players.filter((combatant) => (combatant.hpCurrent ?? 0) <= 0).length;
   const downedHostiles = hostiles.filter((combatant) => (combatant.hpCurrent ?? 0) <= 0).length;
   const countDelta = players.length - hostiles.length;
+  const hasResourceSnapshot = Boolean(resources && resources.total > 0);
+  const avgPmPercent = hasResourceSnapshot ? clampPercent(resources!.avgPmPercent) : null;
+  const avgSanPercent = hasResourceSnapshot ? clampPercent(resources!.avgSanPercent) : null;
+  const lowPmCount = hasResourceSnapshot ? Math.max(0, resources!.lowPm) : 0;
+  const lowSanCount = hasResourceSnapshot ? Math.max(0, resources!.lowSan) : 0;
+  const lowPmRatio =
+    hasResourceSnapshot && resources!.total > 0 ? lowPmCount / resources!.total : 0;
+  const lowSanRatio =
+    hasResourceSnapshot && resources!.total > 0 ? lowSanCount / resources!.total : 0;
 
   const factors: string[] = [];
   let pressureScore = 0;
@@ -639,6 +667,36 @@ export function analyzeLiveCombatPressure(combatants: LiveCombatantInput[]): Liv
     factors.push(`${downedHostiles} hostil(is) ja saiu(ra)m do combate.`);
   }
 
+  if (avgPmPercent !== null) {
+    if (avgPmPercent <= 30) {
+      pressureScore += 2;
+      factors.push("Recursos de PM muito baixos no grupo.");
+    } else if (avgPmPercent <= 50) {
+      pressureScore += 1;
+      factors.push("PM do grupo em faixa de desgaste.");
+    }
+  }
+
+  if (avgSanPercent !== null) {
+    if (avgSanPercent <= 30) {
+      pressureScore += 2;
+      factors.push("SAN do grupo em risco critico.");
+    } else if (avgSanPercent <= 50) {
+      pressureScore += 1;
+      factors.push("SAN do grupo em faixa de atencao.");
+    }
+  }
+
+  if (lowPmRatio >= 0.5) {
+    pressureScore += 1;
+    factors.push("Maioria do grupo ja esta com PM baixo.");
+  }
+
+  if (lowSanRatio >= 0.5) {
+    pressureScore += 1;
+    factors.push("Maioria do grupo ja esta com SAN baixa.");
+  }
+
   let state: LivePressureState = "stable";
   if (pressureScore >= 4) state = "critical";
   else if (pressureScore >= 1) state = "rising";
@@ -654,12 +712,23 @@ export function analyzeLiveCombatPressure(combatants: LiveCombatantInput[]): Liv
     recommendation = "Considere aliviar dano, cortar reforcos ou abrir uma saida tatica para nao quebrar a mesa.";
   }
 
+  if (state !== "stable" && avgPmPercent !== null && avgPmPercent <= 40) {
+    recommendation += " Preservar PM (ou aliviar custo de recursos) pode evitar colapso do grupo.";
+  }
+  if (state !== "stable" && avgSanPercent !== null && avgSanPercent <= 40) {
+    recommendation += " Trate desgaste mental como prioridade antes de forcar nova escalada.";
+  }
+
   return {
     state,
     playerCount: players.length,
     hostileCount: hostiles.length,
     playerHpRatio: Number(playerHpRatio.toFixed(2)),
     hostileHpRatio: Number(hostileHpRatio.toFixed(2)),
+    avgPmPercent: avgPmPercent !== null ? Math.round(avgPmPercent) : null,
+    avgSanPercent: avgSanPercent !== null ? Math.round(avgSanPercent) : null,
+    lowPmCount,
+    lowSanCount,
     downedPlayers,
     downedHostiles,
     countDelta,

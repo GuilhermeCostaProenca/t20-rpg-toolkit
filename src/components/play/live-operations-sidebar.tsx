@@ -293,6 +293,7 @@ export function LiveOperationsSidebar({
                 currentPublicAsset={currentPublicAsset}
                 sceneVisualEntities={sceneVisualEntities}
                 liveCombat={liveCombat}
+                partyStatus={partyStatus}
                 revealingId={revealingId}
                 secondScreenReady={secondScreenReady}
                 activeInspectEntityId={activeInspectEntityId}

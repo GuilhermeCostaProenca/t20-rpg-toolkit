@@ -26,6 +26,7 @@ import {
   formatBalanceConfidence,
   formatEncounterRating,
   formatLivePressureState,
+  type LivePartyResourceSnapshot,
   suggestPublicScenePacing,
   suggestLiveAdjustment,
 } from "@/lib/t20-balance";
@@ -74,6 +75,7 @@ type LivePrepCockpitProps = {
   } | null;
   sceneVisualEntities: SceneVisualEntity[];
   liveCombat: LiveCombat | null;
+  partyStatus: LivePartyResourceSnapshot;
   revealingId: string | null;
   secondScreenReady: boolean;
   activeInspectEntityId: string | null;
@@ -439,6 +441,7 @@ export function LivePrepCockpit({
   currentPublicAsset,
   sceneVisualEntities,
   liveCombat,
+  partyStatus,
   revealingId,
   secondScreenReady,
   activeInspectEntityId,
@@ -481,7 +484,7 @@ export function LivePrepCockpit({
 
   const livePressure =
     liveCombat?.isActive && liveCombat.combatants.length > 0
-      ? analyzeLiveCombatPressure(liveCombat.combatants)
+      ? analyzeLiveCombatPressure(liveCombat.combatants, partyStatus)
       : null;
   const liveAdjustment = livePressure
     ? suggestLiveAdjustment(livePressure, activeEncounter?.rating ?? null)
@@ -1219,8 +1222,26 @@ export function LivePrepCockpit({
                       </span>
                     </div>
                     <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                      <span>PM medio do grupo</span>
+                      <span className="font-semibold text-foreground">
+                        {livePressure.avgPmPercent !== null ? `${livePressure.avgPmPercent}%` : "n/d"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                      <span>SAN media do grupo</span>
+                      <span className="font-semibold text-foreground">
+                        {livePressure.avgSanPercent !== null ? `${livePressure.avgSanPercent}%` : "n/d"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
                       <span>Quedas no grupo</span>
                       <span className="font-semibold text-foreground">{livePressure.downedPlayers}</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                      <span>Recursos baixos</span>
+                      <span className="font-semibold text-foreground">
+                        PM {livePressure.lowPmCount} · SAN {livePressure.lowSanCount}
+                      </span>
                     </div>
                   </div>
                   <p className="mt-3 text-sm text-muted-foreground">{livePressure.recommendation}</p>
@@ -1810,8 +1831,26 @@ export function LivePrepCockpit({
                     </span>
                   </div>
                   <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                    <span>PM medio do grupo</span>
+                    <span className="font-semibold text-foreground">
+                      {livePressure.avgPmPercent !== null ? `${livePressure.avgPmPercent}%` : "n/d"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                    <span>SAN media do grupo</span>
+                    <span className="font-semibold text-foreground">
+                      {livePressure.avgSanPercent !== null ? `${livePressure.avgSanPercent}%` : "n/d"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
                     <span>Quedas no grupo</span>
                     <span className="font-semibold text-foreground">{livePressure.downedPlayers}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-white/8 bg-sidebar/70 px-3 py-2">
+                    <span>Recursos baixos</span>
+                    <span className="font-semibold text-foreground">
+                      PM {livePressure.lowPmCount} · SAN {livePressure.lowSanCount}
+                    </span>
                   </div>
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">{livePressure.recommendation}</p>
