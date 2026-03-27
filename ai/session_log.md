@@ -467,3 +467,29 @@
   - abrir PR/merge do recorte `RPG-242`.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional completo de `RPG-242` e fechar issue em `Done`.
+
+### Sessao: 2026-03-27 - A9-R5 postura conservadora em encontro punitivo estavel
+- Objetivo da sessao: evitar sugestao de escalada automatica quando o encontro preparado ja e punitivo, mesmo com pressao momentaneamente estavel.
+- O que foi feito:
+  - criada issue `RPG-243` no Linear e movida para `In Progress`.
+  - `suggestLiveAdjustment` passou a usar postura `hold` no estado `stable` quando `preparedRating` e `deadly/punitivo`.
+  - adicionados testes unitarios para garantir diferenca entre `stable+deadly` (hold) e `stable+manageable` (escalate).
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/decisions.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `src/lib/t20-balance.ts`
+  - `src/lib/t20-balance.test.ts`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+  - `docs/01-fronts/balanceamento-t20-plan.md`
+  - `docs/00-strategy/attack-index.md`
+- Validacao executada:
+  - `npm run lint -- src/lib/t20-balance.ts src/lib/t20-balance.test.ts` -> ok.
+  - `npm run test:run` -> 6 arquivos / 30 testes passando.
+- Decisoes tomadas:
+  - DEC-015 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-243`.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional completo de `RPG-243` e fechar issue em `Done`.

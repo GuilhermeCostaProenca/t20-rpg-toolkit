@@ -784,6 +784,7 @@ export function suggestLiveAdjustment(
   preparedRating?: string | null
 ): LiveAdjustmentGuide {
   const rating = preparedRating?.trim().toLowerCase() ?? "";
+  const preparedDeadly = rating === "deadly" || rating === "punitivo";
   const hasDownedPlayers = pressure.downedPlayers > 0;
   const halfParty = Math.max(1, Math.ceil(pressure.playerCount / 2));
   const resourceCritical =
@@ -830,6 +831,20 @@ export function suggestLiveAdjustment(
           : pressure.countDelta < 0
             ? "A vantagem numerica hostil ja faz parte da pressao. Nao precisa adicionar mais corpos por enquanto."
             : "Observe recursos de cura e controle antes de decidir por um pico extra.",
+      ],
+    };
+  }
+
+  if (preparedDeadly) {
+    return {
+      title: "Segure o peso do encontro",
+      posture: "hold",
+      actions: [
+        "Encontro preparado ja e punitivo: mantenha tensao por objetivo/posicao antes de escalar dano.",
+        resourceStressed
+          ? "Com desgaste de recurso ativo, priorize estabilidade e janela de recuperacao em vez de reforco agressivo."
+          : "Se precisar variar a cena, prefira complicacao controlada sem aumentar brutalidade numerica.",
+        "Escalone apenas em microcamadas e valide resposta da mesa a cada rodada.",
       ],
     };
   }

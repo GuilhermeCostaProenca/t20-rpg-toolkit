@@ -273,4 +273,33 @@ describe("suggestLiveAdjustment - resource-aware guidance", () => {
       true
     );
   });
+
+  it("holds escalation in stable state when prepared encounter is deadly", () => {
+    const guide = suggestLiveAdjustment(
+      buildPressure({
+        state: "stable",
+        avgPmPercent: 70,
+        avgSanPercent: 70,
+      }),
+      "deadly"
+    );
+
+    expect(guide.posture).toBe("hold");
+    expect(guide.title).toContain("Segure o peso do encontro");
+    expect(guide.actions.some((action) => action.includes("ja e punitivo"))).toBe(true);
+  });
+
+  it("keeps escalation posture in stable state for manageable prepared encounter", () => {
+    const guide = suggestLiveAdjustment(
+      buildPressure({
+        state: "stable",
+        avgPmPercent: 70,
+        avgSanPercent: 70,
+      }),
+      "manageable"
+    );
+
+    expect(guide.posture).toBe("escalate");
+    expect(guide.title).toContain("Espaco para elevar a tensao");
+  });
 });
