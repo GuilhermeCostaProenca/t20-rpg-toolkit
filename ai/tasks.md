@@ -7,7 +7,6 @@
 ## Backlog Ativo
 - [ ] [A7] Fechar recorte final de Mesa ao Vivo (validacao de mesa real apos ajustes de handoff/ficha).
 - [ ] [A9] Refinar loop de balanceamento ao vivo com leitura mais profunda de recursos de ficha.
-- [ ] [DOCS] Executar varredura final de referencias legadas restantes apos `RPG-237`.
 
 ## Em Execucao
 - [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional (`docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`).
@@ -30,6 +29,7 @@
 - [x] [A9-R3] Qualificar `Ajuste rapido` com acoes orientadas a estresse de PM/SAN e testes dedicados (`RPG-239`).
 - [x] [DOCS-R1] Sanear referencias legadas de planos/indice para estrutura `00-strategy/01-fronts` (`RPG-237`).
 - [x] [A8-R8] Consolidar fechamento executivo da frente Memoria do Mundo no `attack-index` com report de readiness (`RPG-238`).
+- [x] [DOCS-R2] Executar varredura final de referencias legadas e alinhar docs ativos para caminhos canonicos (`RPG-240`).
 
 ## Template de Tarefa (copiar e preencher)
 ### `[ID opcional]` `[Nome da tarefa]`

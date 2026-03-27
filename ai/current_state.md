@@ -20,6 +20,7 @@
 - Balanceamento ao vivo agora considera desgaste de PM/SAN no `livePressure` e exibe esses sinais no cockpit da mesa.
 - Estrutura do loop ao vivo no `LivePrepCockpit` foi refatorada com cards reutilizaveis para `Sinais ao vivo` e `Ajuste rapido`, eliminando duplicacao entre modos tatico/narrativo sem alterar comportamento.
 - `Ajuste rapido` agora diferencia cenarios de estresse de recurso (PM/SAN) com acoes especificas de respiro/gestao e cobertura de testes unitarios dedicada.
+- Documentacao de governanca (`AGENTS.md`, `ARCHITECTURE.md`, `CONTRIBUTING.md`) alinhada para caminhos canonicos `docs/00-strategy/*` e `docs/01-fronts/*` sem referencias legadas mapeadas.
 
 ## Em Andamento
 - A8 foi encerrada no `attack-index`; A1-A7 e A9 seguem em `[-]`.

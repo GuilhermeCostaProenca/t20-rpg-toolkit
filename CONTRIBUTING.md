@@ -9,10 +9,10 @@ Before contributing, read:
 - [`README.md`](README.md)
 - [`ARCHITECTURE.md`](ARCHITECTURE.md)
 - [`AGENTS.md`](AGENTS.md)
-- [`docs/t20-toolkit-master-plan.md`](docs/t20-toolkit-master-plan.md)
-- [`docs/attack-index.md`](docs/attack-index.md)
+- [`docs/00-strategy/t20-toolkit-master-plan.md`](docs/00-strategy/t20-toolkit-master-plan.md)
+- [`docs/00-strategy/attack-index.md`](docs/00-strategy/attack-index.md)
 
-If your change touches a specific front, also read the corresponding `docs/*-plan.md`.
+If your change touches a specific front, also read the corresponding `docs/01-fronts/*-plan.md`.
 
 ## Core rules
 
@@ -142,7 +142,7 @@ If you meaningfully adopt something from `references/`, record it in:
 - the PR notes
 
 See:
-- [`docs/reference-harvest-plan.md`](docs/reference-harvest-plan.md)
+- [`docs/00-strategy/reference-harvest-plan.md`](docs/00-strategy/reference-harvest-plan.md)
 
 ## Tests and validation
 
@@ -175,8 +175,8 @@ At minimum, review whether any of these need changes:
 - `README.md`
 - `ARCHITECTURE.md`
 - `AGENTS.md`
-- `docs/attack-index.md`
-- the active front plan in `docs/`
+- `docs/00-strategy/attack-index.md`
+- the active front plan in `docs/01-fronts/`
 
 ## Questions to ask before opening a PR
 

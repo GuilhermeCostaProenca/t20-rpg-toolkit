@@ -25,9 +25,9 @@ Do not treat this repo as a loose collection of CRUD pages.
 Before making major changes, read:
 - `README.md`
 - `ARCHITECTURE.md`
-- `docs/t20-toolkit-master-plan.md`
-- `docs/attack-index.md`
-- the specific `docs/*-plan.md` for the active front
+- `docs/00-strategy/t20-toolkit-master-plan.md`
+- `docs/00-strategy/attack-index.md`
+- the specific `docs/01-fronts/*-plan.md` for the active front
 
 If a change does not fit the active plan, stop and reconcile it before implementation.
 
@@ -158,7 +158,7 @@ Do not blindly copy:
 If you use a reference meaningfully, record that use in the relevant plan and PR.
 
 See:
-- `docs/reference-harvest-plan.md`
+- `docs/00-strategy/reference-harvest-plan.md`
 
 ## Done means merged
 

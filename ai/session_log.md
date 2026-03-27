@@ -394,3 +394,28 @@
   - abrir PR/merge do recorte `RPG-239`.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional completo (`RPG-239`) e marcar issue em `Done`.
+
+### Sessao: 2026-03-27 - DOCS-R2 varredura final de referencias legadas
+- Objetivo da sessao: eliminar referencias de caminho legadas remanescentes em docs ativos de governanca.
+- O que foi feito:
+  - criada issue `RPG-240` no Linear e movida para `In Progress`.
+  - executada varredura ampla por paths legados de planos/indice em todo o repositorio.
+  - corrigidos caminhos em `AGENTS.md`, `ARCHITECTURE.md` e `CONTRIBUTING.md` para `docs/00-strategy/*` e `docs/01-fronts/*`.
+  - validado fechamento com varredura textual sem ocorrencias legadas mapeadas.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/decisions.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `AGENTS.md`
+  - `ARCHITECTURE.md`
+  - `CONTRIBUTING.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `rg -n \"docs/(attack-index|t20-toolkit-master-plan|shell-cockpit-plan|codex-do-mundo-plan|grafo-narrativo-plan|biblioteca-visual-plan|forja-do-mundo-plan|forja-de-sessao-plan|mesa-ao-vivo-plan|memoria-do-mundo-plan|balanceamento-t20-plan|front-cleanup-zero-plan|reference-harvest-plan)\\.md\" .` -> sem ocorrencias legadas.
+- Decisoes tomadas:
+  - DEC-013 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-240`.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional completo (`RPG-240`) e marcar issue em `Done`.
