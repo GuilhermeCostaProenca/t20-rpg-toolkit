@@ -183,3 +183,16 @@
   - Positivo: reduz ambiguidade de fonte de verdade e previne regressao documental em novos recortes.
   - Negativo / trade-off: exige manter regra de varredura textual nos fechamentos de docs.
 - Plano de revisao: repetir varredura de paths legados sempre que novos guias de contribuicao/governanca forem editados.
+
+### DEC-014: Priorizar recuperacao de personagem caido no ajuste ao vivo
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: o `Ajuste rapido` já reagia a estado geral e PM/SAN, mas não enfatizava recuperação quando já havia personagem caído fora de cenários estritamente críticos.
+- Decisao: tornar `downedPlayers > 0` um sinal prioritário em `suggestLiveAdjustment`, com ação explícita de estabilização/recuperação antes de nova escalada.
+- Alternativas consideradas:
+  - manter orientação apenas por estado agregado (`stable/rising/critical`);
+  - criar um card separado para quedas de personagem.
+- Impacto:
+  - Positivo: recomendação mais aderente à urgência real da mesa, reduzindo risco de over-escalation com grupo quebrado.
+  - Negativo / trade-off: texto do ajuste fica mais opinativo, exigindo calibragem futura em validação real.
+- Plano de revisao: revisar na validação de campo de A7/A9 se os novos textos estão acionáveis sem excesso de intervenção.

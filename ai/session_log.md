@@ -441,3 +441,29 @@
   - abrir PR/merge do recorte `RPG-241`.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional de `RPG-241` e executar validacao em mesa real usando o run sheet.
+
+### Sessao: 2026-03-27 - A9-R4 prioridade de recuperacao com personagem caido
+- Objetivo da sessao: tornar o `Ajuste rapido` mais fiel a urgencia de combate quando ja existe personagem caido em campo.
+- O que foi feito:
+  - criada issue `RPG-242` no Linear e movida para `In Progress`.
+  - `suggestLiveAdjustment` passou a priorizar orientacao explicita de estabilizacao/recuperacao quando `downedPlayers > 0`.
+  - adicionados testes unitarios para cenarios `rising` e `critical` com personagem caido.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/decisions.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `src/lib/t20-balance.ts`
+  - `src/lib/t20-balance.test.ts`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+  - `docs/01-fronts/balanceamento-t20-plan.md`
+  - `docs/00-strategy/attack-index.md`
+- Validacao executada:
+  - `npm run lint -- src/lib/t20-balance.ts src/lib/t20-balance.test.ts` -> ok.
+  - `npm run test:run` -> 6 arquivos / 28 testes passando.
+- Decisoes tomadas:
+  - DEC-014 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-242`.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional completo de `RPG-242` e fechar issue em `Done`.
