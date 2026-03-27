@@ -241,4 +241,36 @@ describe("suggestLiveAdjustment - resource-aware guidance", () => {
     expect(guide.posture).toBe("hold");
     expect(guide.actions.some((action) => action.includes("desgaste de PM/SAN"))).toBe(true);
   });
+
+  it("prioritizes recovery when there are downed players in rising pressure", () => {
+    const guide = suggestLiveAdjustment(
+      buildPressure({
+        state: "rising",
+        downedPlayers: 1,
+        avgPmPercent: 55,
+        avgSanPercent: 60,
+      }),
+      "manageable"
+    );
+
+    expect(guide.posture).toBe("hold");
+    expect(guide.actions.some((action) => action.includes("personagem caido"))).toBe(true);
+  });
+
+  it("reinforces stabilization before escalation in critical pressure with downed players", () => {
+    const guide = suggestLiveAdjustment(
+      buildPressure({
+        state: "critical",
+        downedPlayers: 2,
+        avgPmPercent: 30,
+        avgSanPercent: 35,
+      }),
+      "deadly"
+    );
+
+    expect(guide.posture).toBe("ease");
+    expect(guide.actions.some((action) => action.includes("priorize estabilizacao/recuperacao"))).toBe(
+      true
+    );
+  });
 });

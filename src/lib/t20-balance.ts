@@ -784,6 +784,7 @@ export function suggestLiveAdjustment(
   preparedRating?: string | null
 ): LiveAdjustmentGuide {
   const rating = preparedRating?.trim().toLowerCase() ?? "";
+  const hasDownedPlayers = pressure.downedPlayers > 0;
   const halfParty = Math.max(1, Math.ceil(pressure.playerCount / 2));
   const resourceCritical =
     (pressure.avgPmPercent !== null && pressure.avgPmPercent <= 25) ||
@@ -804,7 +805,9 @@ export function suggestLiveAdjustment(
       actions: [
         "Corte uma acao hostil secundaria ou atrase reforcos narrativos.",
         "Abra cobertura, rota de fuga ou janela para reorganizacao do grupo.",
-        resourceCritical
+        hasDownedPlayers
+          ? "Ja ha personagem caido: priorize estabilizacao/recuperacao antes de abrir nova escalada."
+          : resourceCritical
           ? "PM/SAN estao em colapso: priorize rodada de respiro para recuperacao e reduza custo de recurso imediato."
           : rating === "deadly" || rating === "punitivo"
             ? "Se o encontro ja era pesado no preparo, reduza dano ou HP de uma ameaca principal."
@@ -820,7 +823,9 @@ export function suggestLiveAdjustment(
       actions: [
         "Evite empilhar reforcos agora; deixe a pressao vir da posicao ou do objetivo.",
         "Se quiser escalar, prefira custo narrativo ou terreno em vez de dano bruto.",
-        resourceStressed
+        hasDownedPlayers
+          ? "Ha personagem caido em campo: recupere acao do grupo antes de adicionar nova fonte de pressao."
+          : resourceStressed
           ? "Ha desgaste de PM/SAN em curso: segure picos e force decisao taticamente, nao por exaustao de recurso."
           : pressure.countDelta < 0
             ? "A vantagem numerica hostil ja faz parte da pressao. Nao precisa adicionar mais corpos por enquanto."
