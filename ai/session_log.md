@@ -516,3 +516,28 @@
   - abrir PR/merge do recorte `RPG-244`.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional de `RPG-244` e, em seguida, executar validacao real de mesa para fechamento formal de A9.
+
+### Sessao: 2026-03-27 - A9-R7 limiares calibraveis no motor ao vivo
+- Objetivo da sessao: preparar o motor de balanceamento ao vivo para calibracao rapida pos-validacao real, removendo numeros magicos centrais.
+- O que foi feito:
+  - criada issue `RPG-245` no Linear e movida para `In Progress`.
+  - extraidos limiares de HP, contagem, score e recursos para constantes nomeadas em `src/lib/t20-balance.ts`.
+  - mantido comportamento funcional do motor sem alteracao intencional de regra.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/decisions.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `src/lib/t20-balance.ts`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+  - `docs/01-fronts/balanceamento-t20-plan.md`
+  - `docs/00-strategy/attack-index.md`
+- Validacao executada:
+  - `npm run lint -- src/lib/t20-balance.ts src/lib/t20-balance.test.ts` -> ok.
+  - `npm run test:run` -> 6 arquivos / 30 testes passando.
+- Decisoes tomadas:
+  - DEC-017 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-245`.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional completo de `RPG-245` e usar as constantes como base de calibracao na validacao de campo.

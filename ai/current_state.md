@@ -23,6 +23,7 @@
 - `Ajuste rapido` agora tambem prioriza recuperacao/estabilizacao quando ha personagem caido em campo, inclusive em pressao `rising`.
 - `Ajuste rapido` agora evita recomendar escalada livre em estado `stable` quando o encontro preparado ja e `deadly/punitivo`, mantendo postura conservadora.
 - A9 agora possui report de closure readiness com criterios objetivos de go/no-go para encerramento executivo.
+- Motor de pressao/ajuste ao vivo em A9 agora usa limiares nomeados (sem numeros magicos centrais), facilitando calibracao apos validacao de campo.
 - Documentacao de governanca (`AGENTS.md`, `ARCHITECTURE.md`, `CONTRIBUTING.md`) alinhada para caminhos canonicos `docs/00-strategy/*` e `docs/01-fronts/*` sem referencias legadas mapeadas.
 - Validacao A7-R3 agora possui run sheet operacional de campo com criterio final explicito (aprovado/ressalvas/reprovado).
 
