@@ -287,6 +287,9 @@ export default function CampaignPage() {
   const [memoryVisibility, setMemoryVisibility] = useState<"ALL" | "MASTER" | "PLAYERS">("ALL");
   const [memoryTone, setMemoryTone] = useState<"ALL" | "summary" | "change" | "death" | "note">("ALL");
   const [memoryTimeFilter, setMemoryTimeFilter] = useState<"ALL" | "7D" | "30D" | "90D">("ALL");
+  const [crossMemoryEvents, setCrossMemoryEvents] = useState<WorldEvent[] | null>(null);
+  const [crossMemoryLoading, setCrossMemoryLoading] = useState(false);
+  const [crossMemoryScoreById, setCrossMemoryScoreById] = useState<Record<string, number>>({});
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
@@ -428,6 +431,59 @@ export default function CampaignPage() {
       return true;
     });
   }, [campaignMemoryEvents, memoryQuery, memoryTimeFilter, memoryTone, memoryVisibility]);
+  useEffect(() => {
+    const worldId = campaign?.world?.id;
+    const currentCampaignId = campaign?.id;
+    const normalizedQuery = memoryQuery.trim();
+    if (!worldId || !currentCampaignId || normalizedQuery.length < 2) {
+      setCrossMemoryEvents(null);
+      setCrossMemoryLoading(false);
+      setCrossMemoryScoreById({});
+      return;
+    }
+
+    let cancelled = false;
+    setCrossMemoryLoading(true);
+    const timer = window.setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({
+          q: normalizedQuery,
+          campaignId: currentCampaignId,
+          visibility: memoryVisibility,
+          tone: memoryTone,
+          timeWindow: memoryTimeFilter,
+          limit: "80",
+        });
+        const response = await fetch(
+          `/api/worlds/${worldId}/memory/search?${params.toString()}`,
+          { cache: "no-store" },
+        );
+        const payload = await response.json().catch(() => ({}));
+        if (!cancelled) {
+          setCrossMemoryEvents((payload.data as WorldEvent[] | undefined) ?? []);
+          setCrossMemoryScoreById((payload.meta?.scores as Record<string, number> | undefined) ?? {});
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Cross memory search failed", error);
+          setCrossMemoryEvents([]);
+          setCrossMemoryScoreById({});
+        }
+      } finally {
+        if (!cancelled) {
+          setCrossMemoryLoading(false);
+        }
+      }
+    }, 220);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [campaign?.id, campaign?.world?.id, memoryQuery, memoryTimeFilter, memoryTone, memoryVisibility]);
+  const isCrossMemoryMode = memoryQuery.trim().length >= 2;
+  const visibleCampaignMemoryEvents =
+    isCrossMemoryMode && crossMemoryEvents !== null ? crossMemoryEvents : filteredCampaignMemoryEvents;
   const sessionTitleById = useMemo(
     () => new Map(sessions.map((session) => [session.id, session.title])),
     [sessions]
@@ -1778,10 +1834,15 @@ export default function CampaignPage() {
                         </select>
                       </div>
                       <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                        {filteredCampaignMemoryEvents.length} marcos neste recorte
+                        {visibleCampaignMemoryEvents.length} marcos neste recorte
+                        {isCrossMemoryMode ? " · busca transversal ativa" : ""}
                       </p>
                     </div>
-                    {filteredCampaignMemoryEvents.length > 0 ? filteredCampaignMemoryEvents.slice(0, 6).map((event) => (
+                    {crossMemoryLoading ? (
+                      <div className="rounded-2xl border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                        Buscando memoria transversal...
+                      </div>
+                    ) : visibleCampaignMemoryEvents.length > 0 ? visibleCampaignMemoryEvents.slice(0, 6).map((event) => (
                       <button
                         key={event.id}
                         type="button"
@@ -1809,6 +1870,11 @@ export default function CampaignPage() {
                           <Badge className="border-white/10 bg-white/5 text-white/75">
                             {formatMemoryEventTemporalLabel(event.ts)}
                           </Badge>
+                          {isCrossMemoryMode ? (
+                            <Badge className="border-emerald-400/25 bg-emerald-500/10 text-emerald-100">
+                              Relevancia {crossMemoryScoreById[event.id] ?? 0}
+                            </Badge>
+                          ) : null}
                         </div>
                         <p className="mt-3 text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
                         {event.sessionId ? (
@@ -1822,7 +1888,9 @@ export default function CampaignPage() {
                       </button>
                     )) : (
                       <div className="rounded-2xl border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
-                        Nenhum marco de memoria corresponde aos filtros atuais.
+                        {isCrossMemoryMode
+                          ? "Nenhum marco de memoria encontrado na busca transversal."
+                          : "Nenhum marco de memoria corresponde aos filtros atuais."}
                       </div>
                     )}
                   </div>
@@ -2378,6 +2446,11 @@ export default function CampaignPage() {
                       : undefined,
                   })}
                 </p>
+                {isCrossMemoryMode && crossMemoryScoreById[inspectItem.item.id] !== undefined ? (
+                  <p className="mt-3 text-xs uppercase tracking-[0.14em] text-emerald-100/85">
+                    Relevancia na busca transversal: {crossMemoryScoreById[inspectItem.item.id]}
+                  </p>
+                ) : null}
                 {memoryInspectRelations.length > 0 ? (
                   <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
                     <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">

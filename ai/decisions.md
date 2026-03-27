@@ -53,3 +53,42 @@
   - Positivo: melhora confiabilidade da experiencia ao vivo e reduz debito estrutural.
   - Negativo / trade-off: pode adiar expansoes de escopo visivel no curto prazo.
 - Plano de revisao: apos fechamento do proximo recorte de A7 com validacao de uso real.
+
+### DEC-004: QuickSheet alinhada ao estado vivo da mesa
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: a leitura de ficha no fluxo ao vivo estava parcial (DEF/SAN inconsistentes) e desatualizada entre ajustes operacionais.
+- Decisao: sincronizar a `QuickSheet` por polling de `/api/characters?withSheet=true` e corrigir o `OrdemSheet` para usar DEF/SAN reais da ficha.
+- Alternativas consideradas:
+  - manter fetch unico e exigir reabertura manual da ficha;
+  - corrigir apenas UI de SAN sem sincronizacao viva.
+- Impacto:
+  - Positivo: consulta de ficha mais confiavel durante combate e narracao.
+  - Negativo / trade-off: aumento moderado de chamadas periodicas no cliente.
+- Plano de revisao: reavaliar cadence de polling apos validacao de mesa real.
+
+### DEC-005: Handoff narrativo automatico ao encerrar combate
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: ao fim do combate, o foco narrativo voltava, mas paineis e camada publica podiam ficar em estado tatico residual.
+- Decisao: ao detectar transicao de combate ativo -> inativo, forcar preset narrativo consistente (focus narrative, paineis completos, historico ativo, camada publica destravada) e persistir no `localStorage`.
+- Alternativas consideradas:
+  - manter apenas troca de foco e depender de ajuste manual do mestre;
+  - aplicar reset parcial sem persistencia.
+- Impacto:
+  - Positivo: reduz friccao na saida de combate e melhora continuidade operacional da mesa.
+  - Negativo / trade-off: menor liberdade de manter configuracao tatico-narrativa hibrida apos combate sem novo ajuste manual.
+- Plano de revisao: confirmar em mesa real se o reset automatico esta agressivo demais.
+
+### DEC-006: Busca transversal de memoria via endpoint world-scoped dedicado
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: filtros locais da campanha consultavam apenas recorte reduzido (`recentMemoryEvents`) e nao cobriam busca transversal forte de A8.
+- Decisao: criar `GET /api/worlds/[id]/memory/search` com filtros operacionais (`q`, `campaignId`, `entityId`, `visibility`, `tone`, `timeWindow`) e integrar primeiro consumo na estacao de campanha.
+- Alternativas consideradas:
+  - expandir apenas `recentMemoryEvents` em `GET /api/campaigns/[id]`;
+  - reutilizar `GET /api/worlds/[id]/events` sem semantica de memoria dedicada.
+- Impacto:
+  - Positivo: busca de memoria mais profunda sem quebrar contratos existentes de campanha/eventos.
+  - Negativo / trade-off: introduz novo endpoint e logica de filtro complementar em servidor.
+- Plano de revisao: medir uso real e decidir se consolidar tudo em um unico endpoint de memoria no fechamento de A8.

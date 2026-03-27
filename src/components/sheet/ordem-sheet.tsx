@@ -5,8 +5,37 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
+type SheetAttributes = Record<string, number | undefined>;
+type InventoryItem = {
+    name: string;
+    type: string;
+    weight: number;
+    dmg?: string;
+    damage?: string;
+    crit?: string;
+    def?: number;
+    qtd?: number;
+};
+type OrdemCharacter = {
+    level: number;
+    def?: number;
+    stats?: { def?: number };
+    hp?: { current?: number; max?: number };
+    pm?: { current?: number; max?: number };
+    san?: { current?: number; max?: number };
+    attributes?: SheetAttributes;
+    skills?: Record<string, { trained?: boolean }>;
+    inventory?: InventoryItem[];
+};
+
 // Ordem Paranormal Attributes: AGI, FOR, INT, PRE, VIG
-function Pentagram({ attributes, onRoll }: { attributes: any, onRoll?: (attr: string, val: number) => void }) {
+function Pentagram({
+    attributes,
+    onRoll,
+}: {
+    attributes: SheetAttributes;
+    onRoll?: (attr: string, val: number) => void;
+}) {
     // Map internal T20 keys (if used) to OP keys or expect proper keys
     // Expected keys: agi, for, int, pre, vig
     // Fallback mapping: des->agi, for->for, int->int, car->pre, con->vig
@@ -106,16 +135,31 @@ import { useState } from "react";
 
 
 
-export function OrdemSheet({ character, onRoll }: { character: any, onRoll?: (expr: string, label: string) => void }) {
+export function OrdemSheet({
+    character,
+    onRoll,
+}: {
+    character: OrdemCharacter;
+    onRoll?: (expr: string, label: string) => void;
+}) {
     const [tab, setTab] = useState<'skills' | 'inventory'>('skills');
 
     // Derived Stats
     const nex = character.level * 5;
     const peRodada = character.level; // simplified
-    const def = character.stats?.def || 10;
+    const def = character.def ?? character.stats?.def ?? 10;
+    const sanCurrent = character.san?.current ?? 0;
+    const sanMax = Math.max(1, character.san?.max ?? 1);
+    const hpCurrent = character.hp?.current ?? 0;
+    const hpMax = Math.max(1, character.hp?.max ?? 1);
+    const pmCurrent = character.pm?.current ?? 0;
+    const pmMax = Math.max(1, character.pm?.max ?? 1);
+    const hpPercent = Math.max(0, Math.min(100, (hpCurrent / hpMax) * 100));
+    const sanPercent = Math.max(0, Math.min(100, (sanCurrent / sanMax) * 100));
+    const pmPercent = Math.max(0, Math.min(100, (pmCurrent / pmMax) * 100));
 
     // Mock Inventory until DB structure is firm
-    const inventory = character.inventory || [
+    const inventory: InventoryItem[] = character.inventory || [
         { name: "Pistola Tática", type: "Arma", weight: 1, damage: "1d12", crit: "19/x2" },
         { name: "Colete Leve", type: "Proteção", weight: 2, def: 2 },
         { name: "Kit de Perícia", type: "Equip", weight: 1 },
@@ -151,28 +195,28 @@ export function OrdemSheet({ character, onRoll }: { character: any, onRoll?: (ex
                 <div className="space-y-1">
                     <div className="flex justify-between text-xs font-bold uppercase">
                         <span className="text-red-500">Vida (PV)</span>
-                        <span>{character.hp.current} / {character.hp.max}</span>
+                        <span>{hpCurrent} / {hpMax}</span>
                     </div>
                     <div className="h-2 bg-red-950 rounded-full overflow-hidden border border-red-900/50">
-                        <div style={{ width: `${(character.hp.current / character.hp.max) * 100}%` }} className="h-full bg-red-600" />
+                        <div style={{ width: `${hpPercent}%` }} className="h-full bg-red-600" />
                     </div>
                 </div>
                 <div className="space-y-1">
                     <div className="flex justify-between text-xs font-bold uppercase">
                         <span className="text-purple-500">Sanidade (SAN)</span>
-                        <span>{character.hp.current} / {character.hp.max}</span>
+                        <span>{sanCurrent} / {sanMax}</span>
                     </div>
                     <div className="h-2 bg-purple-950 rounded-full overflow-hidden border border-purple-900/50">
-                        <div style={{ width: `80%` }} className="h-full bg-purple-600" />
+                        <div style={{ width: `${sanPercent}%` }} className="h-full bg-purple-600" />
                     </div>
                 </div>
                 <div className="space-y-1">
                     <div className="flex justify-between text-xs font-bold uppercase">
                         <span className="text-yellow-500">Esforço (PE)</span>
-                        <span>{character.pm.current} / {character.pm.max}</span>
+                        <span>{pmCurrent} / {pmMax}</span>
                     </div>
                     <div className="h-2 bg-yellow-950 rounded-full overflow-hidden border border-yellow-900/50">
-                        <div style={{ width: `${(character.pm.current / character.pm.max) * 100}%` }} className="h-full bg-yellow-600" />
+                        <div style={{ width: `${pmPercent}%` }} className="h-full bg-yellow-600" />
                     </div>
                 </div>
             </div>
@@ -227,7 +271,7 @@ export function OrdemSheet({ character, onRoll }: { character: any, onRoll?: (ex
                             </div>
                         ) : (
                             <div className="space-y-1">
-                                {inventory.map((item: any, i: number) => (
+                                {inventory.map((item, i: number) => (
                                     <div key={i} className="flex justify-between items-center px-2 py-2 border-b border-white/5 last:border-0 hover:bg-zinc-800/50 rounded cursor-pointer group">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-bold text-zinc-200 group-hover:text-white">{item.name}</span>

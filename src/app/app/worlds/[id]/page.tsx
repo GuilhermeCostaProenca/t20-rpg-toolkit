@@ -338,6 +338,9 @@ export default function WorldDetailPage() {
   const [memoryVisibility, setMemoryVisibility] = useState<"ALL" | "MASTER" | "PLAYERS">("ALL");
   const [memoryTone, setMemoryTone] = useState<"ALL" | "summary" | "change" | "death" | "note">("ALL");
   const [memoryTimeFilter, setMemoryTimeFilter] = useState<"ALL" | "7D" | "30D" | "90D">("ALL");
+  const [crossMemoryEvents, setCrossMemoryEvents] = useState<WorldEvent[] | null>(null);
+  const [crossMemoryLoading, setCrossMemoryLoading] = useState(false);
+  const [crossMemoryScoreById, setCrossMemoryScoreById] = useState<Record<string, number>>({});
 
   const loadWorld = useCallback(async () => {
     setLoading(true);
@@ -436,6 +439,53 @@ export default function WorldDetailPage() {
       return true;
     });
   }, [memoryEvents, memoryQuery, memoryTimeFilter, memoryTone, memoryVisibility]);
+  useEffect(() => {
+    const normalizedQuery = memoryQuery.trim();
+    if (!worldId || normalizedQuery.length < 2) {
+      setCrossMemoryEvents(null);
+      setCrossMemoryLoading(false);
+      setCrossMemoryScoreById({});
+      return;
+    }
+
+    let cancelled = false;
+    setCrossMemoryLoading(true);
+    const timer = window.setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({
+          q: normalizedQuery,
+          visibility: memoryVisibility,
+          tone: memoryTone,
+          timeWindow: memoryTimeFilter,
+          limit: "120",
+        });
+        const response = await fetch(`/api/worlds/${worldId}/memory/search?${params.toString()}`, {
+          cache: "no-store",
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!cancelled) {
+          setCrossMemoryEvents((payload.data as WorldEvent[] | undefined) ?? []);
+          setCrossMemoryScoreById((payload.meta?.scores as Record<string, number> | undefined) ?? {});
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("World cross memory search failed", error);
+          setCrossMemoryEvents([]);
+          setCrossMemoryScoreById({});
+        }
+      } finally {
+        if (!cancelled) setCrossMemoryLoading(false);
+      }
+    }, 220);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [memoryQuery, memoryTimeFilter, memoryTone, memoryVisibility, worldId]);
+  const isCrossMemoryMode = memoryQuery.trim().length >= 2;
+  const visibleMemoryEvents =
+    isCrossMemoryMode && crossMemoryEvents !== null ? crossMemoryEvents : filteredMemoryEvents;
   const campaignNameById = useMemo(
     () => new Map((world?.campaigns ?? []).map((campaign) => [campaign.id, campaign.name])),
     [world?.campaigns]
@@ -1047,17 +1097,24 @@ export default function WorldDetailPage() {
                     </select>
                   </div>
                   <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                    {filteredMemoryEvents.length} eventos visiveis neste recorte
+                    {visibleMemoryEvents.length} eventos visiveis neste recorte
+                    {isCrossMemoryMode ? " · busca transversal ativa" : ""}
                   </p>
                 </div>
 
-                {filteredMemoryEvents.length === 0 ? (
+                {crossMemoryLoading ? (
                   <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
-                    Nenhum evento de memoria corresponde aos filtros atuais.
+                    Buscando memoria transversal...
+                  </div>
+                ) : visibleMemoryEvents.length === 0 ? (
+                  <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-muted-foreground">
+                    {isCrossMemoryMode
+                      ? "Nenhum evento de memoria encontrado na busca transversal."
+                      : "Nenhum evento de memoria corresponde aos filtros atuais."}
                   </div>
                 ) : (
                   <div className="grid gap-3 2xl:grid-cols-2">
-                    {filteredMemoryEvents.slice(0, 10).map((event) => (
+                    {visibleMemoryEvents.slice(0, 10).map((event) => (
                       <button
                         key={event.id}
                         type="button"
@@ -1093,6 +1150,11 @@ export default function WorldDetailPage() {
                               <Badge className="border-white/10 bg-white/5 text-white/75">
                                 {formatMemoryEventTemporalLabel(event.ts)}
                               </Badge>
+                              {isCrossMemoryMode ? (
+                                <Badge className="border-emerald-400/25 bg-emerald-500/10 text-emerald-100">
+                                  Relevancia {crossMemoryScoreById[event.id] ?? 0}
+                                </Badge>
+                              ) : null}
                             </div>
                             <p className="text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
                             {event.campaignId ? (
@@ -1318,6 +1380,11 @@ export default function WorldDetailPage() {
             </p>
             {inspectItem.type === "memory" ? (
               <div className="mt-4 space-y-4">
+                {isCrossMemoryMode && crossMemoryScoreById[inspectItem.item.id] !== undefined ? (
+                  <p className="text-xs uppercase tracking-[0.14em] text-emerald-100/85">
+                    Relevancia na busca transversal: {crossMemoryScoreById[inspectItem.item.id]}
+                  </p>
+                ) : null}
                 {memoryInspectRelations.length > 0 ? (
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
                     <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">

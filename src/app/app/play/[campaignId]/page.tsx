@@ -695,15 +695,28 @@ export default function PlayPage() {
     useEffect(() => {
         const isCombatActive = Boolean(liveCombat?.isActive);
         if (wasCombatActiveRef.current && !isCombatActive) {
+            const narrativePanels: LiveCockpitPanelVisibility = {
+                showSupport: true,
+                showCodex: true,
+            };
             setSpawningEncounterEnemyId(null);
             setSpawnStatusMessage({
                 kind: "info",
                 message: "Combate encerrado. Cockpit voltou para modo narrativo.",
             });
             setTableFocusMode("narrative");
+            setCockpitPanels(narrativePanels);
+            setShowHistoryChat(true);
+            setPublicLayerLocked(false);
             if (campaignId) {
                 try {
                     window.localStorage.setItem(`t20.live.table-focus.${campaignId}`, "narrative");
+                    window.localStorage.setItem(
+                        `t20.live.cockpit-panels.${campaignId}`,
+                        JSON.stringify(narrativePanels),
+                    );
+                    window.localStorage.setItem(`t20.live.history-chat.${campaignId}`, String(true));
+                    window.localStorage.setItem(`t20.live.public-layer-lock.${campaignId}`, String(false));
                 } catch (error) {
                     console.error("Failed to persist table focus mode", error);
                 }
