@@ -92,3 +92,16 @@
   - Positivo: busca de memoria mais profunda sem quebrar contratos existentes de campanha/eventos.
   - Negativo / trade-off: introduz novo endpoint e logica de filtro complementar em servidor.
 - Plano de revisao: medir uso real e decidir se consolidar tudo em um unico endpoint de memoria no fechamento de A8.
+
+### DEC-007: Derivacao temporal agregada dentro da busca transversal de memoria
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: a busca transversal entregava lista relevante, mas ainda faltava leitura temporal agregada para apoiar continuidade narrativa no cockpit.
+- Decisao: expandir `GET /api/worlds/[id]/memory/search` para retornar `meta.temporal` (7d/30d/90d/>90d, buckets mensais e limites temporais) e consumir esse pulso temporal nas superficies de campanha e mundo quando a busca transversal estiver ativa.
+- Alternativas consideradas:
+  - derivar agregacao apenas no cliente a partir da lista limitada retornada;
+  - criar endpoint paralelo exclusivo de analytics temporal.
+- Impacto:
+  - Positivo: melhora leitura de continuidade por janela temporal sem criar nova rota de consulta.
+  - Negativo / trade-off: aumenta responsabilidade do endpoint de busca e tamanho do `meta` retornado.
+- Plano de revisao: validar em uso real se os buckets mensais atuais (top 6) sao suficientes para fechamento de A8.

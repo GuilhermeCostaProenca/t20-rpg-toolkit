@@ -219,3 +219,28 @@
   - A8-R5 (abrir PR e mergear recorte em master).
 - Proximo passo recomendado:
   - abrir PR da branch atual com escopo A8+A7 e regularizar ciclo Git ate retorno em `master`.
+
+### Sessao: 2026-03-27 - A8-R6 derivacao temporal da memoria transversal
+- Objetivo da sessao: aprofundar A8 com leitura temporal agregada na busca transversal de memoria.
+- O que foi feito:
+  - criada issue `RPG-234` no Linear e movida para `In Progress` antes da implementacao.
+  - `GET /api/worlds/[id]/memory/search` passou a retornar `meta.temporal` (7d/30d/90d/>90d, buckets mensais, limites temporal mais novo/mais antigo e total filtrado).
+  - estacao de campanha e cockpit do mundo passaram a consumir esse `meta.temporal` e exibir o bloco `Pulso temporal da busca` quando a busca transversal esta ativa.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md` e `ai/decisions.md` para refletir o recorte `A8-R6`.
+- Arquivos alterados:
+  - `src/app/api/worlds/[id]/memory/search/route.ts`
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint \"src/app/api/worlds/[id]/memory/search/route.ts\" \"src/app/app/campaign/[id]/page.tsx\" \"src/app/app/worlds/[id]/page.tsx\"` -> ok.
+  - `npm run test:run` -> 6 arquivos / 22 testes passando.
+- Decisoes tomadas:
+  - DEC-007 registrada.
+- Pendencias abertas:
+  - A8-R7 (PR/merge + atualizacao final de status executivo em `attack-index`).
+- Proximo passo recomendado:
+  - abrir PR do recorte `RPG-234`, executar squash merge e marcar issue como `Done` com resumo tecnico.

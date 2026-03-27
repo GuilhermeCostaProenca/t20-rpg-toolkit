@@ -9,9 +9,20 @@ import { Prisma } from "@prisma/client";
 type Context = { params: { id: string } | Promise<{ id: string }> };
 type TimeWindow = "ALL" | "7D" | "30D" | "90D";
 type MemoryTone = "ALL" | "summary" | "change" | "death" | "note";
+type WorldEventRow = Awaited<ReturnType<typeof prisma.worldEvent.findMany>>[number];
 type SearchResult = {
-  event: Awaited<ReturnType<typeof prisma.worldEvent.findMany>>[number];
+  event: WorldEventRow;
   score: number;
+};
+type TemporalBucket = { month: string; count: number };
+type TemporalMeta = {
+  last7d: number;
+  last30d: number;
+  last90d: number;
+  older: number;
+  byMonth: TemporalBucket[];
+  newestTs: string | null;
+  oldestTs: string | null;
 };
 
 function missingId() {
@@ -43,7 +54,7 @@ function tokenizeQuery(query: string) {
 }
 
 function computeRelevanceScore(
-  event: Awaited<ReturnType<typeof prisma.worldEvent.findMany>>[number],
+  event: WorldEventRow,
   query: string,
 ) {
   if (!query) return 0;
@@ -73,6 +84,54 @@ function computeRelevanceScore(
   }
 
   return score;
+}
+
+function formatMonthKey(date: Date) {
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  return `${date.getUTCFullYear()}-${month}`;
+}
+
+function buildTemporalMeta(events: WorldEventRow[]): TemporalMeta {
+  const now = Date.now();
+  const byMonthCount = new Map<string, number>();
+  let last7d = 0;
+  let last30d = 0;
+  let last90d = 0;
+  let older = 0;
+  let newestTs: number | null = null;
+  let oldestTs: number | null = null;
+
+  for (const event of events) {
+    const eventTime = new Date(event.ts).getTime();
+    if (Number.isNaN(eventTime)) continue;
+
+    if (newestTs === null || eventTime > newestTs) newestTs = eventTime;
+    if (oldestTs === null || eventTime < oldestTs) oldestTs = eventTime;
+
+    const days = (now - eventTime) / (1000 * 60 * 60 * 24);
+    if (days <= 7) last7d += 1;
+    if (days <= 30) last30d += 1;
+    if (days <= 90) last90d += 1;
+    if (days > 90) older += 1;
+
+    const monthKey = formatMonthKey(new Date(eventTime));
+    byMonthCount.set(monthKey, (byMonthCount.get(monthKey) ?? 0) + 1);
+  }
+
+  const byMonth = Array.from(byMonthCount.entries())
+    .map(([month, count]) => ({ month, count }))
+    .sort((left, right) => right.month.localeCompare(left.month))
+    .slice(0, 6);
+
+  return {
+    last7d,
+    last30d,
+    last90d,
+    older,
+    byMonth,
+    newestTs: newestTs !== null ? new Date(newestTs).toISOString() : null,
+    oldestTs: oldestTs !== null ? new Date(oldestTs).toISOString() : null,
+  };
 }
 
 export async function GET(req: Request, { params }: Context) {
@@ -156,7 +215,11 @@ export async function GET(req: Request, { params }: Context) {
 
     const sliced = results.slice(0, limit);
     const scores = Object.fromEntries(sliced.map((item) => [item.event.id, item.score]));
-    return Response.json({ data: sliced.map((item) => item.event), meta: { scores } });
+    const temporal = buildTemporalMeta(results.map((item) => item.event));
+    return Response.json({
+      data: sliced.map((item) => item.event),
+      meta: { scores, temporal, totalMatched: results.length },
+    });
   } catch (error) {
     console.error("GET /api/worlds/[id]/memory/search", error);
     const message = "Nao foi possivel buscar memoria do mundo.";
