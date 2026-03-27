@@ -131,3 +131,16 @@
   - Positivo: reduz divergencia entre modos, simplifica manutencao e deixa proximos ajustes de A9 mais seguros.
   - Negativo / trade-off: aumenta abstração local do arquivo, exigindo leitura inicial de dois componentes auxiliares.
 - Plano de revisao: revisar no proximo recorte de A9 se ainda existe duplicacao estrutural relevante no cockpit ao vivo.
+
+### DEC-010: Caminhos canonicos de documentacao em `README` e `attack-index`
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: ainda havia referencias legadas para `docs/*.md` sem segmentacao por pasta, gerando links quebrados e ambiguidade sobre fonte canonica.
+- Decisao: alinhar referencias de planos/indice para `docs/00-strategy/*` e `docs/01-fronts/*` nos documentos de entrada (`README.md` e `docs/00-strategy/attack-index.md`).
+- Alternativas consideradas:
+  - manter caminhos antigos e depender de conhecimento implicito da equipe;
+  - criar aliases/duplicatas de arquivos para compatibilidade retroativa.
+- Impacto:
+  - Positivo: reduz friccao de navegacao, evita link quebrado e reforca a estrutura oficial de governanca documental.
+  - Negativo / trade-off: exige disciplina para manter novos docs usando os caminhos canonicos.
+- Plano de revisao: incluir varredura rapida de referencias legadas no fechamento de cada recorte documental.

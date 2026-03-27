@@ -168,16 +168,16 @@ O rework principal so e considerado consolidado quando:
 
 ## Arquivos deste pacote
 
-- `docs/t20-toolkit-master-plan.md`
-- `docs/attack-index.md`
-- `docs/front-cleanup-zero-plan.md`
-- `docs/reference-harvest-plan.md`
-- `docs/shell-cockpit-plan.md`
-- `docs/codex-do-mundo-plan.md`
-- `docs/grafo-narrativo-plan.md`
-- `docs/biblioteca-visual-plan.md`
-- `docs/forja-do-mundo-plan.md`
-- `docs/forja-de-sessao-plan.md`
-- `docs/mesa-ao-vivo-plan.md`
-- `docs/memoria-do-mundo-plan.md`
-- `docs/balanceamento-t20-plan.md`
+- `docs/00-strategy/t20-toolkit-master-plan.md`
+- `docs/00-strategy/attack-index.md`
+- `docs/00-strategy/front-cleanup-zero-plan.md`
+- `docs/00-strategy/reference-harvest-plan.md`
+- `docs/01-fronts/shell-cockpit-plan.md`
+- `docs/01-fronts/codex-do-mundo-plan.md`
+- `docs/01-fronts/grafo-narrativo-plan.md`
+- `docs/01-fronts/biblioteca-visual-plan.md`
+- `docs/01-fronts/forja-do-mundo-plan.md`
+- `docs/01-fronts/forja-de-sessao-plan.md`
+- `docs/01-fronts/mesa-ao-vivo-plan.md`
+- `docs/01-fronts/memoria-do-mundo-plan.md`
+- `docs/01-fronts/balanceamento-t20-plan.md`
