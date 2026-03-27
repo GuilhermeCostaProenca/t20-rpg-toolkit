@@ -12,7 +12,6 @@
 
 ## Em Execucao
 - [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional (`docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`).
-- [ ] [A8-R7] Fechar PR/merge do recorte temporal (`RPG-234`) e refletir status final em `attack-index`.
 - [ ] [DOCS] Sincronizar status executivo entre `ai/current_state.md` e `docs/00-strategy/attack-index.md` nos proximos recortes.
 
 ## Concluidas
@@ -26,6 +25,7 @@
 - [x] [A8-R4] Consolidar estado executivo em `attack-index` e relatorio de merge readiness.
 - [x] [A8-R5] Preparar PR e merge do recorte de busca transversal para `master`.
 - [x] [A8-R6] Aprofundar derivacao temporal da busca transversal com agregacao server-side e leitura no cockpit de mundo/campanha (`RPG-234`).
+- [x] [A8-R7] Fechar PR/merge do recorte temporal (`RPG-234`) e refletir status final em `attack-index`.
 
 ## Template de Tarefa (copiar e preencher)
 ### `[ID opcional]` `[Nome da tarefa]`

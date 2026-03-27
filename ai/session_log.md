@@ -244,3 +244,26 @@
   - A8-R7 (PR/merge + atualizacao final de status executivo em `attack-index`).
 - Proximo passo recomendado:
   - abrir PR do recorte `RPG-234`, executar squash merge e marcar issue como `Done` com resumo tecnico.
+
+### Sessao: 2026-03-27 - A8-R7 merge e sincronizacao de status
+- Objetivo da sessao: fechar o ciclo operacional do recorte temporal de A8 e eliminar pendencias de status desatualizado.
+- O que foi feito:
+  - PR `#169` aberto, revisado e mergeado por squash em `master` (`feat(memory): add temporal derivation to cross-search`).
+  - branch de entrega removida apos merge e workspace retornado para `master`.
+  - issue `RPG-234` marcada como `Done` no Linear com comentario de entregas e validacoes.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md` e `docs/00-strategy/attack-index.md` para refletir `A8-R7` concluido.
+- Arquivos alterados:
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `docs/00-strategy/attack-index.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `git status` limpo em `master` apos merge -> ok.
+  - confirmacao de `RPG-234` em `Done` no Linear -> ok.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural (apenas regularizacao de estado).
+- Pendencias abertas:
+  - A7-R3 (validacao real de mesa).
+  - decisao executiva de encerramento formal da frente A8.
+- Proximo passo recomendado:
+  - executar A7-R3 em mesa real e, em paralelo, preparar checklist final para marcar A8 como encerrada no `attack-index` quando os criterios estiverem 100% cobertos.

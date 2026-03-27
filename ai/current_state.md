@@ -26,7 +26,7 @@
 ## Pendencias
 - Regularizar encerramento formal das frentes no `attack-index` com base em criterios de aceite (hoje todas seguem em andamento).
 - Validar em mesa real o novo fluxo pos-combate e a leitura de ficha ao vivo (A7).
-- Consolidar fechamento executivo de A8 no `attack-index` apos merge do recorte temporal (`RPG-234`).
+- Avaliar encerramento formal de A8 no `attack-index` com base no criterio de aceite completo da frente.
 - Fechar refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
 
 ## Problemas Conhecidos
@@ -36,8 +36,8 @@
 
 ## Proximos Passos Imediatos
 1. Executar validacao de mesa real para A7 usando checklist formal em `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`.
-2. Executar A8-R7: abrir PR e mergear recorte temporal de memoria (`RPG-234`) em `master`.
-3. Atualizar status executivo de A8 no `attack-index` apos merge.
+2. Executar saneamento final de docs para refletir A8 apos `RPG-234` (incluindo criterio de encerramento da frente).
+3. Atacar A9 com recorte de leitura mais profunda de recursos de ficha ao vivo.
 
 ## Riscos Atuais
 - Branch discipline incompleta entre frentes pode gerar codigo funcional fora da linha principal - impacto: alto, mitigacao: encerrar por PR curta e merge sistematico.
