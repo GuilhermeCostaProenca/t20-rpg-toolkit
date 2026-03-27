@@ -11,7 +11,7 @@
 - [ ] [DOCS] Atualizar referencias de caminho em docs que ainda apontam para estrutura antiga.
 
 ## Em Execucao
-- [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional.
+- [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional (`docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`).
 - [ ] [DOCS] Sincronizar status executivo entre `ai/current_state.md` e `docs/00-strategy/attack-index.md` nos proximos recortes.
 
 ## Concluidas

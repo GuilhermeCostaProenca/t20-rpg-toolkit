@@ -110,3 +110,23 @@
   - A7-R3 validacao de mesa real do fluxo pos-combate.
 - Proximo passo recomendado:
   - executar sessao de validacao real com checklist e registrar resultado no `attack-index` e `session_log`.
+
+### Sessao: 2026-03-27 - Preparacao do protocolo A7-R3
+- Objetivo da sessao: transformar a validacao pendente de A7 em checklist operacional executavel e rastreavel.
+- O que foi feito:
+  - criado relatorio de validacao de campo em `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`.
+  - consolidado escopo de validacao para ficha viva, handoff pos-combate e persistencia local.
+  - sincronizado plano vivo para apontar o checklist oficial de A7-R3.
+- Arquivos alterados:
+  - `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - consistencia documental entre backlog A7-R3 e checklist de campo -> ok.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural.
+- Pendencias abertas:
+  - executar validacao real em mesa.
+- Proximo passo recomendado:
+  - rodar A7-R3 em sessao real e fechar `RPG-232` com resultado (aprovado/aprovado com ressalvas/reprovado).

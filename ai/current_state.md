@@ -30,7 +30,7 @@
 - Risco operacional de branch longa: parte do historico recente de Mesa ao Vivo aponta necessidade de regularizacao de merge final.
 
 ## Proximos Passos Imediatos
-1. Executar validacao de mesa real para A7 (pos-combate + leitura de ficha no fluxo completo).
+1. Executar validacao de mesa real para A7 usando checklist formal em `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`.
 2. Fechar recorte de busca transversal de memoria (A8) com criterio de aceite objetivo.
 3. Executar ciclo de regularizacao Git por frente (PR, squash merge, delete branch, retorno a `master`).
 
