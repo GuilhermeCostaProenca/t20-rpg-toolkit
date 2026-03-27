@@ -22,6 +22,7 @@
 - `Ajuste rapido` agora diferencia cenarios de estresse de recurso (PM/SAN) com acoes especificas de respiro/gestao e cobertura de testes unitarios dedicada.
 - `Ajuste rapido` agora tambem prioriza recuperacao/estabilizacao quando ha personagem caido em campo, inclusive em pressao `rising`.
 - `Ajuste rapido` agora evita recomendar escalada livre em estado `stable` quando o encontro preparado ja e `deadly/punitivo`, mantendo postura conservadora.
+- A9 agora possui report de closure readiness com criterios objetivos de go/no-go para encerramento executivo.
 - Documentacao de governanca (`AGENTS.md`, `ARCHITECTURE.md`, `CONTRIBUTING.md`) alinhada para caminhos canonicos `docs/00-strategy/*` e `docs/01-fronts/*` sem referencias legadas mapeadas.
 - Validacao A7-R3 agora possui run sheet operacional de campo com criterio final explicito (aprovado/ressalvas/reprovado).
 
@@ -34,6 +35,7 @@
 - Regularizar encerramento formal progressivo das frentes restantes no `attack-index` com base em criterios de aceite.
 - Validar em mesa real o novo fluxo pos-combate e a leitura de ficha ao vivo (A7).
 - Fechar recortes finais de refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
+- Executar validacao de campo de mesa para fechar A9 com base no readiness report.
 
 ## Problemas Conhecidos
 - Restam varreduras pontuais para garantir que referencias legadas de docs nao reaparecam em novos recortes.

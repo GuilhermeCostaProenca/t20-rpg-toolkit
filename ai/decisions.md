@@ -209,3 +209,16 @@
   - Positivo: reduz incentivo de over-tuning em encontros ja pesados, mantendo consistencia com seguranca operacional da mesa.
   - Negativo / trade-off: reduz agressividade narrativa sugerida em alguns cenarios estaveis onde o grupo ainda poderia absorver mais pressao.
 - Plano de revisao: validar em mesa real se a nova postura ficou conservadora demais para grupos de alta eficiencia.
+
+### DEC-016: Fechamento de A9 condicionado por criterio objetivo de campo
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: A9 acumulou entregas tecnicas e testes, mas faltava um artefato executivo unico definindo exatamente quando encerrar a frente.
+- Decisao: consolidar `docs/99-reports/t20-balance-a9-closure-readiness-2026-03-27.md` como gate de saida de A9, com criterio go/no-go atrelado a validacao em mesa real.
+- Alternativas consideradas:
+  - encerrar A9 apenas por checklist tecnico em codigo;
+  - manter A9 indefinidamente em andamento sem criterio final.
+- Impacto:
+  - Positivo: reduz ambiguidade de encerramento e melhora rastreabilidade executiva.
+  - Negativo / trade-off: cria dependencia explicita de rodada de campo para fechamento formal.
+- Plano de revisao: reavaliar criterio apos primeira rodada de validacao real registrada.
