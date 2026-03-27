@@ -321,3 +321,27 @@
   - fechar `RPG-236` no Linear com resumo tecnico.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional completo (commit, push, PR, squash merge, delete branch, retorno em `master`) e mover `RPG-236` para `Done`.
+
+### Sessao: 2026-03-27 - DOCS-R1 saneamento de caminhos canonicos
+- Objetivo da sessao: eliminar referencias de caminho legadas nos documentos de entrada do programa.
+- O que foi feito:
+  - criada issue `RPG-237` no Linear e movida para `In Progress` antes das edicoes.
+  - atualizado `README.md` para apontar os planos/indice em `docs/00-strategy/*` e `docs/01-fronts/*`.
+  - atualizada a secao `Arquivos deste pacote` em `docs/00-strategy/attack-index.md` para os caminhos canonicos.
+  - executada varredura textual para confirmar ausencia de referencias antigas nos caminhos mapeados.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/decisions.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `README.md`
+  - `docs/00-strategy/attack-index.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `rg -n \"docs/(attack-index|t20-toolkit-master-plan|shell-cockpit-plan|codex-do-mundo-plan|grafo-narrativo-plan|biblioteca-visual-plan|forja-do-mundo-plan|forja-de-sessao-plan|mesa-ao-vivo-plan|memoria-do-mundo-plan|balanceamento-t20-plan|front-cleanup-zero-plan|reference-harvest-plan)\\.md\" README.md docs ai` -> sem ocorrencias legadas.
+- Decisoes tomadas:
+  - DEC-010 registrada.
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-237`.
+- Proximo passo recomendado:
+  - concluir ciclo Git completo de `RPG-237` (commit, push, PR, squash merge, branch delete, retorno em `master`) e marcar issue `Done`.

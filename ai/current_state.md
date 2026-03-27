@@ -32,7 +32,7 @@
 - Fechar recortes finais de refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
 
 ## Problemas Conhecidos
-- Divergencia de caminhos de docs em alguns arquivos legados (ex.: referencias antigas sem `00-strategy` / `01-fronts`).
+- Restam varreduras pontuais para garantir que referencias legadas de docs nao reaparecam em novos recortes.
 - Estado de planos muito extenso em texto corrido; dificulta leitura rapida de bloqueios por frente.
 - Risco operacional de branch longa: parte do historico recente de Mesa ao Vivo aponta necessidade de regularizacao de merge final.
 

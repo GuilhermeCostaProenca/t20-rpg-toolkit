@@ -17,8 +17,8 @@ The toolkit is being refactored into a modular GM platform with a clear rule:
 
 The long-term product vision is documented in:
 
-- [`docs/t20-toolkit-master-plan.md`](docs/t20-toolkit-master-plan.md)
-- [`docs/attack-index.md`](docs/attack-index.md)
+- [`docs/00-strategy/t20-toolkit-master-plan.md`](docs/00-strategy/t20-toolkit-master-plan.md)
+- [`docs/00-strategy/attack-index.md`](docs/00-strategy/attack-index.md)
 
 ## What this app is becoming
 
@@ -54,16 +54,16 @@ The current challenge is not "missing features". It is product consolidation: UX
 
 The rework is tracked through dedicated execution plans in [`docs/`](docs):
 
-- [`docs/attack-index.md`](docs/attack-index.md)
-- [`docs/shell-cockpit-plan.md`](docs/shell-cockpit-plan.md)
-- [`docs/codex-do-mundo-plan.md`](docs/codex-do-mundo-plan.md)
-- [`docs/grafo-narrativo-plan.md`](docs/grafo-narrativo-plan.md)
-- [`docs/biblioteca-visual-plan.md`](docs/biblioteca-visual-plan.md)
-- [`docs/forja-do-mundo-plan.md`](docs/forja-do-mundo-plan.md)
-- [`docs/forja-de-sessao-plan.md`](docs/forja-de-sessao-plan.md)
-- [`docs/mesa-ao-vivo-plan.md`](docs/mesa-ao-vivo-plan.md)
-- [`docs/memoria-do-mundo-plan.md`](docs/memoria-do-mundo-plan.md)
-- [`docs/balanceamento-t20-plan.md`](docs/balanceamento-t20-plan.md)
+- [`docs/00-strategy/attack-index.md`](docs/00-strategy/attack-index.md)
+- [`docs/01-fronts/shell-cockpit-plan.md`](docs/01-fronts/shell-cockpit-plan.md)
+- [`docs/01-fronts/codex-do-mundo-plan.md`](docs/01-fronts/codex-do-mundo-plan.md)
+- [`docs/01-fronts/grafo-narrativo-plan.md`](docs/01-fronts/grafo-narrativo-plan.md)
+- [`docs/01-fronts/biblioteca-visual-plan.md`](docs/01-fronts/biblioteca-visual-plan.md)
+- [`docs/01-fronts/forja-do-mundo-plan.md`](docs/01-fronts/forja-do-mundo-plan.md)
+- [`docs/01-fronts/forja-de-sessao-plan.md`](docs/01-fronts/forja-de-sessao-plan.md)
+- [`docs/01-fronts/mesa-ao-vivo-plan.md`](docs/01-fronts/mesa-ao-vivo-plan.md)
+- [`docs/01-fronts/memoria-do-mundo-plan.md`](docs/01-fronts/memoria-do-mundo-plan.md)
+- [`docs/01-fronts/balanceamento-t20-plan.md`](docs/01-fronts/balanceamento-t20-plan.md)
 
 These documents are not decorative. They are the working source of truth for implementation, acceptance, branch flow, and completion tracking.
 
