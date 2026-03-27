@@ -88,3 +88,25 @@
   - fechar A7-R2 (handoff de fim de combate no cockpit + validacao de mesa real).
 - Proximo passo recomendado:
   - implementar ajuste final de handoff de fim de combate e validar fluxo completo narrativo-tatico em sessao real.
+
+### Sessao: 2026-03-27 - A7-R2 handoff narrativo pos-combate
+- Objetivo da sessao: fechar recorte tecnico de transicao limpa do combate para narracao no cockpit ao vivo.
+- O que foi feito:
+  - Atualizado `PlayPage` para aplicar preset narrativo completo quando combate encerra.
+  - Handoff agora ajusta foco, paineis, historico e camada publica em uma unica transicao.
+  - Persistencia dessas preferencias atualizada no `localStorage` para manter continuidade entre recarregamentos.
+- Arquivos alterados:
+  - `src/app/app/play/[campaignId]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint \"src/app/app/play/[campaignId]/page.tsx\" \"src/app/app/play/[campaignId]/quick-sheet.tsx\" \"src/components/sheet/ordem-sheet.tsx\"` -> ok.
+  - `npm run test:run` -> 6 arquivos / 22 testes passando.
+- Decisoes tomadas:
+  - DEC-005 registrada.
+- Pendencias abertas:
+  - A7-R3 validacao de mesa real do fluxo pos-combate.
+- Proximo passo recomendado:
+  - executar sessao de validacao real com checklist e registrar resultado no `attack-index` e `session_log`.

@@ -66,3 +66,16 @@
   - Positivo: consulta de ficha mais confiavel durante combate e narracao.
   - Negativo / trade-off: aumento moderado de chamadas periodicas no cliente.
 - Plano de revisao: reavaliar cadence de polling apos validacao de mesa real.
+
+### DEC-005: Handoff narrativo automatico ao encerrar combate
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: ao fim do combate, o foco narrativo voltava, mas paineis e camada publica podiam ficar em estado tatico residual.
+- Decisao: ao detectar transicao de combate ativo -> inativo, forcar preset narrativo consistente (focus narrative, paineis completos, historico ativo, camada publica destravada) e persistir no `localStorage`.
+- Alternativas consideradas:
+  - manter apenas troca de foco e depender de ajuste manual do mestre;
+  - aplicar reset parcial sem persistencia.
+- Impacto:
+  - Positivo: reduz friccao na saida de combate e melhora continuidade operacional da mesa.
+  - Negativo / trade-off: menor liberdade de manter configuracao tatico-narrativa hibrida apos combate sem novo ajuste manual.
+- Plano de revisao: confirmar em mesa real se o reset automatico esta agressivo demais.

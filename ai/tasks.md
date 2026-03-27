@@ -5,19 +5,20 @@
 - Toda tarefa deve ter rastreio (issue/PR/commit quando aplicavel).
 
 ## Backlog Ativo
-- [ ] [A7] Fechar recorte final de Mesa ao Vivo (handoff de fim de combate e validacao de mesa real).
+- [ ] [A7] Fechar recorte final de Mesa ao Vivo (validacao de mesa real apos ajustes de handoff/ficha).
 - [ ] [A8] Implementar busca transversal de memoria por mundo/campanha/entidade com filtros operacionais.
 - [ ] [A9] Refinar loop de balanceamento ao vivo com leitura mais profunda de recursos de ficha.
 - [ ] [DOCS] Atualizar referencias de caminho em docs que ainda apontam para estrutura antiga.
 
 ## Em Execucao
-- [ ] [A7-R2] Fechar handoff de fim de combate no cockpit com validacao de uso real.
+- [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional.
 - [ ] [DOCS] Sincronizar status executivo entre `ai/current_state.md` e `docs/00-strategy/attack-index.md` nos proximos recortes.
 
 ## Concluidas
 - [x] Inicializar estrutura de memoria externa em `ai/`.
 - [x] Preencher `ai/*` com contexto real baseado em README, arquitetura, planos e relatorios de 2026-03-25.
 - [x] [A7-R1] Sincronizar QuickSheet com estado vivo da ficha (polling) e corrigir leitura de DEF/SAN no `OrdemSheet`.
+- [x] [A7-R2] Aplicar handoff automatico de fim de combate para modo narrativo (focus, paineis, historico e camada publica).
 
 ## Template de Tarefa (copiar e preencher)
 ### `[ID opcional]` `[Nome da tarefa]`
