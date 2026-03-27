@@ -144,3 +144,16 @@
   - Positivo: reduz friccao de navegacao, evita link quebrado e reforca a estrutura oficial de governanca documental.
   - Negativo / trade-off: exige disciplina para manter novos docs usando os caminhos canonicos.
 - Plano de revisao: incluir varredura rapida de referencias legadas no fechamento de cada recorte documental.
+
+### DEC-011: Encerramento executivo formal da frente A8 no `attack-index`
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: a frente Memoria do Mundo ja tinha checklist tecnico completo (`W1..W6` em `[x]`) e entregas operacionais em `master`, mas permanecia sem fechamento executivo no indice mestre.
+- Decisao: marcar A8 como concluida (`[x]`) no `docs/00-strategy/attack-index.md`, apoiado por report de fechamento (`docs/99-reports/memory-world-a8-executive-closure-2026-03-27.md`).
+- Alternativas consideradas:
+  - manter A8 em andamento ate novo recorte funcional;
+  - fechar A8 sem report dedicado de evidencias.
+- Impacto:
+  - Positivo: melhora confiabilidade do status executivo e reduz ambiguidade de priorizacao.
+  - Negativo / trade-off: futuras melhorias de memoria passam a entrar como evolucao incremental, nao como pendencia de fechamento da frente.
+- Plano de revisao: reavaliar apenas se houver regressao funcional relevante na camada de memoria.

@@ -14,21 +14,20 @@
 - Busca transversal de memoria agora tambem opera no cockpit do mundo quando ha consulta textual (2+ caracteres).
 - Busca transversal agora ordena por relevancia textual e exibe score no resultado/inspect de campanha e mundo.
 - Busca transversal agora tambem retorna derivacao temporal agregada (7d/30d/90d/>90d + buckets mensais) e exibe esse pulso no cockpit de campanha e mundo.
-- Estado executivo de A8 foi consolidado no `attack-index` com readiness report dedicado para merge.
+- Estado executivo de A8 foi formalmente encerrado no `attack-index` com report de fechamento dedicado (`RPG-238`).
 - Memoria do Mundo com consolidacao de sessao e sincronizacao para `WorldEvent`.
 - Balanceamento T20 com heuristica de risco e recomendacoes no fluxo de sessao/mesa.
 - Balanceamento ao vivo agora considera desgaste de PM/SAN no `livePressure` e exibe esses sinais no cockpit da mesa.
 - Estrutura do loop ao vivo no `LivePrepCockpit` foi refatorada com cards reutilizaveis para `Sinais ao vivo` e `Ajuste rapido`, eliminando duplicacao entre modos tatico/narrativo sem alterar comportamento.
 
 ## Em Andamento
-- A1 a A9 no `attack-index` estao em `[-]` (nenhuma frente foi marcada como encerrada de ponta a ponta ainda).
+- A8 foi encerrada no `attack-index`; A1-A7 e A9 seguem em `[-]`.
 - Mesa ao Vivo esta funcional e madura; handoff pos-combate e leitura de ficha foram reforcados, restando validacao real de mesa.
 - Shell ainda pede validacao visual automatizada em browser real (bloqueio reportado por sessao de Chrome no ambiente).
 
 ## Pendencias
-- Regularizar encerramento formal das frentes no `attack-index` com base em criterios de aceite (hoje todas seguem em andamento).
+- Regularizar encerramento formal progressivo das frentes restantes no `attack-index` com base em criterios de aceite.
 - Validar em mesa real o novo fluxo pos-combate e a leitura de ficha ao vivo (A7).
-- Avaliar encerramento formal de A8 no `attack-index` com base no criterio de aceite completo da frente.
 - Fechar recortes finais de refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
 
 ## Problemas Conhecidos
@@ -38,7 +37,7 @@
 
 ## Proximos Passos Imediatos
 1. Executar validacao de mesa real para A7 usando checklist formal em `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`.
-2. Executar saneamento final de docs para refletir A8 apos `RPG-234` (incluindo criterio de encerramento da frente).
+2. Executar varredura final de docs para evitar reintroducao de referencias legadas de caminhos.
 3. Consolidar fechamento progressivo de A9 apos `RPG-236`, priorizando validacao de usabilidade em mesa real.
 
 ## Riscos Atuais
