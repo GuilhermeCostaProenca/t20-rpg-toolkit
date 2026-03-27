@@ -13,6 +13,7 @@
 - Busca transversal de memoria ganhou endpoint world-scoped e primeira integracao no painel de campanha.
 - Busca transversal de memoria agora tambem opera no cockpit do mundo quando ha consulta textual (2+ caracteres).
 - Busca transversal agora ordena por relevancia textual e exibe score no resultado/inspect de campanha e mundo.
+- Estado executivo de A8 foi consolidado no `attack-index` com readiness report dedicado para merge.
 - Memoria do Mundo com consolidacao de sessao e sincronizacao para `WorldEvent`.
 - Balanceamento T20 com heuristica de risco e recomendacoes no fluxo de sessao/mesa.
 
@@ -24,7 +25,7 @@
 ## Pendencias
 - Regularizar encerramento formal das frentes no `attack-index` com base em criterios de aceite (hoje todas seguem em andamento).
 - Validar em mesa real o novo fluxo pos-combate e a leitura de ficha ao vivo (A7).
-- Consolidar fechamento documental de A8 no indice executivo e reduzir lacunas de derivacao temporal (A8).
+- Aprofundar derivacao temporal de memoria apos consolidacao da busca transversal (A8).
 - Fechar refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
 
 ## Problemas Conhecidos
@@ -34,7 +35,7 @@
 
 ## Proximos Passos Imediatos
 1. Executar validacao de mesa real para A7 usando checklist formal em `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`.
-2. Executar A8-R4: consolidar fechamento de A8 em `attack-index` e relatorio de readiness.
+2. Executar A8-R5: abrir PR e mergear recorte de busca transversal em `master`.
 3. Executar ciclo de regularizacao Git por frente (PR, squash merge, delete branch, retorno a `master`).
 
 ## Riscos Atuais

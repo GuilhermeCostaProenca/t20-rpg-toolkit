@@ -198,3 +198,24 @@
   - A8-R4 (consolidacao executiva em attack-index/readiness).
 - Proximo passo recomendado:
   - fechar documentacao executiva de A8 e preparar PR focada para merge em `master`.
+
+### Sessao: 2026-03-27 - A8-R4 consolidacao executiva
+- Objetivo da sessao: fechar rastreabilidade executiva de A8 antes de abrir PR.
+- O que foi feito:
+  - atualizado `docs/00-strategy/attack-index.md` com estado real da frente A8 apos `RPG-233`.
+  - criado report de readiness: `docs/99-reports/memory-cross-search-merge-readiness-2026-03-27.md`.
+  - sincronizado plano vivo para proximo passo operacional (A8-R5: PR/merge).
+- Arquivos alterados:
+  - `docs/00-strategy/attack-index.md`
+  - `docs/99-reports/memory-cross-search-merge-readiness-2026-03-27.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - consistencia entre attack-index, report de readiness e estado em `ai/*` -> ok.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural.
+- Pendencias abertas:
+  - A8-R5 (abrir PR e mergear recorte em master).
+- Proximo passo recomendado:
+  - abrir PR da branch atual com escopo A8+A7 e regularizar ciclo Git ate retorno em `master`.
