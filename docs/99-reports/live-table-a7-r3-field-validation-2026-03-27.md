@@ -37,6 +37,8 @@ Validar em uso real de mesa se os ajustes recentes de A7 reduziram friccao no fl
 
 Status: `PENDENTE` (aguardando execucao em mesa real)
 
+Run sheet operacional: `docs/99-reports/live-table-a7-r3-run-sheet-2026-03-27.md`
+
 ## Evidencias a registrar ao executar
 
 - horario de inicio/fim da validacao;

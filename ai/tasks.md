@@ -30,6 +30,7 @@
 - [x] [DOCS-R1] Sanear referencias legadas de planos/indice para estrutura `00-strategy/01-fronts` (`RPG-237`).
 - [x] [A8-R8] Consolidar fechamento executivo da frente Memoria do Mundo no `attack-index` com report de readiness (`RPG-238`).
 - [x] [DOCS-R2] Executar varredura final de referencias legadas e alinhar docs ativos para caminhos canonicos (`RPG-240`).
+- [x] [A7-R4] Preparar run sheet operacional para execucao de campo da validacao A7-R3 (`RPG-241`).
 
 ## Template de Tarefa (copiar e preencher)
 ### `[ID opcional]` `[Nome da tarefa]`

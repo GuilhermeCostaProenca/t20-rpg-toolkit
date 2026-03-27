@@ -419,3 +419,25 @@
   - abrir PR/merge do recorte `RPG-240`.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional completo (`RPG-240`) e marcar issue em `Done`.
+
+### Sessao: 2026-03-27 - A7-R4 run sheet operacional de validacao real
+- Objetivo da sessao: reduzir friccao de execucao da validacao A7-R3 em mesa real com um roteiro preenchivel de campo.
+- O que foi feito:
+  - criada issue `RPG-241` no Linear e movida para `In Progress`.
+  - criado `docs/99-reports/live-table-a7-r3-run-sheet-2026-03-27.md` com roteiro de execucao, checklist, evidencias e decisao final.
+  - atualizado o report base de validacao A7-R3 para apontar explicitamente para o run sheet operacional.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `docs/99-reports/live-table-a7-r3-run-sheet-2026-03-27.md`
+  - `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - revisao manual de completude do roteiro (cenarios A/B/C, evidencias, criterio final e follow-up) -> ok.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural (recorte operacional/documental).
+- Pendencias abertas:
+  - abrir PR/merge do recorte `RPG-241`.
+- Proximo passo recomendado:
+  - concluir ciclo Git operacional de `RPG-241` e executar validacao em mesa real usando o run sheet.
