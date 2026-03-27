@@ -9,6 +9,10 @@ import { Prisma } from "@prisma/client";
 type Context = { params: { id: string } | Promise<{ id: string }> };
 type TimeWindow = "ALL" | "7D" | "30D" | "90D";
 type MemoryTone = "ALL" | "summary" | "change" | "death" | "note";
+type SearchResult = {
+  event: Awaited<ReturnType<typeof prisma.worldEvent.findMany>>[number];
+  score: number;
+};
 
 function missingId() {
   const message = "Parametro id obrigatorio.";
@@ -28,6 +32,47 @@ function resolveToneType(tone: MemoryTone) {
   if (tone === "death") return "NPC_DEATH";
   if (tone === "note") return "NOTE";
   return null;
+}
+
+function tokenizeQuery(query: string) {
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 1);
+}
+
+function computeRelevanceScore(
+  event: Awaited<ReturnType<typeof prisma.worldEvent.findMany>>[number],
+  query: string,
+) {
+  if (!query) return 0;
+  const searchText = getMemoryEventSearchText(event);
+  const tokens = tokenizeQuery(query);
+  const text = (event.text ?? "").toLowerCase();
+  const type = event.type.toLowerCase();
+
+  let score = 0;
+  if (text === query) score += 70;
+  if (text.startsWith(query)) score += 45;
+  if (text.includes(query)) score += 30;
+  if (searchText.includes(query)) score += 22;
+  if (type.includes(query)) score += 10;
+
+  for (const token of tokens) {
+    if (searchText.includes(token)) score += 10;
+    if (text.includes(token)) score += 6;
+  }
+
+  const eventTime = new Date(event.ts).getTime();
+  if (!Number.isNaN(eventTime)) {
+    const days = (Date.now() - eventTime) / (1000 * 60 * 60 * 24);
+    if (days <= 3) score += 8;
+    else if (days <= 14) score += 5;
+    else if (days <= 45) score += 2;
+  }
+
+  return score;
 }
 
 export async function GET(req: Request, { params }: Context) {
@@ -91,10 +136,27 @@ export async function GET(req: Request, { params }: Context) {
           if (!getMemoryEventSearchText(event).includes(query)) return false;
         }
         return true;
-      })
-      .slice(0, limit);
+      });
 
-    return Response.json({ data: filtered });
+    let results: SearchResult[] = filtered.map((event) => ({
+      event,
+      score: computeRelevanceScore(event, query),
+    }));
+
+    if (query.length > 0) {
+      results = results.sort((left, right) => {
+        if (right.score !== left.score) return right.score - left.score;
+        return new Date(right.event.ts).getTime() - new Date(left.event.ts).getTime();
+      });
+    } else {
+      results = results.sort(
+        (left, right) => new Date(right.event.ts).getTime() - new Date(left.event.ts).getTime(),
+      );
+    }
+
+    const sliced = results.slice(0, limit);
+    const scores = Object.fromEntries(sliced.map((item) => [item.event.id, item.score]));
+    return Response.json({ data: sliced.map((item) => item.event), meta: { scores } });
   } catch (error) {
     console.error("GET /api/worlds/[id]/memory/search", error);
     const message = "Nao foi possivel buscar memoria do mundo.";

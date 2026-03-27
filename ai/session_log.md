@@ -175,3 +175,26 @@
   - A8-R3 (relevancia + inspect dedicado).
 - Proximo passo recomendado:
   - introduzir ordenacao por relevancia no endpoint e enriquecer inspect transversal com contexto de sessao/campanha/entidades.
+
+### Sessao: 2026-03-27 - A8-R3 relevancia e inspect transversal
+- Objetivo da sessao: qualificar a busca transversal com ordenacao de relevancia e sinalizacao clara para o mestre.
+- O que foi feito:
+  - endpoint de busca transversal passou a calcular score de relevancia por evento e ordenar resultados por score + recencia.
+  - retorno da API passou a incluir `meta.scores` por `eventId`.
+  - estacao de campanha e cockpit do mundo passaram a exibir badge de relevancia nos cards e score no inspect quando busca transversal esta ativa.
+- Arquivos alterados:
+  - `src/app/api/worlds/[id]/memory/search/route.ts`
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint \"src/app/api/worlds/[id]/memory/search/route.ts\" \"src/app/app/campaign/[id]/page.tsx\" \"src/app/app/worlds/[id]/page.tsx\"` -> ok.
+  - `npm run test:run` -> 6 arquivos / 22 testes passando.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural.
+- Pendencias abertas:
+  - A8-R4 (consolidacao executiva em attack-index/readiness).
+- Proximo passo recomendado:
+  - fechar documentacao executiva de A8 e preparar PR focada para merge em `master`.

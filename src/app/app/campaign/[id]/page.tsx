@@ -289,6 +289,7 @@ export default function CampaignPage() {
   const [memoryTimeFilter, setMemoryTimeFilter] = useState<"ALL" | "7D" | "30D" | "90D">("ALL");
   const [crossMemoryEvents, setCrossMemoryEvents] = useState<WorldEvent[] | null>(null);
   const [crossMemoryLoading, setCrossMemoryLoading] = useState(false);
+  const [crossMemoryScoreById, setCrossMemoryScoreById] = useState<Record<string, number>>({});
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
@@ -437,6 +438,7 @@ export default function CampaignPage() {
     if (!worldId || !currentCampaignId || normalizedQuery.length < 2) {
       setCrossMemoryEvents(null);
       setCrossMemoryLoading(false);
+      setCrossMemoryScoreById({});
       return;
     }
 
@@ -459,11 +461,13 @@ export default function CampaignPage() {
         const payload = await response.json().catch(() => ({}));
         if (!cancelled) {
           setCrossMemoryEvents((payload.data as WorldEvent[] | undefined) ?? []);
+          setCrossMemoryScoreById((payload.meta?.scores as Record<string, number> | undefined) ?? {});
         }
       } catch (error) {
         if (!cancelled) {
           console.error("Cross memory search failed", error);
           setCrossMemoryEvents([]);
+          setCrossMemoryScoreById({});
         }
       } finally {
         if (!cancelled) {
@@ -1866,6 +1870,11 @@ export default function CampaignPage() {
                           <Badge className="border-white/10 bg-white/5 text-white/75">
                             {formatMemoryEventTemporalLabel(event.ts)}
                           </Badge>
+                          {isCrossMemoryMode ? (
+                            <Badge className="border-emerald-400/25 bg-emerald-500/10 text-emerald-100">
+                              Relevancia {crossMemoryScoreById[event.id] ?? 0}
+                            </Badge>
+                          ) : null}
                         </div>
                         <p className="mt-3 text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
                         {event.sessionId ? (
@@ -2437,6 +2446,11 @@ export default function CampaignPage() {
                       : undefined,
                   })}
                 </p>
+                {isCrossMemoryMode && crossMemoryScoreById[inspectItem.item.id] !== undefined ? (
+                  <p className="mt-3 text-xs uppercase tracking-[0.14em] text-emerald-100/85">
+                    Relevancia na busca transversal: {crossMemoryScoreById[inspectItem.item.id]}
+                  </p>
+                ) : null}
                 {memoryInspectRelations.length > 0 ? (
                   <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
                     <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
