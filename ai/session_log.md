@@ -154,3 +154,24 @@
   - expandir busca transversal para outras superficies (A8-R2).
 - Proximo passo recomendado:
   - integrar endpoint no cockpit do mundo e/ou inspect dedicado para fechamento progressivo de A8.
+
+### Sessao: 2026-03-27 - A8-R2 expansao para cockpit do mundo
+- Objetivo da sessao: levar a busca transversal de memoria para uma segunda superficie operacional (cockpit do mundo).
+- O que foi feito:
+  - integrado consumo do endpoint de busca transversal no cockpit do mundo (`/app/worlds/[id]`).
+  - ativacao da busca server-side ao digitar 2+ caracteres com os mesmos filtros operacionais (visibilidade, tipo e janela temporal).
+  - mantido fallback local quando a busca transversal nao esta ativa.
+- Arquivos alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint \"src/app/app/worlds/[id]/page.tsx\" \"src/app/api/worlds/[id]/memory/search/route.ts\" \"src/app/app/campaign/[id]/page.tsx\"` -> ok.
+  - `npm run test:run` -> 6 arquivos / 22 testes passando.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural.
+- Pendencias abertas:
+  - A8-R3 (relevancia + inspect dedicado).
+- Proximo passo recomendado:
+  - introduzir ordenacao por relevancia no endpoint e enriquecer inspect transversal com contexto de sessao/campanha/entidades.

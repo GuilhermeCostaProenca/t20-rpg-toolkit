@@ -198,7 +198,7 @@ Memoria so vale se puder ser consultada sem friccao.
   Notas: O cockpit do mundo agora tem painel proprio de memoria consolidada.
 
 - [x] W5.4 Integrar memoria a busca e inspect
-  Notas: `RPG-23` abriu inspect dedicado de evento de memoria e filtros leves por termo, visibilidade e tipo em mundo/campanha. `RPG-24` aprofundou o inspect com contexto cruzado e links rapidos. `RPG-233` iniciou a busca transversal forte com `GET /api/worlds/[id]/memory/search` e primeira integracao na estacao de campanha. Ainda falta expandir para outras superficies-chave.
+  Notas: `RPG-23` abriu inspect dedicado de evento de memoria e filtros leves por termo, visibilidade e tipo em mundo/campanha. `RPG-24` aprofundou o inspect com contexto cruzado e links rapidos. `RPG-233` iniciou a busca transversal forte com `GET /api/worlds/[id]/memory/search`, primeiro na estacao de campanha e depois no cockpit do mundo. Ainda falta score de relevancia e inspect transversal mais profundo.
 
 - [x] W5.5 Garantir leitura clara do que mudou
   Notas: Cockpit, timeline da entidade e estacao da campanha diferenciam morte, mudanca e fechamento com leitura temporal e contexto cruzado.
