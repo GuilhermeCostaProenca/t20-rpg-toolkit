@@ -18,6 +18,7 @@
 - Memoria do Mundo com consolidacao de sessao e sincronizacao para `WorldEvent`.
 - Balanceamento T20 com heuristica de risco e recomendacoes no fluxo de sessao/mesa.
 - Balanceamento ao vivo agora considera desgaste de PM/SAN no `livePressure` e exibe esses sinais no cockpit da mesa.
+- Estrutura do loop ao vivo no `LivePrepCockpit` foi refatorada com cards reutilizaveis para `Sinais ao vivo` e `Ajuste rapido`, eliminando duplicacao entre modos tatico/narrativo sem alterar comportamento.
 
 ## Em Andamento
 - A1 a A9 no `attack-index` estao em `[-]` (nenhuma frente foi marcada como encerrada de ponta a ponta ainda).
@@ -28,7 +29,7 @@
 - Regularizar encerramento formal das frentes no `attack-index` com base em criterios de aceite (hoje todas seguem em andamento).
 - Validar em mesa real o novo fluxo pos-combate e a leitura de ficha ao vivo (A7).
 - Avaliar encerramento formal de A8 no `attack-index` com base no criterio de aceite completo da frente.
-- Fechar refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
+- Fechar recortes finais de refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
 
 ## Problemas Conhecidos
 - Divergencia de caminhos de docs em alguns arquivos legados (ex.: referencias antigas sem `00-strategy` / `01-fronts`).
@@ -38,7 +39,7 @@
 ## Proximos Passos Imediatos
 1. Executar validacao de mesa real para A7 usando checklist formal em `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`.
 2. Executar saneamento final de docs para refletir A8 apos `RPG-234` (incluindo criterio de encerramento da frente).
-3. Consolidar proximo recorte de A9 em refinamento estrutural do loop ao vivo apos `RPG-235`.
+3. Consolidar fechamento progressivo de A9 apos `RPG-236`, priorizando validacao de usabilidade em mesa real.
 
 ## Riscos Atuais
 - Branch discipline incompleta entre frentes pode gerar codigo funcional fora da linha principal - impacto: alto, mitigacao: encerrar por PR curta e merge sistematico.

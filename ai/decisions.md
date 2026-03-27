@@ -118,3 +118,16 @@
   - Positivo: ajuste rapido fica mais fiel ao desgaste real do grupo sem aumentar troca de contexto.
   - Negativo / trade-off: heuristica de pressao ganha mais variaveis e pode exigir calibracao de thresholds.
 - Plano de revisao: validar em mesa real se os limites atuais (30%/50% e maioria em faixa baixa) estao calibrados para nao gerar falso critico.
+
+### DEC-009: Reuso estrutural dos blocos de leitura ao vivo no cockpit
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: o `LivePrepCockpit` mantinha blocos duplicados de `Sinais ao vivo` e `Ajuste rapido` em secoes taticas e narrativas, elevando custo de manutencao e risco de divergencia de UX.
+- Decisao: extrair componentes reutilizaveis (`LivePressureCard` e `LiveAdjustmentCard`) e reutilizar a mesma renderizacao nos dois contextos, preservando comportamento e sem alterar heuristica.
+- Alternativas consideradas:
+  - manter duplicacao com ajustes manuais sincronizados;
+  - extrair utilitarios de string sem consolidar a estrutura visual.
+- Impacto:
+  - Positivo: reduz divergencia entre modos, simplifica manutencao e deixa proximos ajustes de A9 mais seguros.
+  - Negativo / trade-off: aumenta abstração local do arquivo, exigindo leitura inicial de dois componentes auxiliares.
+- Plano de revisao: revisar no proximo recorte de A9 se ainda existe duplicacao estrutural relevante no cockpit ao vivo.

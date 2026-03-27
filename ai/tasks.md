@@ -27,6 +27,7 @@
 - [x] [A8-R6] Aprofundar derivacao temporal da busca transversal com agregacao server-side e leitura no cockpit de mundo/campanha (`RPG-234`).
 - [x] [A8-R7] Fechar PR/merge do recorte temporal (`RPG-234`) e refletir status final em `attack-index`.
 - [x] [A9-R1] Aprofundar leitura ao vivo de recursos de ficha (PM/SAN) no `livePressure` e no bloco `Sinais ao vivo` (`RPG-235`).
+- [x] [A9-R2] Refatorar estrutura do loop ao vivo removendo duplicacao entre blocos tatico e narrativo (`RPG-236`).
 
 ## Template de Tarefa (copiar e preencher)
 ### `[ID opcional]` `[Nome da tarefa]`
