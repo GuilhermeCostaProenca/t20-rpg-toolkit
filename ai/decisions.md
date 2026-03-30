@@ -235,3 +235,29 @@
   - Positivo: melhora manutencao, legibilidade e velocidade de ajuste fino.
   - Negativo / trade-off: aumenta superficie de constantes que precisam ser mantidas coerentes entre si.
 - Plano de revisao: revisar apenas os valores das constantes apos rodada de validacao real (A7-R3).
+
+### DEC-018: Landing publica modular com linguagem premium e interacoes reais
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: a landing publica estava utilitaria e desconectada do posicionamento premium world-first desejado para o produto.
+- Decisao: reconstruir `src/app/(public)/page.tsx` com secoes modulares em `src/components/landing/*` e interacoes guiadas por Framer Motion (hero video, tabs auto-play, carrossel horizontal, reveals por scroll e showcase de fluxo).
+- Alternativas consideradas:
+  - manter landing utilitaria atual com ajustes cosmeticos pontuais;
+  - adotar clone literal de referencia externa sem adaptacao ao dominio T20 OS.
+- Impacto:
+  - Positivo: primeira impressao mais coerente com o posicionamento de produto premium e melhor narrativa de conversao para `/app`.
+  - Negativo / trade-off: aumenta superficie de UI animada, exigindo validacao visual recorrente em browser real.
+- Plano de revisao: executar A1-LP2 para ajustar timing/ritmo apos rodada de QA visual desktop/mobile.
+
+### DEC-019: Benchmark funcional do `vvd.world` como referencia estrategica, sem ruptura de prioridade
+- Data: 2026-03-30
+- Status: aceita
+- Contexto: foi recebido um diagnostico funcional completo do `vvd.world`, cobrindo editor, modulos internos, fluxos e dominio inferido alem da landing publica.
+- Decisao: consolidar o benchmark em report dedicado (`docs/99-reports/vvd-world-product-diagnosis-benchmark-2026-03-30.md`) e usa-lo como insumo de evolucao incremental em A1/A2/A3, preservando a ordem oficial do `attack-index` e a prioridade operacional atual de A7/A9.
+- Alternativas consideradas:
+  - tratar o benchmark apenas como referencia visual de landing;
+  - abrir nova frente paralela para reproduzir rapidamente as features do produto de referencia.
+- Impacto:
+  - Positivo: aumenta clareza competitiva e direcao de produto sem comprometer coerencia arquitetural world-first do T20 OS.
+  - Negativo / trade-off: pode elevar expectativa de escopo; exige disciplina para converter benchmark em backlog sequenciado, sem salto de frente.
+- Plano de revisao: revisar no inicio de `A1-LP3` se os itens derivados do benchmark estao priorizados de forma aderente ao roadmap e ao estado real do produto.

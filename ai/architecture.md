@@ -6,6 +6,8 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 ## Modulos
 - `src/app`: Superficies de produto (cockpit global, mundo, campanha, mesa ao vivo, APIs).
 - `src/components`: Shell, cockpit, war-room, quick inspect, superficies visuais e modulos de sessao.
+- `src/app/(public)/page.tsx`: landing publica de entrada do produto com narrativa comercial e CTA para o cockpit.
+- `src/components/landing/*`: secoes modulares da landing (navbar, hero, toolkit, generos, missao, showcase, CTA e footer) com interacoes via Framer Motion.
 - `src/lib`: Dominio e motor de apoio (combat, balanceamento T20, eventos, validacao, utilitarios).
 - `prisma`: Modelo de dados, migracoes e contratos de persistencia.
 - `docs`: Estrategia, attack index, planos por frente e relatorios de validacao.

@@ -27,6 +27,10 @@
 - Documentacao de governanca (`AGENTS.md`, `ARCHITECTURE.md`, `CONTRIBUTING.md`) alinhada para caminhos canonicos `docs/00-strategy/*` e `docs/01-fronts/*` sem referencias legadas mapeadas.
 - Validacao A7-R3 agora possui run sheet operacional de campo com criterio final explicito (aprovado/ressalvas/reprovado).
 - Trial Jarvez + criacao de mundo do zero agora possui runbook dedicado para captura de friccoes e conversao direta em backlog.
+- Benchmark de referencia para upgrade da landing foi consolidado em `docs/99-reports/landing-vvd-reference-benchmark-2026-03-27.md`.
+- Diagnostico funcional completo do `vvd.world` foi consolidado como benchmark estrategico em `docs/99-reports/vvd-world-product-diagnosis-benchmark-2026-03-30.md`, com implicacoes mapeadas por frente.
+- Landing publica foi reestruturada em secoes modulares premium com Framer Motion (hero video, toolkit com tabs auto-play, trilho de generos, missao por scroll, showcase e CTA final).
+- QA visual da landing foi executado em browser real (desktop/mobile) com ajuste fino de legibilidade na secao de missao; `RPG-248` fechado em `Done`.
 
 ## Em Andamento
 - A8 foi encerrada no `attack-index`; A1-A7 e A9 seguem em `[-]`.
@@ -39,6 +43,7 @@
 - Fechar recortes finais de refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
 - Executar validacao de campo de mesa para fechar A9 com base no readiness report.
 - Executar trial Jarvez + mundo do zero e priorizar correcoes antes de abrir novos recortes de expansao.
+- Traduzir o benchmark funcional completo do `vvd.world` em backlog acionavel para A1/A2/A3 sem romper a ordem oficial do attack index.
 
 ## Problemas Conhecidos
 - Restam varreduras pontuais para garantir que referencias legadas de docs nao reaparecam em novos recortes.
@@ -49,6 +54,8 @@
 1. Executar validacao de mesa real para A7 usando checklist formal em `docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`.
 2. Executar varredura final de docs para evitar reintroducao de referencias legadas de caminhos.
 3. Consolidar fechamento progressivo de A9 apos `RPG-236`, priorizando validacao de usabilidade em mesa real.
+4. Consolidar os proximos recortes de refinamento visual dentro da frente A1 com base no feedback real de uso.
+5. Derivar recorte `A1-LP3` a partir do benchmark funcional `vvd.world`, com foco em continuidade de cockpit e modelagem de tipos/relacoes.
 
 ## Riscos Atuais
 - Branch discipline incompleta entre frentes pode gerar codigo funcional fora da linha principal - impacto: alto, mitigacao: encerrar por PR curta e merge sistematico.

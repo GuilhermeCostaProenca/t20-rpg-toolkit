@@ -12,6 +12,7 @@
 ## Em Execucao
 - [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional (`docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`).
 - [ ] [DOCS] Sincronizar status executivo entre `ai/current_state.md` e `docs/00-strategy/attack-index.md` nos proximos recortes.
+- [ ] [A1-LP3] Traduzir benchmark funcional completo do `vvd.world` em backlog priorizado de UX world-first para shell/codex/grafo sem quebrar ordem oficial das frentes.
 
 ## Concluidas
 - [x] Inicializar estrutura de memoria externa em `ai/`.
@@ -37,6 +38,10 @@
 - [x] [DOCS-R2] Executar varredura final de referencias legadas e alinhar docs ativos para caminhos canonicos (`RPG-240`).
 - [x] [A7-R4] Preparar run sheet operacional para execucao de campo da validacao A7-R3 (`RPG-241`).
 - [x] [TRIAL-R1] Preparar runbook de validacao Jarvez + world-from-zero com saida orientada a backlog (`RPG-246`).
+- [x] [DOCS-R3] Consolidar benchmark de referencia da landing premium (estrutura, design system e interacoes) em `docs/99-reports/landing-vvd-reference-benchmark-2026-03-27.md` para guiar A1-LP1.
+- [x] [DOCS-R4] Consolidar diagnostico funcional completo do `vvd.world` em `docs/99-reports/vvd-world-product-diagnosis-benchmark-2026-03-30.md` e mapear implicacoes por frente (`RPG-250`).
+- [x] [A1-LP1] Reestruturar a landing publica (`src/app/(public)/page.tsx`) com secoes premium e interacoes (hero video, tabs auto-play, carrossel, scroll reveal e showcase sticky) (`RPG-248`).
+- [x] [A1-LP2] Executar QA visual em browser real (desktop/mobile), ajustar legibilidade da secao de missao e fechar issue `RPG-248` em `Done`.
 
 ## Template de Tarefa (copiar e preencher)
 ### `[ID opcional]` `[Nome da tarefa]`
