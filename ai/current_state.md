@@ -36,6 +36,7 @@
 - A8 foi encerrada no `attack-index`; A1-A7 e A9 seguem em `[-]`.
 - Mesa ao Vivo esta funcional e madura; handoff pos-combate e leitura de ficha foram reforcados, restando validacao real de mesa.
 - Shell ainda pede validacao visual automatizada em browser real (bloqueio reportado por sessao de Chrome no ambiente).
+- A7-R3 agora possui pacote operacional de execucao de campo em `docs/99-reports/live-table-a7-r3-field-execution-packet-2026-03-30.md`, pendente de rodada real com mestre.
 
 ## Pendencias
 - Regularizar encerramento formal progressivo das frentes restantes no `attack-index` com base em criterios de aceite.
@@ -43,6 +44,7 @@
 - Fechar recortes finais de refinamento estrutural do loop ao vivo no Balanceamento T20 (A9).
 - Executar validacao de campo de mesa para fechar A9 com base no readiness report.
 - Executar trial Jarvez + mundo do zero e priorizar correcoes antes de abrir novos recortes de expansao.
+- Executar rodada real de A7-R3 usando o pacote de campo e consolidar resultado final em report + Linear.
 - Traduzir o benchmark funcional completo do `vvd.world` em backlog acionavel para A1/A2/A3 sem romper a ordem oficial do attack index.
 
 ## Problemas Conhecidos

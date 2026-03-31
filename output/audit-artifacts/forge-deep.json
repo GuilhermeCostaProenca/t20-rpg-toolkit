@@ -1,0 +1,314 @@
+{
+  "steps": [
+    {
+      "step": "initial",
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge?mode=new",
+      "title": "Tormenta 20 OS",
+      "h1": "A oficina onde o mundo ganha forma antes da mesa.",
+      "h2": [
+        "Conceito, tom e escopo",
+        "Escala e foco",
+        "Pilares do mundo",
+        "Casas, faccoes e blocos de poder",
+        "Estruturar blocos de poder",
+        "Continuar depois sem perder contexto"
+      ],
+      "buttons": [
+        "Modo Sessão",
+        "Salvar progresso",
+        "Recarregar",
+        "Voltar ao cockpit",
+        "Abrir Codex",
+        "Abrir grafo",
+        "Abrir politica",
+        "Abrir cronologia",
+        "Abrir lore-base",
+        "Abrir biblioteca visual",
+        "Corte e intriga",
+        "Reino ou casa",
+        "Continente",
+        "Era mitica",
+        "Semente inicial",
+        "Estruturando pilares",
+        "Pronto para mesa",
+        "Casas e familias",
+        "Politica e conselhos",
+        "Linhas de sangue",
+        "Religiao e fe",
+        "Guerra e legado",
+        "Segredos antigos",
+        "Cidades e fortalezas",
+        "Magia e ruina",
+        "Abrir Codex completo",
+        "Casa",
+        "Faccao",
+        "Lugar",
+        "NPC",
+        "Personagem",
+        "Ascendente",
+        "Estavel",
+        "Em crise",
+        "Quebrada",
+        "Semear bloco no Codex",
+        "Associar ao bloco"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "/"
+        },
+        {
+          "text": "Semear entidadesAbra o Codex para criar casas, personagens-base, faccoes e lugares nucleares.",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Montar linhagensSiga para o Grafo para visualizar casas, ramos e conexoes familiares.",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph?mode=genealogy"
+        },
+        {
+          "text": "Oficina genealogicaAbra a superficie dedicada para heranca, casamento, bastardos e ramos de casa.",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy"
+        },
+        {
+          "text": "Oficina politicaEstruture conselhos, assentos, polos de poder e tensoes formais do mundo.",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics"
+        },
+        {
+          "text": "Cronologia do mundoEstruture eras, datas e eventos fundadores dentro do proprio produto.",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline"
+        },
+        {
+          "text": "Lore-base do mundoGuarde corpus textual, segredos, secoes revelaveis e conexoes com o Codex.",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore"
+        },
+        {
+          "text": "Curar imagensMonte o mood visual do mundo com retratos, paisagens e assets de reveal.",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Levar para mesaQuando o bootstrap estiver firme, abra a primeira campanha sem cair em dashboard vazio.",
+          "href": "/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        }
+      ],
+      "inputs": [
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Jarvis (Ctrl+K)",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: A Era dos Elfos",
+          "value": "Mundo Auditoria 145866"
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: elfos em decadencia, coroas rachadas e fe antiga",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: tragico, politico, melancolico",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: tres cortes, duas religioes e uma guerra civil",
+          "value": ""
+        },
+        {
+          "tag": "textarea",
+          "type": "textarea",
+          "name": null,
+          "placeholder": "Resumo curto do mundo, sua tensao principal e o que o diferencia.",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "https://...",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: fechar familias reinantes e o conselho central",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: Casa Valdoren",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: casa real, ordem arcana, porto, conselheiro",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: guardioes do norte, bloco do trono, clero oficial",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: Sangue, neve e memoria",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "Ex.: segura a fronteira oeste e disputa o conselho central",
+          "value": ""
+        },
+        {
+          "tag": "textarea",
+          "type": "textarea",
+          "name": null,
+          "placeholder": "O papel politico ou narrativo desse bloco dentro do mundo.",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "reino central, linhagem antiga, conselho, fronteira",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "https://...",
+          "value": ""
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "placeholder": "https://...",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "step": "click_Salvar",
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge?mode=new",
+      "h1": "A oficina onde o mundo ganha forma antes da mesa.",
+      "errors": []
+    },
+    {
+      "step": "field_count",
+      "c": 17
+    },
+    {
+      "step": "after_fill_and_save",
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge?mode=new",
+      "errors": [],
+      "h1": "A oficina onde o mundo ganha forma antes da mesa."
+    }
+  ],
+  "console": [
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Nxj3U0dReZvOKf5O3r85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Nxj3U0dReZvOKf5O3r85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Nxj3U0dReZvOKf5O3r85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Nxj3U0dReZvOKf5O3r85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Nxj3U0dReZvOKf5O3r85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Nxj3U0dReZvOKf5O3r85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    }
+  ]
+}

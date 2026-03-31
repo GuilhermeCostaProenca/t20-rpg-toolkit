@@ -13,6 +13,7 @@
 - [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional (`docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`).
 - [ ] [DOCS] Sincronizar status executivo entre `ai/current_state.md` e `docs/00-strategy/attack-index.md` nos proximos recortes.
 - [ ] [A1-LP3] Traduzir benchmark funcional completo do `vvd.world` em backlog priorizado de UX world-first para shell/codex/grafo sem quebrar ordem oficial das frentes.
+- [ ] [A7-R3-PREP] Pacote de execucao de campo publicado em `docs/99-reports/live-table-a7-r3-field-execution-packet-2026-03-30.md`; aguardando rodada real para fechamento.
 
 ## Concluidas
 - [x] Inicializar estrutura de memoria externa em `ai/`.

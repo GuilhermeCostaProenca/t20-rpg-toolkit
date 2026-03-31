@@ -1,0 +1,867 @@
+[
+  {
+    "route": "/",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Nova campanha",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Atualizar",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Forja do Mundo",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Codex",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/codex",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Nova entidade",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Atualizar",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Aplicar leitura",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Criar primeira entidade",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/graph",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Atualizar grafo",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Narrativo",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Genealogico",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Geral",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/visual-library",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Aplicar leitura",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/campaigns",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Nova campanha",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Voltar ao cockpit",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Criar campanha",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/characters",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": [
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "Personagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente"
+          ]
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": [
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "Personagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente"
+          ]
+        }
+      },
+      {
+        "button": "Atualizar",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": [
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "Personagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente"
+          ]
+        }
+      },
+      {
+        "button": "Novo personagem",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": [
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "Personagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente"
+          ]
+        }
+      },
+      {
+        "button": "Tentar novamente",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": [
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "T20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+            "Personagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "route": "/npcs",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Novo NPC",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/locations",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Novo local",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/compendium",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Nova regra",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Tudo",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Regras",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Lore-base",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/diary",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Agendar sessao",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/map",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Atualizar leitura",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "+",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "-",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/forge/politics",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Atualizar",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "CONSELHO / COROA INSTITUICAO Tronos, conselhos, cortes, igrejas e polos formais de poder.",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "CADEIRA / TITULO CARGO Mao do rei, lorde comandante, assento no conselho e postos chave.",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Criar polo politico",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/forge/timeline",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Atualizar",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Salvar cronologia base",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Tudo",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Politica",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/forge/lore",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Atualizar",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Todas as secoes",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Tudo",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Somente mestre",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  },
+  {
+    "route": "/forge/genealogy",
+    "startUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy",
+    "checks": [
+      {
+        "button": "",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy",
+          "dialogs": 0,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Modo Sessão",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Atualizar",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Tudo",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Sangue",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      },
+      {
+        "button": "Unioes",
+        "disabled": false,
+        "after": {
+          "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy",
+          "dialogs": 3,
+          "toasts": [],
+          "errors": []
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,64 @@
+{
+  "steps": [
+    {
+      "step": "worlds_loaded",
+      "url": "http://127.0.0.1:3001/app/worlds",
+      "worldsBefore": 3
+    },
+    {
+      "step": "new_world_modal_opened",
+      "dialogs": 3
+    },
+    {
+      "step": "modal_text",
+      "modalText": "NOVO MUNDO\n\nCrie o universo base para campanhas, memoria e operacao do mestre.\n\nNome\nDescricao\nCover URL\n\nPRIMEIRA BATIDA DA FORJA\n\nConceito\nTom\nEscopo\nEscala inicial\nCorte e intriga\nReino ou casa\nContinente\nEra mitica\nPilares iniciais\nCasas e familias\nPolitica e conselhos\nLinhas de sangue\nReligiao e fe\nGuerra e legado\nSegredos antigos\nCidades e fortalezas\nMagia e ruina\nCancelar\nCriar mundo e abrir forja\nFechar dialogo"
+    },
+    {
+      "step": "submit_empty",
+      "errors": []
+    },
+    {
+      "step": "modal_input_count",
+      "inputCount": 6
+    },
+    {
+      "step": "submit_filled",
+      "currentUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge?mode=new"
+    },
+    {
+      "step": "world_count_after",
+      "worldsAfter": 0
+    }
+  ],
+  "console": [
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=SlYdbpcEqyE5U6MmF3lPh' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=SlYdbpcEqyE5U6MmF3lPh' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=SlYdbpcEqyE5U6MmF3lPh' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=SlYdbpcEqyE5U6MmF3lPh' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=SlYdbpcEqyE5U6MmF3lPh' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=SlYdbpcEqyE5U6MmF3lPh' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    }
+  ],
+  "errors": []
+}

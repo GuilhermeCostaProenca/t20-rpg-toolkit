@@ -1,0 +1,463 @@
+{
+  "startedAt": "2026-03-31T18:00:58.974Z",
+  "pages": [
+    {
+      "route": "/",
+      "url": "http://127.0.0.1:3001/",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\_.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Um cockpit de fantasia para mestres que levam o mundo a serio",
+      "h2s": [
+        "Tudo para criar, operar e lembrar seu mundo",
+        "Feito para mundos radicalmente diferentes",
+        "Um unico eixo operacional do rascunho ate o legado",
+        "Sua proxima sessao merece uma base melhor que improviso"
+      ],
+      "buttons": [
+        {
+          "text": "Entidades conectadasCodex vivo de mundo",
+          "disabled": false,
+          "tag": "button",
+          "className": "relative w-full overflow-hidden rounded-2xl border border-white/15 bg-white/6 px-4 py-3 text-left backdrop-blur-md trans"
+        },
+        {
+          "text": "Prep orientado a mesaForja de sessaoTransforme ideias em cenas, subcenas, beats e reveals prontos para uso ao vivo.",
+          "disabled": false,
+          "tag": "button",
+          "className": "relative w-full overflow-hidden rounded-2xl border border-white/15 bg-white/6 px-4 py-3 text-left backdrop-blur-md trans"
+        },
+        {
+          "text": "Cockpit em tempo realMesa ao vivo",
+          "disabled": false,
+          "tag": "button",
+          "className": "relative w-full overflow-hidden rounded-2xl border border-white/15 bg-white/6 px-4 py-3 text-left backdrop-blur-md trans"
+        },
+        {
+          "text": "Continuidade narrativaMemoria de mundo",
+          "disabled": false,
+          "tag": "button",
+          "className": "relative w-full overflow-hidden rounded-2xl border border-white/15 bg-white/6 px-4 py-3 text-left backdrop-blur-md trans"
+        },
+        {
+          "text": "Sinal tatico acionavelBalanceamento T20",
+          "disabled": false,
+          "tag": "button",
+          "className": "relative w-full overflow-hidden rounded-2xl border border-white/15 bg-white/6 px-4 py-3 text-left backdrop-blur-md trans"
+        }
+      ],
+      "links": [
+        {
+          "text": "T20 OS",
+          "href": "/"
+        },
+        {
+          "text": "Plataforma",
+          "href": "#toolkit"
+        },
+        {
+          "text": "Fluxo",
+          "href": "#showcase"
+        },
+        {
+          "text": "Testar",
+          "href": "#cta"
+        },
+        {
+          "text": "Abrir cockpit",
+          "href": "/app"
+        },
+        {
+          "text": "Entrar no cockpit",
+          "href": "/app"
+        },
+        {
+          "text": "Explorar plataforma",
+          "href": "#toolkit"
+        },
+        {
+          "text": "Entrar agora",
+          "href": "/app"
+        },
+        {
+          "text": "Ver recursos",
+          "href": "#toolkit"
+        },
+        {
+          "text": "Abrir app",
+          "href": "/app"
+        },
+        {
+          "text": "Plataforma",
+          "href": "#toolkit"
+        },
+        {
+          "text": "Comecar",
+          "href": "#cta"
+        }
+      ],
+      "forms": [],
+      "lowInfo": [],
+      "bodySample": "T20 OS Plataforma Fluxo Testar Abrir cockpit NOVO LANDING EM REWORK PREMIUM UM COCKPIT DE FANTASIA PARA MESTRES QUE LEVAM O MUNDO A SERIO Crie, prepare e opere campanhas Tormenta 20 em um fluxo unico: do worldbuilding ate a mesa ao vivo. Entrar no cockpit Explorar plataforma Operacao testada para campanhas longas e mesa intensa PLATAFORMA TUDO PARA CRIAR, OPERAR E LEMBRAR SEU MUNDO ENTIDADES CONEC"
+    },
+    {
+      "route": "/app",
+      "url": "http://127.0.0.1:3001/app",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\_app.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Um cockpit unico para preparar, operar e lembrar cada mundo.",
+      "h2s": [
+        "era dos elfos",
+        "Continue de onde parou"
+      ],
+      "buttons": [
+        {
+          "text": "",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium disabled:pointer-events-none disable"
+        },
+        {
+          "text": "Modo Sessão",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:p"
+        },
+        {
+          "text": "Retomar ultimo mundo",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-even"
+        },
+        {
+          "text": "Entrar no cockpit",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-n"
+        },
+        {
+          "text": "Entrar no cockpit",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-n"
+        },
+        {
+          "text": "Retomar mundo em destaque",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-n"
+        }
+      ],
+      "links": [
+        {
+          "text": "Painel",
+          "href": "/app"
+        },
+        {
+          "text": "Mundos",
+          "href": "/app/worlds"
+        },
+        {
+          "text": "Abrir mundos",
+          "href": "/app/worlds"
+        },
+        {
+          "text": "Landing",
+          "href": "/"
+        },
+        {
+          "text": "Abrir mundos",
+          "href": "/app/worlds"
+        },
+        {
+          "text": "Ver biblioteca",
+          "href": "/app/worlds"
+        },
+        {
+          "text": "Abrir biblioteca de mundos",
+          "href": "/app/worlds"
+        },
+        {
+          "text": "Criar novo mundo",
+          "href": "/app/worlds"
+        }
+      ],
+      "forms": [
+        {
+          "idx": 0,
+          "fieldsCount": 1,
+          "fields": [
+            {
+              "tag": "input",
+              "type": "text",
+              "name": null,
+              "id": null,
+              "placeholder": "Jarvis (Ctrl+K)",
+              "required": false,
+              "ariaLabel": null
+            }
+          ]
+        }
+      ],
+      "lowInfo": [
+        "T20TormentaOSCentroEntrada do sistemaPainel mestre do T20 OSEntre por mundos, retome operacoes e mantenha a mesa centralizada.Navegacao globalPainelMundosPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemEscolha um mundo para entrar no cockpit principal do mestre.Abrir mundosT20TormentaOSAtualizacao 1Painel do mestreOperacao vivaLandingModo SessãoAtualizacao 1Shell total do frontPainel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.Mundos ativos2Campanhas em campo0Agenda viva0Abrir mundosRetomar ultimo mundoEstado do sistemaEntrada globalAtualizadaBiblioteca de mundosPronta para operarCockpit do mundoEm focoMundo em destaqueera dos elfosSem descricao registrada no momento.Campanhas0NPCs0Mundos recentesContinue de onde parouVer bibliotecaMundo27 de mar. de 2026era dos elfosSem descricao registrada.Campanhas0NPCs0Sessoes0Entrar no cockpitMundo20 de mar. de 2026Mundo PadraoMundo criado automaticamente para migracao de worldIdCampanhas0NPCs0Sessoes0Entrar no cockpitAcoes imediatasAbrir biblioteca de mundosCriar novo mundoRetomar mundo em destaqueLeitura do sistemaProduto em producaoO app atual segue vivo, mas a experiencia agora evolui por atualizacoes claras e com substituicao controlada.Foco desta entregaShell, entrada global, biblioteca de mundos e cockpit do mundo como referencia visual do produto.Proxima camadaCodex do Mundo, grafo narrativo e biblioteca visual encaixados em cima desse shell.Arquitetura ativaWorld-firstMantidoBackend atualPreservadoFront antigoEm substituicao",
+        "T20TormentaOSCentroEntrada do sistemaPainel mestre do T20 OSEntre por mundos, retome operacoes e mantenha a mesa centralizada.Navegacao globalPainelMundosPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemEscolha um mundo para entrar no cockpit principal do mestre.Abrir mundosT20TormentaOSAtualizacao 1Painel do mestreOperacao vivaLandingModo SessãoAtualizacao 1Shell total do frontPainel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.Mundos ativos2Campanhas em campo0Agenda viva0Abrir mundosRetomar ultimo mundoEstado do sistemaEntrada globalAtualizadaBiblioteca de mundosPronta para operarCockpit do mundoEm focoMundo em destaqueera dos elfosSem descricao registrada no momento.Campanhas0NPCs0Mundos recentesContinue de onde parouVer bibliotecaMundo27 de mar. de 2026era dos elfosSem descricao registrada.Campanhas0NPCs0Sessoes0Entrar no cockpitMundo20 de mar. de 2026Mundo PadraoMundo criado automaticamente para migracao de worldIdCampanhas0NPCs0Sessoes0Entrar no cockpitAcoes imediatasAbrir biblioteca de mundosCriar novo mundoRetomar mundo em destaqueLeitura do sistemaProduto em producaoO app atual segue vivo, mas a experiencia agora evolui por atualizacoes claras e com substituicao controlada.Foco desta entregaShell, entrada global, biblioteca de mundos e cockpit do mundo como referencia visual do produto.Proxima camadaCodex do Mundo, grafo narrativo e biblioteca visual encaixados em cima desse shell.Arquitetura ativaWorld-firstMantidoBackend atualPreservadoFront antigoEm substituicao",
+        "T20TormentaOSAtualizacao 1Painel do mestreOperacao vivaLandingModo SessãoAtualizacao 1Shell total do frontPainel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.Mundos ativos2Campanhas em campo0Agenda viva0Abrir mundosRetomar ultimo mundoEstado do sistemaEntrada globalAtualizadaBiblioteca de mundosPronta para operarCockpit do mundoEm focoMundo em destaqueera dos elfosSem descricao registrada no momento.Campanhas0NPCs0Mundos recentesContinue de onde parouVer bibliotecaMundo27 de mar. de 2026era dos elfosSem descricao registrada.Campanhas0NPCs0Sessoes0Entrar no cockpitMundo20 de mar. de 2026Mundo PadraoMundo criado automaticamente para migracao de worldIdCampanhas0NPCs0Sessoes0Entrar no cockpitAcoes imediatasAbrir biblioteca de mundosCriar novo mundoRetomar mundo em destaqueLeitura do sistemaProduto em producaoO app atual segue vivo, mas a experiencia agora evolui por atualizacoes claras e com substituicao controlada.Foco desta entregaShell, entrada global, biblioteca de mundos e cockpit do mundo como referencia visual do produto.Proxima camadaCodex do Mundo, grafo narrativo e biblioteca visual encaixados em cima desse shell.Arquitetura ativaWorld-firstMantidoBackend atualPreservadoFront antigoEm substituicao",
+        "Atualizacao 1Shell total do frontPainel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.Mundos ativos2Campanhas em campo0Agenda viva0Abrir mundosRetomar ultimo mundoEstado do sistemaEntrada globalAtualizadaBiblioteca de mundosPronta para operarCockpit do mundoEm focoMundo em destaqueera dos elfosSem descricao registrada no momento.Campanhas0NPCs0Mundos recentesContinue de onde parouVer bibliotecaMundo27 de mar. de 2026era dos elfosSem descricao registrada.Campanhas0NPCs0Sessoes0Entrar no cockpitMundo20 de mar. de 2026Mundo PadraoMundo criado automaticamente para migracao de worldIdCampanhas0NPCs0Sessoes0Entrar no cockpitAcoes imediatasAbrir biblioteca de mundosCriar novo mundoRetomar mundo em destaqueLeitura do sistemaProduto em producaoO app atual segue vivo, mas a experiencia agora evolui por atualizacoes claras e com substituicao controlada.Foco desta entregaShell, entrada global, biblioteca de mundos e cockpit do mundo como referencia visual do produto.Proxima camadaCodex do Mundo, grafo narrativo e biblioteca visual encaixados em cima desse shell.Arquitetura ativaWorld-firstMantidoBackend atualPreservadoFront antigoEm substituicao",
+        "Atualizacao 1Shell total do frontPainel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.Mundos ativos2Campanhas em campo0Agenda viva0Abrir mundosRetomar ultimo mundoEstado do sistemaEntrada globalAtualizadaBiblioteca de mundosPronta para operarCockpit do mundoEm focoMundo em destaqueera dos elfosSem descricao registrada no momento.Campanhas0NPCs0Mundos recentesContinue de onde parouVer bibliotecaMundo27 de mar. de 2026era dos elfosSem descricao registrada.Campanhas0NPCs0Sessoes0Entrar no cockpitMundo20 de mar. de 2026Mundo PadraoMundo criado automaticamente para migracao de worldIdCampanhas0NPCs0Sessoes0Entrar no cockpitAcoes imediatasAbrir biblioteca de mundosCriar novo mundoRetomar mundo em destaqueLeitura do sistemaProduto em producaoO app atual segue vivo, mas a experiencia agora evolui por atualizacoes claras e com substituicao controlada.Foco desta entregaShell, entrada global, biblioteca de mundos e cockpit do mundo como referencia visual do produto.Proxima camadaCodex do Mundo, grafo narrativo e biblioteca visual encaixados em cima desse shell.Arquitetura ativaWorld-firstMantidoBackend atualPreservadoFront antigoEm substituicao",
+        "Atualizacao 1Shell total do frontPainel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.Mundos ativos2Campanhas em campo0Agenda viva0Abrir mundosRetomar ultimo mundoEstado do sistemaEntrada globalAtualizadaBiblioteca de mundosPronta para operarCockpit do mundoEm focoMundo em destaqueera dos elfosSem descricao registrada no momento.Campanhas0NPCs0Mundos recentesContinue de onde parouVer bibliotecaMundo27 de mar. de 2026era dos elfosSem descricao registrada.Campanhas0NPCs0Sessoes0Entrar no cockpitMundo20 de mar. de 2026Mundo PadraoMundo criado automaticamente para migracao de worldIdCampanhas0NPCs0Sessoes0Entrar no cockpitAcoes imediatasAbrir biblioteca de mundosCriar novo mundoRetomar mundo em destaqueLeitura do sistemaProduto em producaoO app atual segue vivo, mas a experiencia agora evolui por atualizacoes claras e com substituicao controlada.Foco desta entregaShell, entrada global, biblioteca de mundos e cockpit do mundo como referencia visual do produto.Proxima camadaCodex do Mundo, grafo narrativo e biblioteca visual encaixados em cima desse shell.Arquitetura ativaWorld-firstMantidoBackend atualPreservadoFront antigoEm substituicao",
+        "Atualizacao 1Shell total do frontPainel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.Mundos ativos2Campanhas em campo0Agenda viva0Abrir mundosRetomar ultimo mundoEstado do sistemaEntrada globalAtualizadaBiblioteca de mundosPronta para operarCockpit do mundoEm focoMundo em destaqueera dos elfosSem descricao registrada no momento.Campanhas0NPCs0Mundos recentesContinue de onde parouVer bibliotecaMundo27 de mar. de 2026era dos elfosSem descricao registrada.Campanhas0NPCs0Sessoes0Entrar no cockpitMundo20 de mar. de 2026Mundo PadraoMundo criado automaticamente para migracao de worldIdCampanhas0NPCs0Sessoes0Entrar no cockpitAcoes imediatasAbrir biblioteca de mundosCriar novo mundoRetomar mundo em destaqueLeitura do sistemaProduto em producaoO app atual segue vivo, mas a experiencia agora evolui por atualizacoes claras e com substituicao controlada.Foco desta entregaShell, entrada global, biblioteca de mundos e cockpit do mundo como referencia visual do produto.Proxima camadaCodex do Mundo, grafo narrativo e biblioteca visual encaixados em cima desse shell.Arquitetura ativaWorld-firstMantidoBackend atualPreservadoFront antigoEm substituicao",
+        "Atualizacao 1Shell total do frontPainel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.Mundos ativos2Campanhas em campo0Agenda viva0Abrir mundosRetomar ultimo mundoEstado do sistemaEntrada globalAtualizadaBiblioteca de mundosPronta para operarCockpit do mundoEm focoMundo em destaqueera dos elfosSem descricao registrada no momento.Campanhas0NPCs0",
+        "Atualizacao 1Shell total do frontPainel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.Mundos ativos2Campanhas em campo0Agenda viva0Abrir mundosRetomar ultimo mundo",
+        "Painel do mestreUm cockpit unico para preparar, operar e lembrar cada mundo.O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto.",
+        "O front deixa de ser uma colecao de paginas e passa a funcionar como centro de operacao. Comece pelos mundos, retome campanhas ativas e entre no cockpit principal sem perder contexto."
+      ],
+      "bodySample": "T20 TORMENTA OS Centro ENTRADA DO SISTEMA Painel mestre do T20 OS Entre por mundos, retome operacoes e mantenha a mesa centralizada. NAVEGACAO GLOBAL Painel Mundos PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Escolha um mundo para entrar no cockpit principal do mestre. Abrir mundos T20 TORM"
+    },
+    {
+      "route": "/app/worlds",
+      "url": "http://127.0.0.1:3001/app/worlds",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\_app_worlds.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Construa, abra e mantenha seus universos no mesmo centro de comando.",
+      "h2s": [
+        "era dos elfos",
+        "Mundo Padrao"
+      ],
+      "buttons": [
+        {
+          "text": "",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium disabled:pointer-events-none disable"
+        },
+        {
+          "text": "Modo Sessão",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:p"
+        },
+        {
+          "text": "Ativos",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-non"
+        },
+        {
+          "text": "Arquivados",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-non"
+        },
+        {
+          "text": "Atualizar",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:p"
+        },
+        {
+          "text": "Novo mundo",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:p"
+        },
+        {
+          "text": "",
+          "disabled": false,
+          "tag": "button",
+          "className": "rounded-full p-1 text-white/50 transition hover:bg-red-500/20 hover:text-red-300"
+        },
+        {
+          "text": "Entrar no cockpit",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-n"
+        },
+        {
+          "text": "",
+          "disabled": false,
+          "tag": "button",
+          "className": "rounded-full p-1 text-white/50 transition hover:bg-red-500/20 hover:text-red-300"
+        },
+        {
+          "text": "Entrar no cockpit",
+          "disabled": false,
+          "tag": "button",
+          "className": "inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-n"
+        }
+      ],
+      "links": [
+        {
+          "text": "Painel",
+          "href": "/app"
+        },
+        {
+          "text": "Mundos",
+          "href": "/app/worlds"
+        },
+        {
+          "text": "Abrir mundos",
+          "href": "/app/worlds"
+        },
+        {
+          "text": "Landing",
+          "href": "/"
+        }
+      ],
+      "forms": [
+        {
+          "idx": 0,
+          "fieldsCount": 1,
+          "fields": [
+            {
+              "tag": "input",
+              "type": "text",
+              "name": null,
+              "id": null,
+              "placeholder": "Jarvis (Ctrl+K)",
+              "required": false,
+              "ariaLabel": null
+            }
+          ]
+        }
+      ],
+      "lowInfo": [],
+      "bodySample": "T20 TORMENTA OS Centro ENTRADA DO SISTEMA Painel mestre do T20 OS Entre por mundos, retome operacoes e mantenha a mesa centralizada. NAVEGACAO GLOBAL Painel Mundos PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Escolha um mundo para entrar no cockpit principal do mestre. Abrir mundos T20 TORM"
+    },
+    {
+      "route": "/app/worlds",
+      "actionAttempt": "Novo",
+      "state": {
+        "dialogs": 3,
+        "errors": [],
+        "location": "http://127.0.0.1:3001/app/worlds"
+      },
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\_app_worlds_action_Novo.png"
+    }
+  ],
+  "console": [
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=iOiHjzF50eHKyAGjui2Pv' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "warning",
+      "text": "Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly."
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=iOiHjzF50eHKyAGjui2Pv' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=iOiHjzF50eHKyAGjui2Pv' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=iOiHjzF50eHKyAGjui2Pv' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=iOiHjzF50eHKyAGjui2Pv' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=iOiHjzF50eHKyAGjui2Pv' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=iOiHjzF50eHKyAGjui2Pv' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=yLxOg-MxnoKV8emlXJqOk' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=yLxOg-MxnoKV8emlXJqOk' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=yLxOg-MxnoKV8emlXJqOk' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=359Tn991b7bljkTnX9s48' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=359Tn991b7bljkTnX9s48' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "warning",
+      "text": "Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly."
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=AiArgcoaGPNOnd4z4Arpa' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=P_EKZGBXx4T9Ni8vUOwXt' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=ErE8PdVum42s2waedFvv1' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    }
+  ],
+  "pageErrors": [],
+  "networkFailures": [
+    {
+      "url": "https://cdn.marketing.vvd.sh/website/VVDAnimation2Vignette.mp4",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://cdn.marketing.vvd.sh/website/VVDAnimation2Vignette.mp4",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://cdn.marketing.vvd.sh/website/VVDAnimation2Vignette.mp4",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://cdn.marketing.vvd.sh/website/VVDAnimation2Vignette.mp4",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://cdn.marketing.vvd.sh/website/VVDAnimation2Vignette.mp4",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    }
+  ],
+  "finishedAt": "2026-03-31T18:01:18.530Z"
+}
