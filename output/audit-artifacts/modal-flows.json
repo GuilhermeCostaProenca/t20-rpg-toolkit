@@ -1,0 +1,264 @@
+[
+  {
+    "flow": "codex_new_entity",
+    "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex",
+    "buttonFound": 1,
+    "dialogsCount": 3,
+    "dialogs": [
+      "Nova entidade",
+      "",
+      "Nova entidadePrimeiro corte do Codex: uma entidade ja entra no mundo com tipo, resumo, imagens e campanha opcional.NomeTipocharacternpcfactionhouseplaceartifacteventCampanhaSem campanhaSubtipoStatusVisibilidadeMASTERPLAYERSResumoDescricaoRetratoCapaTagsCriar entidadeFechar dialogo"
+    ],
+    "inputs": [
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": null,
+        "required": false,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": null,
+        "required": false,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": null,
+        "required": false,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": null,
+        "required": false,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "textarea",
+        "type": "textarea",
+        "placeholder": null,
+        "required": false,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": null,
+        "required": false,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": null,
+        "required": false,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": "ex.: nobre, draconico, aliado",
+        "required": false,
+        "name": null,
+        "id": null
+      }
+    ],
+    "errors": [],
+    "currentUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+  },
+  {
+    "flow": "campaign_new",
+    "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns",
+    "buttonFound": 1,
+    "dialogsCount": 3,
+    "dialogs": [
+      "Nova campanha",
+      "",
+      "Nova campanhaCrie uma nova saga dentro deste mundo.NomeDescricaoCriar campanhaFechar dialogo"
+    ],
+    "inputs": [
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": "Ex.: A Coroa das Cinzas",
+        "required": false,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "textarea",
+        "type": "textarea",
+        "placeholder": "Resumo curto da campanha",
+        "required": false,
+        "name": null,
+        "id": null
+      }
+    ],
+    "errors": [],
+    "currentUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+  },
+  {
+    "flow": "npc_new",
+    "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs",
+    "buttonFound": 1,
+    "dialogsCount": 3,
+    "dialogs": [
+      "Novo NPC",
+      "",
+      "Criar Novo NPCNomePV MáximoDefesaCampanhaSelecione...Tags (separadas por vírgula)DescriçãoCriar BestaFechar dialogo"
+    ],
+    "inputs": [
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": null,
+        "required": true,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "placeholder": null,
+        "required": true,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "placeholder": null,
+        "required": true,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": "Goblin, Humano, Chefe...",
+        "required": false,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "textarea",
+        "type": "textarea",
+        "placeholder": null,
+        "required": false,
+        "name": null,
+        "id": null
+      }
+    ],
+    "errors": [],
+    "currentUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+  },
+  {
+    "flow": "location_new",
+    "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations",
+    "buttonFound": 1,
+    "dialogsCount": 3,
+    "dialogs": [
+      "Novo local",
+      "",
+      "Registrar localDescricaoArquivo ou mapaNome do localConteudoSalvar localFechar dialogo"
+    ],
+    "inputs": [
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": null,
+        "required": true,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "textarea",
+        "type": "textarea",
+        "placeholder": null,
+        "required": true,
+        "name": null,
+        "id": null
+      }
+    ],
+    "errors": [],
+    "currentUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+  },
+  {
+    "flow": "character_new",
+    "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters",
+    "buttonFound": 1,
+    "dialogsCount": 3,
+    "dialogs": [
+      "Novo personagem",
+      "",
+      "Criar Personagem (Nível 1)Passo 1/4Defina a lenda que você se tornará.Nome do HeróiCampanhaAncestralidade (Raça)HumanoVersátilSTR 0DEX 0CON 0INT 0WIS 0CHA 0AnãoConhecimento das Rochas, Lento e Pesado, Duro como Pedra, Tradição de HeredrimmSTR 0DEX -2CON +4INT 0WIS +2CHA 0ElfoGraça de Glórienn, Sangue Mágico, Sentidos ÉlficosSTR 0DEX +2CON -2INT +4WIS 0CHA 0DahllanAmiga das Plantas, Armadura de Allihanna, Empatia SelvagemSTR 0DEX +2CON 0INT -2WIS +4CHA 0CancelarPróximoFechar dialogo"
+    ],
+    "inputs": [
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": "Ex: Valeros",
+        "required": false,
+        "name": null,
+        "id": null
+      }
+    ],
+    "errors": [
+      "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+      "T20TormentaOSEm operacaoMundo ativoCockpit contextual do mestreNavegue pelo mundo sem perder o contexto do que esta vivo na mesa.Navegacao do mundoCockpitForjaCodexGrafoVisualCampanhasPersonagensNPCsLocaisCompendioDiarioAtlasPrioridadesAtualizacao 1Shell total, cockpit vivo e base visual cinematica.Proxima frenteForja do Mundo como bootstrap vivo de criacao.Master systemVoce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto.Voltar ao cockpitT20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+      "T20TormentaOSAtualizacao 1PersonagensTeste auditoria campo 2bjnpjhhsLandingModo SessãoPersonagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+      "Personagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+      "Personagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+      "Personagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+      "Personagens do mundo0 fichasFichas e dossiesPersonagens tratados como parte viva do mundo.Esta superficie agora segue a mesma leitura do cockpit. Voce filtra por campanha, abre fichas e cria personagens sem sair do contexto world-scoped.AtualizarNovo personagemLeitura do rosterPersonagens0Campanhas0Maior nivel0Busca e filtroTodas as campanhasFalha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+      "Falha ao carregarNao foi possivel listar campanhas.Tentar novamente",
+      "Falha ao carregarNao foi possivel listar campanhas.",
+      "Falha ao carregar",
+      "Nao foi possivel listar campanhas."
+    ],
+    "currentUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+  },
+  {
+    "flow": "rule_new",
+    "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium",
+    "buttonFound": 1,
+    "dialogsCount": 3,
+    "dialogs": [
+      "Nova regra",
+      "",
+      "Adicionar ao compendioTextoPDF ou arquivoTituloConteudoSalvar documentoFechar dialogo"
+    ],
+    "inputs": [
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": null,
+        "required": true,
+        "name": null,
+        "id": null
+      },
+      {
+        "tag": "textarea",
+        "type": "textarea",
+        "placeholder": null,
+        "required": true,
+        "name": null,
+        "id": null
+      }
+    ],
+    "errors": [],
+    "currentUrl": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+  }
+]

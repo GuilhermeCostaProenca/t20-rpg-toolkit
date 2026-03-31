@@ -1,0 +1,2052 @@
+{
+  "pages": [
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\01.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Teste auditoria campo 2",
+      "h2": [
+        "Campanhas em campo",
+        "Linha viva de eventos",
+        "O que ficou da mesa"
+      ],
+      "buttons": [
+        "Modo Sessão",
+        "Nova campanha",
+        "Atualizar",
+        "Forja do Mundo",
+        "Codex",
+        "Campanhas",
+        "NPCs",
+        "Locais",
+        "Biblioteca visual",
+        "Politica",
+        "Cronologia",
+        "Lore-base",
+        "Compendio",
+        "Abrir forja",
+        "Abrir politica",
+        "Arquivar mundo",
+        "Criar campanha",
+        "WORLD_CREATED31 de mar., 15:03Mundo criado: Mundo Auditoria 145866",
+        "Atlas do mundo",
+        "Biblioteca visual",
+        "Lore-base",
+        "Personagens"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Ver todas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Abrir diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Abrir Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge?mode=new",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\02.png",
+      "title": "Tormenta 20 OS",
+      "h1": "A oficina onde o mundo ganha forma antes da mesa.",
+      "h2": [
+        "Conceito, tom e escopo",
+        "Escala e foco",
+        "Pilares do mundo",
+        "Casas, faccoes e blocos de poder",
+        "Estruturar blocos de poder",
+        "Continuar depois sem perder contexto"
+      ],
+      "buttons": [
+        "Modo Sessão",
+        "Salvar progresso",
+        "Recarregar",
+        "Voltar ao cockpit",
+        "Abrir Codex",
+        "Abrir grafo",
+        "Abrir politica",
+        "Abrir cronologia",
+        "Abrir lore-base",
+        "Abrir biblioteca visual",
+        "Corte e intriga",
+        "Reino ou casa",
+        "Continente",
+        "Era mitica",
+        "Semente inicial",
+        "Estruturando pilares",
+        "Pronto para mesa",
+        "Casas e familias",
+        "Politica e conselhos",
+        "Linhas de sangue",
+        "Religiao e fe",
+        "Guerra e legado",
+        "Segredos antigos",
+        "Cidades e fortalezas",
+        "Magia e ruina",
+        "Abrir Codex completo",
+        "Casa",
+        "Faccao",
+        "Lugar",
+        "NPC",
+        "Personagem",
+        "Ascendente",
+        "Estavel",
+        "Em crise",
+        "Quebrada",
+        "Semear bloco no Codex",
+        "Associar ao bloco"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Semear entidadesAbra o Codex para criar casas, personagens-base, faccoes e lugares nucleares.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Montar linhagensSiga para o Grafo para visualizar casas, ramos e conexoes familiares.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph?mode=genealogy"
+        },
+        {
+          "text": "Oficina genealogicaAbra a superficie dedicada para heranca, casamento, bastardos e ramos de casa.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy"
+        },
+        {
+          "text": "Oficina politicaEstruture conselhos, assentos, polos de poder e tensoes formais do mundo.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics"
+        },
+        {
+          "text": "Cronologia do mundoEstruture eras, datas e eventos fundadores dentro do proprio produto.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline"
+        },
+        {
+          "text": "Lore-base do mundoGuarde corpus textual, segredos, secoes revelaveis e conexoes com o Codex.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore"
+        },
+        {
+          "text": "Curar imagensMonte o mood visual do mundo com retratos, paisagens e assets de reveal.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Levar para mesaQuando o bootstrap estiver firme, abra a primeira campanha sem cair em dashboard vazio.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\03.png",
+      "title": "Tormenta 20 OS",
+      "h1": "A oficina onde o mundo ganha forma antes da mesa.",
+      "h2": [
+        "Conceito, tom e escopo",
+        "Escala e foco",
+        "Pilares do mundo",
+        "Casas, faccoes e blocos de poder",
+        "Estruturar blocos de poder",
+        "Continuar depois sem perder contexto"
+      ],
+      "buttons": [
+        "Modo Sessão",
+        "Salvar progresso",
+        "Recarregar",
+        "Voltar ao cockpit",
+        "Abrir Codex",
+        "Abrir grafo",
+        "Abrir politica",
+        "Abrir cronologia",
+        "Abrir lore-base",
+        "Abrir biblioteca visual",
+        "Corte e intriga",
+        "Reino ou casa",
+        "Continente",
+        "Era mitica",
+        "Semente inicial",
+        "Estruturando pilares",
+        "Pronto para mesa",
+        "Casas e familias",
+        "Politica e conselhos",
+        "Linhas de sangue",
+        "Religiao e fe",
+        "Guerra e legado",
+        "Segredos antigos",
+        "Cidades e fortalezas",
+        "Magia e ruina",
+        "Abrir Codex completo",
+        "Casa",
+        "Faccao",
+        "Lugar",
+        "NPC",
+        "Personagem",
+        "Ascendente",
+        "Estavel",
+        "Em crise",
+        "Quebrada",
+        "Semear bloco no Codex",
+        "Associar ao bloco"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Semear entidadesAbra o Codex para criar casas, personagens-base, faccoes e lugares nucleares.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Montar linhagensSiga para o Grafo para visualizar casas, ramos e conexoes familiares.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph?mode=genealogy"
+        },
+        {
+          "text": "Oficina genealogicaAbra a superficie dedicada para heranca, casamento, bastardos e ramos de casa.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy"
+        },
+        {
+          "text": "Oficina politicaEstruture conselhos, assentos, polos de poder e tensoes formais do mundo.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics"
+        },
+        {
+          "text": "Cronologia do mundoEstruture eras, datas e eventos fundadores dentro do proprio produto.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline"
+        },
+        {
+          "text": "Lore-base do mundoGuarde corpus textual, segredos, secoes revelaveis e conexoes com o Codex.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore"
+        },
+        {
+          "text": "Curar imagensMonte o mood visual do mundo com retratos, paisagens e assets de reveal.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Levar para mesaQuando o bootstrap estiver firme, abra a primeira campanha sem cair em dashboard vazio.",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\04.png",
+      "title": "Tormenta 20 OS",
+      "h1": "O mundo deixa de ser uma colecao de notas e vira estrutura viva.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Nova entidade",
+        "Atualizar",
+        "Aplicar leitura",
+        "Criar primeira entidade"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Abrir grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\05.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Relacoes, linhagens e conflitos viram superficie navegavel.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Atualizar grafo",
+        "Narrativo",
+        "Genealogico",
+        "Geral",
+        "Genealogia",
+        "Vivos",
+        "Casas",
+        "Aplicar leitura",
+        "Limpar foco"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar ao Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\06.png",
+      "title": "Tormenta 20 OS",
+      "h1": "A camada visual do mundo deixa de ser pasta solta e entra no cockpit.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Aplicar leitura"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Abrir Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Todos",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Lugares",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=places"
+        },
+        {
+          "text": "Retratos",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=portraits"
+        },
+        {
+          "text": "Reveals",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=reveals"
+        },
+        {
+          "text": "Cenas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=scenes"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\07.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Campanhas vivas, prontas para entrar em campo.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Nova campanha",
+        "Voltar ao cockpit",
+        "Criar campanha"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\08.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Personagens tratados como parte viva do mundo.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Atualizar",
+        "Novo personagem",
+        "Tentar novamente"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\09.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Bestiário & NPCs",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Novo NPC"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\10.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Mapa emocional, geografico e visual do mundo.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Novo local"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\11.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Regras, documentos e memoria textual em contexto de mundo.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Nova regra",
+        "Tudo",
+        "Regras",
+        "Lore-base",
+        "Todos os contextos",
+        "Todas as campanhas",
+        "Base do mundo",
+        "Todos os recortes"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Abrir lore-base",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\12.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Agenda, memoria curta e rastro das mesas.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Agendar sessao"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\13.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Teste auditoria campo 2",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Atualizar leitura",
+        "+",
+        "-"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Abrir locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Locais e referencias",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Diario do mundo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Biblioteca de regras",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph?mode=genealogy",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\14.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Relacoes, linhagens e conflitos viram superficie navegavel.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Atualizar grafo",
+        "Narrativo",
+        "Genealogico",
+        "Geral",
+        "Genealogia",
+        "Vivos",
+        "Casas",
+        "Aplicar leitura",
+        "Limpar foco"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar ao Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/genealogy",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\15.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Linhagens, herancas e ramos de casa em uma oficina dedicada.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Atualizar",
+        "Tudo",
+        "Sangue",
+        "Unioes",
+        "Ramos"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar para forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Abrir no grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph?mode=genealogy"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/politics",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\16.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Conselhos, assentos e disputas de poder em uma superficie propria.",
+      "h2": [
+        "Semeie instituicoes e assentos",
+        "Estruture a politica viva"
+      ],
+      "buttons": [
+        "Modo Sessão",
+        "Atualizar",
+        "Conselho / CoroaInstituicaoTronos, conselhos, cortes, igrejas e polos formais de poder.",
+        "Cadeira / TituloCargoMao do rei, lorde comandante, assento no conselho e postos chave.",
+        "Criar polo politico"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar para forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Ver no grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/timeline",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\17.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Eras, datas e eventos fundadores em uma oficina propria.",
+      "h2": [
+        "Configure o tempo do mundo",
+        "Registre eras e eventos fundadores"
+      ],
+      "buttons": [
+        "Modo Sessão",
+        "Atualizar",
+        "Salvar cronologia base",
+        "Tudo",
+        "Politica",
+        "Casas",
+        "Lugares",
+        "Figuras",
+        "Era",
+        "Evento fundador",
+        "Marco historico",
+        "Registrar marco historico"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar para forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Abrir diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge/lore",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\18.png",
+      "title": "Tormenta 20 OS",
+      "h1": "Corpus de mundo para guardar historia, segredos e estrutura textual.",
+      "h2": [
+        "Criar bloco de lore",
+        "Consultar e editar corpus"
+      ],
+      "buttons": [
+        "Modo Sessão",
+        "Atualizar",
+        "Todas as secoes",
+        "Tudo",
+        "Somente mestre",
+        "Revelavel",
+        "Todos os contextos",
+        "Todas as campanhas",
+        "Base do mundo",
+        "Todos os recortes",
+        "Somente mestre",
+        "Revelavel",
+        "arco",
+        "gancho",
+        "foco_de_mesa",
+        "segredo",
+        "referencia",
+        "Salvar bloco de lore"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar para forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Abrir compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=places",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\19.png",
+      "title": "Tormenta 20 OS",
+      "h1": "A camada visual do mundo deixa de ser pasta solta e entra no cockpit.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Aplicar leitura"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Abrir Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Todos",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Lugares",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=places"
+        },
+        {
+          "text": "Retratos",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=portraits"
+        },
+        {
+          "text": "Reveals",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=reveals"
+        },
+        {
+          "text": "Cenas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=scenes"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    },
+    {
+      "url": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=portraits",
+      "status": 200,
+      "screenshot": "C:\\Users\\guilh\\OneDrive\\Área de Trabalho\\t20-rpg-toolkit\\output\\audit-artifacts\\world-crawl\\20.png",
+      "title": "Tormenta 20 OS",
+      "h1": "A camada visual do mundo deixa de ser pasta solta e entra no cockpit.",
+      "h2": [],
+      "buttons": [
+        "Modo Sessão",
+        "Aplicar leitura"
+      ],
+      "links": [
+        {
+          "text": "Cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Forja",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/forge"
+        },
+        {
+          "text": "Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Grafo",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/graph"
+        },
+        {
+          "text": "Visual",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Campanhas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/campaigns"
+        },
+        {
+          "text": "Personagens",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/characters"
+        },
+        {
+          "text": "NPCs",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/npcs"
+        },
+        {
+          "text": "Locais",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/locations"
+        },
+        {
+          "text": "Compendio",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/compendium"
+        },
+        {
+          "text": "Diario",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/diary"
+        },
+        {
+          "text": "Atlas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/map"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Landing",
+          "href": "http://127.0.0.1:3001/"
+        },
+        {
+          "text": "Voltar ao cockpit",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve"
+        },
+        {
+          "text": "Abrir Codex",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/codex"
+        },
+        {
+          "text": "Todos",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library"
+        },
+        {
+          "text": "Lugares",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=places"
+        },
+        {
+          "text": "Retratos",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=portraits"
+        },
+        {
+          "text": "Reveals",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=reveals"
+        },
+        {
+          "text": "Cenas",
+          "href": "http://127.0.0.1:3001/app/worlds/bjnpjhhs01e57hnx3ghck7ve/visual-library?preset=scenes"
+        }
+      ],
+      "textSample": "T20 TORMENTA OS Em operacao MUNDO ATIVO Cockpit contextual do mestre Navegue pelo mundo sem perder o contexto do que esta vivo na mesa. NAVEGACAO DO MUNDO Cockpit Forja Codex Grafo Visual Campanhas Personagens NPCs Locais Compendio Diario Atlas PRIORIDADES Atualizacao 1 Shell total, cockpit vivo e base visual cinematica. Proxima frente Forja do Mundo como bootstrap vivo de criacao. MASTER SYSTEM Voce esta dentro do cockpit vivo. O foco agora e reduzir troca de contexto. Voltar ao cockpit T20 TOR"
+    }
+  ],
+  "console": [
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=btUjn_NFnAqIRRDfouSDW' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=btUjn_NFnAqIRRDfouSDW' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=btUjn_NFnAqIRRDfouSDW' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Zh3QAAe6VzKgrNR_Df4UB' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <div className=\"flex min-h...\">\n      <AppSidebar>\n      <div className=\"flex-1\">\n        <Topbar>\n          <header className=\"sticky top...\">\n            <div className=\"mx-auto fl...\">\n              <div>\n              <div>\n              <div className=\"ml-auto fl...\">\n                <Badge>\n                <Button>\n                <SessionDialog>\n                  <Dialog open={false} onOpenChange={function bound dispatchSetState}>\n                    <DialogProvider scope={undefined} triggerRef={{current:null}} contentRef={{current:null}} ...>\n                      <DialogTrigger asChild={true}>\n                        <Primitive.button type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                          <Primitive.button.Slot type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                            <Primitive.button.SlotClone type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                              <Button className=\"bg-primary...\" type=\"button\" aria-haspopup=\"dialog\" ...>\n                                <button\n                                  data-slot=\"button\"\n                                  data-variant=\"default\"\n                                  data-size=\"default\"\n                                  className={\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded...\"}\n                                  type=\"button\"\n                                  aria-haspopup=\"dialog\"\n                                  aria-expanded={false}\n+                                 aria-controls=\"radix-_R_1tj5rlb_\"\n-                                 aria-controls=\"radix-_R_7md5rlb_\"\n                                  data-state=\"closed\"\n                                  onClick={function handleEvent}\n                                  ref={function}\n                                >\n                      ...\n        ...\n"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Zh3QAAe6VzKgrNR_Df4UB' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Zh3QAAe6VzKgrNR_Df4UB' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=Zh3QAAe6VzKgrNR_Df4UB' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=V3oK_caKNySZGFi_Wqj95' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=V3oK_caKNySZGFi_Wqj95' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=V3oK_caKNySZGFi_Wqj95' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=V3oK_caKNySZGFi_Wqj95' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <div className=\"flex min-h...\">\n      <AppSidebar>\n      <div className=\"flex-1\">\n        <Topbar>\n          <header className=\"sticky top...\">\n            <div className=\"mx-auto fl...\">\n              <div>\n              <div>\n              <div className=\"ml-auto fl...\">\n                <Badge>\n                <Button>\n                <SessionDialog>\n                  <Dialog open={false} onOpenChange={function bound dispatchSetState}>\n                    <DialogProvider scope={undefined} triggerRef={{current:null}} contentRef={{current:null}} ...>\n                      <DialogTrigger asChild={true}>\n                        <Primitive.button type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                          <Primitive.button.Slot type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                            <Primitive.button.SlotClone type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                              <Button className=\"bg-primary...\" type=\"button\" aria-haspopup=\"dialog\" ...>\n                                <button\n                                  data-slot=\"button\"\n                                  data-variant=\"default\"\n                                  data-size=\"default\"\n                                  className={\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded...\"}\n                                  type=\"button\"\n                                  aria-haspopup=\"dialog\"\n                                  aria-expanded={false}\n+                                 aria-controls=\"radix-_R_1tj5rlb_\"\n-                                 aria-controls=\"radix-_R_7md5rlb_\"\n                                  data-state=\"closed\"\n                                  onClick={function handleEvent}\n                                  ref={function}\n                                >\n                      ...\n        ...\n          <div className=\"space-y-5\">\n            <div>\n            <div>\n            <div className=\"flex flex-...\">\n              <Dialog open={false} onOpenChange={function bound dispatchSetState}>\n                <Dialog data-slot=\"dialog\" open={false} onOpenChange={function bound dispatchSetState}>\n                  <DialogProvider scope={undefined} triggerRef={{current:null}} contentRef={{current:null}} ...>\n                    <DialogTrigger asChild={true}>\n                      <DialogTrigger data-slot=\"dialog-tri...\" asChild={true}>\n                        <Primitive.button type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                          <Primitive.button.Slot type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                            <Primitive.button.SlotClone type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                              <Button type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                                <button\n                                  data-slot=\"dialog-trigger\"\n                                  data-variant=\"default\"\n                                  data-size=\"default\"\n                                  className={\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded...\"}\n                                  type=\"button\"\n                                  aria-haspopup=\"dialog\"\n                                  aria-expanded={false}\n+                                 aria-controls=\"radix-_R_1qpbn5ritpddqj5rlb_\"\n-                                 aria-controls=\"radix-_R_7b5esnebn5lnad5rlb_\"\n                                  data-state=\"closed\"\n                                  onClick={function handleEvent}\n                                  ref={function}\n                                >\n                    ...\n              ...\n"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=p1G1XSTwr-b55BdEwjIcp' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=p1G1XSTwr-b55BdEwjIcp' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=iR5IOIxbyStvNRS2ALFG-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <div className=\"flex min-h...\">\n      <AppSidebar>\n      <div className=\"flex-1\">\n        <Topbar>\n          <header className=\"sticky top...\">\n            <div className=\"mx-auto fl...\">\n              <div>\n              <div>\n              <div className=\"ml-auto fl...\">\n                <Badge>\n                <Button>\n                <SessionDialog>\n                  <Dialog open={false} onOpenChange={function bound dispatchSetState}>\n                    <DialogProvider scope={undefined} triggerRef={{current:null}} contentRef={{current:null}} ...>\n                      <DialogTrigger asChild={true}>\n                        <Primitive.button type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                          <Primitive.button.Slot type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                            <Primitive.button.SlotClone type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                              <Button className=\"bg-primary...\" type=\"button\" aria-haspopup=\"dialog\" ...>\n                                <button\n                                  data-slot=\"button\"\n                                  data-variant=\"default\"\n                                  data-size=\"default\"\n                                  className={\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded...\"}\n                                  type=\"button\"\n                                  aria-haspopup=\"dialog\"\n                                  aria-expanded={false}\n+                                 aria-controls=\"radix-_R_1tj5rlb_\"\n-                                 aria-controls=\"radix-_R_7md5rlb_\"\n                                  data-state=\"closed\"\n                                  onClick={function handleEvent}\n                                  ref={function}\n                                >\n                      ...\n        ...\n"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=rjBlvGtQ6dsMooOPuMjj2' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=jS-ypTzHeARlCGQBSKJDQ' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=6azSyUHeLqZrX7wB4_0y-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=7LkP9XzhLjToOPF49UVth' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=e_grFzx6U95avWtjB2u-8' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=LlGXuliCwSJ0CRCpFQRu6' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "WebSocket connection to 'ws://127.0.0.1:3001/_next/webpack-hmr?id=wUVeLy76AYAff59Pi4STu' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+    },
+    {
+      "type": "error",
+      "text": "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <div className=\"flex min-h...\">\n      <AppSidebar>\n      <div className=\"flex-1\">\n        <Topbar>\n          <header className=\"sticky top...\">\n            <div className=\"mx-auto fl...\">\n              <div>\n              <div>\n              <div className=\"ml-auto fl...\">\n                <Badge>\n                <Button>\n                <SessionDialog>\n                  <Dialog open={false} onOpenChange={function bound dispatchSetState}>\n                    <DialogProvider scope={undefined} triggerRef={{current:null}} contentRef={{current:null}} ...>\n                      <DialogTrigger asChild={true}>\n                        <Primitive.button type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                          <Primitive.button.Slot type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                            <Primitive.button.SlotClone type=\"button\" aria-haspopup=\"dialog\" aria-expanded={false} ...>\n                              <Button className=\"bg-primary...\" type=\"button\" aria-haspopup=\"dialog\" ...>\n                                <button\n                                  data-slot=\"button\"\n                                  data-variant=\"default\"\n                                  data-size=\"default\"\n                                  className={\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded...\"}\n                                  type=\"button\"\n                                  aria-haspopup=\"dialog\"\n                                  aria-expanded={false}\n+                                 aria-controls=\"radix-_R_1tj5rlb_\"\n-                                 aria-controls=\"radix-_R_7md5rlb_\"\n                                  data-state=\"closed\"\n                                  onClick={function handleEvent}\n                                  ref={function}\n                                >\n                      ...\n        ...\n"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    }
+  ]
+}

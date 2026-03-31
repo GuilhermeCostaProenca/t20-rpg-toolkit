@@ -6,9 +6,13 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 ## Modulos
 - `src/app`: Superficies de produto (cockpit global, mundo, campanha, mesa ao vivo, APIs).
 - `src/components`: Shell, cockpit, war-room, quick inspect, superficies visuais e modulos de sessao.
+- `src/components/immersive-backdrop.tsx`: camada visual premium do app interno com video cinematografico, overlays atmosfericos e parallax leve para profundidade.
+- `src/app/(public)/page.tsx`: landing publica de entrada do produto com narrativa comercial e CTA para o cockpit.
+- `src/components/landing/*`: secoes modulares da landing (navbar, hero, toolkit, generos, missao, showcase, CTA e footer) com interacoes via Framer Motion.
 - `src/lib`: Dominio e motor de apoio (combat, balanceamento T20, eventos, validacao, utilitarios).
 - `prisma`: Modelo de dados, migracoes e contratos de persistencia.
 - `docs`: Estrategia, attack index, planos por frente e relatorios de validacao.
+- `docs/99-reports/t20-os-figma-design-blueprint-2026-03-31.md`: contrato de IA/UX visual para o rebuild (modos Normal/Lousa/Quadro e ordem de telas).
 
 ## Integracoes
 - DB: Prisma <-> PostgreSQL para estado world-scoped persistente.
@@ -24,6 +28,7 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 - Nomeacao: frentes referenciadas por codigos (`A1..A9`, `RPG-*`, `GUI-*`).
 - Organizacao de rotas: tudo do dominio principal sob `/app/worlds/[id]/...` ou contexto equivalente de campanha.
 - Estados e erros: feedback operacional no proprio cockpit, evitando troca de superficie.
+- Atmosfera visual: `src/app/app/layout.tsx` injeta backdrop imersivo fixo (video + gradientes + camadas 3D) para reforcar sensacao de war room sem alterar contratos de dominio.
 - Documentacao: status executivo no `attack-index`; continuidade operacional em `ai/*`.
 
 ## Divida Tecnica Relevante

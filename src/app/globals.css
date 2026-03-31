@@ -250,7 +250,7 @@ body::after {
     color: rgba(245, 221, 177, 0.78);
   }
 
-  .world-hero {
+.world-hero {
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -263,6 +263,91 @@ body::after {
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 
+  .app-shell {
+    isolation: isolate;
+    overflow: clip;
+  }
+
+  .app-immersive-backdrop {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(188, 74, 63, 0.24), transparent 32%),
+      radial-gradient(circle at 78% 14%, rgba(213, 162, 64, 0.22), transparent 30%),
+      radial-gradient(circle at 58% 84%, rgba(67, 124, 168, 0.16), transparent 36%),
+      linear-gradient(130deg, rgba(5, 5, 8, 0.98), rgba(8, 9, 14, 0.9));
+  }
+
+  .app-immersive-video {
+    position: absolute;
+    inset: -4%;
+    width: 108%;
+    height: 108%;
+    object-fit: cover;
+    opacity: 0.18;
+    filter: saturate(1.2) contrast(1.1) brightness(0.7);
+    transform: scale(1.03);
+  }
+
+  .app-immersive-vignette {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at center, transparent 24%, rgba(6, 7, 12, 0.84) 100%),
+      linear-gradient(180deg, rgba(4, 5, 8, 0.08), rgba(4, 5, 8, 0.7));
+  }
+
+  .app-immersive-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.09) 0,
+        rgba(255, 255, 255, 0.09) 1px,
+        transparent 2px,
+        transparent 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.06) 0,
+        rgba(255, 255, 255, 0.06) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+    mix-blend-mode: soft-light;
+  }
+
+  .app-immersive-layer {
+    position: absolute;
+    inset: -20%;
+    transition: transform 0.25s ease-out;
+    will-change: transform;
+  }
+
+  .app-immersive-layer--near {
+    background:
+      radial-gradient(circle at 26% 24%, rgba(188, 74, 63, 0.22), transparent 24%),
+      radial-gradient(circle at 62% 46%, rgba(255, 146, 62, 0.12), transparent 26%);
+    filter: blur(24px);
+  }
+
+  .app-immersive-layer--mid {
+    background:
+      conic-gradient(from 190deg at 72% 28%, rgba(191, 138, 55, 0.13), transparent 42%),
+      conic-gradient(from 0deg at 16% 70%, rgba(76, 128, 175, 0.14), transparent 44%);
+    filter: blur(42px);
+  }
+
+  .app-immersive-layer--far {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04), transparent 48%);
+    filter: blur(56px);
+  }
+
   .grid-shell {
     display: grid;
     gap: 1.5rem;
@@ -272,6 +357,15 @@ body::after {
   @media (max-width: 1280px) {
     .grid-shell {
       grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app-immersive-video,
+    .app-immersive-layer {
+      transition: none;
+      animation: none;
+      transform: none !important;
     }
   }
 }

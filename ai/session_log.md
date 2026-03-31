@@ -563,3 +563,178 @@
   - executar o trial real e registrar backlog resultante.
 - Proximo passo recomendado:
   - concluir ciclo Git operacional de `RPG-246` e iniciar execucao do trial usando o runbook.
+
+### Sessao: 2026-03-27 17:03 - DOCS-R3 benchmark de referencia da landing
+- Objetivo da sessao: registrar formalmente o benchmark de landing premium enviado pelo usuario para uso futuro no rework visual.
+- O que foi feito:
+  - consolidado report datado com estrutura, design system, interacoes e diretrizes tecnicas da referencia em `docs/99-reports/landing-vvd-reference-benchmark-2026-03-27.md`.
+  - atualizado `ai/tasks.md` com backlog de execucao `A1-LP1` e item concluido de consolidacao documental (`DOCS-R3`).
+  - atualizado `ai/current_state.md` para refletir a nova referencia oficial e o proximo passo de implementacao.
+- Arquivos alterados:
+  - `docs/99-reports/landing-vvd-reference-benchmark-2026-03-27.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - revisao manual de consistencia entre pedido do usuario e informacoes registradas no report -> ok.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural; apenas consolidacao de referencia para futura execucao de A1-LP1.
+- Pendencias abertas:
+  - abrir issue Linear dedicada para implementacao da nova landing (A1-LP1).
+  - executar implementacao de landing em recorte tecnico separado.
+- Proximo passo recomendado:
+  - iniciar A1-LP1 com issue Linear, branch curta `codex/` e checklist de aceite visual/comportamental.
+
+### Sessao: 2026-03-27 17:17 - A1-LP1 rework da landing publica premium
+- Objetivo da sessao: implementar a nova landing publica com fidelidade premium baseada no benchmark salvo.
+- O que foi feito:
+  - criada issue `RPG-248` no Linear e movida para `In Progress`.
+  - reconstruida a rota `src/app/(public)/page.tsx` em secoes modulares.
+  - criada a pasta `src/components/landing` com componentes dedicados para navbar, hero, toolkit (tabs auto-play), generos, missao, showcase, CTA e footer.
+  - aplicado conjunto de interacoes com Framer Motion (entradas coordenadas, reveal por scroll, microinteracoes e trilha de tabs com progresso).
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/architecture.md`, `ai/decisions.md` e `ai/session_log.md`.
+- Arquivos alterados:
+  - `src/app/(public)/page.tsx`
+  - `src/components/landing/landing-data.ts`
+  - `src/components/landing/landing-navbar.tsx`
+  - `src/components/landing/landing-hero.tsx`
+  - `src/components/landing/landing-toolkit.tsx`
+  - `src/components/landing/landing-genres.tsx`
+  - `src/components/landing/landing-mission.tsx`
+  - `src/components/landing/landing-showcase.tsx`
+  - `src/components/landing/landing-cta.tsx`
+  - `src/components/landing/landing-footer.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npm run lint -- \"src/app/(public)/page.tsx\" \"src/components/landing/*.tsx\" \"src/components/landing/*.ts\"` -> ok.
+- Decisoes tomadas:
+  - DEC-018 registrada.
+- Pendencias abertas:
+  - executar QA visual em browser real (A1-LP2) para calibrar timing, densidade e responsividade final.
+- Proximo passo recomendado:
+  - rodar A1-LP2 em desktop/mobile e aplicar o ajuste fino de microinteracoes antes de fechar `RPG-248`.
+
+### Sessao: 2026-03-27 17:27 - A1-LP2 QA visual da landing
+- Objetivo da sessao: validar a nova landing em browser real e ajustar microdetalhes finais de legibilidade/ritmo.
+- O que foi feito:
+  - executado QA com Playwright em ambiente local dedicado (`http://localhost:3010`) para evitar conflito com outro app em `localhost:3000`.
+  - validada responsividade em desktop (`1440x900`) e mobile (`390x844`).
+  - confirmado comportamento de auto-rotacao das tabs da secao toolkit.
+  - ajustado espacamento textual da secao de missao para eliminar colagem de palavras em trechos com destaque inline.
+  - issue `RPG-248` atualizada com resumo tecnico e movida para `Done`.
+- Arquivos alterados:
+  - `src/components/landing/landing-mission.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - Playwright snapshot desktop e mobile em `http://localhost:3010` -> ok.
+  - `npm run lint -- \"src/app/(public)/page.tsx\" \"src/components/landing/*.tsx\" \"src/components/landing/*.ts\"` -> ok.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural (ajuste fino de implementacao).
+- Pendencias abertas:
+  - validar em uso real com feedback de produto para priorizar proximo recorte visual de A1.
+- Proximo passo recomendado:
+  - consolidar branch/PR com `RPG-248` e seguir para o proximo backlog critico da frente A7/A9.
+
+### Sessao: 2026-03-30 - A7-R3 preparacao operacional de campo
+- Objetivo da sessao: destravar a execucao de A7-R3 com um pacote unico e objetivo para validacao real de mesa.
+- O que foi feito:
+  - criado pacote de execucao `docs/99-reports/live-table-a7-r3-field-execution-packet-2026-03-30.md` com pre-condicoes, sequencia operacional, criterio de aprovacao e pos-fluxo obrigatorio.
+  - atualizado `ai/tasks.md` para explicitar `A7-R3-PREP` como pronto e pendente apenas de rodada real.
+  - atualizado `ai/current_state.md` para refletir bloqueio de campo humano e proximo passo direto.
+- Arquivos alterados:
+  - `docs/99-reports/live-table-a7-r3-field-execution-packet-2026-03-30.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - revisao manual de consistencia entre packet, run sheet e report base de A7-R3 -> ok.
+- Decisoes tomadas:
+  - sem nova decisao arquitetural (habilitacao operacional de validacao de campo).
+- Pendencias abertas:
+  - executar a rodada real de A7-R3 e registrar resultado final.
+- Proximo passo recomendado:
+  - rodar o packet em sessao real e atualizar `RPG-232` + report de validacao com status final.
+
+### Sessao: 2026-03-30 - DOCS-R4 benchmark funcional completo do vvd.world
+- Objetivo da sessao: consolidar o diagnostico funcional completo enviado pelo usuario como benchmark estrategico acionavel para o roadmap world-first.
+- O que foi feito:
+  - criada issue `RPG-250` no Linear e movida para `In Progress`.
+  - criado report `docs/99-reports/vvd-world-product-diagnosis-benchmark-2026-03-30.md` com sintese do produto, modulo funcional, dominio inferido, implicacoes por frente e guardrails anti-copia.
+  - atualizado `ai/tasks.md` com conclusao de `DOCS-R4` e abertura de `A1-LP3` para derivacao de backlog.
+  - atualizado `ai/current_state.md` com novo estado/documento e proximos passos imediatos.
+  - registrada DEC-019 em `ai/decisions.md` para formalizar uso do benchmark sem ruptura da ordem oficial de frentes.
+- Arquivos alterados:
+  - `docs/99-reports/vvd-world-product-diagnosis-benchmark-2026-03-30.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - revisao manual de coerencia entre benchmark, `attack-index` e memoria viva em `ai/*` -> ok.
+- Decisoes tomadas:
+  - DEC-019 registrada.
+- Pendencias abertas:
+  - detalhar e priorizar o recorte `A1-LP3` com backlog acionavel por frente.
+  - manter foco principal nas validacoes de campo pendentes de A7/A9 antes de expansoes amplas.
+- Proximo passo recomendado:
+  - converter `A1-LP3` em checklist executavel com criterios de aceite e fatiamento por PR curta.
+
+### Sessao: 2026-03-31 - DOCS-R5 blueprint consolidado para Figma
+- Objetivo da sessao: consolidar um contrato unico de redesign (IA + modos + fluxos + ordem de telas) antes da etapa de prototipacao no Figma.
+- O que foi feito:
+  - publicado `docs/99-reports/t20-os-figma-design-blueprint-2026-03-31.md` com arquitetura de informacao alvo, modos `Normal/Lousa/Quadro`, fluxos canonicos e roteiro de construcao de telas.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/architecture.md`, `ai/decisions.md` e `ai/session_log.md` com o novo estado.
+  - registrada DEC-020 formalizando o blueprint como etapa obrigatoria antes de novo ciclo de refinamento visual interno.
+- Arquivos alterados:
+  - `docs/99-reports/t20-os-figma-design-blueprint-2026-03-31.md`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - revisao manual de aderencia entre blueprint, `attack-index`, `master-plan` e contexto vivo em `ai/*` -> ok.
+- Decisoes tomadas:
+  - DEC-020 registrada.
+- Pendencias abertas:
+  - executar `A1-BP1` com prototipo navegavel no Figma (Fase A + B).
+- Proximo passo recomendado:
+  - iniciar o arquivo Figma `T20 OS - Product Rebuild Blueprint` e montar shell/entrada/cockpit como base canonica para o redesign.
+
+### Sessao: 2026-03-31 - A1-LP4 camada premium imersiva no shell interno
+- Objetivo da sessao: iniciar a implementacao do novo front operacional com percepcao premium real (video + profundidade 3D), sem mexer na landing publica.
+- O que foi feito:
+  - criado `src/components/immersive-backdrop.tsx` com:
+    - video cinematografico em loop (fontes remotas) com fallback visual quando falha;
+    - detecao de `prefers-reduced-motion`;
+    - parallax leve por mouse para profundidade 3D.
+  - integrado backdrop no `src/app/app/layout.tsx` para toda superficie interna `/app`.
+  - adicionadas classes globais em `src/app/globals.css` para atmosfera imersiva (`app-shell`, `app-immersive-*`) mantendo legibilidade dos paineis existentes.
+  - sincronizados `ai/tasks.md`, `ai/current_state.md`, `ai/architecture.md`, `ai/decisions.md` e `ai/session_log.md`.
+  - registrada DEC-021 para formalizar a escolha arquitetural desta camada premium como base dos proximos modulos.
+- Arquivos alterados:
+  - `src/components/immersive-backdrop.tsx`
+  - `src/app/app/layout.tsx`
+  - `src/app/globals.css`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npm install` no worktree novo -> ok.
+  - `npm run lint` -> falhou por passivo legado amplo fora do escopo da sessao.
+  - `npx eslint src/components/immersive-backdrop.tsx src/app/app/layout.tsx src/app/globals.css` -> sem erros nos arquivos TSX alterados; CSS ignorado pela configuracao do ESLint.
+- Decisoes tomadas:
+  - DEC-021 registrada.
+- Pendencias abertas:
+  - executar `A1-LP5` para levar o mesmo nivel premium para Forja/Codex/Grafo/Visual/Campanhas/Memoria.
+  - validar em browser real a intensidade da camada imersiva em desktop e mobile.
+- Proximo passo recomendado:
+  - atacar `A1-LP5` com recorte de design system operacional (tokens de profundidade, componentes de hero interno e cards de modulo com estados).

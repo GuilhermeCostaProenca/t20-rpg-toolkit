@@ -235,3 +235,55 @@
   - Positivo: melhora manutencao, legibilidade e velocidade de ajuste fino.
   - Negativo / trade-off: aumenta superficie de constantes que precisam ser mantidas coerentes entre si.
 - Plano de revisao: revisar apenas os valores das constantes apos rodada de validacao real (A7-R3).
+
+### DEC-018: Landing publica modular com linguagem premium e interacoes reais
+- Data: 2026-03-27
+- Status: aceita
+- Contexto: a landing publica estava utilitaria e desconectada do posicionamento premium world-first desejado para o produto.
+- Decisao: reconstruir `src/app/(public)/page.tsx` com secoes modulares em `src/components/landing/*` e interacoes guiadas por Framer Motion (hero video, tabs auto-play, carrossel horizontal, reveals por scroll e showcase de fluxo).
+- Alternativas consideradas:
+  - manter landing utilitaria atual com ajustes cosmeticos pontuais;
+  - adotar clone literal de referencia externa sem adaptacao ao dominio T20 OS.
+- Impacto:
+  - Positivo: primeira impressao mais coerente com o posicionamento de produto premium e melhor narrativa de conversao para `/app`.
+  - Negativo / trade-off: aumenta superficie de UI animada, exigindo validacao visual recorrente em browser real.
+- Plano de revisao: executar A1-LP2 para ajustar timing/ritmo apos rodada de QA visual desktop/mobile.
+
+### DEC-019: Benchmark funcional do `vvd.world` como referencia estrategica, sem ruptura de prioridade
+- Data: 2026-03-30
+- Status: aceita
+- Contexto: foi recebido um diagnostico funcional completo do `vvd.world`, cobrindo editor, modulos internos, fluxos e dominio inferido alem da landing publica.
+- Decisao: consolidar o benchmark em report dedicado (`docs/99-reports/vvd-world-product-diagnosis-benchmark-2026-03-30.md`) e usa-lo como insumo de evolucao incremental em A1/A2/A3, preservando a ordem oficial do `attack-index` e a prioridade operacional atual de A7/A9.
+- Alternativas consideradas:
+  - tratar o benchmark apenas como referencia visual de landing;
+  - abrir nova frente paralela para reproduzir rapidamente as features do produto de referencia.
+- Impacto:
+  - Positivo: aumenta clareza competitiva e direcao de produto sem comprometer coerencia arquitetural world-first do T20 OS.
+  - Negativo / trade-off: pode elevar expectativa de escopo; exige disciplina para converter benchmark em backlog sequenciado, sem salto de frente.
+- Plano de revisao: revisar no inicio de `A1-LP3` se os itens derivados do benchmark estao priorizados de forma aderente ao roadmap e ao estado real do produto.
+
+### DEC-020: Consolidar redesign do produto em blueprint unico antes de novo ciclo visual
+- Data: 2026-03-31
+- Status: aceita
+- Contexto: o produto atual tem boa direcao na landing, mas experiencia interna ainda fragmentada; era necessario travar um contrato de UX/IA para evitar refino incremental em cima de um desenho estruturalmente inadequado.
+- Decisao: formalizar um blueprint unico de redesign (`docs/99-reports/t20-os-figma-design-blueprint-2026-03-31.md`) com arquitetura de informacao alvo, modos `Normal/Lousa/Quadro`, fluxos canonicos e ordem de construcao no Figma.
+- Alternativas consideradas:
+  - continuar iterando telas atuais sem blueprint consolidado;
+  - redesenhar apenas visualmente sem redefinir IA e fluxo.
+- Impacto:
+  - Positivo: reduz risco de retrabalho, alinha design e implementacao ao modelo world-first e cria base objetiva para Figma e backlog tecnico.
+  - Negativo / trade-off: adiciona uma etapa documental antes da execucao visual final.
+- Plano de revisao: apos prototipo navegavel da Fase A+B (`A1-BP1`), validar se o blueprint cobre de fato os fluxos criticos sem lacunas operacionais.
+
+### DEC-021: Introduzir camada premium imersiva no shell interno antes de expandir modulos
+- Data: 2026-03-31
+- Status: aceita
+- Contexto: o novo front precisava iniciar com sensacao premium real (video/atmosfera/profundidade), sem desmontar o fluxo funcional existente nem alterar a landing publica.
+- Decisao: criar `ImmersiveBackdrop` global no `AppLayout` com video cinematografico (fallback para gradientes), overlays atmosfericos e parallax 3D leve; manter o restante da arquitetura world-first e das rotas inalterados.
+- Alternativas consideradas:
+  - aplicar efeitos premium apenas em telas isoladas (hero por pagina);
+  - esperar todos os modulos novos ficarem prontos para depois adicionar camada visual.
+- Impacto:
+  - Positivo: eleva imediatamente a percepcao de qualidade do cockpit interno e cria linguagem visual unica para os proximos recortes (Forja/Codex/Grafo/Visual/Campanhas/Memoria).
+  - Negativo / trade-off: video remoto depende de rede e pode variar por ambiente; por isso foi mantido fallback visual sem bloqueio funcional.
+- Plano de revisao: no recorte `A1-LP5`, validar desempenho/legibilidade em desktop e ajustar intensidade de opacidade/parallax por modulo.
