@@ -136,3 +136,10 @@
 - Estados locais ad hoc desses formularios foram removidos (`imageDraft`, `relationDraft`, `imageSubmitting`, `relationSubmitting`) em favor de `imageForm/relationForm`.
 - Validacao tecnica:
   - `npx eslint "src/app/app/worlds/[id]/codex/[entityId]/page.tsx"` -> ok.
+
+## Atualizacao 2026-04-01 (R10-HOTFIX-DOCKER)
+- Ajuste tecnico de compatibilidade em runtime Docker para evitar erro de resolucao de modulo do `ui/select` no `/app`.
+- `SelectField` foi desacoplado de `ui/select` (radix) e passou a usar implementacao interna direta, mantendo o contrato de uso no front.
+- `worlds/[id]/characters/page.tsx` foi atualizado para usar `SelectField` no filtro de campanha.
+- Validacao de runtime:
+  - `GET /app` no container retornando `200 OK` apos restart.

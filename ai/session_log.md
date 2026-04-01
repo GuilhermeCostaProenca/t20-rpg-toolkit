@@ -1082,3 +1082,25 @@
   - seguir varredura de forms ad hoc residuais fora do Codex (forja/grafo/combat), em lotes controlados.
 - Proximo passo recomendado:
   - consolidar checklist final de aceite da Fase 1+2 por rota e iniciar fechamento executivo do recorte.
+
+### Sessao: 2026-04-01 - HOTFIX runtime Docker apos merge
+- Objetivo da sessao: restaurar visualizacao do app no Docker apos merge em `master` com erro de modulo em `/app`.
+- O que foi feito:
+  - identificado erro `Module not found: @radix-ui/react-select` durante compilacao de `/app`.
+  - aplicado hotfix em `SelectField` para desacoplar de `ui/select` e manter o mesmo contrato de consumo.
+  - atualizado `worlds/[id]/characters/page.tsx` para usar `SelectField` no filtro de campanha (sem import direto de `ui/select`).
+  - reiniciado container de app e validado resposta de rota.
+- Arquivos alterados:
+  - `src/components/ui/select-field.tsx`
+  - `src/app/app/worlds/[id]/characters/page.tsx`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/components/ui/select-field.tsx" "src/app/app/worlds/[id]/characters/page.tsx"` -> ok.
+  - `GET http://127.0.0.1:3001/app` -> `200 OK`.
+- Decisoes tomadas:
+  - sem nova ADR (hotfix operacional para runtime do front em Docker).
+- Pendencias abertas:
+  - revisar posteriormente a estrategia definitiva de `ui/select` para evitar regressao de UX acessivel em longo prazo.
+- Proximo passo recomendado:
+  - seguir com varredura final de padrao/formulario e depois iniciar fase de refinamento visual operacional.

@@ -1,4 +1,3 @@
-﻿import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 type SelectFieldOption = {
@@ -16,25 +15,22 @@ type SelectFieldProps = {
 };
 
 export function SelectField({ value, onValueChange, options, placeholder, className, disabled }: SelectFieldProps) {
-  const normalizedValue = value || "__UNSELECTED__";
-
   return (
-    <Select
-      value={normalizedValue}
-      onValueChange={(next) => onValueChange(next === "__UNSELECTED__" ? "" : next)}
+    <select
+      value={value}
+      onChange={(event) => onValueChange(event.target.value)}
       disabled={disabled}
+      className={cn(
+        "h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground",
+        className
+      )}
     >
-      <SelectTrigger className={cn(className)} disabled={disabled}>
-        <SelectValue placeholder={placeholder || "Selecione"} />
-      </SelectTrigger>
-      <SelectContent>
-        {placeholder ? <SelectItem value="__UNSELECTED__">{placeholder}</SelectItem> : null}
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+      {placeholder ? <option value="">{placeholder}</option> : null}
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
   );
 }
