@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Campaign = {
   id: string;
@@ -259,18 +260,19 @@ export default function WorldCharactersPage() {
                     className="h-12 rounded-2xl border-white/10 bg-black/25 pl-11"
                   />
                 </div>
-                <select
-                  className="h-12 w-full rounded-2xl border border-white/10 bg-black/25 px-4 text-sm"
-                  value={campaignFilter}
-                  onChange={(event) => setCampaignFilter(event.target.value)}
-                >
-                  <option value="">Todas as campanhas</option>
-                  {campaigns.map((campaign) => (
-                    <option key={campaign.id} value={campaign.id}>
-                      {campaign.name}
-                    </option>
-                  ))}
-                </select>
+                <Select value={campaignFilter || "ALL"} onValueChange={(value) => setCampaignFilter(value === "ALL" ? "" : value)}>
+                  <SelectTrigger className="h-12 rounded-2xl border-white/10 bg-black/25 px-4 text-sm">
+                    <SelectValue placeholder="Todas as campanhas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">Todas as campanhas</SelectItem>
+                    {campaigns.map((campaign) => (
+                      <SelectItem key={campaign.id} value={campaign.id}>
+                        {campaign.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

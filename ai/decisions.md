@@ -300,3 +300,29 @@
   - Positivo: ganha consistencia visual e de fluxo sem perder valor funcional acumulado no projeto.
   - Negativo / trade-off: exige camada de compatibilidade entre rotas/nomes novos e superfices legadas ate a migracao completa.
 - Plano de revisao: em `A1-LP5-R2`, reduzir gradualmente rotas/labels legados apos consolidar equivalentes canonicos e validar uso real.
+
+### DEC-023: Unificar feedback de UX e confirmacao destrutiva no front
+- Data: 2026-04-01
+- Status: aceita
+- Contexto: havia fragmentacao de feedback (`alert`, `confirm`, `toast`, mensagens locais) e inconsistencia operacional entre modulos.
+- Decisao: introduzir `AppFeedbackProvider` global com contrato unico (`notifySuccess`, `notifyError`, `notifyPending`, `confirmDestructive`) e eliminar `alert()/confirm()` no front alterado.
+- Alternativas consideradas:
+  - manter padroes mistos por modulo;
+  - usar apenas toasts sem confirmacao formal para acoes destrutivas.
+- Impacto:
+  - Positivo: consistencia de UX transacional, menor ruido visual e padrao replicavel para todo o app.
+  - Negativo / trade-off: exige migracao progressiva de telas legadas para aderir 100% ao contrato novo.
+- Plano de revisao: concluir varredura de toda a camada de front e revisar aderencia ao final de A1-FRONT-FOUNDATION.
+
+### DEC-024: Eliminar seletores nativos em superficies de app/components
+- Data: 2026-04-01
+- Status: aceita
+- Contexto: mesmo com `ui/select` criado, ainda havia `<select>` nativo espalhado em modulos criticos (`graph`, `codex entity`, `combat`, `quick-sheet`, `visual browser` e filtros de biblioteca visual), mantendo inconsistencia visual/operacional.
+- Decisao: padronizar selecao com `SelectField` em `src/app` e `src/components`; para paginas server-side com filtro GET, criar wrapper client (`visual-library-filters`) em vez de retornar a HTML select nativo.
+- Alternativas consideradas:
+  - manter `<select>` nativo em telas "nao prioritarias";
+  - migrar apenas telas de criacao/edicao e deixar filtros legados.
+- Impacto:
+  - Positivo: consistencia real do design system em toda camada operacional do front e menor variacao de comportamento entre modulos.
+  - Negativo / trade-off: maior acoplamento com componente client para filtros server-side e necessidade de testar querystring com mais cuidado.
+- Plano de revisao: revisar acessibilidade/comportamento de navegacao por teclado nos filtros de biblioteca visual na rodada de QA de Fase 1+2.

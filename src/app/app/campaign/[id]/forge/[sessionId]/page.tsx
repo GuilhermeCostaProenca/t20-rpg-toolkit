@@ -38,7 +38,7 @@ import {
   type LorePrepContext,
   type LorePrepFocus,
 } from "@/lib/lore";
-import { getVisualKindLabel, getVisualKindPriority } from "@/lib/visual";
+import { getVisualKindLabel, getVisualKindPriority } from "@/lib/visual-library";
 import {
   buildSessionMetadata,
   getEmptySessionForgeState,

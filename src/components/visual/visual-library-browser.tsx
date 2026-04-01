@@ -18,8 +18,8 @@ import {
   UserSquare2,
   X,
 } from "lucide-react";
-import { toast } from "sonner";
 
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import { RevealButton } from "@/components/reveal-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import { Textarea } from "@/components/ui/textarea";
 import {
   VISUAL_KIND_OPTIONS,
@@ -93,6 +94,7 @@ export function VisualLibraryBrowser({
   initialInspectAssetId,
 }: VisualLibraryBrowserProps) {
   const router = useRouter();
+  const { notifyError, notifySuccess } = useAppFeedback();
   const allAssets = useMemo(
     () => entityGroups.flatMap((group) => group.assets),
     [entityGroups]
@@ -157,10 +159,10 @@ export function VisualLibraryBrowser({
     setActiveAssetId(allAssets[nextIndex]?.id ?? null);
   }
 
-  async function refreshVisualState(successMessage?: string) {
-    router.refresh();
-    if (successMessage) toast.success(successMessage);
-  }
+async function refreshVisualState(successMessage?: string) {
+  router.refresh();
+  if (successMessage) notifySuccess(successMessage);
+}
 
   async function handleSaveInlineEdit() {
     if (!inspectAsset || !isManagedImage(inspectAsset)) return;
@@ -183,7 +185,7 @@ export function VisualLibraryBrowser({
       if (!res.ok) throw new Error(payload.error ?? "Falha ao atualizar asset.");
       await refreshVisualState("Asset visual atualizado.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Falha ao atualizar asset.");
+      notifyError(error instanceof Error ? error.message : "Falha ao atualizar asset.");
     } finally {
       setSaving(false);
     }
@@ -210,7 +212,7 @@ export function VisualLibraryBrowser({
         role === "coverImageUrl" ? "Asset definido como capa." : "Asset definido como retrato."
       );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Falha ao promover asset.");
+      notifyError(error instanceof Error ? error.message : "Falha ao promover asset.");
     } finally {
       setSaving(false);
     }
@@ -220,7 +222,7 @@ export function VisualLibraryBrowser({
     if (!inspectAsset) return;
 
     if (!isManagedImage(inspectAsset)) {
-      toast.error(
+      notifyError(
         "Capa e retrato principais sao derivados da entidade. Use um asset da galeria para marcar reveal."
       );
       return;
@@ -242,7 +244,7 @@ export function VisualLibraryBrowser({
       if (!res.ok) throw new Error(payload.error ?? "Falha ao marcar asset como reveal.");
       await refreshVisualState("Asset marcado como reveal.");
     } catch (error) {
-      toast.error(
+      notifyError(
         error instanceof Error ? error.message : "Falha ao marcar asset como reveal."
       );
     } finally {
@@ -651,19 +653,17 @@ export function VisualLibraryBrowser({
                         <div className="mt-4 space-y-4">
                           <div className="space-y-2">
                             <label className="text-sm font-medium text-foreground">Papel visual</label>
-                            <select
-                              className="h-11 w-full rounded-2xl border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                            <SelectField
+                              className="h-11 w-full rounded-2xl border-white/10 bg-black/20 px-3 text-sm text-foreground"
                               value={editDraft.kind}
-                              onChange={(event) =>
-                                setEditDraft((prev) => ({ ...prev, kind: event.target.value }))
+                              onValueChange={(value) =>
+                                setEditDraft((prev) => ({ ...prev, kind: value }))
                               }
-                            >
-                              {VISUAL_KIND_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
+                              options={VISUAL_KIND_OPTIONS.map((option) => ({
+                                value: option.value,
+                                label: option.label,
+                              }))}
+                            />
                           </div>
                           <div className="grid gap-4 sm:grid-cols-[120px_minmax(0,1fr)]">
                             <div className="space-y-2">

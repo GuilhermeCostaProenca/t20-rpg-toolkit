@@ -4,13 +4,15 @@ import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } fro
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Link2, Pencil, Plus, RefreshCw, Save, Trash2, Upload } from "lucide-react";
-import { toast } from "sonner";
 
 import { EmptyState } from "@/components/empty-state";
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import { Textarea } from "@/components/ui/textarea";
 import { VISUAL_KIND_OPTIONS, getVisualKindLabel } from "@/lib/visual-library";
 import {
@@ -19,6 +21,9 @@ import {
   getMemoryEventTone,
   isMemoryWorldEvent,
 } from "@/lib/world-memory";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 type Campaign = { id: string; name: string };
 type EntityImage = { id: string; url: string; kind: string; caption?: string | null; sortOrder?: number | null };
@@ -68,6 +73,48 @@ type CodexPayload = {
 };
 
 const typeOptions = ["character", "npc", "faction", "house", "place", "artifact", "event"];
+const visibilityOptions = [
+  { value: "MASTER", label: "MASTER" },
+  { value: "PLAYERS", label: "PLAYERS" },
+];
+const directionalityOptions = [
+  { value: "DIRECTED", label: "DIRECTED" },
+  { value: "BIDIRECTIONAL", label: "BIDIRECTIONAL" },
+];
+const memoryTimeOptions: Array<{ value: "ALL" | "7D" | "30D" | "90D"; label: string }> = [
+  { value: "ALL", label: "Todo o periodo" },
+  { value: "7D", label: "Ultimos 7 dias" },
+  { value: "30D", label: "Ultimos 30 dias" },
+  { value: "90D", label: "Ultimos 90 dias" },
+];
+const entityFormSchema = z.object({
+  name: z.string().trim().min(2, "Nome precisa de pelo menos 2 caracteres"),
+  type: z.string().trim().min(1, "Tipo obrigatorio"),
+  campaignId: z.string().optional(),
+  subtype: z.string().optional(),
+  slug: z.string().optional(),
+  status: z.string().trim().min(1, "Status obrigatorio"),
+  visibility: z.enum(["MASTER", "PLAYERS"]),
+  summary: z.string().optional(),
+  description: z.string().optional(),
+  tags: z.string().optional(),
+  coverImageUrl: z.string().optional(),
+  portraitImageUrl: z.string().optional(),
+});
+const initialEntityForm = {
+  name: "",
+  type: "npc",
+  campaignId: "",
+  subtype: "",
+  slug: "",
+  status: "active",
+  visibility: "MASTER",
+  summary: "",
+  description: "",
+  tags: "",
+  coverImageUrl: "",
+  portraitImageUrl: "",
+};
 
 function getMemoryChangeTypeLabel(event: { meta?: Record<string, unknown> | null }) {
   const meta = event.meta && typeof event.meta === "object" ? event.meta : null;
@@ -129,6 +176,7 @@ function isInsideTimeWindow(value: string, window: "ALL" | "7D" | "30D" | "90D")
 export default function CodexEntityWorkspacePage() {
   const params = useParams();
   const router = useRouter();
+  const { confirmDestructive, notifyError, notifySuccess } = useAppFeedback();
   const worldId = params?.id as string;
   const entityId = params?.entityId as string;
 
@@ -136,7 +184,6 @@ export default function CodexEntityWorkspacePage() {
   const [codex, setCodex] = useState<CodexPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [relationSubmitting, setRelationSubmitting] = useState(false);
   const [imageSubmitting, setImageSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -168,19 +215,9 @@ export default function CodexEntityWorkspacePage() {
   });
   const [memoryCampaignFilter, setMemoryCampaignFilter] = useState("ALL");
   const [memoryTimeFilter, setMemoryTimeFilter] = useState<"ALL" | "7D" | "30D" | "90D">("ALL");
-  const [form, setForm] = useState({
-    name: "",
-    type: "npc",
-    campaignId: "",
-    subtype: "",
-    slug: "",
-    status: "active",
-    visibility: "MASTER",
-    summary: "",
-    description: "",
-    tags: "",
-    coverImageUrl: "",
-    portraitImageUrl: "",
+  const entityForm = useForm<typeof initialEntityForm>({
+    resolver: zodResolver(entityFormSchema),
+    defaultValues: initialEntityForm,
   });
 
   const loadWorkspace = useCallback(async () => {
@@ -200,7 +237,7 @@ export default function CodexEntityWorkspacePage() {
       const nextEntity = entityPayload.data as EntityDetail;
       setEntity(nextEntity);
       setCodex(codexPayload.data as CodexPayload);
-      setForm({
+      entityForm.reset({
         name: nextEntity.name ?? "",
         type: nextEntity.type ?? "npc",
         campaignId: nextEntity.campaignId ?? "",
@@ -219,39 +256,38 @@ export default function CodexEntityWorkspacePage() {
     } finally {
       setLoading(false);
     }
-  }, [entityId, worldId]);
+  }, [entityForm, entityId, worldId]);
 
   useEffect(() => {
     void loadWorkspace();
   }, [loadWorkspace]);
 
-  async function handleSaveEntity(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSaving(true);
+  async function handleSaveEntity(values: typeof initialEntityForm) {
+    entityForm.clearErrors("root");
     try {
       const res = await fetch(`/api/worlds/${worldId}/entities/${entityId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...form,
-          campaignId: form.campaignId || undefined,
-          slug: form.slug || undefined,
-          subtype: form.subtype || undefined,
-          summary: form.summary || undefined,
-          description: form.description || undefined,
-          coverImageUrl: form.coverImageUrl || undefined,
-          portraitImageUrl: form.portraitImageUrl || undefined,
-          tags: form.tags ? form.tags.split(",").map((item) => item.trim()).filter(Boolean) : [],
+          ...values,
+          campaignId: values.campaignId || undefined,
+          slug: values.slug || undefined,
+          subtype: values.subtype || undefined,
+          summary: values.summary || undefined,
+          description: values.description || undefined,
+          coverImageUrl: values.coverImageUrl || undefined,
+          portraitImageUrl: values.portraitImageUrl || undefined,
+          tags: values.tags ? values.tags.split(",").map((item) => item.trim()).filter(Boolean) : [],
         }),
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao salvar entidade");
-      toast.success("Entidade atualizada.");
+      notifySuccess("Entidade atualizada.");
       await loadWorkspace();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao salvar entidade");
-    } finally {
-      setSaving(false);
+      const message = err instanceof Error ? err.message : "Falha ao salvar entidade";
+      entityForm.setError("root", { type: "server", message });
+      notifyError(message);
     }
   }
 
@@ -274,11 +310,11 @@ export default function CodexEntityWorkspacePage() {
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao criar relacao");
-      toast.success("Relacao adicionada.");
+      notifySuccess("Relacao adicionada.");
       setRelationDraft({ toEntityId: "", type: "", directionality: "DIRECTED", weight: "", notes: "", visibility: "MASTER" });
       await loadWorkspace();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao criar relacao");
+      notifyError(err instanceof Error ? err.message : "Falha ao criar relacao");
     } finally {
       setRelationSubmitting(false);
     }
@@ -289,10 +325,10 @@ export default function CodexEntityWorkspacePage() {
       const res = await fetch(`/api/worlds/${worldId}/relationships/${relationshipId}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao remover relacao");
-      toast.success("Relacao removida.");
+      notifySuccess("Relacao removida.");
       await loadWorkspace();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao remover relacao");
+      notifyError(err instanceof Error ? err.message : "Falha ao remover relacao");
     }
   }
 
@@ -326,11 +362,11 @@ export default function CodexEntityWorkspacePage() {
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao atualizar relacao");
-      toast.success("Relacao atualizada.");
+      notifySuccess("Relacao atualizada.");
       setEditingRelationId(null);
       await loadWorkspace();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao atualizar relacao");
+      notifyError(err instanceof Error ? err.message : "Falha ao atualizar relacao");
     }
   }
 
@@ -350,11 +386,11 @@ export default function CodexEntityWorkspacePage() {
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao adicionar imagem");
-      toast.success("Imagem adicionada.");
+      notifySuccess("Imagem adicionada.");
       setImageDraft({ url: "", kind: "reference", caption: "", sortOrder: "0" });
       await loadWorkspace();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao adicionar imagem");
+      notifyError(err instanceof Error ? err.message : "Falha ao adicionar imagem");
     } finally {
       setImageSubmitting(false);
     }
@@ -365,10 +401,10 @@ export default function CodexEntityWorkspacePage() {
       const res = await fetch(`/api/worlds/${worldId}/entities/${entityId}/images/${imageId}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao remover imagem");
-      toast.success("Imagem removida.");
+      notifySuccess("Imagem removida.");
       await loadWorkspace();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao remover imagem");
+      notifyError(err instanceof Error ? err.message : "Falha ao remover imagem");
     }
   }
 
@@ -396,11 +432,11 @@ export default function CodexEntityWorkspacePage() {
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao atualizar imagem");
-      toast.success("Imagem atualizada.");
+      notifySuccess("Imagem atualizada.");
       setEditingImageId(null);
       await loadWorkspace();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao atualizar imagem");
+      notifyError(err instanceof Error ? err.message : "Falha ao atualizar imagem");
     }
   }
 
@@ -419,9 +455,9 @@ export default function CodexEntityWorkspacePage() {
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao enviar imagem");
       setImageDraft((prev) => ({ ...prev, url: payload.url || "" }));
-      toast.success("Upload concluido.");
+      notifySuccess("Upload concluido.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao enviar imagem");
+      notifyError(err instanceof Error ? err.message : "Falha ao enviar imagem");
     } finally {
       setUploadingImage(false);
       event.target.value = "";
@@ -429,16 +465,22 @@ export default function CodexEntityWorkspacePage() {
   }
 
   async function handleDeleteEntity() {
-    const confirmed = window.confirm("Tem certeza que deseja remover esta entidade do mundo?");
+    const confirmed = await confirmDestructive({
+      title: "Remover entidade do mundo?",
+      description: "Esta acao remove a entidade do codex atual.",
+      confirmText: "Remover",
+      cancelText: "Cancelar",
+      variant: "destructive",
+    });
     if (!confirmed) return;
     try {
       const res = await fetch(`/api/worlds/${worldId}/entities/${entityId}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao remover entidade");
-      toast.success("Entidade removida.");
+      notifySuccess("Entidade removida.");
       router.push(`/app/worlds/${worldId}/codex`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao remover entidade");
+      notifyError(err instanceof Error ? err.message : "Falha ao remover entidade");
     }
   }
 
@@ -530,29 +572,178 @@ export default function CodexEntityWorkspacePage() {
           <Card className="rounded-[28px] border-white/10 bg-card/70">
             <CardHeader><CardTitle className="text-xl font-black uppercase tracking-[0.04em]">Overview e edicao</CardTitle></CardHeader>
             <CardContent>
-              <form className="space-y-4" onSubmit={handleSaveEntity}>
-                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Nome</label><Input value={form.name} onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))} /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Tipo</label><select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={form.type} onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}>{typeOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></div>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Campanha</label><select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={form.campaignId} onChange={(event) => setForm((prev) => ({ ...prev, campaignId: event.target.value }))}><option value="">Sem campanha</option>{(codex?.world.campaigns ?? []).map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}</select></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Subtipo</label><Input value={form.subtype} onChange={(event) => setForm((prev) => ({ ...prev, subtype: event.target.value }))} /></div>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Slug</label><Input value={form.slug} onChange={(event) => setForm((prev) => ({ ...prev, slug: event.target.value }))} /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Status</label><Input value={form.status} onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))} /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Visibilidade</label><select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={form.visibility} onChange={(event) => setForm((prev) => ({ ...prev, visibility: event.target.value }))}><option value="MASTER">MASTER</option><option value="PLAYERS">PLAYERS</option></select></div>
-                </div>
-                <div className="space-y-2"><label className="text-sm font-medium text-foreground">Resumo</label><Input value={form.summary} onChange={(event) => setForm((prev) => ({ ...prev, summary: event.target.value }))} /></div>
-                <div className="space-y-2"><label className="text-sm font-medium text-foreground">Descricao</label><Textarea rows={6} value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} /></div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Retrato</label><Input value={form.portraitImageUrl} onChange={(event) => setForm((prev) => ({ ...prev, portraitImageUrl: event.target.value }))} /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Capa</label><Input value={form.coverImageUrl} onChange={(event) => setForm((prev) => ({ ...prev, coverImageUrl: event.target.value }))} /></div>
-                </div>
-                <div className="space-y-2"><label className="text-sm font-medium text-foreground">Tags</label><Input value={form.tags} onChange={(event) => setForm((prev) => ({ ...prev, tags: event.target.value }))} /></div>
-                <Button type="submit" disabled={saving}><Save className="mr-2 h-4 w-4" />{saving ? "Salvando..." : "Salvar entidade"}</Button>
-              </form>
+              <Form {...entityForm}>
+                <form className="space-y-4" onSubmit={entityForm.handleSubmit(handleSaveEntity)}>
+                  <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
+                    <FormField
+                      control={entityForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nome</FormLabel>
+                          <FormControl>
+                            <Input value={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={entityForm.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tipo</FormLabel>
+                          <FormControl>
+                            <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={field.value} onValueChange={field.onChange} options={typeOptions.map((option) => ({ value: option, label: option }))} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={entityForm.control}
+                      name="campaignId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Campanha</FormLabel>
+                          <FormControl>
+                            <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={field.value ?? ""} onValueChange={field.onChange} placeholder="Sem campanha" options={(codex?.world.campaigns ?? []).map((campaign) => ({ value: campaign.id, label: campaign.name }))} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={entityForm.control}
+                      name="subtype"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Subtipo</FormLabel>
+                          <FormControl>
+                            <Input value={field.value ?? ""} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <FormField
+                      control={entityForm.control}
+                      name="slug"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Slug</FormLabel>
+                          <FormControl>
+                            <Input value={field.value ?? ""} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={entityForm.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Status</FormLabel>
+                          <FormControl>
+                            <Input value={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={entityForm.control}
+                      name="visibility"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Visibilidade</FormLabel>
+                          <FormControl>
+                            <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={field.value} onValueChange={field.onChange} options={visibilityOptions} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={entityForm.control}
+                    name="summary"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Resumo</FormLabel>
+                        <FormControl>
+                          <Input value={field.value ?? ""} onChange={field.onChange} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={entityForm.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Descricao</FormLabel>
+                        <FormControl>
+                          <Textarea rows={6} value={field.value ?? ""} onChange={field.onChange} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={entityForm.control}
+                      name="portraitImageUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Retrato</FormLabel>
+                          <FormControl>
+                            <Input value={field.value ?? ""} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={entityForm.control}
+                      name="coverImageUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Capa</FormLabel>
+                          <FormControl>
+                            <Input value={field.value ?? ""} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={entityForm.control}
+                    name="tags"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tags</FormLabel>
+                        <FormControl>
+                          <Input value={field.value ?? ""} onChange={field.onChange} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {entityForm.formState.errors.root?.message ? (
+                    <p className="text-sm text-destructive">{entityForm.formState.errors.root.message}</p>
+                  ) : null}
+                  <Button type="submit" disabled={entityForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4" />{entityForm.formState.isSubmitting ? "Salvando..." : "Salvar entidade"}</Button>
+                </form>
+              </Form>
             </CardContent>
           </Card>
 
@@ -564,9 +755,7 @@ export default function CodexEntityWorkspacePage() {
                   <div className="space-y-2"><label className="text-sm font-medium text-foreground">URL da imagem</label><Input value={imageDraft.url} onChange={(event) => setImageDraft((prev) => ({ ...prev, url: event.target.value }))} /></div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">Papel visual</label>
-                    <select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={imageDraft.kind} onChange={(event) => setImageDraft((prev) => ({ ...prev, kind: event.target.value }))}>
-                      {VISUAL_KIND_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                    </select>
+                    <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={imageDraft.kind} onValueChange={(value) => setImageDraft((prev) => ({ ...prev, kind: value }))} options={VISUAL_KIND_OPTIONS.map((option) => ({ value: option.value, label: option.label }))} />
                   </div>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
@@ -600,9 +789,7 @@ export default function CodexEntityWorkspacePage() {
                           <div className="space-y-3 rounded-2xl border border-white/8 bg-black/20 p-3">
                             <Input value={imageEditDraft.url} onChange={(event) => setImageEditDraft((prev) => ({ ...prev, url: event.target.value }))} />
                             <div className="grid gap-3 sm:grid-cols-2">
-                              <select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={imageEditDraft.kind} onChange={(event) => setImageEditDraft((prev) => ({ ...prev, kind: event.target.value }))}>
-                                {VISUAL_KIND_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                              </select>
+                              <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={imageEditDraft.kind} onValueChange={(value) => setImageEditDraft((prev) => ({ ...prev, kind: value }))} options={VISUAL_KIND_OPTIONS.map((option) => ({ value: option.value, label: option.label }))} />
                               <Input value={imageEditDraft.sortOrder} onChange={(event) => setImageEditDraft((prev) => ({ ...prev, sortOrder: event.target.value }))} />
                             </div>
                             <Input value={imageEditDraft.caption} onChange={(event) => setImageEditDraft((prev) => ({ ...prev, caption: event.target.value }))} />
@@ -626,14 +813,14 @@ export default function CodexEntityWorkspacePage() {
             <CardHeader><CardTitle className="text-xl font-black uppercase tracking-[0.04em]">Relacoes</CardTitle></CardHeader>
             <CardContent className="space-y-5">
               <form className="space-y-4 rounded-[24px] border border-white/8 bg-white/4 p-4" onSubmit={handleCreateRelationship}>
-                <div className="space-y-2"><label className="text-sm font-medium text-foreground">Conectar com</label><select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={relationDraft.toEntityId} onChange={(event) => setRelationDraft((prev) => ({ ...prev, toEntityId: event.target.value }))}><option value="">Selecionar entidade</option>{relatedOptions.map((option) => <option key={option.id} value={option.id}>{option.name} ({option.type})</option>)}</select></div>
+                <div className="space-y-2"><label className="text-sm font-medium text-foreground">Conectar com</label><SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationDraft.toEntityId} onValueChange={(value) => setRelationDraft((prev) => ({ ...prev, toEntityId: value }))} placeholder="Selecionar entidade" options={relatedOptions.map((option) => ({ value: option.id, label: `${option.name} (${option.type})` }))} /></div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2"><label className="text-sm font-medium text-foreground">Tipo de relacao</label><Input value={relationDraft.type} onChange={(event) => setRelationDraft((prev) => ({ ...prev, type: event.target.value }))} placeholder="aliado, odeia, irmao..." /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Direcionalidade</label><select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={relationDraft.directionality} onChange={(event) => setRelationDraft((prev) => ({ ...prev, directionality: event.target.value }))}><option value="DIRECTED">DIRECTED</option><option value="BIDIRECTIONAL">BIDIRECTIONAL</option></select></div>
+                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Direcionalidade</label><SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationDraft.directionality} onValueChange={(value) => setRelationDraft((prev) => ({ ...prev, directionality: value }))} options={directionalityOptions} /></div>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-[120px_minmax(0,1fr)]">
                   <div className="space-y-2"><label className="text-sm font-medium text-foreground">Peso</label><Input value={relationDraft.weight} onChange={(event) => setRelationDraft((prev) => ({ ...prev, weight: event.target.value }))} /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Visibilidade</label><select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={relationDraft.visibility} onChange={(event) => setRelationDraft((prev) => ({ ...prev, visibility: event.target.value }))}><option value="MASTER">MASTER</option><option value="PLAYERS">PLAYERS</option></select></div>
+                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Visibilidade</label><SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationDraft.visibility} onValueChange={(value) => setRelationDraft((prev) => ({ ...prev, visibility: value }))} options={visibilityOptions} /></div>
                 </div>
                 <div className="space-y-2"><label className="text-sm font-medium text-foreground">Notas</label><Textarea rows={3} value={relationDraft.notes} onChange={(event) => setRelationDraft((prev) => ({ ...prev, notes: event.target.value }))} /></div>
                 <Button type="submit" disabled={relationSubmitting}><Link2 className="mr-2 h-4 w-4" />{relationSubmitting ? "Conectando..." : "Criar relacao"}</Button>
@@ -659,26 +846,16 @@ export default function CodexEntityWorkspacePage() {
                     {editingRelationId === relation.id ? (
                       <div className="mt-4 space-y-3 rounded-2xl border border-white/8 bg-black/20 p-3">
                         <div className="grid gap-3 sm:grid-cols-2">
-                          <select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={relationEditDraft.fromEntityId} onChange={(event) => setRelationEditDraft((prev) => ({ ...prev, fromEntityId: event.target.value }))}>
-                            {codex?.entities.map((option) => <option key={option.id} value={option.id}>{option.name} ({option.type})</option>)}
-                          </select>
-                          <select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={relationEditDraft.toEntityId} onChange={(event) => setRelationEditDraft((prev) => ({ ...prev, toEntityId: event.target.value }))}>
-                            {codex?.entities.map((option) => <option key={option.id} value={option.id}>{option.name} ({option.type})</option>)}
-                          </select>
+                          <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationEditDraft.fromEntityId} onValueChange={(value) => setRelationEditDraft((prev) => ({ ...prev, fromEntityId: value }))} options={(codex?.entities ?? []).map((option) => ({ value: option.id, label: `${option.name} (${option.type})` }))} />
+                          <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationEditDraft.toEntityId} onValueChange={(value) => setRelationEditDraft((prev) => ({ ...prev, toEntityId: value }))} options={(codex?.entities ?? []).map((option) => ({ value: option.id, label: `${option.name} (${option.type})` }))} />
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2">
                           <Input value={relationEditDraft.type} onChange={(event) => setRelationEditDraft((prev) => ({ ...prev, type: event.target.value }))} />
-                          <select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={relationEditDraft.directionality} onChange={(event) => setRelationEditDraft((prev) => ({ ...prev, directionality: event.target.value }))}>
-                            <option value="DIRECTED">DIRECTED</option>
-                            <option value="BIDIRECTIONAL">BIDIRECTIONAL</option>
-                          </select>
+                          <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationEditDraft.directionality} onValueChange={(value) => setRelationEditDraft((prev) => ({ ...prev, directionality: value }))} options={directionalityOptions} />
                         </div>
                         <div className="grid gap-3 sm:grid-cols-[120px_minmax(0,1fr)]">
                           <Input value={relationEditDraft.weight} onChange={(event) => setRelationEditDraft((prev) => ({ ...prev, weight: event.target.value }))} placeholder="peso" />
-                          <select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={relationEditDraft.visibility} onChange={(event) => setRelationEditDraft((prev) => ({ ...prev, visibility: event.target.value }))}>
-                            <option value="MASTER">MASTER</option>
-                            <option value="PLAYERS">PLAYERS</option>
-                          </select>
+                          <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationEditDraft.visibility} onValueChange={(value) => setRelationEditDraft((prev) => ({ ...prev, visibility: value }))} options={visibilityOptions} />
                         </div>
                         <Textarea rows={3} value={relationEditDraft.notes} onChange={(event) => setRelationEditDraft((prev) => ({ ...prev, notes: event.target.value }))} />
                         <div className="flex gap-2">
@@ -699,30 +876,8 @@ export default function CodexEntityWorkspacePage() {
               {memoryTimeline.length ? (
                 <div className="rounded-2xl border border-white/10 bg-white/4 p-3">
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <select
-                      className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
-                      value={memoryCampaignFilter}
-                      onChange={(event) => setMemoryCampaignFilter(event.target.value)}
-                    >
-                      <option value="ALL">Todas as campanhas</option>
-                      {(codex?.world.campaigns ?? []).map((campaign) => (
-                        <option key={campaign.id} value={campaign.id}>
-                          {campaign.name}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
-                      value={memoryTimeFilter}
-                      onChange={(event) =>
-                        setMemoryTimeFilter(event.target.value as "ALL" | "7D" | "30D" | "90D")
-                      }
-                    >
-                      <option value="ALL">Todo o periodo</option>
-                      <option value="7D">Ultimos 7 dias</option>
-                      <option value="30D">Ultimos 30 dias</option>
-                      <option value="90D">Ultimos 90 dias</option>
-                    </select>
+                    <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={memoryCampaignFilter} onValueChange={setMemoryCampaignFilter} options={(codex?.world.campaigns ?? []).map((campaign) => ({ value: campaign.id, label: campaign.name }))} placeholder="Todas as campanhas" />
+                    <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={memoryTimeFilter} onValueChange={(value) => setMemoryTimeFilter(value as "ALL" | "7D" | "30D" | "90D")} options={memoryTimeOptions} />
                   </div>
                   <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                     {filteredMemoryTimeline.length} eventos no recorte atual

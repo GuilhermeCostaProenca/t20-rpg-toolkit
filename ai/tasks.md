@@ -10,6 +10,15 @@
 - [ ] [TRIAL] Executar trial Jarvez + criacao de mundo do zero e converter gaps em backlog priorizado.
 
 ## Em Execucao
+- [ ] [A1-FRONT-FOUNDATION] Fase 1+2 do rebuild de front: feedback global, primitives de DS, formularios padrao (RHF+Zod) e limpeza de `alert/confirm/select` legacy.
+- [x] [A1-FRONT-FOUNDATION-R2] Eliminar `<select>` ad hoc de `src/app` e `src/components` e consolidar `SelectField` como padrao unico de selecao no front.
+- [x] [A1-FRONT-FOUNDATION-R3] Remover uso direto de `sonner` em `src/app` e `src/components`, mantendo contrato unico via `useAppFeedback`.
+- [x] [A1-FRONT-FOUNDATION-R4] Migrar formularios de criacao centrais (`/app/worlds` e `/app/worlds/[id]`) para RHF+Zod com `FormField`/`FormMessage`.
+- [x] [A1-FRONT-FOUNDATION-R5] Remover uso residual de `toast` legado em `worlds/[id]/npcs` e consolidar feedback no provider global.
+- [x] [A1-FRONT-FOUNDATION-R6] Migrar dialogs de `campaign/[id]` (personagem, sessao, NPC) para RHF+Zod com `FormField/FormMessage` e estados unificados de submit/erro.
+- [x] [A1-FRONT-FOUNDATION-R7] Migrar formularios de criacao world-scoped (`diary`, `npcs`, `locations`, `compendium`) para RHF+Zod mantendo payloads existentes.
+- [x] [A1-FRONT-FOUNDATION-R8] Migrar formulario de criacao de entidade em `worlds/[id]/codex` para RHF+Zod e remover estado local ad hoc.
+- [x] [A1-FRONT-FOUNDATION-R9] Migrar formulario de edicao principal em `worlds/[id]/codex/[entityId]` para RHF+Zod (overview da entidade).
 - [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional (`docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`).
 - [ ] [DOCS] Sincronizar status executivo entre `ai/current_state.md` e `docs/00-strategy/attack-index.md` nos proximos recortes.
 - [ ] [A1-LP3] Traduzir benchmark funcional completo do `vvd.world` em backlog priorizado de UX world-first para shell/codex/grafo sem quebrar ordem oficial das frentes.

@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { AppFeedbackProvider } from "@/components/app-feedback-provider";
 import { cn } from "@/lib/utils";
 
 import "./globals.css";
@@ -35,7 +36,7 @@ export default function RootLayout({
           geistMono.variable
         )}
       >
-        {children}
+        <AppFeedbackProvider>{children}</AppFeedbackProvider>
       </body>
     </html>
   );

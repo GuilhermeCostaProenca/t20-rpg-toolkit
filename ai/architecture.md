@@ -38,3 +38,17 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 ## Divida Tecnica Relevante
 - `play/[campaignId]` ainda concentra complexidade elevada apesar de recortes de extracao - impacto: alto, plano: continuar fatiamento modular com testes direcionados.
 - Inconsistencias pontuais de documentacao (caminhos antigos e notas extensas) - impacto: medio, plano: rodada de saneamento DOCS dedicada.
+
+## Atualizacao 2026-04-01 - Front Foundation
+- Novo provider transversal de UX: `AppFeedbackProvider` no layout raiz (`src/app/layout.tsx`) para unificar feedback e confirmacao destrutiva.
+- Novo bloco de primitives em `src/components/ui`:
+  - `select.tsx` (padrao unico de select),
+  - `panel.tsx` (superficies),
+  - `states.tsx` (loading/error/empty),
+  - `form.tsx` (wrappers RHF).
+- Recomendacao de composicao aplicada em `ui/layout.tsx` para reduzir classes ad hoc de container.
+
+## Atualizacao 2026-04-01 - Front Foundation (R2/R3)
+- `SelectField` foi consolidado como camada de selecao transversal para modulos de operacao (`graph`, `codex entity`, `combat`, `quick-sheet`, `character wizard`, `character sheet`, `visual browser`).
+- `src/components/visual/visual-library-filters.tsx` foi introduzido para manter filtros de querystring em pagina server-side com primitives do DS (sem `<select>` nativo).
+- Contrato de feedback unificado (`useAppFeedback`) passou a cobrir os modulos de visual/graph/codex; uso direto de `toast` foi removido de `src/app` e `src/components`.

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { FileText, Image as ImageIcon, MapPin, Search, Sparkles } from "lucide-react";
 
@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useAppFeedback } from "@/components/app-feedback-provider";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 type Campaign = {
   id: string;
@@ -31,6 +36,14 @@ type LocationDoc = {
   filePath: string;
   createdAt: string;
   type: string;
+};
+const createLocationFormSchema = z.object({
+  title: z.string().trim().min(2, "Nome do local precisa de pelo menos 2 caracteres"),
+  content: z.string().optional(),
+});
+const initialCreateLocationForm = {
+  title: "",
+  content: "",
 };
 
 function isImage(path: string) {
@@ -54,10 +67,13 @@ export default function WorldLocationsPage() {
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState("text");
+  const createForm = useForm<typeof initialCreateLocationForm>({
+    resolver: zodResolver(createLocationFormSchema),
+    defaultValues: initialCreateLocationForm,
+  });
+  const { notifyError, notifySuccess } = useAppFeedback();
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -83,19 +99,24 @@ export default function WorldLocationsPage() {
     if (worldId) void loadData();
   }, [loadData, worldId]);
 
-  async function handleCreate(event: FormEvent) {
-    event.preventDefault();
+  async function handleCreate(values: typeof initialCreateLocationForm) {
+    createForm.clearErrors("root");
     try {
       const formData = new FormData();
       formData.append("worldId", worldId);
-      formData.append("title", title);
+      formData.append("title", values.title);
       formData.append("type", "LOCATION");
 
       if (activeTab === "text") {
-        formData.append("content", content);
+        if (!values.content?.trim()) {
+          createForm.setError("content", { type: "manual", message: "Informe um conteudo para descricao" });
+          return;
+        }
+        formData.append("content", values.content);
       } else if (file) {
         formData.append("file", file);
       } else {
+        createForm.setError("root", { type: "manual", message: "Selecione um arquivo para upload" });
         return;
       }
 
@@ -106,12 +127,20 @@ export default function WorldLocationsPage() {
       if (!response.ok) throw new Error("Erro ao criar local");
 
       setCreateOpen(false);
-      setTitle("");
-      setContent("");
+      createForm.reset(initialCreateLocationForm);
       setFile(null);
+      notifySuccess("Local salvo.");
       await loadData();
     } catch (error) {
-      alert("Falha ao salvar local");
+      createForm.setError("root", {
+        type: "server",
+        message: error instanceof Error ? error.message : "Erro inesperado ao salvar local",
+      });
+      notifyError(
+        "Falha ao salvar local",
+        error instanceof Error ? error.message : "Erro inesperado ao salvar local",
+        true
+      );
       console.error(error);
     }
   }
@@ -145,7 +174,13 @@ export default function WorldLocationsPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <Dialog
+                open={createOpen}
+                onOpenChange={(open) => {
+                  setCreateOpen(open);
+                  if (!open) createForm.clearErrors("root");
+                }}
+              >
                 <DialogTrigger asChild>
                   <Button>
                     <Sparkles className="mr-2 h-4 w-4" />
@@ -161,32 +196,55 @@ export default function WorldLocationsPage() {
                       <TabsTrigger value="text">Descricao</TabsTrigger>
                       <TabsTrigger value="file">Arquivo ou mapa</TabsTrigger>
                     </TabsList>
-                    <form onSubmit={handleCreate} className="space-y-4 pt-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Nome do local</label>
-                        <Input required value={title} onChange={(event) => setTitle(event.target.value)} />
-                      </div>
-                      <TabsContent value="text" className="space-y-2">
-                        <label className="text-sm font-medium">Conteudo</label>
-                        <Textarea
-                          required={activeTab === "text"}
-                          className="min-h-[160px]"
-                          value={content}
-                          onChange={(event) => setContent(event.target.value)}
+                    <Form {...createForm}>
+                      <form onSubmit={createForm.handleSubmit(handleCreate)} className="space-y-4 pt-4">
+                        <FormField
+                          control={createForm.control}
+                          name="title"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nome do local</FormLabel>
+                              <FormControl>
+                                <Input value={field.value} onChange={field.onChange} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </TabsContent>
-                      <TabsContent value="file" className="space-y-2">
-                        <label className="text-sm font-medium">Imagem ou PDF</label>
-                        <Input
-                          type="file"
-                          required={activeTab === "file"}
-                          onChange={(event) => setFile(event.target.files?.[0] || null)}
-                        />
-                      </TabsContent>
-                      <Button type="submit" className="w-full">
-                        Salvar local
-                      </Button>
-                    </form>
+                        <TabsContent value="text" className="space-y-2">
+                          <FormField
+                            control={createForm.control}
+                            name="content"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Conteudo</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    className="min-h-[160px]"
+                                    value={field.value ?? ""}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TabsContent>
+                        <TabsContent value="file" className="space-y-2">
+                          <label className="text-sm font-medium">Imagem ou PDF</label>
+                          <Input
+                            type="file"
+                            onChange={(event) => setFile(event.target.files?.[0] || null)}
+                          />
+                        </TabsContent>
+                        {createForm.formState.errors.root?.message ? (
+                          <p className="text-sm text-destructive">{createForm.formState.errors.root.message}</p>
+                        ) : null}
+                        <Button type="submit" className="w-full" disabled={createForm.formState.isSubmitting}>
+                          {createForm.formState.isSubmitting ? "Salvando..." : "Salvar local"}
+                        </Button>
+                      </form>
+                    </Form>
                   </Tabs>
                 </DialogContent>
               </Dialog>

@@ -1,13 +1,15 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Plus, Search, Skull, Shield, Heart } from "lucide-react";
 import { RevealButton } from "@/components/reveal-button";
 
 import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import {
     Dialog,
     DialogContent,
@@ -19,7 +21,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
+import { useAppFeedback } from "@/components/app-feedback-provider";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 type CodexEntity = {
     id: string;
@@ -42,6 +47,26 @@ type NpcItem = {
     campaign?: { id: string; name: string } | null;
 };
 
+const createNpcFormSchema = z.object({
+    name: z.string().trim().min(2, "Nome precisa de pelo menos 2 caracteres"),
+    campaignId: z.string().optional(),
+    hpMax: z.coerce.number().int().min(1, "PV maximo deve ser >= 1"),
+    defenseFinal: z.coerce.number().int().min(0, "Defesa deve ser >= 0"),
+    description: z.string().optional(),
+    tags: z.string().optional(),
+    type: z.enum(["npc", "enemy"]),
+});
+
+const initialNpcForm = {
+    name: "",
+    campaignId: "",
+    hpMax: 10,
+    defenseFinal: 10,
+    description: "",
+    tags: "",
+    type: "npc" as "npc" | "enemy",
+};
+
 export default function WorldNpcsPage() {
     const params = useParams();
     const router = useRouter();
@@ -53,16 +78,10 @@ export default function WorldNpcsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [createOpen, setCreateOpen] = useState(false);
     const [syncingNpcId, setSyncingNpcId] = useState<string | null>(null);
-
-    // Form State
-    const [formData, setFormData] = useState({
-        name: "",
-        campaignId: "",
-        hpMax: 10,
-        defenseFinal: 10,
-        description: "",
-        tags: "",
-        type: "npc" // or enemy
+    const { notifyError, notifySuccess } = useAppFeedback();
+    const createForm = useForm<typeof initialNpcForm>({
+        resolver: zodResolver(createNpcFormSchema),
+        defaultValues: initialNpcForm,
     });
 
     const loadData = useCallback(async () => {
@@ -84,41 +103,47 @@ export default function WorldNpcsPage() {
             setCampaigns(worldData.data?.campaigns || []);
             setCodexEntities(codexData.data?.entities || []);
 
-            // Default campaign selection
-            if (worldData.data?.campaigns?.length > 0) {
-                setFormData(prev => ({ ...prev, campaignId: worldData.data.campaigns[0].id }));
+            const firstCampaignId = worldData.data?.campaigns?.[0]?.id as string | undefined;
+            if (firstCampaignId && !createForm.getValues("campaignId")) {
+                createForm.setValue("campaignId", firstCampaignId);
             }
         } catch (e) {
             console.error(e);
         } finally {
             setLoading(false);
         }
-    }, [worldId]);
+    }, [createForm, worldId]);
 
     useEffect(() => {
         void loadData();
     }, [loadData]);
 
-    async function handleCreate(e: FormEvent) {
-        e.preventDefault();
+    async function handleCreate(values: typeof initialNpcForm) {
+        createForm.clearErrors("root");
         try {
             const res = await fetch("/api/npcs", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    ...formData,
-                    hpMax: Number(formData.hpMax),
-                    defenseFinal: Number(formData.defenseFinal),
+                    ...values,
+                    hpMax: Number(values.hpMax),
+                    defenseFinal: Number(values.defenseFinal),
                     worldId
                 })
             });
             if (!res.ok) throw new Error("Erro ao criar NPC");
 
+            const selectedCampaignId = createForm.getValues("campaignId");
             setCreateOpen(false);
-            setFormData({ ...formData, name: "", description: "", tags: "" });
-            loadData();
+            createForm.reset({ ...initialNpcForm, campaignId: selectedCampaignId ?? "" });
+            notifySuccess("NPC criado.");
+            await loadData();
         } catch {
-            alert("Falha ao criar NPC");
+            createForm.setError("root", {
+                type: "server",
+                message: "Verifique os dados informados e tente novamente.",
+            });
+            notifyError("Falha ao criar NPC", "Verifique os dados informados e tente novamente.", true);
         }
     }
 
@@ -159,17 +184,21 @@ export default function WorldNpcsPage() {
             });
             const payload = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(payload.error || "Falha ao criar entidade no Codex");
-            toast.success("NPC espelhado no Codex.");
+            notifySuccess("NPC espelhado no Codex.");
             await loadData();
             if (payload.data?.id) router.push(`/app/worlds/${worldId}/codex/${payload.data.id}`);
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Falha ao espelhar NPC no Codex");
+            notifyError(
+                "Falha ao espelhar NPC no Codex",
+                error instanceof Error ? error.message : "Erro inesperado ao espelhar NPC",
+                true
+            );
         } finally {
             setSyncingNpcId(null);
         }
     }
 
-    const filteredNpcs = npcs.filter(n =>
+    const filteredNpcs = npcs.filter((n) =>
         n.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         n.tags?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -178,7 +207,7 @@ export default function WorldNpcsPage() {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Bestiário & NPCs</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">Bestiario & NPCs</h1>
                     <p className="text-muted-foreground">Gerencie criaturas e personagens do mestre.</p>
                 </div>
                 <div className="flex gap-2">
@@ -188,10 +217,16 @@ export default function WorldNpcsPage() {
                             placeholder="Buscar por nome ou tag..."
                             className="pl-8 bg-black/20 border-white/10"
                             value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+                    <Dialog
+                        open={createOpen}
+                        onOpenChange={(open) => {
+                            setCreateOpen(open);
+                            if (!open) createForm.clearErrors("root");
+                        }}
+                    >
                         <DialogTrigger asChild>
                             <Button>
                                 <Plus className="mr-2 h-4 w-4" /> Novo NPC
@@ -201,65 +236,119 @@ export default function WorldNpcsPage() {
                             <DialogHeader>
                                 <DialogTitle>Criar Novo NPC</DialogTitle>
                             </DialogHeader>
-                            <form onSubmit={handleCreate} className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Nome</label>
-                                    <Input
-                                        required
-                                        value={formData.name}
-                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                            <Form {...createForm}>
+                                <form onSubmit={createForm.handleSubmit(handleCreate)} className="space-y-4">
+                                    <FormField
+                                        control={createForm.control}
+                                        name="name"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Nome</FormLabel>
+                                                <FormControl>
+                                                    <Input value={field.value} onChange={field.onChange} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">PV Máximo</label>
-                                        <Input
-                                            type="number"
-                                            required
-                                            value={formData.hpMax}
-                                            onChange={e => setFormData({ ...formData, hpMax: Number(e.target.value) })}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <FormField
+                                            control={createForm.control}
+                                            name="hpMax"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>PV Maximo</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            type="number"
+                                                            value={field.value}
+                                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={createForm.control}
+                                            name="defenseFinal"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Defesa</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            type="number"
+                                                            value={field.value}
+                                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">Defesa</label>
-                                        <Input
-                                            type="number"
-                                            required
-                                            value={formData.defenseFinal}
-                                            onChange={e => setFormData({ ...formData, defenseFinal: Number(e.target.value) })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Campanha</label>
-                                    <select
-                                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 bg-black/40"
-                                        value={formData.campaignId}
-                                        onChange={(e) => setFormData({ ...formData, campaignId: e.target.value })}
-                                    >
-                                        <option value="" disabled>Selecione...</option>
-                                        {campaigns.map((c) => (
-                                            <option key={c.id} value={c.id} className="bg-zinc-900">{c.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Tags (separadas por vírgula)</label>
-                                    <Input
-                                        placeholder="Goblin, Humano, Chefe..."
-                                        value={formData.tags}
-                                        onChange={e => setFormData({ ...formData, tags: e.target.value })}
+                                    <FormField
+                                        control={createForm.control}
+                                        name="campaignId"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Campanha</FormLabel>
+                                                <FormControl>
+                                                    <SelectField
+                                                        className="bg-black/40"
+                                                        value={field.value || "UNSELECTED"}
+                                                        onValueChange={(value) => field.onChange(value === "UNSELECTED" ? "" : value)}
+                                                        options={[
+                                                            { value: "UNSELECTED", label: "Selecione..." },
+                                                            ...campaigns.map((campaign) => ({
+                                                                value: campaign.id,
+                                                                label: campaign.name,
+                                                            })),
+                                                        ]}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Descrição</label>
-                                    <Textarea
-                                        value={formData.description}
-                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                    <FormField
+                                        control={createForm.control}
+                                        name="tags"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Tags (separadas por virgula)</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="Goblin, Humano, Chefe..."
+                                                        value={field.value ?? ""}
+                                                        onChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </div>
-                                <Button type="submit" className="w-full">Criar Besta</Button>
-                            </form>
+                                    <FormField
+                                        control={createForm.control}
+                                        name="description"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Descricao</FormLabel>
+                                                <FormControl>
+                                                    <Textarea value={field.value ?? ""} onChange={field.onChange} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    {createForm.formState.errors.root?.message ? (
+                                        <p className="text-sm text-destructive">{createForm.formState.errors.root.message}</p>
+                                    ) : null}
+                                    <Button type="submit" className="w-full" disabled={createForm.formState.isSubmitting}>
+                                        {createForm.formState.isSubmitting ? "Criando..." : "Criar Besta"}
+                                    </Button>
+                                </form>
+                            </Form>
                         </DialogContent>
                     </Dialog>
                 </div>
@@ -267,15 +356,15 @@ export default function WorldNpcsPage() {
 
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-40 w-full" />)}
+                    {[1, 2, 3].map((i) => <Skeleton key={i} className="h-40 w-full" />)}
                 </div>
             ) : filteredNpcs.length === 0 ? (
                 <div className="text-center py-20 opacity-50 border border-dashed border-white/10 rounded-xl">
-                    Nada encontrado. O mundo está seguro... por enquanto.
+                    Nada encontrado. O mundo esta seguro... por enquanto.
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {filteredNpcs.map(npc => {
+                    {filteredNpcs.map((npc) => {
                         const codexEntity = matchNpcEntity(npc);
                         return (
                         <Card key={npc.id} className="bg-white/5 border-white/10 hover:border-primary/30 transition-colors group">
@@ -296,7 +385,7 @@ export default function WorldNpcsPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="text-xs text-muted-foreground mb-4 line-clamp-2 min-h-[2.5em]">
-                                    {npc.description || "Sem descrição."}
+                                    {npc.description || "Sem descricao."}
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
                                     <div className="flex items-center gap-1 text-green-400">
@@ -329,7 +418,7 @@ export default function WorldNpcsPage() {
                                 )}
                             </CardFooter>
                         </Card>
-                    )})}
+                    );})}
                 </div>
             )}
         </div>

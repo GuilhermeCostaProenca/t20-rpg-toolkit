@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { ArrowRight, Filter, Network, Pencil, RefreshCw, Save, ScanSearch, Trash2 } from "lucide-react";
 
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 import { EmptyState } from "@/components/empty-state";
 import { ModeSwitcher } from "@/components/world/mode-switcher";
@@ -16,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 
 type Campaign = { id: string; name: string };
 type GraphPayload = {
@@ -116,9 +118,37 @@ function formatDate(value: string) {
   });
 }
 
+const entityTypeOptions = [
+  { value: "character", label: "character" },
+  { value: "npc", label: "npc" },
+  { value: "faction", label: "faction" },
+  { value: "house", label: "house" },
+  { value: "place", label: "place" },
+  { value: "artifact", label: "artifact" },
+  { value: "event", label: "event" },
+];
+
+const statusFilterOptions = [
+  { value: "alive", label: "alive" },
+  { value: "dead", label: "dead" },
+  { value: "missing", label: "missing" },
+  { value: "retired", label: "retired" },
+];
+
+const directionalityOptions = [
+  { value: "DIRECTED", label: "Direcional" },
+  { value: "UNDIRECTED", label: "Bidirecional" },
+];
+
+const visibilityOptions = [
+  { value: "MASTER", label: "MASTER" },
+  { value: "PLAYERS", label: "PLAYERS" },
+];
+
 export default function WorldGraphPage() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const { confirmDestructive, notifyError, notifySuccess } = useAppFeedback();
   const worldId = params?.id as string;
   const initialFocusId = searchParams.get("focusEntityId");
 
@@ -326,7 +356,7 @@ export default function WorldGraphPage() {
       await Promise.all([loadGraph(), loadInspectEntity(inspectEntity.id)]);
     } catch (err) {
       console.error(err);
-      setError(err instanceof Error ? err.message : "Falha ao criar relacao");
+      notifyError(err instanceof Error ? err.message : "Falha ao criar relacao");
     } finally {
       setRelationshipSubmitting(false);
     }
@@ -371,18 +401,28 @@ export default function WorldGraphPage() {
       const response = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(response.error ?? "Falha ao atualizar relacao");
       setEditingRelationshipId(null);
+      notifySuccess("Relacao atualizada.");
       if (inspectEntity?.id) {
         await Promise.all([loadGraph(), loadInspectEntity(inspectEntity.id)]);
       }
     } catch (err) {
       console.error(err);
-      setError(err instanceof Error ? err.message : "Falha ao atualizar relacao");
+      notifyError(err instanceof Error ? err.message : "Falha ao atualizar relacao");
     } finally {
       setRelationshipSubmitting(false);
     }
   }
 
   async function handleDeleteRelationship(relationshipId: string) {
+    const confirmed = await confirmDestructive({
+      title: "Remover relacao do grafo?",
+      description: "Esta acao remove o vinculo entre entidades no mundo atual.",
+      confirmText: "Remover",
+      cancelText: "Cancelar",
+      variant: "destructive",
+    });
+    if (!confirmed) return;
+
     setRelationshipDeletingId(relationshipId);
     try {
       const res = await fetch(`/api/worlds/${worldId}/relationships/${relationshipId}`, {
@@ -391,12 +431,13 @@ export default function WorldGraphPage() {
       const response = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(response.error ?? "Falha ao remover relacao");
       if (editingRelationshipId === relationshipId) setEditingRelationshipId(null);
+      notifySuccess("Relacao removida.");
       if (inspectEntity?.id) {
         await Promise.all([loadGraph(), loadInspectEntity(inspectEntity.id)]);
       }
     } catch (err) {
       console.error(err);
-      setError(err instanceof Error ? err.message : "Falha ao remover relacao");
+      notifyError(err instanceof Error ? err.message : "Falha ao remover relacao");
     } finally {
       setRelationshipDeletingId(null);
     }
@@ -544,49 +585,11 @@ export default function WorldGraphPage() {
                   />
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  <select className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
-                    <option value="">Todos os tipos</option>
-                    <option value="character">character</option>
-                    <option value="npc">npc</option>
-                    <option value="faction">faction</option>
-                    <option value="house">house</option>
-                    <option value="place">place</option>
-                    <option value="artifact">artifact</option>
-                    <option value="event">event</option>
-                  </select>
-                  <select className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm" value={campaignFilter} onChange={(event) => setCampaignFilter(event.target.value)}>
-                    <option value="">Todas as campanhas</option>
-                    {campaigns.map((campaign) => (
-                      <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
-                    ))}
-                  </select>
-                  <select className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm" value={relationTypeFilter} onChange={(event) => setRelationTypeFilter(event.target.value)}>
-                    <option value="">Todas as relacoes</option>
-                    {(payload?.relationTypes ?? []).map((item) => (
-                      <option key={item} value={item}>{item}</option>
-                    ))}
-                  </select>
-                  <select
-                    className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm"
-                    value={statusFilter}
-                    onChange={(event) => setStatusFilter(event.target.value)}
-                  >
-                    <option value="">Todos os status</option>
-                    <option value="alive">alive</option>
-                    <option value="dead">dead</option>
-                    <option value="missing">missing</option>
-                    <option value="retired">retired</option>
-                  </select>
-                  <select
-                    className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm"
-                    value={tagFilter}
-                    onChange={(event) => setTagFilter(event.target.value)}
-                  >
-                    <option value="">Todas as tags</option>
-                    {availableTags.map((tag) => (
-                      <option key={tag} value={tag}>{tag}</option>
-                    ))}
-                  </select>
+                  <SelectField className="h-12 rounded-2xl border-white/10 bg-black/25 px-4 text-sm" value={typeFilter} onValueChange={setTypeFilter} placeholder="Todos os tipos" options={entityTypeOptions} />
+                  <SelectField className="h-12 rounded-2xl border-white/10 bg-black/25 px-4 text-sm" value={campaignFilter} onValueChange={setCampaignFilter} placeholder="Todas as campanhas" options={campaigns.map((campaign) => ({ value: campaign.id, label: campaign.name }))} />
+                  <SelectField className="h-12 rounded-2xl border-white/10 bg-black/25 px-4 text-sm" value={relationTypeFilter} onValueChange={setRelationTypeFilter} placeholder="Todas as relacoes" options={(payload?.relationTypes ?? []).map((item) => ({ value: item, label: item }))} />
+                  <SelectField className="h-12 rounded-2xl border-white/10 bg-black/25 px-4 text-sm" value={statusFilter} onValueChange={setStatusFilter} placeholder="Todos os status" options={statusFilterOptions} />
+                  <SelectField className="h-12 rounded-2xl border-white/10 bg-black/25 px-4 text-sm" value={tagFilter} onValueChange={setTagFilter} placeholder="Todas as tags" options={availableTags.map((tag) => ({ value: tag, label: tag }))} />
                 </div>
                 {statusFilter || tagFilter ? (
                   <div className="flex flex-wrap gap-2">
@@ -789,32 +792,8 @@ export default function WorldGraphPage() {
                             placeholder="Peso"
                             className="h-10 rounded-xl border-white/10 bg-black/20"
                           />
-                          <select
-                            className="h-10 rounded-xl border border-white/10 bg-black/20 px-3 text-sm"
-                            value={relationshipEditDraft.directionality}
-                            onChange={(event) =>
-                              setRelationshipEditDraft((current) => ({
-                                ...current,
-                                directionality: event.target.value,
-                              }))
-                            }
-                          >
-                            <option value="DIRECTED">Direcional</option>
-                            <option value="UNDIRECTED">Bidirecional</option>
-                          </select>
-                          <select
-                            className="h-10 rounded-xl border border-white/10 bg-black/20 px-3 text-sm"
-                            value={relationshipEditDraft.visibility}
-                            onChange={(event) =>
-                              setRelationshipEditDraft((current) => ({
-                                ...current,
-                                visibility: event.target.value,
-                              }))
-                            }
-                          >
-                            <option value="MASTER">MASTER</option>
-                            <option value="PLAYERS">PLAYERS</option>
-                          </select>
+                          <SelectField className="h-10 rounded-xl border-white/10 bg-black/20 px-3 text-sm" value={relationshipEditDraft.directionality} onValueChange={(value) => setRelationshipEditDraft((current) => ({ ...current, directionality: value }))} options={directionalityOptions} />
+                          <SelectField className="h-10 rounded-xl border-white/10 bg-black/20 px-3 text-sm" value={relationshipEditDraft.visibility} onValueChange={(value) => setRelationshipEditDraft((current) => ({ ...current, visibility: value }))} options={visibilityOptions} />
                         </div>
                         <Input
                           value={relationshipEditDraft.notes}
@@ -908,32 +887,8 @@ export default function WorldGraphPage() {
                             placeholder="Peso"
                             className="h-10 rounded-xl border-white/10 bg-black/20"
                           />
-                          <select
-                            className="h-10 rounded-xl border border-white/10 bg-black/20 px-3 text-sm"
-                            value={relationshipEditDraft.directionality}
-                            onChange={(event) =>
-                              setRelationshipEditDraft((current) => ({
-                                ...current,
-                                directionality: event.target.value,
-                              }))
-                            }
-                          >
-                            <option value="DIRECTED">Direcional</option>
-                            <option value="UNDIRECTED">Bidirecional</option>
-                          </select>
-                          <select
-                            className="h-10 rounded-xl border border-white/10 bg-black/20 px-3 text-sm"
-                            value={relationshipEditDraft.visibility}
-                            onChange={(event) =>
-                              setRelationshipEditDraft((current) => ({
-                                ...current,
-                                visibility: event.target.value,
-                              }))
-                            }
-                          >
-                            <option value="MASTER">MASTER</option>
-                            <option value="PLAYERS">PLAYERS</option>
-                          </select>
+                          <SelectField className="h-10 rounded-xl border-white/10 bg-black/20 px-3 text-sm" value={relationshipEditDraft.directionality} onValueChange={(value) => setRelationshipEditDraft((current) => ({ ...current, directionality: value }))} options={directionalityOptions} />
+                          <SelectField className="h-10 rounded-xl border-white/10 bg-black/20 px-3 text-sm" value={relationshipEditDraft.visibility} onValueChange={(value) => setRelationshipEditDraft((current) => ({ ...current, visibility: value }))} options={visibilityOptions} />
                         </div>
                         <Input
                           value={relationshipEditDraft.notes}
@@ -1016,20 +971,7 @@ export default function WorldGraphPage() {
             <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Criar relacao no grafo</p>
               <div className="mt-3 space-y-3">
-                <select
-                  className="h-11 w-full rounded-2xl border border-white/10 bg-black/20 px-4 text-sm"
-                  value={relationshipDraft.toEntityId}
-                  onChange={(event) =>
-                    setRelationshipDraft((current) => ({ ...current, toEntityId: event.target.value }))
-                  }
-                >
-                  <option value="">Selecione um destino</option>
-                  {relationTargets.map((node) => (
-                    <option key={node.id} value={node.id}>
-                      {node.name} · {node.type}
-                    </option>
-                  ))}
-                </select>
+                <SelectField className="h-11 w-full rounded-2xl border-white/10 bg-black/20 px-4 text-sm" value={relationshipDraft.toEntityId} onValueChange={(value) => setRelationshipDraft((current) => ({ ...current, toEntityId: value }))} placeholder="Selecione um destino" options={relationTargets.map((node) => ({ value: node.id, label: `${node.name} · ${node.type}` }))} />
                 <Input
                   value={relationshipDraft.type}
                   onChange={(event) =>
@@ -1047,29 +989,8 @@ export default function WorldGraphPage() {
                     placeholder="Peso (1-10)"
                     className="h-11 rounded-2xl border-white/10 bg-black/20"
                   />
-                  <select
-                    className="h-11 rounded-2xl border border-white/10 bg-black/20 px-4 text-sm"
-                    value={relationshipDraft.directionality}
-                    onChange={(event) =>
-                      setRelationshipDraft((current) => ({
-                        ...current,
-                        directionality: event.target.value,
-                      }))
-                    }
-                  >
-                    <option value="DIRECTED">Direcional</option>
-                    <option value="UNDIRECTED">Bidirecional</option>
-                  </select>
-                  <select
-                    className="h-11 rounded-2xl border border-white/10 bg-black/20 px-4 text-sm"
-                    value={relationshipDraft.visibility}
-                    onChange={(event) =>
-                      setRelationshipDraft((current) => ({ ...current, visibility: event.target.value }))
-                    }
-                  >
-                    <option value="MASTER">MASTER</option>
-                    <option value="PLAYERS">PLAYERS</option>
-                  </select>
+                  <SelectField className="h-11 rounded-2xl border-white/10 bg-black/20 px-4 text-sm" value={relationshipDraft.directionality} onValueChange={(value) => setRelationshipDraft((current) => ({ ...current, directionality: value }))} options={directionalityOptions} />
+                  <SelectField className="h-11 rounded-2xl border-white/10 bg-black/20 px-4 text-sm" value={relationshipDraft.visibility} onValueChange={(value) => setRelationshipDraft((current) => ({ ...current, visibility: value }))} options={visibilityOptions} />
                 </div>
                 <Input
                   value={relationshipDraft.notes}

@@ -2,20 +2,19 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { Search } from "lucide-react";
 
-import { VisualLibraryBrowser } from "@/components/visual/visual-browser";
+import { VisualLibraryBrowser } from "@/components/visual/visual-library-browser";
+import { VisualLibraryFilters } from "@/components/visual/visual-library-filters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { ModeSwitcher } from "@/components/world/mode-switcher";
 import { prisma } from "@/lib/prisma";
 import {
   getVisualKindLabel,
   getVisualKindPriority,
   normalizeVisualKind,
-} from "@/lib/visual";
+} from "@/lib/visual-library";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -659,81 +658,20 @@ export default async function WorldVisualLibraryPage({ params, searchParams }: P
             <Link href={`/app/worlds/${id}/visual?preset=scenes`}>Cenas</Link>
           </Button>
         </div>
-        <form className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(5,minmax(0,0.9fr))]">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              name="term"
-              defaultValue={filters.term || ""}
-              placeholder="Entidade, resumo ou subtipo"
-              className="h-12 rounded-2xl border-white/10 bg-black/25 pl-11"
-            />
-          </div>
-          <select
-            name="type"
-            defaultValue={filters.type || ""}
-            className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm"
-          >
-            <option value="">Todos os tipos</option>
-            <option value="house">house</option>
-            <option value="character">character</option>
-            <option value="npc">npc</option>
-            <option value="place">place</option>
-            <option value="faction">faction</option>
-            <option value="artifact">artifact</option>
-          </select>
-          <select
-            name="kind"
-            defaultValue={filters.kind || ""}
-            className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm"
-          >
-            <option value="">Todos os papeis</option>
-            {data.allKinds.map((kind) => (
-              <option key={kind} value={kind}>
-                {getVisualKindLabel(kind)}
-              </option>
-            ))}
-          </select>
-          <select
-            name="campaignId"
-            defaultValue={filters.campaignId || ""}
-            className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm"
-          >
-            <option value="">Todas as campanhas</option>
-            {data.campaigns.map((campaign) => (
-              <option key={campaign.id} value={campaign.id}>
-                {campaign.name}
-              </option>
-            ))}
-          </select>
-          <select
-            name="subtype"
-            defaultValue={filters.subtype || ""}
-            className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm"
-          >
-            <option value="">Todos os subtipos</option>
-            {data.allSubtypes.map((subtype) => (
-              <option key={subtype} value={subtype}>
-                {subtype}
-              </option>
-            ))}
-          </select>
-          <select
-            name="tag"
-            defaultValue={filters.tag || ""}
-            className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm"
-          >
-            <option value="">Todas as tags</option>
-            {data.allTags.map((tag) => (
-              <option key={tag} value={tag}>
-                {tag}
-              </option>
-            ))}
-          </select>
-          <Button type="submit" className="h-12 xl:col-start-6 xl:row-start-2">
-            Aplicar leitura
-          </Button>
-        </form>
+        <VisualLibraryFilters
+          initial={{
+            term: filters.term,
+            type: filters.type,
+            kind: filters.kind,
+            campaignId: filters.campaignId,
+            subtype: filters.subtype,
+            tag: filters.tag,
+          }}
+          campaigns={data.campaigns.map((campaign) => ({ value: campaign.id, label: campaign.name }))}
+          allKinds={data.allKinds}
+          allSubtypes={data.allSubtypes}
+          allTags={data.allTags}
+        />
 
         {data.allSubtypes.length ? (
           <div className="mt-4 flex flex-wrap gap-2">

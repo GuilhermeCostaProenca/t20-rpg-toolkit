@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import { cn } from "@/lib/utils";
 
 import { TORMENTA20_RACES } from "@/rulesets/tormenta20/races";
@@ -161,13 +162,12 @@ export function CharacterWizard({ campaigns, onComplete, onCancel }: CharacterWi
                             </div>
                             <div className="space-y-2">
                                 <Label>Campanha</Label>
-                                <select
-                                    className="h-10 w-full rounded-md border border-white/10 bg-black/50 px-3 text-sm"
+                                <SelectField
+                                    className="h-10 w-full rounded-md border-white/10 bg-black/50 px-3 text-sm"
                                     value={selectedCampaignId}
-                                    onChange={e => setSelectedCampaignId(e.target.value)}
-                                >
-                                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </select>
+                                    onValueChange={(value) => setSelectedCampaignId(value)}
+                                    options={campaigns.map((campaign) => ({ value: campaign.id, label: campaign.name }))}
+                                />
                             </div>
                         </div>
                         <div className="space-y-2">

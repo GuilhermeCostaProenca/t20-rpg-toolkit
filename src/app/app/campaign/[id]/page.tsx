@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -21,8 +21,10 @@ import {
 } from "lucide-react";
 
 import { EmptyState } from "@/components/empty-state";
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 import { CombatPanel } from "@/components/combat/combat-panel";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,6 +37,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import { Separator } from "@/components/ui/separator";
 import {
   Tabs,
@@ -68,6 +71,9 @@ import {
   NpcCreateSchema,
   SessionCreateSchema,
 } from "@/lib/validators";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 type Campaign = {
   id: string;
@@ -206,6 +212,13 @@ const initialSession = {
   coverUrl: "",
   status: "planned" as "planned" | "active" | "finished",
 };
+const sessionFormSchema = z.object({
+  title: z.string().trim().min(2, "Titulo precisa de pelo menos 2 caracteres"),
+  description: z.string().optional(),
+  scheduledAt: z.string().optional(),
+  coverUrl: z.string().optional(),
+  status: z.enum(["planned", "active", "finished"]),
+});
 
 const initialNpc = {
   name: "",
@@ -298,6 +311,7 @@ function buildMemoryInspectBody(
 export default function CampaignPage() {
   const params = useParams<{ id: string }>();
   const campaignId = params?.id;
+  const { confirmDestructive, notifyError, notifySuccess } = useAppFeedback();
 
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -318,24 +332,27 @@ export default function CampaignPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
-  const [form, setForm] = useState(initialCharacter);
-  const [formError, setFormError] = useState<string | null>(null);
+  const characterForm = useForm<typeof initialCharacter>({
+    resolver: zodResolver(CharacterCreateSchema),
+    defaultValues: initialCharacter,
+  });
   const [avatarUploading, setAvatarUploading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
   const [sessionDialogOpen, setSessionDialogOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
-  const [sessionForm, setSessionForm] = useState(initialSession);
-  const [sessionFormError, setSessionFormError] = useState<string | null>(null);
+  const sessionForm = useForm<typeof initialSession>({
+    resolver: zodResolver(sessionFormSchema),
+    defaultValues: initialSession,
+  });
   const [sessionUploading, setSessionUploading] = useState(false);
-  const [sessionSubmitting, setSessionSubmitting] = useState(false);
 
   const [npcDialogOpen, setNpcDialogOpen] = useState(false);
   const [editingNpc, setEditingNpc] = useState<Npc | null>(null);
-  const [npcForm, setNpcForm] = useState(initialNpc);
-  const [npcFormError, setNpcFormError] = useState<string | null>(null);
+  const npcForm = useForm<typeof initialNpc>({
+    resolver: zodResolver(NpcCreateSchema),
+    defaultValues: initialNpc,
+  });
   const [npcUploading, setNpcUploading] = useState(false);
-  const [npcSubmitting, setNpcSubmitting] = useState(false);
   const [encounterDraft, setEncounterDraft] = useState<Record<string, number>>({});
   const [encounterTargetSessionId, setEncounterTargetSessionId] = useState("");
   const [encounterTargetSceneId, setEncounterTargetSceneId] = useState("");
@@ -633,39 +650,48 @@ export default function CampaignPage() {
   }
 
   async function handleAvatarUpload(file: File) {
-    setFormError(null);
+    characterForm.clearErrors("root");
     setAvatarUploading(true);
     try {
       const url = await uploadImage(file);
-      setForm((prev) => ({ ...prev, avatarUrl: url }));
+      characterForm.setValue("avatarUrl", url);
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Erro ao enviar avatar");
+      characterForm.setError("root", {
+        type: "server",
+        message: err instanceof Error ? err.message : "Erro ao enviar avatar",
+      });
     } finally {
       setAvatarUploading(false);
     }
   }
 
   async function handleCoverUpload(file: File) {
-    setSessionFormError(null);
+    sessionForm.clearErrors("root");
     setSessionUploading(true);
     try {
       const url = await uploadImage(file);
-      setSessionForm((prev) => ({ ...prev, coverUrl: url }));
+      sessionForm.setValue("coverUrl", url);
     } catch (err) {
-      setSessionFormError(err instanceof Error ? err.message : "Erro ao enviar imagem");
+      sessionForm.setError("root", {
+        type: "server",
+        message: err instanceof Error ? err.message : "Erro ao enviar imagem",
+      });
     } finally {
       setSessionUploading(false);
     }
   }
 
   async function handleNpcUpload(file: File) {
-    setNpcFormError(null);
+    npcForm.clearErrors("root");
     setNpcUploading(true);
     try {
       const url = await uploadImage(file);
-      setNpcForm((prev) => ({ ...prev, imageUrl: url }));
+      npcForm.setValue("imageUrl", url);
     } catch (err) {
-      setNpcFormError(err instanceof Error ? err.message : "Erro ao enviar imagem");
+      npcForm.setError("root", {
+        type: "server",
+        message: err instanceof Error ? err.message : "Erro ao enviar imagem",
+      });
     } finally {
       setNpcUploading(false);
     }
@@ -673,14 +699,14 @@ export default function CampaignPage() {
 
   function openCreateCharacter() {
     setEditingCharacter(null);
-    setForm(initialCharacter);
-    setFormError(null);
+    characterForm.reset(initialCharacter);
+    characterForm.clearErrors("root");
     setDialogOpen(true);
   }
 
   function openEditCharacter(character: Character) {
     setEditingCharacter(character);
-    setForm({
+    characterForm.reset({
       name: character.name ?? "",
       ancestry: character.ancestry ?? "",
       className: character.className ?? "",
@@ -689,24 +715,16 @@ export default function CampaignPage() {
       avatarUrl: character.avatarUrl ?? "",
       level: character.level ?? 1,
     });
-    setFormError(null);
+    characterForm.clearErrors("root");
     setDialogOpen(true);
   }
 
-  async function handleSaveCharacter(event?: FormEvent<HTMLFormElement>) {
-    event?.preventDefault();
-    setFormError(null);
-    const parsed = CharacterCreateSchema.safeParse(form);
-    if (!parsed.success) {
-      setFormError(parsed.error.issues[0]?.message ?? "Dados invalidos");
-      return;
-    }
+  async function handleSaveCharacter(values: typeof initialCharacter) {
+    characterForm.clearErrors("root");
     if (!campaignId) {
-      setFormError("Campanha invalida");
+      characterForm.setError("root", { type: "server", message: "Campanha invalida" });
       return;
     }
-
-    setSubmitting(true);
     try {
       const endpoint = editingCharacter
         ? `/api/characters/${editingCharacter.id}`
@@ -714,7 +732,7 @@ export default function CampaignPage() {
       const res = await fetch(endpoint, {
         method: editingCharacter ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify(values),
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Erro ao salvar personagem");
@@ -727,76 +745,78 @@ export default function CampaignPage() {
       );
       setDialogOpen(false);
       setEditingCharacter(null);
-      setForm(initialCharacter);
+      characterForm.reset(initialCharacter);
+      notifySuccess(editingCharacter ? "Personagem atualizado." : "Personagem criado.");
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Erro inesperado ao salvar personagem");
-    } finally {
-      setSubmitting(false);
+      characterForm.setError("root", {
+        type: "server",
+        message: err instanceof Error ? err.message : "Erro inesperado ao salvar personagem",
+      });
     }
   }
 
   async function handleDeleteCharacter(character: Character) {
-    if (typeof window !== "undefined") {
-      const ok = window.confirm(`Remover personagem "${character.name}"?`);
-      if (!ok) return;
-    }
+    const ok = await confirmDestructive({
+      title: `Remover personagem \"${character.name}\"?`,
+      description: "A ficha sera removida da campanha.",
+      confirmText: "Remover",
+      cancelText: "Cancelar",
+      variant: "destructive",
+    });
+    if (!ok) return;
     try {
       const res = await fetch(`/api/characters/${character.id}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Erro ao remover personagem");
       setCharacters((prev) => prev.filter((item) => item.id !== character.id));
+      notifySuccess("Personagem removido.");
     } catch (err) {
-      if (typeof window !== "undefined") {
-        window.alert(err instanceof Error ? err.message : "Erro ao remover personagem");
-      }
+      notifyError("Erro ao remover personagem", err instanceof Error ? err.message : "Erro inesperado", true);
     }
   }
 
   function openCreateSession() {
     setEditingSession(null);
-    setSessionForm({ ...initialSession, scheduledAt: toDatetimeLocal(new Date()) });
-    setSessionFormError(null);
+    sessionForm.reset({ ...initialSession, scheduledAt: toDatetimeLocal(new Date()) });
+    sessionForm.clearErrors("root");
     setSessionDialogOpen(true);
   }
 
   function openEditSession(session: Session) {
     setEditingSession(session);
-    setSessionForm({
+    sessionForm.reset({
       title: session.title ?? "",
       description: session.description ?? "",
       scheduledAt: toDatetimeLocal(session.scheduledAt),
       coverUrl: session.coverUrl ?? "",
       status: session.status ?? "planned",
     });
-    setSessionFormError(null);
+    sessionForm.clearErrors("root");
     setSessionDialogOpen(true);
   }
 
-  async function handleSaveSession(event?: FormEvent<HTMLFormElement>) {
-    event?.preventDefault();
-    setSessionFormError(null);
-    const scheduledAt = sessionForm.scheduledAt ? new Date(sessionForm.scheduledAt) : null;
-    if (sessionForm.scheduledAt && Number.isNaN(scheduledAt?.getTime())) {
-      setSessionFormError("Data invalida");
+  async function handleSaveSession(values: typeof initialSession) {
+    sessionForm.clearErrors("root");
+    const scheduledAt = values.scheduledAt ? new Date(values.scheduledAt) : null;
+    if (values.scheduledAt && Number.isNaN(scheduledAt?.getTime())) {
+      sessionForm.setError("root", { type: "server", message: "Data invalida" });
       return;
     }
     const parsed = SessionCreateSchema.safeParse({
-      title: sessionForm.title,
-      description: sessionForm.description,
+      title: values.title,
+      description: values.description,
       scheduledAt: scheduledAt ? scheduledAt.toISOString() : undefined,
-      coverUrl: sessionForm.coverUrl,
-      status: sessionForm.status,
+      coverUrl: values.coverUrl,
+      status: values.status,
     });
     if (!parsed.success) {
-      setSessionFormError(parsed.error.issues[0]?.message ?? "Dados invalidos");
+      sessionForm.setError("root", { type: "server", message: parsed.error.issues[0]?.message ?? "Dados invalidos" });
       return;
     }
     if (!campaignId) {
-      setSessionFormError("Campanha invalida");
+      sessionForm.setError("root", { type: "server", message: "Campanha invalida" });
       return;
     }
-
-    setSessionSubmitting(true);
     try {
       const endpoint = editingSession
         ? `/api/sessions/${editingSession.id}`
@@ -817,28 +837,33 @@ export default function CampaignPage() {
       );
       setSessionDialogOpen(false);
       setEditingSession(null);
-      setSessionForm(initialSession);
+      sessionForm.reset(initialSession);
+      notifySuccess(editingSession ? "Sessao atualizada." : "Sessao criada.");
     } catch (err) {
-      setSessionFormError(err instanceof Error ? err.message : "Erro inesperado ao salvar sessao");
-    } finally {
-      setSessionSubmitting(false);
+      sessionForm.setError("root", {
+        type: "server",
+        message: err instanceof Error ? err.message : "Erro inesperado ao salvar sessao",
+      });
     }
   }
 
   async function handleDeleteSession(session: Session) {
-    if (typeof window !== "undefined") {
-      const ok = window.confirm(`Remover sessao "${session.title}"?`);
-      if (!ok) return;
-    }
+    const ok = await confirmDestructive({
+      title: `Remover sessao \"${session.title}\"?`,
+      description: "A sessao sera removida da campanha.",
+      confirmText: "Remover",
+      cancelText: "Cancelar",
+      variant: "destructive",
+    });
+    if (!ok) return;
     try {
       const res = await fetch(`/api/sessions/${session.id}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Erro ao remover sessao");
       setSessions((prev) => prev.filter((item) => item.id !== session.id));
+      notifySuccess("Sessao removida.");
     } catch (err) {
-      if (typeof window !== "undefined") {
-        window.alert(err instanceof Error ? err.message : "Erro ao remover sessao");
-      }
+      notifyError("Erro ao remover sessao", err instanceof Error ? err.message : "Erro inesperado", true);
     }
   }
 
@@ -850,14 +875,14 @@ export default function CampaignPage() {
 
   function openCreateNpc() {
     setEditingNpc(null);
-    setNpcForm(initialNpc);
-    setNpcFormError(null);
+    npcForm.reset(initialNpc);
+    npcForm.clearErrors("root");
     setNpcDialogOpen(true);
   }
 
   function openEditNpc(npc: Npc) {
     setEditingNpc(npc);
-    setNpcForm({
+    npcForm.reset({
       name: npc.name ?? "",
       type: npc.type ?? "npc",
       hpMax: npc.hpMax ?? 1,
@@ -867,24 +892,16 @@ export default function CampaignPage() {
       tags: npc.tags ?? "",
       imageUrl: npc.imageUrl ?? "",
     });
-    setNpcFormError(null);
+    npcForm.clearErrors("root");
     setNpcDialogOpen(true);
   }
 
-  async function handleSaveNpc(event?: FormEvent<HTMLFormElement>) {
-    event?.preventDefault();
-    setNpcFormError(null);
-    const parsed = NpcCreateSchema.safeParse(npcForm);
-    if (!parsed.success) {
-      setNpcFormError(parsed.error.issues[0]?.message ?? "Dados invalidos");
-      return;
-    }
+  async function handleSaveNpc(values: typeof initialNpc) {
+    npcForm.clearErrors("root");
     if (!campaignId) {
-      setNpcFormError("Campanha invalida");
+      npcForm.setError("root", { type: "server", message: "Campanha invalida" });
       return;
     }
-
-    setNpcSubmitting(true);
     try {
       const endpoint = editingNpc
         ? `/api/npcs/${editingNpc.id}`
@@ -892,7 +909,7 @@ export default function CampaignPage() {
       const res = await fetch(endpoint, {
         method: editingNpc ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify(values),
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Erro ao salvar NPC");
@@ -904,28 +921,33 @@ export default function CampaignPage() {
       );
       setNpcDialogOpen(false);
       setEditingNpc(null);
-      setNpcForm(initialNpc);
+      npcForm.reset(initialNpc);
+      notifySuccess(editingNpc ? "NPC atualizado." : "NPC criado.");
     } catch (err) {
-      setNpcFormError(err instanceof Error ? err.message : "Erro inesperado ao salvar NPC");
-    } finally {
-      setNpcSubmitting(false);
+      npcForm.setError("root", {
+        type: "server",
+        message: err instanceof Error ? err.message : "Erro inesperado ao salvar NPC",
+      });
     }
   }
 
   async function handleDeleteNpc(npc: Npc) {
-    if (typeof window !== "undefined") {
-      const ok = window.confirm(`Remover NPC "${npc.name}"?`);
-      if (!ok) return;
-    }
+    const ok = await confirmDestructive({
+      title: `Remover NPC \"${npc.name}\"?`,
+      description: "O NPC sera removido desta campanha.",
+      confirmText: "Remover",
+      cancelText: "Cancelar",
+      variant: "destructive",
+    });
+    if (!ok) return;
     try {
       const res = await fetch(`/api/npcs/${npc.id}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Erro ao remover NPC");
       setNpcs((prev) => prev.filter((item) => item.id !== npc.id));
+      notifySuccess("NPC removido.");
     } catch (err) {
-      if (typeof window !== "undefined") {
-        window.alert(err instanceof Error ? err.message : "Erro ao remover NPC");
-      }
+      notifyError("Erro ao remover NPC", err instanceof Error ? err.message : "Erro inesperado", true);
     }
   }
 
@@ -948,9 +970,7 @@ export default function CampaignPage() {
       if (!res.ok) throw new Error(data.error ?? "Erro ao adicionar NPC ao combate");
       await loadData(campaignId);
     } catch (err) {
-      if (typeof window !== "undefined") {
-        window.alert(err instanceof Error ? err.message : "Erro ao adicionar NPC");
-      }
+      notifyError("Erro ao adicionar NPC", err instanceof Error ? err.message : "Erro inesperado", true);
     }
   }
 
@@ -1062,10 +1082,14 @@ export default function CampaignPage() {
     const encounter = targetForge.encounters.find((item) => item.id === encounterId);
     if (!encounter) return;
 
-    if (typeof window !== "undefined") {
-      const ok = window.confirm(`Remover encontro salvo "${encounter.title || "sem titulo"}"?`);
-      if (!ok) return;
-    }
+    const ok = await confirmDestructive({
+      title: `Remover encontro salvo \"${encounter.title || "sem titulo"}\"?`,
+      description: "O encontro sera removido do preparo da sessao.",
+      confirmText: "Remover",
+      cancelText: "Cancelar",
+      variant: "destructive",
+    });
+    if (!ok) return;
 
     const nextForge = {
       ...targetForge,
@@ -1636,33 +1660,29 @@ export default function CampaignPage() {
                             <div className="mt-4 grid gap-3">
                               <label className="grid gap-2 text-sm">
                                 <span className="text-muted-foreground">Sessao alvo</span>
-                                <select
+                                <SelectField
+                                  className="h-11 rounded-2xl border-white/10 bg-white/5 px-3 text-foreground"
                                   value={encounterTargetSession?.id ?? ""}
-                                  onChange={(event) => setEncounterTargetSessionId(event.target.value)}
-                                  className="h-11 rounded-2xl border border-white/10 bg-white/5 px-3 text-foreground outline-none"
-                                >
-                                  <option value="">Selecione uma sessao</option>
-                                  {sortedSessions.map((session) => (
-                                    <option key={session.id} value={session.id}>
-                                      {session.title}
-                                    </option>
-                                  ))}
-                                </select>
+                                  onValueChange={setEncounterTargetSessionId}
+                                  placeholder="Selecione uma sessao"
+                                  options={sortedSessions.map((session) => ({
+                                    value: session.id,
+                                    label: session.title,
+                                  }))}
+                                />
                               </label>
                               <label className="grid gap-2 text-sm">
                                 <span className="text-muted-foreground">Cena alvo</span>
-                                <select
+                                <SelectField
+                                  className="h-11 rounded-2xl border-white/10 bg-white/5 px-3 text-foreground"
                                   value={encounterTargetSceneId}
-                                  onChange={(event) => setEncounterTargetSceneId(event.target.value)}
-                                  className="h-11 rounded-2xl border border-white/10 bg-white/5 px-3 text-foreground outline-none"
-                                >
-                                  <option value="">Sem cena especifica</option>
-                                  {encounterTargetScenes.map((scene) => (
-                                    <option key={scene.id} value={scene.id}>
-                                      {scene.title || "Cena sem titulo"}
-                                    </option>
-                                  ))}
-                                </select>
+                                  onValueChange={setEncounterTargetSceneId}
+                                  placeholder="Sem cena especifica"
+                                  options={encounterTargetScenes.map((scene) => ({
+                                    value: scene.id,
+                                    label: scene.title || "Cena sem titulo",
+                                  }))}
+                                />
                               </label>
                               <Button
                                 onClick={() => void handleSaveEncounterToSession()}
@@ -1824,42 +1844,41 @@ export default function CampaignPage() {
                           onChange={(event) => setMemoryQuery(event.target.value)}
                           placeholder="Buscar morte, ausencia, mudanca, sessao..."
                         />
-                        <select
-                          className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                        <SelectField
+                          className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
                           value={memoryVisibility}
-                          onChange={(event) =>
-                            setMemoryVisibility(event.target.value as "ALL" | "MASTER" | "PLAYERS")
-                          }
-                        >
-                          <option value="ALL">Toda visibilidade</option>
-                          <option value="PLAYERS">Publico</option>
-                          <option value="MASTER">Mestre</option>
-                        </select>
-                        <select
-                          className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                          onValueChange={(value) => setMemoryVisibility(value as "ALL" | "MASTER" | "PLAYERS")}
+                          options={[
+                            { value: "ALL", label: "Toda visibilidade" },
+                            { value: "PLAYERS", label: "Publico" },
+                            { value: "MASTER", label: "Mestre" },
+                          ]}
+                        />
+                        <SelectField
+                          className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
                           value={memoryTone}
-                          onChange={(event) =>
-                            setMemoryTone(event.target.value as "ALL" | "summary" | "change" | "death" | "note")
+                          onValueChange={(value) =>
+                            setMemoryTone(value as "ALL" | "summary" | "change" | "death" | "note")
                           }
-                        >
-                          <option value="ALL">Todo tipo</option>
-                          <option value="summary">Resumo</option>
-                          <option value="change">Mudanca</option>
-                          <option value="death">Morte</option>
-                          <option value="note">Nota</option>
-                        </select>
-                        <select
-                          className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                          options={[
+                            { value: "ALL", label: "Todo tipo" },
+                            { value: "summary", label: "Resumo" },
+                            { value: "change", label: "Mudanca" },
+                            { value: "death", label: "Morte" },
+                            { value: "note", label: "Nota" },
+                          ]}
+                        />
+                        <SelectField
+                          className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
                           value={memoryTimeFilter}
-                          onChange={(event) =>
-                            setMemoryTimeFilter(event.target.value as "ALL" | "7D" | "30D" | "90D")
-                          }
-                        >
-                          <option value="ALL">Todo periodo</option>
-                          <option value="7D">Ultimos 7 dias</option>
-                          <option value="30D">Ultimos 30 dias</option>
-                          <option value="90D">Ultimos 90 dias</option>
-                        </select>
+                          onValueChange={(value) => setMemoryTimeFilter(value as "ALL" | "7D" | "30D" | "90D")}
+                          options={[
+                            { value: "ALL", label: "Todo periodo" },
+                            { value: "7D", label: "Ultimos 7 dias" },
+                            { value: "30D", label: "Ultimos 30 dias" },
+                            { value: "90D", label: "Ultimos 90 dias" },
+                          ]}
+                        />
                       </div>
                       <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                         {visibleCampaignMemoryEvents.length} marcos neste recorte
@@ -2712,7 +2731,7 @@ export default function CampaignPage() {
           setDialogOpen(open);
           if (!open) {
             setEditingCharacter(null);
-            setFormError(null);
+            characterForm.clearErrors("root");
           }
         }}
       >
@@ -2728,63 +2747,112 @@ export default function CampaignPage() {
               Elenco jogavel da campanha, com nivel, classe, funcao e retrato.
             </DialogDescription>
           </DialogHeader>
-          <form className="space-y-4" onSubmit={handleSaveCharacter}>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Nome</label>
-              <Input
-                value={form.name}
-                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+          <Form {...characterForm}>
+            <form className="space-y-4" onSubmit={characterForm.handleSubmit(handleSaveCharacter)}>
+              <FormField
+                control={characterForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Raca</label>
-                <Input
-                  value={form.ancestry}
-                  onChange={(event) => setForm((prev) => ({ ...prev, ancestry: event.target.value }))}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={characterForm.control}
+                  name="ancestry"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Raca</FormLabel>
+                      <FormControl>
+                        <Input value={field.value ?? ""} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={characterForm.control}
+                  name="className"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Classe</FormLabel>
+                      <FormControl>
+                        <Input value={field.value ?? ""} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Classe</label>
-                <Input
-                  value={form.className}
-                  onChange={(event) => setForm((prev) => ({ ...prev, className: event.target.value }))}
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
+                <FormField
+                  control={characterForm.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Funcao</FormLabel>
+                      <FormControl>
+                        <Input value={field.value ?? ""} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={characterForm.control}
+                  name="level"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nivel</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={20}
+                          value={field.value}
+                          onChange={(event) => field.onChange(Number(event.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Funcao</label>
-                <Input
-                  value={form.role}
-                  onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Nivel</label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={form.level}
-                  onChange={(event) => setForm((prev) => ({ ...prev, level: Number(event.target.value) }))}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Descricao</label>
-              <Textarea
-                rows={4}
-                value={form.description}
-                onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+              <FormField
+                control={characterForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Descricao</FormLabel>
+                    <FormControl>
+                      <Textarea rows={4} value={field.value ?? ""} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Avatar</label>
-              <Input
-                placeholder="URL do retrato"
-                value={form.avatarUrl}
-                onChange={(event) => setForm((prev) => ({ ...prev, avatarUrl: event.target.value }))}
+              <FormField
+                control={characterForm.control}
+                name="avatarUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Avatar</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="URL do retrato"
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
               <Input
                 type="file"
@@ -2798,12 +2866,18 @@ export default function CampaignPage() {
               {avatarUploading ? (
                 <p className="text-sm text-muted-foreground">Enviando avatar...</p>
               ) : null}
-            </div>
-            {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Salvando..." : editingCharacter ? "Salvar alteracoes" : "Criar personagem"}
-            </Button>
-          </form>
+              {characterForm.formState.errors.root?.message ? (
+                <p className="text-sm text-destructive">{characterForm.formState.errors.root.message}</p>
+              ) : null}
+              <Button type="submit" className="w-full" disabled={characterForm.formState.isSubmitting}>
+                {characterForm.formState.isSubmitting
+                  ? "Salvando..."
+                  : editingCharacter
+                    ? "Salvar alteracoes"
+                    : "Criar personagem"}
+              </Button>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
 
@@ -2813,7 +2887,7 @@ export default function CampaignPage() {
           setSessionDialogOpen(open);
           if (!open) {
             setEditingSession(null);
-            setSessionFormError(null);
+            sessionForm.clearErrors("root");
           }
         }}
       >
@@ -2827,55 +2901,85 @@ export default function CampaignPage() {
               Agenda, cover e status para manter o ritmo da campanha sob controle.
             </DialogDescription>
           </DialogHeader>
-          <form className="space-y-4" onSubmit={handleSaveSession}>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Titulo</label>
-              <Input
-                value={sessionForm.title}
-                onChange={(event) => setSessionForm((prev) => ({ ...prev, title: event.target.value }))}
+          <Form {...sessionForm}>
+            <form className="space-y-4" onSubmit={sessionForm.handleSubmit(handleSaveSession)}>
+              <FormField
+                control={sessionForm.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Titulo</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Descricao</label>
-              <Textarea
-                rows={4}
-                value={sessionForm.description}
-                onChange={(event) => setSessionForm((prev) => ({ ...prev, description: event.target.value }))}
+              <FormField
+                control={sessionForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Descricao</FormLabel>
+                    <FormControl>
+                      <Textarea rows={4} value={field.value ?? ""} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Data</label>
-                <Input
-                  type="datetime-local"
-                  value={sessionForm.scheduledAt}
-                  onChange={(event) => setSessionForm((prev) => ({ ...prev, scheduledAt: event.target.value }))}
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
+                <FormField
+                  control={sessionForm.control}
+                  name="scheduledAt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data</FormLabel>
+                      <FormControl>
+                        <Input type="datetime-local" value={field.value ?? ""} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={sessionForm.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <FormControl>
+                        <SelectField
+                          className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                          value={field.value}
+                          onValueChange={(value) =>
+                            field.onChange(value as "planned" | "active" | "finished")
+                          }
+                          options={[
+                            { value: "planned", label: "planned" },
+                            { value: "active", label: "active" },
+                            { value: "finished", label: "finished" },
+                          ]}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Status</label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
-                  value={sessionForm.status}
-                  onChange={(event) =>
-                    setSessionForm((prev) => ({
-                      ...prev,
-                      status: event.target.value as "planned" | "active" | "finished",
-                    }))
-                  }
-                >
-                  <option value="planned">planned</option>
-                  <option value="active">active</option>
-                  <option value="finished">finished</option>
-                </select>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Capa</label>
-              <Input
-                placeholder="URL da capa"
-                value={sessionForm.coverUrl}
-                onChange={(event) => setSessionForm((prev) => ({ ...prev, coverUrl: event.target.value }))}
+              <FormField
+                control={sessionForm.control}
+                name="coverUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Capa</FormLabel>
+                    <FormControl>
+                      <Input placeholder="URL da capa" value={field.value ?? ""} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
               <Input
                 type="file"
@@ -2889,12 +2993,18 @@ export default function CampaignPage() {
               {sessionUploading ? (
                 <p className="text-sm text-muted-foreground">Enviando capa...</p>
               ) : null}
-            </div>
-            {sessionFormError ? <p className="text-sm text-destructive">{sessionFormError}</p> : null}
-            <Button type="submit" className="w-full" disabled={sessionSubmitting}>
-              {sessionSubmitting ? "Salvando..." : editingSession ? "Salvar alteracoes" : "Criar sessao"}
-            </Button>
-          </form>
+              {sessionForm.formState.errors.root?.message ? (
+                <p className="text-sm text-destructive">{sessionForm.formState.errors.root.message}</p>
+              ) : null}
+              <Button type="submit" className="w-full" disabled={sessionForm.formState.isSubmitting}>
+                {sessionForm.formState.isSubmitting
+                  ? "Salvando..."
+                  : editingSession
+                    ? "Salvar alteracoes"
+                    : "Criar sessao"}
+              </Button>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
 
@@ -2904,7 +3014,7 @@ export default function CampaignPage() {
           setNpcDialogOpen(open);
           if (!open) {
             setEditingNpc(null);
-            setNpcFormError(null);
+            npcForm.clearErrors("root");
           }
         }}
       >
@@ -2918,82 +3028,133 @@ export default function CampaignPage() {
               Cadastre aliados, figuras neutras ou ameacas com estatisticas minimas para combate.
             </DialogDescription>
           </DialogHeader>
-          <form className="space-y-4" onSubmit={handleSaveNpc}>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Nome</label>
-              <Input
-                value={npcForm.name}
-                onChange={(event) => setNpcForm((prev) => ({ ...prev, name: event.target.value }))}
+          <Form {...npcForm}>
+            <form className="space-y-4" onSubmit={npcForm.handleSubmit(handleSaveNpc)}>
+              <FormField
+                control={npcForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome</FormLabel>
+                    <FormControl>
+                      <Input value={field.value} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Tipo</label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
-                  value={npcForm.type}
-                  onChange={(event) =>
-                    setNpcForm((prev) => ({
-                      ...prev,
-                      type: event.target.value as "npc" | "enemy",
-                    }))
-                  }
-                >
-                  <option value="npc">npc</option>
-                  <option value="enemy">enemy</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Tags</label>
-                <Input
-                  value={npcForm.tags}
-                  onChange={(event) => setNpcForm((prev) => ({ ...prev, tags: event.target.value }))}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={npcForm.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo</FormLabel>
+                      <FormControl>
+                        <SelectField
+                          className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                          value={field.value}
+                          onValueChange={(value) => field.onChange(value as "npc" | "enemy")}
+                          options={[
+                            { value: "npc", label: "npc" },
+                            { value: "enemy", label: "enemy" },
+                          ]}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={npcForm.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tags</FormLabel>
+                      <FormControl>
+                        <Input value={field.value ?? ""} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">PV</label>
-                <Input
-                  type="number"
-                  min={1}
-                  value={npcForm.hpMax}
-                  onChange={(event) => setNpcForm((prev) => ({ ...prev, hpMax: Number(event.target.value) }))}
+              <div className="grid gap-4 sm:grid-cols-3">
+                <FormField
+                  control={npcForm.control}
+                  name="hpMax"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>PV</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          value={field.value}
+                          onChange={(event) => field.onChange(Number(event.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={npcForm.control}
+                  name="defenseFinal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DEF</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={field.value}
+                          onChange={(event) => field.onChange(Number(event.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={npcForm.control}
+                  name="damageFormula"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dano</FormLabel>
+                      <FormControl>
+                        <Input value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">DEF</label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={npcForm.defenseFinal}
-                  onChange={(event) =>
-                    setNpcForm((prev) => ({ ...prev, defenseFinal: Number(event.target.value) }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Dano</label>
-                <Input
-                  value={npcForm.damageFormula}
-                  onChange={(event) => setNpcForm((prev) => ({ ...prev, damageFormula: event.target.value }))}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Descricao</label>
-              <Textarea
-                rows={4}
-                value={npcForm.description}
-                onChange={(event) => setNpcForm((prev) => ({ ...prev, description: event.target.value }))}
+              <FormField
+                control={npcForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Descricao</FormLabel>
+                    <FormControl>
+                      <Textarea rows={4} value={field.value ?? ""} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Imagem</label>
-              <Input
-                placeholder="URL da imagem"
-                value={npcForm.imageUrl}
-                onChange={(event) => setNpcForm((prev) => ({ ...prev, imageUrl: event.target.value }))}
+              <FormField
+                control={npcForm.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Imagem</FormLabel>
+                    <FormControl>
+                      <Input placeholder="URL da imagem" value={field.value ?? ""} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
               <Input
                 type="file"
@@ -3005,12 +3166,18 @@ export default function CampaignPage() {
                 }}
               />
               {npcUploading ? <p className="text-sm text-muted-foreground">Enviando imagem...</p> : null}
-            </div>
-            {npcFormError ? <p className="text-sm text-destructive">{npcFormError}</p> : null}
-            <Button type="submit" className="w-full" disabled={npcSubmitting}>
-              {npcSubmitting ? "Salvando..." : editingNpc ? "Salvar alteracoes" : "Criar NPC"}
-            </Button>
-          </form>
+              {npcForm.formState.errors.root?.message ? (
+                <p className="text-sm text-destructive">{npcForm.formState.errors.root.message}</p>
+              ) : null}
+              <Button type="submit" className="w-full" disabled={npcForm.formState.isSubmitting}>
+                {npcForm.formState.isSubmitting
+                  ? "Salvando..."
+                  : editingNpc
+                    ? "Salvar alteracoes"
+                    : "Criar NPC"}
+              </Button>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

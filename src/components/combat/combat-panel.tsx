@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import { Separator } from "@/components/ui/separator";
 
 type CharacterLite = { id: string; name: string };
@@ -643,45 +644,36 @@ export function CombatPanel({ campaignId, characters }: Props) {
           <div className="grid gap-3 md:grid-cols-3">
             <div className="space-y-1">
               <label className="text-sm text-muted-foreground">Atacante</label>
-              <select
+              <SelectField
+                className="h-10 w-full rounded-md border-white/10 bg-black/20 px-3 text-sm"
                 value={attacker}
-                onChange={(e) => setAttacker(e.target.value)}
-                className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm"
-              >
-                <option value="">Selecione</option>
-                {orderedCombatants.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                onValueChange={setAttacker}
+                placeholder="Selecione"
+                options={orderedCombatants.map((c) => ({ value: c.id, label: c.name }))}
+              />
             </div>
             <div className="space-y-1">
               <label className="text-sm text-muted-foreground">Alvo</label>
-              <select
+              <SelectField
+                className="h-10 w-full rounded-md border-white/10 bg-black/20 px-3 text-sm"
                 value={target}
-                onChange={(e) => setTarget(e.target.value)}
-                className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm"
-              >
-                <option value="">Selecione</option>
-                {orderedCombatants.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                onValueChange={setTarget}
+                placeholder="Selecione"
+                options={orderedCombatants.map((c) => ({ value: c.id, label: c.name }))}
+              />
             </div>
             <div className="space-y-1">
               <label className="text-sm text-muted-foreground">Tipo</label>
-              <select
+              <SelectField
+                className="h-10 w-full rounded-md border-white/10 bg-black/20 px-3 text-sm"
                 value={actionKind}
-                onChange={(e) => setActionKind(e.target.value as any)}
-                className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm"
-              >
-                <option value="ATTACK">Ataque</option>
-                <option value="SPELL">Magia</option>
-                <option value="SKILL">Pericia</option>
-              </select>
+                onValueChange={(value) => setActionKind(value as "ATTACK" | "SPELL" | "SKILL")}
+                options={[
+                  { value: "ATTACK", label: "Ataque" },
+                  { value: "SPELL", label: "Magia" },
+                  { value: "SKILL", label: "Pericia" },
+                ]}
+              />
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
@@ -689,50 +681,47 @@ export function CombatPanel({ campaignId, characters }: Props) {
               <label className="text-sm text-muted-foreground">
                 {actionKind === "SPELL" ? "Magia da ficha" : actionKind === "SKILL" ? "Pericia da ficha" : "Ataque da ficha"}
               </label>
-              <select
-                className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm"
+              <SelectField
+                className="h-10 w-full rounded-md border-white/10 bg-black/20 px-3 text-sm"
                 value={
                   actionKind === "SPELL" ? selectedSpellId : actionKind === "SKILL" ? selectedSkillId : selectedAttackId
                 }
-                onChange={(e) => {
-                  if (actionKind === "SPELL") setSelectedSpellId(e.target.value);
-                  if (actionKind === "SKILL") setSelectedSkillId(e.target.value);
-                  if (actionKind === "ATTACK") setSelectedAttackId(e.target.value);
+                onValueChange={(value) => {
+                  if (actionKind === "SPELL") setSelectedSpellId(value);
+                  if (actionKind === "SKILL") setSelectedSkillId(value);
+                  if (actionKind === "ATTACK") setSelectedAttackId(value);
                 }}
                 disabled={!attacker || (actionKind !== "ATTACK" && !attackerIsCharacter)}
-              >
-                {(() => {
-                  if (actionKind === "ATTACK" && !attackerIsCharacter) {
-                    return <option value="">Ataque base do inimigo</option>;
-                  }
+                placeholder={
+                  actionKind === "ATTACK" && !attackerIsCharacter
+                    ? "Ataque base do inimigo"
+                    : actionKind === "SPELL"
+                      ? "Nenhuma magia"
+                      : actionKind === "SKILL"
+                        ? "Nenhuma pericia"
+                        : "Padrao (bonus da ficha)"
+                }
+                options={(() => {
+                  if (actionKind === "ATTACK" && !attackerIsCharacter) return [];
                   const data = sheetData[attacker];
                   if (actionKind === "SPELL") {
-                    const list = data?.spells ?? [];
-                    if (!list?.length) return <option value="">Nenhuma magia</option>;
-                    return list.map((item: any) => (
-                      <option key={item.id || item.name} value={item.id || item.name}>
-                        {item.name ?? "Magia"}
-                      </option>
-                    ));
+                    return (data?.spells ?? []).map((item: any) => ({
+                      value: item.id || item.name,
+                      label: item.name ?? "Magia",
+                    }));
                   }
                   if (actionKind === "SKILL") {
-                    const list = data?.skills ?? [];
-                    if (!list?.length) return <option value="">Nenhuma pericia</option>;
-                    return list.map((item: any) => (
-                      <option key={item.id || item.name} value={item.id || item.name}>
-                        {item.name ?? "Pericia"}
-                      </option>
-                    ));
+                    return (data?.skills ?? []).map((item: any) => ({
+                      value: item.id || item.name,
+                      label: item.name ?? "Pericia",
+                    }));
                   }
-                  const list = data?.attacks ?? [];
-                  if (!list?.length) return <option value="">Padrao (bonus da ficha)</option>;
-                  return list.map((item: any) => (
-                    <option key={item.id || item.name} value={item.id || item.name}>
-                      {item.name ?? "Ataque"}
-                    </option>
-                  ));
+                  return (data?.attacks ?? []).map((item: any) => ({
+                    value: item.id || item.name,
+                    label: item.name ?? "Ataque",
+                  }));
                 })()}
-              </select>
+              />
               {!attackerIsCharacter && attackerEntity && actionKind === "ATTACK" ? (
                 <p className="text-xs text-muted-foreground">
                   Dano base: {attackerEntity.damageFormula ?? "1d6"}

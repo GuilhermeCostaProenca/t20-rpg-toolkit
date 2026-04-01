@@ -1,100 +1,101 @@
-"use client";
+﻿"use client";
 
-import { useState, useRef } from "react";
-import { Mic, Square, Loader2, Wand2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { Loader2, Mic, Square } from "lucide-react";
+
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import { Button } from "@/components/ui/button";
 
 interface AudioRecorderProps {
-    onTranscriptionComplete: (text: string) => void;
-    className?: string;
+  onTranscriptionComplete: (text: string) => void;
+  className?: string;
 }
 
 export function AudioRecorder({ onTranscriptionComplete, className }: AudioRecorderProps) {
-    const [isRecording, setIsRecording] = useState(false);
-    const [processing, setProcessing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const chunksRef = useRef<Blob[]>([]);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const { notifyError } = useAppFeedback();
 
-    async function startRecording() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const recorder = new MediaRecorder(stream);
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
 
-            chunksRef.current = [];
+      chunksRef.current = [];
 
-            recorder.ondataavailable = (e) => {
-                if (e.data.size > 0) chunksRef.current.push(e.data);
-            };
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) chunksRef.current.push(event.data);
+      };
 
-            recorder.onstop = async () => {
-                const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-                await handleTranscribe(blob);
+      recorder.onstop = async () => {
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        await handleTranscribe(blob);
+        stream.getTracks().forEach((track) => track.stop());
+      };
 
-                // Stop all tracks
-                stream.getTracks().forEach(track => track.stop());
-            };
-
-            recorder.start();
-            mediaRecorderRef.current = recorder;
-            setIsRecording(true);
-        } catch (err) {
-            console.error("Microphone access denied or error", err);
-            alert("Erro ao acessar microfone.");
-        }
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setIsRecording(true);
+    } catch (error) {
+      console.error("Microphone access denied or error", error);
+      notifyError("Erro ao acessar microfone.", "Permita o acesso ao microfone e tente novamente.", true);
     }
+  }
 
-    function stopRecording() {
-        if (mediaRecorderRef.current && isRecording) {
-            mediaRecorderRef.current.stop();
-            setIsRecording(false);
-        }
+  function stopRecording() {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
     }
+  }
 
-    async function handleTranscribe(audioBlob: Blob) {
-        setProcessing(true);
-        try {
-            const formData = new FormData();
-            formData.append("file", audioBlob, "recording.webm");
+  async function handleTranscribe(audioBlob: Blob) {
+    setProcessing(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", audioBlob, "recording.webm");
 
-            const res = await fetch("/api/ai/transcribe", {
-                method: "POST",
-                body: formData,
-            });
+      const res = await fetch("/api/ai/transcribe", {
+        method: "POST",
+        body: formData,
+      });
 
-            if (!res.ok) throw new Error("Erro na transcrição");
+      if (!res.ok) throw new Error("Erro na transcricao");
 
-            const data = await res.json();
-            if (data.text) {
-                onTranscriptionComplete(data.text);
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Falha ao transcrever áudio.");
-        } finally {
-            setProcessing(false);
-        }
+      const data = await res.json();
+      if (data.text) {
+        onTranscriptionComplete(data.text);
+      }
+    } catch (error) {
+      console.error(error);
+      notifyError("Falha ao transcrever audio.", "Tente novamente em alguns segundos.", true);
+    } finally {
+      setProcessing(false);
     }
+  }
 
-    return (
-        <div className={className}>
-            {!isRecording && !processing && (
-                <Button variant="outline" size="icon" onClick={startRecording} title="Gravar voz">
-                    <Mic className="h-4 w-4" />
-                </Button>
-            )}
+  return (
+    <div className={className}>
+      {!isRecording && !processing && (
+        <Button variant="outline" size="icon" onClick={startRecording} title="Gravar voz">
+          <Mic className="h-4 w-4" />
+        </Button>
+      )}
 
-            {isRecording && (
-                <Button variant="destructive" size="icon" onClick={stopRecording} className="animate-pulse">
-                    <Square className="h-4 w-4" />
-                </Button>
-            )}
+      {isRecording && (
+        <Button variant="destructive" size="icon" onClick={stopRecording} className="animate-pulse">
+          <Square className="h-4 w-4" />
+        </Button>
+      )}
 
-            {processing && (
-                <Button variant="ghost" size="icon" disabled>
-                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                </Button>
-            )}
-        </div>
-    );
+      {processing && (
+        <Button variant="ghost" size="icon" disabled>
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        </Button>
+      )}
+    </div>
+  );
 }

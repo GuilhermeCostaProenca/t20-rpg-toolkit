@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { BookOpen, Calendar, Clock, Sparkles } from "lucide-react";
 
@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import { Textarea } from "@/components/ui/textarea";
+import { useAppFeedback } from "@/components/app-feedback-provider";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 type Campaign = {
   id: string;
@@ -40,6 +46,13 @@ const initialForm = {
   scheduledAt: "",
   status: "planned",
 };
+const createSessionFormSchema = z.object({
+  title: z.string().trim().min(2, "Titulo precisa de pelo menos 2 caracteres"),
+  description: z.string().optional(),
+  campaignId: z.string().trim().min(1, "Selecione uma campanha"),
+  scheduledAt: z.string().optional(),
+  status: z.enum(["planned", "active", "finished"]),
+});
 
 function formatDate(value?: string | null) {
   if (!value) return "Sem data";
@@ -66,7 +79,11 @@ export default function WorldDiaryPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
-  const [formData, setFormData] = useState(initialForm);
+  const createForm = useForm<typeof initialForm>({
+    resolver: zodResolver(createSessionFormSchema),
+    defaultValues: initialForm,
+  });
+  const { notifyError, notifySuccess } = useAppFeedback();
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -83,30 +100,27 @@ export default function WorldDiaryPage() {
       setSessions(sessionsData.data ?? []);
       setCampaigns(nextCampaigns);
 
-      if (nextCampaigns.length > 0) {
-        setFormData((prev) => ({
-          ...prev,
-          campaignId: prev.campaignId || nextCampaigns[0].id,
-        }));
+      if (nextCampaigns.length > 0 && !createForm.getValues("campaignId")) {
+        createForm.setValue("campaignId", nextCampaigns[0].id);
       }
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  }, [worldId]);
+  }, [createForm, worldId]);
 
   useEffect(() => {
     if (worldId) void loadData();
   }, [loadData, worldId]);
 
-  async function handleCreate(event: FormEvent) {
-    event.preventDefault();
+  async function handleCreate(values: typeof initialForm) {
+    createForm.clearErrors("root");
     try {
       const payload = {
-        ...formData,
+        ...values,
         worldId,
-        scheduledAt: formData.scheduledAt ? new Date(formData.scheduledAt).toISOString() : undefined,
+        scheduledAt: values.scheduledAt ? new Date(values.scheduledAt).toISOString() : undefined,
       };
 
       const response = await fetch("/api/sessions", {
@@ -117,12 +131,18 @@ export default function WorldDiaryPage() {
 
       if (!response.ok) throw new Error("Erro ao criar sessao");
 
+      const currentCampaignId = createForm.getValues("campaignId");
       setCreateOpen(false);
-      setFormData((prev) => ({ ...initialForm, campaignId: prev.campaignId }));
+      createForm.reset({ ...initialForm, campaignId: currentCampaignId });
+      notifySuccess("Sessao agendada.");
       await loadData();
     } catch (error) {
       console.error(error);
-      alert("Falha ao agendar sessao");
+      createForm.setError("root", {
+        type: "server",
+        message: error instanceof Error ? error.message : "Erro inesperado ao agendar sessao",
+      });
+      notifyError("Falha ao agendar sessao", error instanceof Error ? error.message : "Erro inesperado ao agendar sessao", true);
     }
   }
 
@@ -159,7 +179,13 @@ export default function WorldDiaryPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <Dialog
+                open={createOpen}
+                onOpenChange={(open) => {
+                  setCreateOpen(open);
+                  if (!open) createForm.clearErrors("root");
+                }}
+              >
                 <DialogTrigger asChild>
                   <Button>
                     <Sparkles className="mr-2 h-4 w-4" />
@@ -170,49 +196,76 @@ export default function WorldDiaryPage() {
                   <DialogHeader>
                     <DialogTitle>Nova sessao</DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={handleCreate} className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Titulo</label>
-                      <Input
-                        required
-                        value={formData.title}
-                        onChange={(event) => setFormData((prev) => ({ ...prev, title: event.target.value }))}
+                  <Form {...createForm}>
+                    <form onSubmit={createForm.handleSubmit(handleCreate)} className="space-y-4">
+                      <FormField
+                        control={createForm.control}
+                        name="title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Titulo</FormLabel>
+                            <FormControl>
+                              <Input value={field.value} onChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Campanha</label>
-                      <select
-                        className="h-10 w-full rounded-2xl border border-white/10 bg-black/25 px-4 text-sm"
-                        value={formData.campaignId}
-                        onChange={(event) => setFormData((prev) => ({ ...prev, campaignId: event.target.value }))}
-                      >
-                        {campaigns.map((campaign) => (
-                          <option key={campaign.id} value={campaign.id}>
-                            {campaign.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Data e hora</label>
-                      <Input
-                        type="datetime-local"
-                        value={formData.scheduledAt}
-                        onChange={(event) => setFormData((prev) => ({ ...prev, scheduledAt: event.target.value }))}
+                      <FormField
+                        control={createForm.control}
+                        name="campaignId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Campanha</FormLabel>
+                            <FormControl>
+                              <SelectField
+                                className="h-10 rounded-2xl border-white/10 bg-black/25 px-4 text-sm"
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={campaigns.map((campaign) => ({
+                                  value: campaign.id,
+                                  label: campaign.name,
+                                }))}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Notas iniciais</label>
-                      <Textarea
-                        rows={4}
-                        value={formData.description}
-                        onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))}
+                      <FormField
+                        control={createForm.control}
+                        name="scheduledAt"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Data e hora</FormLabel>
+                            <FormControl>
+                              <Input type="datetime-local" value={field.value ?? ""} onChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                    <Button type="submit" className="w-full">
-                      Salvar sessao
-                    </Button>
-                  </form>
+                      <FormField
+                        control={createForm.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Notas iniciais</FormLabel>
+                            <FormControl>
+                              <Textarea rows={4} value={field.value ?? ""} onChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {createForm.formState.errors.root?.message ? (
+                        <p className="text-sm text-destructive">{createForm.formState.errors.root.message}</p>
+                      ) : null}
+                      <Button type="submit" className="w-full" disabled={createForm.formState.isSubmitting}>
+                        {createForm.formState.isSubmitting ? "Salvando..." : "Salvar sessao"}
+                      </Button>
+                    </form>
+                  </Form>
                 </DialogContent>
               </Dialog>
             </div>

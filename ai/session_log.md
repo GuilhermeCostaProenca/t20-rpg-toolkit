@@ -853,3 +853,212 @@
   - validar no browser os fluxos de link com Docker estabilizado.
 - Proximo passo recomendado:
   - inverter fallback de compatibilidade (tornar `visual` a rota implementada principal e `visual-library` apenas redirect) quando houver janela segura de refactor.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (Fase 1+2 parcial executada)
+- Objetivo da sessao: iniciar reconstrucao do front com foco em integridade, feedback unificado, foundation de design system e padrao de formulario.
+- O que foi feito:
+  - criado `AppFeedbackProvider` e integrado no layout raiz com toasts + dialog de confirmacao destrutiva.
+  - criados novos primitives de DS: `ui/select`, `ui/panel`, `ui/states`, `ui/form`, `ui/layout`.
+  - removidos usos de `alert/confirm` nas superficies alteradas (worlds, world detail, campaign, codex entity, forge lore, reveal button, audio recorder, diary/compendium/locations/npcs).
+  - corrigida quebra de integridade em imports de visual (`visual-library`), incluindo rota de forja de sessao.
+  - migrado formulario de `worlds/[id]/campaigns` para RHF + Zod com submit pending e erro de formulario.
+  - iniciado uso do novo `Select` em modulos world-scoped (`characters`, `npcs`).
+  - gerados guias de fundacao e mapa de corte para Fase 3 em `docs/99-reports`.
+- Arquivos principais alterados:
+  - `src/components/app-feedback-provider.tsx`
+  - `src/components/ui/select.tsx`
+  - `src/components/ui/form.tsx`
+  - `src/components/ui/panel.tsx`
+  - `src/components/ui/states.tsx`
+  - `src/app/layout.tsx`
+  - `src/app/app/worlds/[id]/campaigns/page.tsx`
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `src/app/app/worlds/[id]/visual-library/page.tsx`
+  - `docs/99-reports/front-foundation-guidelines-2026-04-01.md`
+  - `docs/99-reports/front-phase3-cut-map-2026-04-01.md`
+- Validacao executada:
+  - `rg -n "alert\(|confirm\(|window\.alert|window\.confirm" src/app src/components` -> sem ocorrencias.
+  - `npx eslint` nos principais arquivos alterados -> ok.
+  - `npm run -s build` -> falhou por erros preexistentes de backend (`src/app/api/campaigns/[id]/map*` duplicando import de `prisma`), fora do escopo front desta sessao.
+- Decisoes tomadas:
+  - DEC-023 registrada (feedback global unico + confirmacao destrutiva padrao).
+- Pendencias abertas:
+  - concluir migracao de todos os `<select>` nativos restantes para `ui/select`.
+  - concluir migracao de formularios restantes para RHF + Zod.
+  - executar validacao visual completa em browser real apos estabilizar o restante da migracao.
+- Proximo passo recomendado:
+  - atacar lote 2 da Fase 1+2 focando `campaign/[id]`, `worlds/[id]/page`, `codex/[entityId]`, `play/[roomCode]` para fechar aderencia total ao design system/feedback.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R2/R3: padronizacao transversal de select/feedback)
+- Objetivo da sessao: fechar a varredura de padrao de selecao e feedback no front operacional sem tocar backend/regra de negocio.
+- O que foi feito:
+  - migrados para `SelectField` os blocos remanescentes de:
+    - `worlds/[id]/graph/page.tsx`,
+    - `worlds/[id]/codex/[entityId]/page.tsx`,
+    - `components/combat/combat-panel.tsx`,
+    - `components/character/character-sheet-view.tsx`,
+    - `components/character-wizard.tsx`,
+    - `app/play/[campaignId]/quick-sheet.tsx`,
+    - `components/visual/visual-library-browser.tsx`.
+  - criada a camada `src/components/visual/visual-library-filters.tsx` (client) para substituir o form server-side com `<select>` em `worlds/[id]/visual-library/page.tsx`.
+  - removido uso direto de `sonner/toast` nos modulos alterados, consolidando `useAppFeedback`.
+  - aplicado confirmacao destrutiva padrao no delete de relacoes do grafo (`graph/page.tsx`).
+- Arquivos principais alterados:
+  - `src/app/app/worlds/[id]/graph/page.tsx`
+  - `src/app/app/worlds/[id]/codex/[entityId]/page.tsx`
+  - `src/components/combat/combat-panel.tsx`
+  - `src/components/character/character-sheet-view.tsx`
+  - `src/components/character-wizard.tsx`
+  - `src/app/app/play/[campaignId]/quick-sheet.tsx`
+  - `src/components/visual/visual-library-browser.tsx`
+  - `src/components/visual/visual-library-filters.tsx`
+  - `src/app/app/worlds/[id]/visual-library/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `rg -n "<select" src/app src/components` -> sem ocorrencias.
+  - `rg -n "from \"sonner\"|toast\\." src/app src/components` -> sem ocorrencias.
+  - `rg -n "window\\.confirm|window\\.alert|alert\\(|confirm\\(" src/app src/components` -> sem ocorrencias.
+  - `npx eslint` (arquivos migrados):
+    - ok: `graph/page.tsx`, `codex/[entityId]/page.tsx`, `character-wizard.tsx`, `quick-sheet.tsx`, `visual-library-browser.tsx`, `visual-library-filters.tsx`, `visual-library/page.tsx`.
+    - falhas preexistentes de `@typescript-eslint/no-explicit-any` (fora do escopo da sessao): `components/combat/combat-panel.tsx`, `components/character/character-sheet-view.tsx`.
+- Decisoes tomadas:
+  - DEC-024 registrada.
+- Pendencias abertas:
+  - concluir migracao ampla de formularios para RHF+Zod em todos os fluxos restantes.
+  - tratar debt antiga de tipagem (`any`) em `combat-panel` e `character-sheet-view` em recorte dedicado.
+- Proximo passo recomendado:
+  - fechar lote final de formularios (RHF+Zod + estados de submit/erro/sucesso) e preparar checklist de aceite de Fase 1+2 por rota.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R4: RHF+Zod em fluxos centrais de criacao)
+- Objetivo da sessao: consolidar o padrao unico de formulario nos pontos de entrada principais do produto.
+- O que foi feito:
+  - migrado formulario de criacao de mundo em `worlds/page` para `react-hook-form + zodResolver` com `worldCreateFormSchema`.
+  - migrado formulario de criacao de campanha em `worlds/[id]/page` para `react-hook-form + zodResolver`.
+  - padronizados estados de submit/erro (`isSubmitting`, `errors.root`) e feedback de sucesso/erro via `useAppFeedback`.
+- Arquivos principais alterados:
+  - `src/app/app/worlds/page.tsx`
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/worlds/page.tsx"` -> ok.
+  - `npx eslint "src/app/app/worlds/[id]/page.tsx"` -> ok.
+- Decisoes tomadas:
+  - continuidade de DEC-023 e DEC-024 (sem nova ADR).
+- Pendencias abertas:
+  - concluir migracao RHF+Zod em dialogs/forms remanescentes de modulo (`campaign/[id]`, `codex/[entityId]`, `graph`, `compendium`, `diary`, `locations`, `npcs`).
+- Proximo passo recomendado:
+  - executar lote de formularios do modulo `campaign/[id]` (character/session/npc) mantendo contratos de API atuais.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R5: fechamento de feedback residual)
+- Objetivo da sessao: eliminar o ultimo ponto de feedback legado identificado no modulo de NPCs.
+- O que foi feito:
+  - removido uso direto de `sonner/toast` em `worlds/[id]/npcs/page.tsx`.
+  - espelhamento de NPC -> Codex agora usa `notifySuccess/notifyError` do provider global.
+- Arquivos alterados:
+  - `src/app/app/worlds/[id]/npcs/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `rg -n "from \"sonner\"|toast\\." src/app src/components` -> sem ocorrencias.
+  - `npx eslint "src/app/app/worlds/[id]/npcs/page.tsx"` -> ok.
+- Decisoes tomadas:
+  - sem nova ADR.
+- Pendencias abertas:
+  - migrar formularios restantes de modulo para RHF+Zod.
+- Proximo passo recomendado:
+  - iniciar recorte de migracao dos forms do modulo `campaign/[id]` (personagem/sessao/npc).
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R6: campanha com formularios unificados)
+- Objetivo da sessao: concluir o lote principal de formularios restantes no modulo de campanha sem alterar backend/regra.
+- O que foi feito:
+  - migrados os dialogs de `Character`, `Session` e `Npc` em `src/app/app/campaign/[id]/page.tsx` para `react-hook-form + zodResolver`.
+  - removidos bindings legados de estado local de formulario no dialog de NPC (`setNpcForm`, `npcFormError`, `npcSubmitting`) e unificado para `npcForm.formState`.
+  - padronizado fechamento de dialog para limpar erro `root` via `clearErrors` e reset de formulario.
+  - mantida a integridade de contratos de API existentes (`POST/PUT/DELETE`) sem alteracao de payload de backend.
+- Arquivos alterados:
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/campaign/[id]/page.tsx"` -> ok.
+  - `rg -n "window\\.confirm|window\\.alert|alert\\(|confirm\\(" src/app src/components` -> sem ocorrencias.
+  - `rg -n "from \"sonner\"|toast\\." src/app src/components` -> sem ocorrencias.
+  - `rg -n "<select[\\s>]" src/app src/components` -> sem ocorrencias.
+- Decisoes tomadas:
+  - sem nova ADR (execucao direta de DEC-023/DEC-024).
+- Pendencias abertas:
+  - concluir o restante da migracao RHF+Zod fora de `campaign/[id]` (modulos world/codex/graph/forja com forms residuais).
+- Proximo passo recomendado:
+  - abrir o proximo lote por modulo e fechar checklist de aceite de Fase 1+2 por rota.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R7: formularios world-scoped)
+- Objetivo da sessao: avançar a padronizacao de formularios em modulos world-scoped sem alterar backend/regra de negocio.
+- O que foi feito:
+  - `worlds/[id]/diary/page.tsx`: formulario de agendamento migrado para RHF+Zod com `FormField` e estado `root`.
+  - `worlds/[id]/npcs/page.tsx`: formulario de criacao migrado para RHF+Zod, removendo estado local ad hoc.
+  - `worlds/[id]/locations/page.tsx`: formulario de criacao (texto/arquivo) migrado para RHF+Zod mantendo upload via `FormData`.
+  - `worlds/[id]/compendium/page.tsx`: formulario de criacao (texto/arquivo) migrado para RHF+Zod mantendo upload via `FormData`.
+- Arquivos alterados:
+  - `src/app/app/worlds/[id]/diary/page.tsx`
+  - `src/app/app/worlds/[id]/npcs/page.tsx`
+  - `src/app/app/worlds/[id]/locations/page.tsx`
+  - `src/app/app/worlds/[id]/compendium/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/worlds/[id]/diary/page.tsx" "src/app/app/worlds/[id]/npcs/page.tsx" "src/app/app/worlds/[id]/locations/page.tsx" "src/app/app/worlds/[id]/compendium/page.tsx"` -> ok.
+- Decisoes tomadas:
+  - sem nova ADR (continuidade de DEC-023/DEC-024).
+- Pendencias abertas:
+  - migrar formularios restantes de `codex` (lista e workspace) e forms residuais em modulos de forja/grafo.
+- Proximo passo recomendado:
+  - atacar lote `codex` para reduzir variacoes ad hoc restantes antes do fechamento de aceite da Fase 1+2.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R8: codex list create form)
+- Objetivo da sessao: eliminar estado de formulario ad hoc no fluxo principal de criacao de entidade do Codex.
+- O que foi feito:
+  - migrado o dialog `Nova entidade` em `worlds/[id]/codex/page.tsx` para RHF+Zod.
+  - removidos estados locais `form/formError/submitting` e substituidos por `createEntityForm.formState`.
+  - mantido contrato de payload para `/api/worlds/[id]/entities` (sem alteracao de backend).
+- Arquivos alterados:
+  - `src/app/app/worlds/[id]/codex/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/worlds/[id]/codex/page.tsx"` -> ok.
+- Decisoes tomadas:
+  - sem nova ADR (continuidade de DEC-023/DEC-024).
+- Pendencias abertas:
+  - migrar formularios remanescentes do workspace de entidade `codex/[entityId]` (editar entidade, adicionar imagem, criar relacao).
+- Proximo passo recomendado:
+  - executar lote final do `codex/[entityId]` e fechar checklist de formularios da Fase 1+2.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R9: codex entity overview form)
+- Objetivo da sessao: consolidar o formulario central de edicao do workspace de entidade no padrao RHF+Zod.
+- O que foi feito:
+  - migrado o form `Overview e edicao` em `worlds/[id]/codex/[entityId]/page.tsx` para RHF+Zod.
+  - removido estado local ad hoc do form principal e adotado `entityForm.formState` para submit/erro.
+  - mantido payload de PATCH para `/api/worlds/[id]/entities/[entityId]` sem alteracao de contrato.
+- Arquivos alterados:
+  - `src/app/app/worlds/[id]/codex/[entityId]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/worlds/[id]/codex/[entityId]/page.tsx"` -> ok.
+- Decisoes tomadas:
+  - sem nova ADR (continuidade de DEC-023/DEC-024).
+- Pendencias abertas:
+  - formularios auxiliares de `codex/[entityId]` (adicionar imagem, criar relacao) ainda estao em estado ad hoc.
+- Proximo passo recomendado:
+  - fechar o lote final desses formularios auxiliares para concluir padrao de forms no modulo Codex.

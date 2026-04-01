@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import { buildLoreTextIndex, inferLoreCampaignIds, inferLorePrepContexts, parseLoreTextIndex, type LorePrepContext, type LorePrepFocus, type LoreVisibility } from "@/lib/lore";
 
 type LoreDoc = { id: string; title: string; filePath: string; textIndex?: string | null; createdAt: string };
@@ -81,6 +82,7 @@ export default function WorldForgeLorePage() {
   const [selectedContent, setSelectedContent] = useState("");
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const { confirmDestructive } = useAppFeedback();
   const [error, setError] = useState<string | null>(null);
 
   const loadLore = useCallback(async () => {
@@ -314,7 +316,14 @@ export default function WorldForgeLorePage() {
 
   async function handleDeleteLore() {
     if (!selectedDoc || deleting) return;
-    if (!confirm(`Remover o bloco de lore \"${selectedDoc.title}\"?`)) return;
+    const confirmed = await confirmDestructive({
+      title: `Remover bloco de lore: ${selectedDoc.title}?`,
+      description: "Esta acao remove o bloco de lore permanentemente.",
+      confirmText: "Remover",
+      cancelText: "Cancelar",
+      variant: "destructive",
+    });
+    if (!confirmed) return;
     setDeleting(true);
     setError(null);
     setMessage(null);

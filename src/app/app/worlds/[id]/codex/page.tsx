@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -19,6 +19,7 @@ import { ModeSwitcher } from "@/components/world/mode-switcher";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +29,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 type Campaign = {
   id: string;
@@ -104,6 +109,19 @@ const initialForm = {
   coverImageUrl: "",
   portraitImageUrl: "",
 };
+const createEntityFormSchema = z.object({
+  name: z.string().trim().min(2, "Nome precisa de pelo menos 2 caracteres"),
+  type: z.string().trim().min(1, "Tipo obrigatorio"),
+  campaignId: z.string().optional(),
+  subtype: z.string().optional(),
+  summary: z.string().optional(),
+  description: z.string().optional(),
+  status: z.string().trim().min(1, "Status obrigatorio"),
+  visibility: z.enum(["MASTER", "PLAYERS"]),
+  tags: z.string().optional(),
+  coverImageUrl: z.string().optional(),
+  portraitImageUrl: z.string().optional(),
+});
 
 const typeOptions = [
   "character",
@@ -198,9 +216,10 @@ export default function WorldCodexPage() {
   const [campaignFilter, setCampaignFilter] = useState("");
   const [tagFilter, setTagFilter] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState(initialForm);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const createEntityForm = useForm<typeof initialForm>({
+    resolver: zodResolver(createEntityFormSchema),
+    defaultValues: initialForm,
+  });
   const [inspectId, setInspectId] = useState<string | null>(null);
   const [inspectEntity, setInspectEntity] = useState<EntityDetail | null>(null);
   const [inspectLoading, setInspectLoading] = useState(false);
@@ -264,19 +283,17 @@ export default function WorldCodexPage() {
     };
   }, [inspectId, worldId]);
 
-  async function handleCreateEntity(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFormError(null);
-    setSubmitting(true);
+  async function handleCreateEntity(values: typeof initialForm) {
+    createEntityForm.clearErrors("root");
     try {
       const res = await fetch(`/api/worlds/${worldId}/entities`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...form,
-          campaignId: form.campaignId || undefined,
-          tags: form.tags
-            ? form.tags
+          ...values,
+          campaignId: values.campaignId || undefined,
+          tags: values.tags
+            ? values.tags
                 .split(",")
                 .map((item) => item.trim())
                 .filter(Boolean)
@@ -287,12 +304,13 @@ export default function WorldCodexPage() {
       if (!res.ok) throw new Error(response.error ?? "Falha ao criar entidade");
 
       setDialogOpen(false);
-      setForm(initialForm);
+      createEntityForm.reset(initialForm);
       await loadCodex();
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Falha ao criar entidade");
-    } finally {
-      setSubmitting(false);
+      createEntityForm.setError("root", {
+        type: "server",
+        message: err instanceof Error ? err.message : "Falha ao criar entidade",
+      });
     }
   }
 
@@ -420,7 +438,13 @@ export default function WorldCodexPage() {
             </div>
             <ModeSwitcher worldId={worldId} />
             <div className="flex flex-wrap gap-3">
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <Dialog
+                open={dialogOpen}
+                onOpenChange={(open) => {
+                  setDialogOpen(open);
+                  if (!open) createEntityForm.clearErrors("root");
+                }}
+              >
                 <DialogTrigger asChild>
                   <Button>
                     <Plus className="mr-2 h-4 w-4" />
@@ -434,76 +458,186 @@ export default function WorldCodexPage() {
                       Primeiro corte do Codex: uma entidade ja entra no mundo com tipo, resumo, imagens e campanha opcional.
                     </DialogDescription>
                   </DialogHeader>
-                  <form className="space-y-4" onSubmit={handleCreateEntity}>
-                    <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Nome</label>
-                        <Input value={form.name} onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))} />
+                  <Form {...createEntityForm}>
+                    <form className="space-y-4" onSubmit={createEntityForm.handleSubmit(handleCreateEntity)}>
+                      <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
+                        <FormField
+                          control={createEntityForm.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nome</FormLabel>
+                              <FormControl>
+                                <Input value={field.value} onChange={field.onChange} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={createEntityForm.control}
+                          name="type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tipo</FormLabel>
+                              <FormControl>
+                                <SelectField
+                                  className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  options={typeOptions.map((option) => ({ value: option, label: option }))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Tipo</label>
-                        <select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={form.type} onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}>
-                          {typeOptions.map((option) => (
-                            <option key={option} value={option}>{option}</option>
-                          ))}
-                        </select>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <FormField
+                          control={createEntityForm.control}
+                          name="campaignId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Campanha</FormLabel>
+                              <FormControl>
+                                <SelectField
+                                  className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                                  value={field.value ?? ""}
+                                  onValueChange={field.onChange}
+                                  placeholder="Sem campanha"
+                                  options={campaigns.map((campaign) => ({ value: campaign.id, label: campaign.name }))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={createEntityForm.control}
+                          name="subtype"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Subtipo</FormLabel>
+                              <FormControl>
+                                <Input value={field.value ?? ""} onChange={field.onChange} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Campanha</label>
-                        <select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={form.campaignId} onChange={(event) => setForm((prev) => ({ ...prev, campaignId: event.target.value }))}>
-                          <option value="">Sem campanha</option>
-                          {campaigns.map((campaign) => (
-                            <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
-                          ))}
-                        </select>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <FormField
+                          control={createEntityForm.control}
+                          name="status"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Status</FormLabel>
+                              <FormControl>
+                                <Input value={field.value} onChange={field.onChange} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={createEntityForm.control}
+                          name="visibility"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Visibilidade</FormLabel>
+                              <FormControl>
+                                <SelectField
+                                  className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  options={[
+                                    { value: "MASTER", label: "MASTER" },
+                                    { value: "PLAYERS", label: "PLAYERS" },
+                                  ]}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Subtipo</label>
-                        <Input value={form.subtype} onChange={(event) => setForm((prev) => ({ ...prev, subtype: event.target.value }))} />
+                      <FormField
+                        control={createEntityForm.control}
+                        name="summary"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Resumo</FormLabel>
+                            <FormControl>
+                              <Input value={field.value ?? ""} onChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={createEntityForm.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Descricao</FormLabel>
+                            <FormControl>
+                              <Textarea rows={5} value={field.value ?? ""} onChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <FormField
+                          control={createEntityForm.control}
+                          name="portraitImageUrl"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Retrato</FormLabel>
+                              <FormControl>
+                                <Input value={field.value ?? ""} onChange={field.onChange} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={createEntityForm.control}
+                          name="coverImageUrl"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Capa</FormLabel>
+                              <FormControl>
+                                <Input value={field.value ?? ""} onChange={field.onChange} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Status</label>
-                        <Input value={form.status} onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))} />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Visibilidade</label>
-                        <select className="h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground" value={form.visibility} onChange={(event) => setForm((prev) => ({ ...prev, visibility: event.target.value }))}>
-                          <option value="MASTER">MASTER</option>
-                          <option value="PLAYERS">PLAYERS</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Resumo</label>
-                      <Input value={form.summary} onChange={(event) => setForm((prev) => ({ ...prev, summary: event.target.value }))} />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Descricao</label>
-                      <Textarea rows={5} value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} />
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Retrato</label>
-                        <Input value={form.portraitImageUrl} onChange={(event) => setForm((prev) => ({ ...prev, portraitImageUrl: event.target.value }))} />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Capa</label>
-                        <Input value={form.coverImageUrl} onChange={(event) => setForm((prev) => ({ ...prev, coverImageUrl: event.target.value }))} />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Tags</label>
-                      <Input value={form.tags} placeholder="ex.: nobre, draconico, aliado" onChange={(event) => setForm((prev) => ({ ...prev, tags: event.target.value }))} />
-                    </div>
-                    {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
-                    <Button type="submit" className="w-full" disabled={submitting}>
-                      {submitting ? "Criando..." : "Criar entidade"}
-                    </Button>
-                  </form>
+                      <FormField
+                        control={createEntityForm.control}
+                        name="tags"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tags</FormLabel>
+                            <FormControl>
+                              <Input value={field.value ?? ""} placeholder="ex.: nobre, draconico, aliado" onChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {createEntityForm.formState.errors.root?.message ? (
+                        <p className="text-sm text-destructive">{createEntityForm.formState.errors.root.message}</p>
+                      ) : null}
+                      <Button type="submit" className="w-full" disabled={createEntityForm.formState.isSubmitting}>
+                        {createEntityForm.formState.isSubmitting ? "Criando..." : "Criar entidade"}
+                      </Button>
+                    </form>
+                  </Form>
                 </DialogContent>
               </Dialog>
               <Button variant="outline" className="border-white/10 bg-white/5" onClick={() => void loadCodex()}>
@@ -550,21 +684,32 @@ export default function WorldCodexPage() {
                   <Input value={term} onChange={(event) => setTerm(event.target.value)} placeholder="Nome, resumo ou descricao" className="h-12 rounded-2xl border-white/10 bg-black/25 pl-11" />
                 </div>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <select className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
-                    <option value="">Todos os tipos</option>
-                    {typeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
-                  </select>
-                  <select className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-                    <option value="">Todos os status</option>
-                    <option value="active">active</option>
-                    <option value="alive">alive</option>
-                    <option value="dead">dead</option>
-                    <option value="missing">missing</option>
-                  </select>
-                  <select className="h-12 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm" value={campaignFilter} onChange={(event) => setCampaignFilter(event.target.value)}>
-                    <option value="">Todas as campanhas</option>
-                    {campaigns.map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}
-                  </select>
+                  <SelectField
+                    className="h-12 rounded-2xl border-white/10 bg-black/25 px-4 text-sm"
+                    value={typeFilter}
+                    onValueChange={setTypeFilter}
+                    placeholder="Todos os tipos"
+                    options={typeOptions.map((option) => ({ value: option, label: option }))}
+                  />
+                  <SelectField
+                    className="h-12 rounded-2xl border-white/10 bg-black/25 px-4 text-sm"
+                    value={statusFilter}
+                    onValueChange={setStatusFilter}
+                    placeholder="Todos os status"
+                    options={[
+                      { value: "active", label: "active" },
+                      { value: "alive", label: "alive" },
+                      { value: "dead", label: "dead" },
+                      { value: "missing", label: "missing" },
+                    ]}
+                  />
+                  <SelectField
+                    className="h-12 rounded-2xl border-white/10 bg-black/25 px-4 text-sm"
+                    value={campaignFilter}
+                    onValueChange={setCampaignFilter}
+                    placeholder="Todas as campanhas"
+                    options={campaigns.map((campaign) => ({ value: campaign.id, label: campaign.name }))}
+                  />
                 </div>
                 {topTags.length ? (
                   <div className="space-y-2">

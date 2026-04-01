@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { getRuleset } from "@/rulesets";
@@ -286,21 +287,16 @@ export function CharacterSheetView({ character, initialSheet, rulesetId }: Props
                     )
                   }
                 />
-                <select
-                  className="rounded-md border border-white/10 bg-black/20 px-3 text-sm"
+                <SelectField
+                  className="rounded-md border-white/10 bg-black/20 px-3 text-sm"
                   value={ability}
-                  onChange={(e) =>
+                  onValueChange={(value) =>
                     updateArray("skills", (items) =>
-                      items.map((it) => (it.id === skill.id ? { ...it, ability: e.target.value } : it))
+                      items.map((it) => (it.id === skill.id ? { ...it, ability: value } : it))
                     )
                   }
-                >
-                  {sortedAbilities.map((ab) => (
-                    <option key={ab.key} value={ab.key}>
-                      {ab.label}
-                    </option>
-                  ))}
-                </select>
+                  options={sortedAbilities.map((ab) => ({ value: ab.key, label: ab.label }))}
+                />
                 <label className="flex items-center gap-2 text-sm text-muted-foreground">
                   <input
                     type="checkbox"
@@ -386,21 +382,16 @@ export function CharacterSheetView({ character, initialSheet, rulesetId }: Props
                 }
                 placeholder="Espada longa"
               />
-              <select
-                className="rounded-md border border-white/10 bg-black/20 px-3 text-sm"
+              <SelectField
+                className="rounded-md border-white/10 bg-black/20 px-3 text-sm"
                 value={atk.ability ?? ruleset.abilities[0]?.key ?? "for"}
-                onChange={(e) =>
+                onValueChange={(value) =>
                   updateArray("attacks", (items) =>
-                    items.map((it) => (it.id === atk.id ? { ...it, ability: e.target.value } : it))
+                    items.map((it) => (it.id === atk.id ? { ...it, ability: value } : it))
                   )
                 }
-              >
-                {sortedAbilities.map((ab) => (
-                  <option key={ab.key} value={ab.key}>
-                    {ab.label}
-                  </option>
-                ))}
-              </select>
+                options={sortedAbilities.map((ab) => ({ value: ab.key, label: ab.label }))}
+              />
               <Input
                 type="number"
                 value={atk.bonus ?? 0}
@@ -500,19 +491,20 @@ export function CharacterSheetView({ character, initialSheet, rulesetId }: Props
                   }
                   placeholder="Circulo"
                 />
-                <select
-                  className="rounded-md border border-white/10 bg-black/20 px-3 text-sm"
+                <SelectField
+                  className="rounded-md border-white/10 bg-black/20 px-3 text-sm"
                   value={spell.type ?? "attack"}
-                  onChange={(e) =>
+                  onValueChange={(value) =>
                     updateArray("spells", (items) =>
-                      items.map((it) => (it.id === spell.id ? { ...it, type: e.target.value } : it))
+                      items.map((it) => (it.id === spell.id ? { ...it, type: value } : it))
                     )
                   }
-                >
-                  <option value="attack">Ataque</option>
-                  <option value="save">Salvacao</option>
-                  <option value="utility">Util</option>
-                </select>
+                  options={[
+                    { value: "attack", label: "Ataque" },
+                    { value: "save", label: "Salvacao" },
+                    { value: "utility", label: "Util" },
+                  ]}
+                />
                 <Input
                   type="number"
                   value={spell.cost ?? 0}

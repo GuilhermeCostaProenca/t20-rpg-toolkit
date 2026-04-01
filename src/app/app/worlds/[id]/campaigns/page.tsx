@@ -1,10 +1,15 @@
-"use client";
+﻿"use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { ArrowRight, Search, Shield, Sparkles, Swords } from "lucide-react";
 
+import { useAppFeedback } from "@/components/app-feedback-provider";
+import { EmptyState } from "@/components/empty-state";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,9 +21,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { EmptyState } from "@/components/empty-state";
-import { ModeSwitcher } from "@/components/world/mode-switcher";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { LoadingState } from "@/components/ui/states";
 import { Textarea } from "@/components/ui/textarea";
 import { CampaignCreateSchema } from "@/lib/validators";
 
@@ -30,11 +42,6 @@ type Campaign = {
   updatedAt: string;
   roomCode: string;
   world: { title: string };
-};
-
-const initialForm = {
-  name: "",
-  description: "",
 };
 
 function formatDate(value: string) {
@@ -50,13 +57,21 @@ export default function WorldCampaignsPage() {
   const router = useRouter();
   const worldId = params?.id as string;
 
+  const { notifyError, notifySuccess } = useAppFeedback();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState(initialForm);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+
+  const form = useForm<{ name: string; description?: string }>({
+    resolver: zodResolver(CampaignCreateSchema.pick({ name: true, description: true })),
+    defaultValues: {
+      name: "",
+      description: "",
+    },
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+  });
 
   const loadCampaigns = useCallback(async () => {
     setLoading(true);
@@ -66,41 +81,38 @@ export default function WorldCampaignsPage() {
       if (res.ok) setCampaigns(payload.data ?? []);
     } catch (error) {
       console.error(error);
+      notifyError(
+        "Falha ao carregar campanhas",
+        error instanceof Error ? error.message : "Erro inesperado",
+        true,
+      );
     } finally {
       setLoading(false);
     }
-  }, [worldId]);
+  }, [notifyError, worldId]);
 
   useEffect(() => {
     if (worldId) void loadCampaigns();
   }, [loadCampaigns, worldId]);
 
-  async function handleCreate(event?: FormEvent<HTMLFormElement>) {
-    event?.preventDefault();
-    setFormError(null);
-    const parsed = CampaignCreateSchema.safeParse(form);
-    if (!parsed.success) {
-      setFormError(parsed.error.issues[0]?.message ?? "Dados invalidos");
-      return;
-    }
-
-    setSubmitting(true);
+  async function handleCreate(values: { name: string; description?: string }) {
     try {
       const res = await fetch("/api/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...parsed.data, worldId }),
+        body: JSON.stringify({ ...values, worldId }),
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Nao foi possivel criar a campanha");
 
-      setForm(initialForm);
+      notifySuccess("Campanha criada.");
+      form.reset({ name: "", description: "" });
       setDialogOpen(false);
       await loadCampaigns();
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Erro ao salvar campanha");
-    } finally {
-      setSubmitting(false);
+      const message = error instanceof Error ? error.message : "Erro ao salvar campanha";
+      form.setError("root", { message });
+      notifyError("Falha ao criar campanha", message, true);
     }
   }
 
@@ -122,9 +134,7 @@ export default function WorldCampaignsPage() {
           <div className="space-y-5">
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="border-primary/20 bg-primary/10 text-primary">Campanhas do mundo</Badge>
-              <Badge className="border-amber-300/20 bg-amber-300/8 text-amber-100">
-                {campaigns.length} campanhas
-              </Badge>
+              <Badge className="border-amber-300/20 bg-amber-300/8 text-amber-100">{campaigns.length} campanhas</Badge>
             </div>
             <div className="space-y-3">
               <p className="section-eyebrow">Nucleo operacional</p>
@@ -149,29 +159,42 @@ export default function WorldCampaignsPage() {
                     <DialogTitle>Nova campanha</DialogTitle>
                     <DialogDescription>Crie uma nova saga dentro deste mundo.</DialogDescription>
                   </DialogHeader>
-                  <form className="space-y-4" onSubmit={handleCreate}>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Nome</label>
-                      <Input
-                        placeholder="Ex.: A Coroa das Cinzas"
-                        value={form.name}
-                        onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                  <Form {...form}>
+                    <form className="space-y-4" onSubmit={form.handleSubmit(handleCreate)}>
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nome</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Ex.: A Coroa das Cinzas" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Descricao</label>
-                      <Textarea
-                        placeholder="Resumo curto da campanha"
-                        rows={4}
-                        value={form.description}
-                        onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Descricao</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Resumo curto da campanha" rows={4} {...field} value={field.value ?? ""} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                    {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
-                    <Button type="submit" className="w-full" disabled={submitting}>
-                      {submitting ? "Criando..." : "Criar campanha"}
-                    </Button>
-                  </form>
+                      {form.formState.errors.root?.message ? (
+                        <p className="text-sm text-destructive">{form.formState.errors.root.message}</p>
+                      ) : null}
+                      <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                        {form.formState.isSubmitting ? "Criando..." : "Criar campanha"}
+                      </Button>
+                    </form>
+                  </Form>
                 </DialogContent>
               </Dialog>
               <Button variant="outline" className="border-white/10 bg-white/5" onClick={() => router.push(`/app/worlds/${worldId}`)}>
@@ -216,11 +239,7 @@ export default function WorldCampaignsPage() {
       </section>
 
       {loading ? (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-[250px] animate-pulse rounded-[28px] border border-white/10 bg-white/4" />
-          ))}
-        </div>
+        <LoadingState title="Carregando campanhas" description="Buscando frentes ativas deste mundo." className="min-h-[250px]" />
       ) : filtered.length === 0 ? (
         <EmptyState
           title={campaigns.length === 0 ? "Nenhuma campanha ainda" : "Nenhuma campanha encontrada"}
@@ -256,16 +275,12 @@ export default function WorldCampaignsPage() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <Badge className="border-white/10 bg-black/28 text-white">{campaign.system}</Badge>
-                      <span className="text-xs uppercase tracking-[0.18em] text-white/55">
-                        {formatDate(campaign.updatedAt)}
-                      </span>
+                      <span className="text-xs uppercase tracking-[0.18em] text-white/55">{formatDate(campaign.updatedAt)}</span>
                     </div>
 
                     <div className="space-y-4">
                       <div>
-                        <h2 className="line-clamp-2 text-2xl font-black uppercase tracking-[0.04em] text-white">
-                          {campaign.name}
-                        </h2>
+                        <h2 className="line-clamp-2 text-2xl font-black uppercase tracking-[0.04em] text-white">{campaign.name}</h2>
                         <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/70">
                           {campaign.description || "Sem descricao registrada para esta campanha."}
                         </p>

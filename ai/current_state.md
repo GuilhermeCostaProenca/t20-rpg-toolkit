@@ -73,3 +73,58 @@
 - Branch discipline incompleta entre frentes pode gerar codigo funcional fora da linha principal - impacto: alto, mitigacao: encerrar por PR curta e merge sistematico.
 - Divergencia entre docs e estado real do produto pode causar decisao errada de priorizacao - impacto: medio, mitigacao: atualizar `attack-index` e `ai/current_state.md` a cada recorte.
 - Refinamentos finais da Mesa ao Vivo sem validacao real de mesa podem mascarar friccao de uso - impacto: medio, mitigacao: repetir checklist de prontidao em sessao real e registrar no `session_log`.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION)
+- Infra global de feedback adicionada com `AppFeedbackProvider` (toasts padronizados + confirmacao destrutiva via dialog).
+- Primitives de design system criados/centralizados: `ui/select`, `ui/panel`, `ui/states`, `ui/form`, `ui/layout`.
+- Correcao de integridade no front para imports de visual library (rotas world-scoped).
+- Remocao de `alert()/confirm()` nas superficies alteradas (`worlds`, `world-detail`, `campaign`, `codex-entity`, `forge-lore`, `reveal-button`, `audio-recorder`).
+- Primeira migracao completa de formulario para RHF+Zod em `worlds/[id]/campaigns`.
+- Pendencia aberta: concluir migracao total de selects/formularios restantes para fechar Fase 1+2 em 100% do front.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R2/R3)
+- Migracao de selecao foi concluida em `src/app` e `src/components`: nao ha mais `<select>` nativo nessas pastas; o front usa `SelectField`/`ui/select` como padrao unico.
+- Padrao de feedback global foi estendido para modulos restantes de alto trafego (`graph`, `codex entity workspace`, `visual library browser`) removendo uso direto de `sonner/toast`.
+- `graph/page.tsx` passou a usar `ConfirmDialog` padrao em remocao destrutiva de relacao.
+- `visual-library/page.tsx` (server component) foi adaptada com componente client dedicado (`visual-library-filters`) para manter query params via UI DS sem retornar a selects nativos.
+- Validacao de higiene de padrao:
+  - `rg -n "<select" src/app src/components` -> sem ocorrencias.
+  - `rg -n "from \"sonner\"|toast\\." src/app src/components` -> sem ocorrencias.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R4)
+- Formularios de criacao em superficies de entrada/cockpit foram migrados para RHF+Zod com wrappers padronizados (`FormField`, `FormMessage`, estado `isSubmitting`):
+  - `src/app/app/worlds/page.tsx` (criar mundo + metadados iniciais de forja),
+  - `src/app/app/worlds/[id]/page.tsx` (criar campanha).
+- Fluxos agora exibem erro de formulario unificado (`root`) e confirmacao de sucesso via `useAppFeedback`.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R5)
+- `worlds/[id]/npcs/page.tsx` deixou de usar feedback legado local e passou a usar somente `useAppFeedback` para espelhamento de NPC no Codex.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R6)
+- `campaign/[id]/page.tsx` teve os tres dialogs de criacao/edicao (`Character`, `Session`, `Npc`) consolidados no padrao RHF+Zod com wrappers `Form`, `FormField`, `FormMessage`.
+- Estado de formulario agora e consistente por dialog (`isSubmitting`, `errors.root`, reset e clearErrors no close), removendo estados locais legados (`*FormError`, `*Submitting`, setters ad hoc).
+- Validacao de higiene mantida apos migracao:
+  - `rg -n "<select" src/app src/components` -> sem ocorrencias.
+  - `rg -n "from \"sonner\"|toast\\." src/app src/components` -> sem ocorrencias.
+  - `rg -n "window\\.confirm|window\\.alert|alert\\(|confirm\\(" src/app src/components` -> sem ocorrencias.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R7)
+- Formularios de criacao world-scoped em `diary`, `npcs`, `locations` e `compendium` foram migrados para RHF+Zod com wrappers `FormField/FormMessage`.
+- Fluxos de submit agora estao unificados com:
+  - `isSubmitting` no CTA principal;
+  - erro de formulario via `errors.root`;
+  - reset pos-sucesso sem alterar payload/contrato de backend.
+- Validacao tecnica do lote:
+  - `npx eslint "src/app/app/worlds/[id]/diary/page.tsx" "src/app/app/worlds/[id]/npcs/page.tsx" "src/app/app/worlds/[id]/locations/page.tsx" "src/app/app/worlds/[id]/compendium/page.tsx"` -> ok.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R8)
+- `worlds/[id]/codex/page.tsx` teve o dialog de criacao de entidade migrado para RHF+Zod com wrappers de formulario unificados.
+- Foram removidos estados locais ad hoc (`form`, `formError`, `submitting`) nesse fluxo, com migracao para `createEntityForm.formState`.
+- Validacao tecnica:
+  - `npx eslint "src/app/app/worlds/[id]/codex/page.tsx"` -> ok.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R9)
+- `worlds/[id]/codex/[entityId]/page.tsx` teve o formulario de edicao principal da entidade (overview) migrado para RHF+Zod.
+- Foram removidos estados locais ad hoc de edicao (`form`) para esse fluxo, com reset sincronizado no `loadWorkspace`.
+- Validacao tecnica:
+  - `npx eslint "src/app/app/worlds/[id]/codex/[entityId]/page.tsx"` -> ok.

@@ -1,116 +1,115 @@
-"use client";
+﻿"use client";
 
 import { Eye, Loader2 } from "lucide-react";
 import { useState } from "react";
+
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface RevealButtonProps {
-    type: "NPC" | "LOCATION" | "IMAGE";
-    title: string;
-    content?: string;
-    imageUrl?: string;
-    campaigns: { id: string; name: string; roomCode?: string | null }[];
+  type: "NPC" | "LOCATION" | "IMAGE";
+  title: string;
+  content?: string;
+  imageUrl?: string;
+  campaigns: { id: string; name: string; roomCode?: string | null }[];
 }
 
 export function RevealButton({ type, title, content, imageUrl, campaigns }: RevealButtonProps) {
-    const [loading, setLoading] = useState(false);
-    const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const { notifyError, notifySuccess } = useAppFeedback();
 
-    const revealType = type === "NPC" ? "npc" : imageUrl ? "image" : "note";
+  const revealType = type === "NPC" ? "npc" : imageUrl ? "image" : "note";
 
-    async function handleReveal(roomCode: string) {
-        if (!roomCode) {
-            alert("Campanha sem código de sala.");
-            return;
-        }
-        setLoading(true);
-        try {
-            const res = await fetch("/api/reveal", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    roomCode,
-                    type: revealType,
-                    title,
-                    content,
-                    imageUrl,
-                    visibility: "players",
-                    expiresAt: new Date(Date.now() + 1000 * 60 * 10).toISOString(), // 10 mins
-                }),
-            });
-
-            if (!res.ok) {
-                throw new Error("Falha ao revelar");
-            }
-
-            setOpen(false);
-            // alert("Revelado com sucesso!"); 
-        } catch {
-            alert("Erro ao revelar para jogadores");
-        } finally {
-            setLoading(false);
-        }
+  async function handleReveal(roomCode: string) {
+    if (!roomCode) {
+      notifyError("Campanha sem codigo de sala.", "Nao e possivel revelar sem room code.", true);
+      return;
     }
 
-    if (loading) {
-        return <Button variant="ghost" size="icon" disabled><Loader2 className="h-4 w-4 animate-spin" /></Button>
-    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/reveal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomCode,
+          type: revealType,
+          title,
+          content,
+          imageUrl,
+          visibility: "players",
+          expiresAt: new Date(Date.now() + 1000 * 60 * 10).toISOString(),
+        }),
+      });
 
-    if (campaigns.length === 0) {
-        return <Button variant="ghost" size="icon" disabled title="Nenhuma campanha ativa"><Eye className="h-4 w-4 opacity-50" /></Button>
-    }
+      if (!res.ok) {
+        throw new Error("Falha ao revelar");
+      }
 
-    // Single campaign: Direct action
-    if (campaigns.length === 1) {
-        return (
-            <Button
-                variant="ghost"
-                size="icon"
-                className="hover:text-primary hover:bg-primary/10"
-                title={`Revelar para ${campaigns[0].name}`}
-                onClick={() => handleReveal(campaigns[0].roomCode || "")}
-            >
-                <Eye className="h-4 w-4" />
-            </Button>
-        )
+      setOpen(false);
+      notifySuccess("Reveal enviado para jogadores.");
+    } catch (error) {
+      notifyError(
+        "Erro ao revelar para jogadores",
+        error instanceof Error ? error.message : "Tente novamente em alguns segundos.",
+        true,
+      );
+    } finally {
+      setLoading(false);
     }
+  }
 
-    // Multiple campaigns: Dialog selection
+  if (loading) {
     return (
-        <>
-            <Button
-                variant="ghost"
-                size="icon"
-                className="hover:text-primary hover:bg-primary/10"
-                onClick={() => setOpen(true)}
-            >
-                <Eye className="h-4 w-4" />
-            </Button>
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Revelar para qual campanha?</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-2 py-4">
-                        {campaigns.map(c => (
-                            <Button
-                                key={c.id}
-                                variant="outline"
-                                className="justify-start"
-                                onClick={() => handleReveal(c.roomCode || "")}
-                            >
-                                {c.name}
-                            </Button>
-                        ))}
-                    </div>
-                </DialogContent>
-            </Dialog>
-        </>
+      <Button variant="ghost" size="icon" disabled>
+        <Loader2 className="h-4 w-4 animate-spin" />
+      </Button>
     );
+  }
+
+  if (campaigns.length === 0) {
+    return (
+      <Button variant="ghost" size="icon" disabled title="Nenhuma campanha ativa">
+        <Eye className="h-4 w-4 opacity-50" />
+      </Button>
+    );
+  }
+
+  if (campaigns.length === 1) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="hover:text-primary hover:bg-primary/10"
+        title={`Revelar para ${campaigns[0].name}`}
+        onClick={() => void handleReveal(campaigns[0].roomCode || "")}
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+    );
+  }
+
+  return (
+    <>
+      <Button variant="ghost" size="icon" className="hover:text-primary hover:bg-primary/10" onClick={() => setOpen(true)}>
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Revelar para qual campanha?</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-2 py-4">
+            {campaigns.map((campaign) => (
+              <Button key={campaign.id} variant="outline" className="justify-start" onClick={() => void handleReveal(campaign.roomCode || "")}>
+                {campaign.name}
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

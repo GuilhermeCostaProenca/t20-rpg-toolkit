@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, Dna } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { SelectField } from "@/components/ui/select-field";
 import { SQUAD_MONITOR_POLL_MS } from "@/lib/live-combat";
 
 import { OrdemSheet } from "@/components/sheet/ordem-sheet";
@@ -156,18 +157,17 @@ export function QuickSheet({
                     {/* Character Selector Overlay (Top Left) */}
                     <div className="absolute top-4 left-4 z-50">
                         {characters.length > 1 && (
-                            <select
-                                className="bg-black/50 border border-white/10 text-xs text-white rounded p-1"
+                            <SelectField
+                                className="h-8 min-w-[160px] border-white/10 bg-black/50 text-xs text-white"
                                 value={resolvedSelectedId || ""}
-                                onChange={(e) => {
-                                    setSelectedId(e.target.value);
+                                onValueChange={(value) => {
+                                    setSelectedId(value);
                                     if (requestedCharacterId) {
                                         onConsumeRequestedCharacter?.();
                                     }
                                 }}
-                            >
-                                {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                            </select>
+                                options={characters.map((character) => ({ value: character.id, label: character.name }))}
+                            />
                         )}
                     </div>
 

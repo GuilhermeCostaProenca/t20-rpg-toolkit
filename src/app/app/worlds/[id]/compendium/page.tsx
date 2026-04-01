@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { Book, BookOpenText, FileText, Search, Sparkles, Waypoints } from "lucide-react";
@@ -10,10 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import { inferLoreCampaignIds, inferLorePrepContexts, parseLoreTextIndex, type LorePrepContext, type LorePrepFocus } from "@/lib/lore";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 type LoreEntity = { id: string; name: string; type: string; campaign?: { id: string; name: string } | null };
 type WorldContext = {
@@ -33,6 +38,14 @@ type CompendiumDoc = {
 };
 
 type DocFilter = "ALL" | "RULE" | "LORE";
+const createRuleFormSchema = z.object({
+  title: z.string().trim().min(2, "Titulo precisa de pelo menos 2 caracteres"),
+  content: z.string().optional(),
+});
+const initialCreateRuleForm = {
+  title: "",
+  content: "",
+};
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("pt-BR", {
@@ -51,8 +64,6 @@ export default function WorldCompendiumPage() {
   const [items, setItems] = useState<CompendiumDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState("text");
   const [search, setSearch] = useState("");
@@ -62,6 +73,11 @@ export default function WorldCompendiumPage() {
   const [prepFocusFilter, setPrepFocusFilter] = useState<LorePrepFocus | "ALL">("ALL");
   const [entities, setEntities] = useState<LoreEntity[]>([]);
   const [world, setWorld] = useState<WorldContext | null>(null);
+  const createForm = useForm<typeof initialCreateRuleForm>({
+    resolver: zodResolver(createRuleFormSchema),
+    defaultValues: initialCreateRuleForm,
+  });
+  const { notifyError, notifySuccess } = useAppFeedback();
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -95,19 +111,24 @@ export default function WorldCompendiumPage() {
     }
   }, [searchParams]);
 
-  async function handleCreate(event: FormEvent) {
-    event.preventDefault();
+  async function handleCreate(values: typeof initialCreateRuleForm) {
+    createForm.clearErrors("root");
     try {
       const formData = new FormData();
       formData.append("worldId", worldId);
-      formData.append("title", title);
+      formData.append("title", values.title);
       formData.append("type", "RULE");
 
       if (activeTab === "text") {
-        formData.append("content", content);
+        if (!values.content?.trim()) {
+          createForm.setError("content", { type: "manual", message: "Informe o conteudo da regra" });
+          return;
+        }
+        formData.append("content", values.content);
       } else if (file) {
         formData.append("file", file);
       } else {
+        createForm.setError("root", { type: "manual", message: "Selecione um arquivo para upload" });
         return;
       }
 
@@ -118,13 +139,21 @@ export default function WorldCompendiumPage() {
       if (!res.ok) throw new Error("Erro ao criar regra");
 
       setCreateOpen(false);
-      setTitle("");
-      setContent("");
+      createForm.reset(initialCreateRuleForm);
       setFile(null);
+      notifySuccess("Regra salva.");
       await loadData();
     } catch (error) {
       console.error(error);
-      alert("Falha ao salvar regra");
+      createForm.setError("root", {
+        type: "server",
+        message: error instanceof Error ? error.message : "Erro inesperado ao salvar regra",
+      });
+      notifyError(
+        "Falha ao salvar regra",
+        error instanceof Error ? error.message : "Erro inesperado ao salvar regra",
+        true
+      );
     }
   }
 
@@ -233,7 +262,13 @@ export default function WorldCompendiumPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <Dialog
+                open={createOpen}
+                onOpenChange={(open) => {
+                  setCreateOpen(open);
+                  if (!open) createForm.clearErrors("root");
+                }}
+              >
                 <DialogTrigger asChild>
                   <Button>
                     <Sparkles className="mr-2 h-4 w-4" />
@@ -249,21 +284,48 @@ export default function WorldCompendiumPage() {
                       <TabsTrigger value="text">Texto</TabsTrigger>
                       <TabsTrigger value="file">PDF ou arquivo</TabsTrigger>
                     </TabsList>
-                    <form onSubmit={handleCreate} className="space-y-4 pt-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Titulo</label>
-                        <Input required value={title} onChange={(event) => setTitle(event.target.value)} />
-                      </div>
-                      <TabsContent value="text" className="space-y-2">
-                        <label className="text-sm font-medium">Conteudo</label>
-                        <Textarea required={activeTab === "text"} className="min-h-[160px]" value={content} onChange={(event) => setContent(event.target.value)} />
-                      </TabsContent>
-                      <TabsContent value="file" className="space-y-2">
-                        <label className="text-sm font-medium">Arquivo</label>
-                        <Input type="file" required={activeTab === "file"} onChange={(event) => setFile(event.target.files?.[0] || null)} />
-                      </TabsContent>
-                      <Button type="submit" className="w-full">Salvar documento</Button>
-                    </form>
+                    <Form {...createForm}>
+                      <form onSubmit={createForm.handleSubmit(handleCreate)} className="space-y-4 pt-4">
+                        <FormField
+                          control={createForm.control}
+                          name="title"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Titulo</FormLabel>
+                              <FormControl>
+                                <Input value={field.value} onChange={field.onChange} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <TabsContent value="text" className="space-y-2">
+                          <FormField
+                            control={createForm.control}
+                            name="content"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Conteudo</FormLabel>
+                                <FormControl>
+                                  <Textarea className="min-h-[160px]" value={field.value ?? ""} onChange={field.onChange} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TabsContent>
+                        <TabsContent value="file" className="space-y-2">
+                          <label className="text-sm font-medium">Arquivo</label>
+                          <Input type="file" onChange={(event) => setFile(event.target.files?.[0] || null)} />
+                        </TabsContent>
+                        {createForm.formState.errors.root?.message ? (
+                          <p className="text-sm text-destructive">{createForm.formState.errors.root.message}</p>
+                        ) : null}
+                        <Button type="submit" className="w-full" disabled={createForm.formState.isSubmitting}>
+                          {createForm.formState.isSubmitting ? "Salvando..." : "Salvar documento"}
+                        </Button>
+                      </form>
+                    </Form>
                   </Tabs>
                 </DialogContent>
               </Dialog>

@@ -28,6 +28,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SelectField } from "@/components/ui/select-field";
 import { cn } from "@/lib/utils";
 
 type Reveal = {
@@ -35,7 +36,7 @@ type Reveal = {
   roomCode: string;
   type: string;
   title: string;
-  content: any;
+  content: string | { text?: string } | null;
   imageUrl?: string | null;
   visibility: string;
   createdAt: string;
@@ -54,6 +55,19 @@ type Character = {
   level: number;
 };
 
+type Combatant = {
+  id: string;
+  name: string;
+  refId?: string | null;
+  kind?: string | null;
+  initiative?: number | null;
+};
+
+type CharacterAttack = {
+  id?: string;
+  name?: string;
+};
+
 export default function PlayRoomPage() {
   const params = useParams<{ roomCode: string }>();
   const roomCode = params?.roomCode?.toString().toUpperCase();
@@ -66,9 +80,9 @@ export default function PlayRoomPage() {
   const [campaignId, setCampaignId] = useState("");
   const [characters, setCharacters] = useState<Character[]>([]);
   const [combatId, setCombatId] = useState<string | null>(null);
-  const [combatants, setCombatants] = useState<any[]>([]);
+  const [combatants, setCombatants] = useState<Combatant[]>([]);
   const [selectedCharacterId, setSelectedCharacterId] = useState("");
-  const [attacks, setAttacks] = useState<any[]>([]);
+  const [attacks, setAttacks] = useState<CharacterAttack[]>([]);
   const [target, setTarget] = useState("");
   const [attackId, setAttackId] = useState("");
   const [actionStatus, setActionStatus] = useState<string | null>(null);
@@ -339,16 +353,13 @@ export default function PlayRoomPage() {
                   <label className="text-xs font-medium text-zinc-500 uppercase">Identidade</label>
                   <div className="relative">
                     <User className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" />
-                    <select
-                      className="w-full h-9 rounded-md border border-white/10 bg-black pl-9 pr-3 text-sm text-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none"
+                    <SelectField
+                      className="h-9 border-white/10 bg-black pl-9 pr-3 text-sm text-zinc-200"
                       value={selectedCharacterId}
-                      onChange={(e) => setSelectedCharacterId(e.target.value)}
-                    >
-                      <option value="">Selecionar Agente...</option>
-                      {characters.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
+                      onValueChange={setSelectedCharacterId}
+                      placeholder="Selecionar Agente..."
+                      options={characters.map((c) => ({ value: c.id, label: c.name }))}
+                    />
                   </div>
                   {selectedCharacterId && !actorCombatant && (
                     <p className="text-xs text-yellow-500 flex items-center gap-1">
@@ -361,16 +372,13 @@ export default function PlayRoomPage() {
                   <label className="text-xs font-medium text-zinc-500 uppercase">Alvo</label>
                   <div className="relative">
                     <Target className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" />
-                    <select
-                      className="w-full h-9 rounded-md border border-white/10 bg-black pl-9 pr-3 text-sm text-zinc-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none appearance-none"
+                    <SelectField
+                      className="h-9 border-white/10 bg-black pl-9 pr-3 text-sm text-zinc-200"
                       value={target}
-                      onChange={(e) => setTarget(e.target.value)}
-                    >
-                      <option value="">Selecionar Alvo...</option>
-                      {combatants.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
+                      onValueChange={setTarget}
+                      placeholder="Selecionar Alvo..."
+                      options={combatants.map((c) => ({ value: c.id, label: c.name }))}
+                    />
                   </div>
                 </div>
               </div>
@@ -378,20 +386,21 @@ export default function PlayRoomPage() {
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-zinc-500 uppercase">Ação Ofensiva</label>
                 <div className="flex gap-2">
-                  <select
-                    className="flex-1 h-9 rounded-md border border-white/10 bg-black px-3 text-sm text-zinc-200 outline-none"
+                  <SelectField
+                    className="h-9 flex-1 border-white/10 bg-black px-3 text-sm text-zinc-200"
                     value={attackId}
-                    onChange={(e) => setAttackId(e.target.value)}
+                    onValueChange={setAttackId}
+                    placeholder="Ataque Padrão"
                     disabled={!selectedCharacterId}
-                  >
-                    {attacks.length ? (
-                      attacks.map((a) => (
-                        <option key={a.id || a.name} value={a.id || a.name}>{a.name ?? "Ataque desconhecido"}</option>
-                      ))
-                    ) : (
-                      <option value="">Ataque Padrão</option>
-                    )}
-                  </select>
+                    options={
+                      attacks.length
+                        ? attacks.map((a) => ({
+                            value: String(a.id || a.name),
+                            label: String(a.name ?? "Ataque desconhecido"),
+                          }))
+                        : []
+                    }
+                  />
                   <Button
                     className="bg-red-600 hover:bg-red-700 text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]"
                     onClick={executeAction}

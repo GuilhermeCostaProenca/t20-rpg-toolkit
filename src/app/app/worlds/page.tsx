@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   BookMarked,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { EmptyState } from "@/components/empty-state";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,13 +28,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { WorldCreateSchema } from "@/lib/validators";
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import {
   buildWorldForgeMetadata,
   getEmptyWorldForgeState,
   WORLD_FORGE_SCALE_OPTIONS,
   WORLD_FORGE_SUGGESTED_PILLARS,
 } from "@/lib/world-forge";
+import { z } from "zod";
 
 type World = {
   id: string;
@@ -50,6 +55,18 @@ const initialForm = {
   coverImage: "",
   forge: getEmptyWorldForgeState(),
 };
+const worldCreateFormSchema = WorldCreateSchema.extend({
+  forge: z.object({
+    concept: z.string().optional(),
+    tone: z.string().optional(),
+    scope: z.string().optional(),
+    scale: z.string().optional(),
+    currentFocus: z.string().optional(),
+    stage: z.string().optional(),
+    pillars: z.array(z.string()).max(8),
+  }),
+});
+type WorldCreateFormValues = z.infer<typeof worldCreateFormSchema>;
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("pt-BR", {
@@ -61,13 +78,15 @@ function formatDate(value: string) {
 
 export default function WorldsPage() {
   const router = useRouter();
+  const { confirmDestructive, notifyError, notifySuccess } = useAppFeedback();
   const [worlds, setWorlds] = useState<World[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState(initialForm);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const createWorldForm = useForm<WorldCreateFormValues>({
+    resolver: zodResolver(worldCreateFormSchema),
+    defaultValues: initialForm,
+  });
   const [currentTab, setCurrentTab] = useState<"ACTIVE" | "ARCHIVED">("ACTIVE");
 
   const sortedWorlds = useMemo(
@@ -78,6 +97,7 @@ export default function WorldsPage() {
       ),
     [worlds]
   );
+  const worldFormValues = createWorldForm.watch();
 
   useEffect(() => {
     void loadWorlds(currentTab);
@@ -104,7 +124,14 @@ export default function WorldsPage() {
 
   async function handleArchive(event: React.MouseEvent, worldId: string) {
     event.stopPropagation();
-    if (!confirm("Tem certeza que deseja arquivar este mundo?")) return;
+    const confirmed = await confirmDestructive({
+      title: "Arquivar mundo?",
+      description: "Esta acao remove o mundo do fluxo ativo e pode impactar navegacao e operacao da mesa.",
+      confirmText: "Arquivar",
+      cancelText: "Cancelar",
+      variant: "destructive",
+    });
+    if (!confirmed) return;
 
     try {
       const res = await fetch(`/api/worlds/${worldId}`, { method: "DELETE" });
@@ -113,34 +140,26 @@ export default function WorldsPage() {
         throw new Error(payload.error ?? "Nao foi possivel arquivar o mundo");
       }
       setWorlds((current) => current.filter((world) => world.id !== worldId));
+      notifySuccess("Mundo arquivado.");
       await loadWorlds(currentTab);
     } catch (archiveError) {
       console.error(archiveError);
-      setError(
-        archiveError instanceof Error
-          ? archiveError.message
-          : "Erro inesperado ao arquivar mundo"
-      );
+      const message =
+        archiveError instanceof Error ? archiveError.message : "Erro inesperado ao arquivar mundo";
+      setError(message);
+      notifyError("Falha ao arquivar mundo", message, true);
     }
   }
 
-  async function handleCreate(event?: FormEvent<HTMLFormElement>) {
-    event?.preventDefault();
-    setFormError(null);
-    const parsed = WorldCreateSchema.safeParse(form);
-    if (!parsed.success) {
-      setFormError(parsed.error.issues[0]?.message ?? "Dados invalidos");
-      return;
-    }
-
-    setSubmitting(true);
+  async function handleCreate(values: WorldCreateFormValues) {
+    createWorldForm.clearErrors("root");
     try {
       const res = await fetch("/api/worlds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...parsed.data,
-          metadata: buildWorldForgeMetadata(form.forge),
+          ...values,
+          metadata: buildWorldForgeMetadata(values.forge),
         }),
       });
       const payload = await res.json().catch(() => ({}));
@@ -148,19 +167,18 @@ export default function WorldsPage() {
         throw new Error(payload.error ?? "Nao foi possivel criar o mundo");
       }
 
-      setForm(initialForm);
+      createWorldForm.reset(initialForm);
       setDialogOpen(false);
       const worldId = payload.data?.id as string | undefined;
       if (worldId) {
+        notifySuccess("Mundo criado. Abrindo forja inicial.");
         router.push(`/app/worlds/${worldId}/forge?mode=new`);
         return;
       }
       await loadWorlds(currentTab);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro inesperado ao criar mundo";
-      setFormError(message);
-    } finally {
-      setSubmitting(false);
+      createWorldForm.setError("root", { type: "server", message });
     }
   }
 
@@ -227,164 +245,167 @@ export default function WorldsPage() {
                         Crie o universo base para campanhas, memoria e operacao do mestre.
                       </DialogDescription>
                     </DialogHeader>
-                    <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleCreate}>
-                      <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-4">
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-foreground">Nome</label>
-                          <Input
-                            placeholder="Ex.: Seis Reinos em Cinzas"
-                            value={form.title}
-                            onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+                    <Form {...createWorldForm}>
+                      <form className="flex min-h-0 flex-1 flex-col" onSubmit={createWorldForm.handleSubmit(handleCreate)}>
+                        <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-4">
+                          <FormField
+                            control={createWorldForm.control}
+                            name="title"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Nome</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Ex.: Seis Reinos em Cinzas" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
                           />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-foreground">Descricao</label>
-                          <Textarea
-                            placeholder="Resumo curto do tom, tensao e foco do mundo"
-                            value={form.description}
-                            onChange={(e) =>
-                              setForm((prev) => ({
-                                ...prev,
-                                description: e.target.value,
-                              }))
-                            }
-                            rows={5}
+                          <FormField
+                            control={createWorldForm.control}
+                            name="description"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Descricao</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Resumo curto do tom, tensao e foco do mundo"
+                                    rows={5}
+                                    value={field.value ?? ""}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
                           />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-foreground">Cover URL</label>
-                          <Input
-                            placeholder="Opcional: https://"
-                            value={form.coverImage}
-                            onChange={(e) =>
-                              setForm((prev) => ({
-                                ...prev,
-                                coverImage: e.target.value,
-                              }))
-                            }
+                          <FormField
+                            control={createWorldForm.control}
+                            name="coverImage"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Cover URL</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Opcional: https://" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
                           />
-                        </div>
-                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                          <p className="section-eyebrow">Primeira batida da forja</p>
-                          <div className="mt-4 grid gap-4">
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-foreground">Conceito</label>
-                              <Input
-                                placeholder="Ex.: dinastias em ruina, guerra fria entre casas"
-                                value={form.forge.concept}
-                                onChange={(e) =>
-                                  setForm((prev) => ({
-                                    ...prev,
-                                    forge: { ...prev.forge, concept: e.target.value },
-                                  }))
-                                }
+                          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <p className="section-eyebrow">Primeira batida da forja</p>
+                            <div className="mt-4 grid gap-4">
+                              <FormField
+                                control={createWorldForm.control}
+                                name="forge.concept"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Conceito</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Ex.: dinastias em ruina, guerra fria entre casas" {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
                               />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-foreground">Tom</label>
-                              <Input
-                                placeholder="Ex.: tragico, politico, heroico e sombrio"
-                                value={form.forge.tone}
-                                onChange={(e) =>
-                                  setForm((prev) => ({
-                                    ...prev,
-                                    forge: { ...prev.forge, tone: e.target.value },
-                                  }))
-                                }
+                              <FormField
+                                control={createWorldForm.control}
+                                name="forge.tone"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Tom</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Ex.: tragico, politico, heroico e sombrio" {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
                               />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-foreground">Escopo</label>
-                              <Input
-                                placeholder="Ex.: uma corte, um reino caindo, um continente em guerra"
-                                value={form.forge.scope}
-                                onChange={(e) =>
-                                  setForm((prev) => ({
-                                    ...prev,
-                                    forge: { ...prev.forge, scope: e.target.value },
-                                  }))
-                                }
+                              <FormField
+                                control={createWorldForm.control}
+                                name="forge.scope"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Escopo</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Ex.: uma corte, um reino caindo, um continente em guerra" {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
                               />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-foreground">Escala inicial</label>
-                              <div className="flex flex-wrap gap-2">
-                                {WORLD_FORGE_SCALE_OPTIONS.map((option) => (
-                                  <Button
-                                    key={option.value}
-                                    type="button"
-                                    variant="outline"
-                                    className={
-                                      form.forge.scale === option.value
-                                        ? "border-primary/30 bg-primary/10 text-primary"
-                                        : "border-white/10 bg-white/5"
-                                    }
-                                    onClick={() =>
-                                      setForm((prev) => ({
-                                        ...prev,
-                                        forge: { ...prev.forge, scale: option.value },
-                                      }))
-                                    }
-                                  >
-                                    {option.label}
-                                  </Button>
-                                ))}
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-foreground">Pilares iniciais</label>
-                              <div className="flex flex-wrap gap-2">
-                                {WORLD_FORGE_SUGGESTED_PILLARS.map((pillar) => {
-                                  const active = form.forge.pillars.includes(pillar);
-                                  return (
+                              <div className="space-y-2">
+                                <label className="text-sm font-medium text-foreground">Escala inicial</label>
+                                <div className="flex flex-wrap gap-2">
+                                  {WORLD_FORGE_SCALE_OPTIONS.map((option) => (
                                     <Button
-                                      key={pillar}
+                                      key={option.value}
                                       type="button"
                                       variant="outline"
                                       className={
-                                        active
-                                          ? "border-amber-300/30 bg-amber-300/10 text-amber-100"
+                                        worldFormValues.forge.scale === option.value
+                                          ? "border-primary/30 bg-primary/10 text-primary"
                                           : "border-white/10 bg-white/5"
                                       }
-                                      onClick={() =>
-                                        setForm((prev) => ({
-                                          ...prev,
-                                          forge: {
-                                            ...prev.forge,
-                                            pillars: active
-                                              ? prev.forge.pillars.filter((value) => value !== pillar)
-                                              : [...prev.forge.pillars, pillar].slice(0, 8),
-                                          },
-                                        }))
-                                      }
+                                      onClick={() => createWorldForm.setValue("forge.scale", option.value)}
                                     >
-                                      {pillar}
+                                      {option.label}
                                     </Button>
-                                  );
-                                })}
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <label className="text-sm font-medium text-foreground">Pilares iniciais</label>
+                                <div className="flex flex-wrap gap-2">
+                                  {WORLD_FORGE_SUGGESTED_PILLARS.map((pillar) => {
+                                    const active = worldFormValues.forge.pillars.includes(pillar);
+                                    return (
+                                      <Button
+                                        key={pillar}
+                                        type="button"
+                                        variant="outline"
+                                        className={
+                                          active
+                                            ? "border-amber-300/30 bg-amber-300/10 text-amber-100"
+                                            : "border-white/10 bg-white/5"
+                                        }
+                                        onClick={() => {
+                                          const current = createWorldForm.getValues("forge.pillars");
+                                          createWorldForm.setValue(
+                                            "forge.pillars",
+                                            active
+                                              ? current.filter((value) => value !== pillar)
+                                              : [...current, pillar].slice(0, 8),
+                                          );
+                                        }}
+                                      >
+                                        {pillar}
+                                      </Button>
+                                    );
+                                  })}
+                                </div>
                               </div>
                             </div>
                           </div>
+                          {createWorldForm.formState.errors.root?.message ? (
+                            <p className="text-sm text-destructive">{createWorldForm.formState.errors.root.message}</p>
+                          ) : null}
                         </div>
-                        {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
-                      </div>
-                      <div className="shrink-0 border-t border-white/10 px-6 py-4">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            type="button"
-                            onClick={() => setDialogOpen(false)}
-                            className="text-muted-foreground"
-                            disabled={submitting}
-                          >
-                            Cancelar
-                          </Button>
-                          <Button type="submit" disabled={submitting}>
-                            {submitting ? "Abrindo forja..." : "Criar mundo e abrir forja"}
-                          </Button>
+                        <div className="shrink-0 border-t border-white/10 px-6 py-4">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              type="button"
+                              onClick={() => setDialogOpen(false)}
+                              className="text-muted-foreground"
+                              disabled={createWorldForm.formState.isSubmitting}
+                            >
+                              Cancelar
+                            </Button>
+                            <Button type="submit" disabled={createWorldForm.formState.isSubmitting}>
+                              {createWorldForm.formState.isSubmitting ? "Abrindo forja..." : "Criar mundo e abrir forja"}
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    </form>
+                      </form>
+                    </Form>
                   </DialogContent>
                 </Dialog>
               ) : null}

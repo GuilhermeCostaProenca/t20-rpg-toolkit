@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { SelectField } from "@/components/ui/select-field";
 import { generateQrDataUrl } from "@/lib/qr";
 import { useSession } from "./session-context";
 import { SessionSummaryButton } from "./session-summary-button";
@@ -295,16 +296,17 @@ export function SessionDialog() {
                 )}
               </h3>
 
-              <select
+              <SelectField
                 value={revealType}
-                onChange={(e) => setRevealType(e.target.value as typeof revealType)}
-                className="w-full h-8 rounded-md border border-white/10 bg-black/40 px-3 text-xs text-white"
-              >
-                <option value="note">Nota Pública</option>
-                <option value="npc">Revelar NPC</option>
-                <option value="item">Revelar Item</option>
-                <option value="image">Mostrar Imagem</option>
-              </select>
+                onValueChange={(value) => setRevealType(value as typeof revealType)}
+                className="h-8 border-white/10 bg-black/40 text-xs text-white"
+                options={[
+                  { value: "note", label: "Nota Publica" },
+                  { value: "npc", label: "Revelar NPC" },
+                  { value: "item", label: "Revelar Item" },
+                  { value: "image", label: "Mostrar Imagem" },
+                ]}
+              />
 
               <Input value={revealTitle} onChange={e => setRevealTitle(e.target.value)} placeholder="Título..." className="h-8 text-xs bg-white/5 border-white/10" />
               <Textarea value={revealContent} onChange={e => setRevealContent(e.target.value)} placeholder="Conteúdo da revelação..." rows={2} className="text-xs bg-white/5 border-white/10" />

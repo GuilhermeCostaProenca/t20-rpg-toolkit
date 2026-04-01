@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -36,9 +36,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/empty-state";
+import { useAppFeedback } from "@/components/app-feedback-provider";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select-field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import {
   inferLoreCampaignIds,
   inferLorePrepContexts,
@@ -64,6 +69,7 @@ const initialForm = {
   name: "",
   description: "",
 };
+type CampaignCreateFormValues = typeof initialForm;
 
 type WorldCampaign = {
   id: string;
@@ -343,6 +349,7 @@ function getPrepScore(
 export default function WorldDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { confirmDestructive, notifyError, notifySuccess } = useAppFeedback();
   const worldId = params?.id as string;
 
   const [world, setWorld] = useState<World | null>(null);
@@ -357,7 +364,10 @@ export default function WorldDetailPage() {
   });
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState(initialForm);
+  const campaignForm = useForm<CampaignCreateFormValues>({
+    resolver: zodResolver(CampaignCreateSchema.pick({ name: true, description: true })),
+    defaultValues: initialForm,
+  });
   const [inspectItem, setInspectItem] = useState<InspectItem | null>(null);
   const [memoryQuery, setMemoryQuery] = useState("");
   const [memoryVisibility, setMemoryVisibility] = useState<"ALL" | "MASTER" | "PLAYERS">("ALL");
@@ -423,29 +433,38 @@ export default function WorldDetailPage() {
     if (worldId) void loadWorld();
   }, [loadWorld, worldId]);
 
-  async function handleCreateCampaign(event: FormEvent) {
-    event.preventDefault();
+  async function handleCreateCampaign(values: CampaignCreateFormValues) {
     try {
-      const parsed = CampaignCreateSchema.parse({ ...form, worldId });
+      const parsed = CampaignCreateSchema.parse({ ...values, worldId });
       const response = await fetch("/api/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(parsed),
       });
       if (!response.ok) throw new Error("Erro ao criar campanha");
-      setForm(initialForm);
+      campaignForm.reset(initialForm);
       setDialogOpen(false);
+      notifySuccess("Campanha criada.");
       await loadWorld();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Erro inesperado ao salvar campanha";
-      alert(message);
+      campaignForm.setError("root", { type: "server", message });
+      notifyError("Falha ao salvar campanha", message, true);
     }
   }
 
   async function handleArchiveWorld() {
-    if (!confirm("Arquivar mundo?")) return;
+    const confirmed = await confirmDestructive({
+      title: "Arquivar mundo?",
+      description: "O mundo sera movido para arquivados e removido do fluxo ativo.",
+      confirmText: "Arquivar",
+      cancelText: "Cancelar",
+      variant: "destructive",
+    });
+    if (!confirmed) return;
     await fetch(`/api/worlds/${worldId}`, { method: "DELETE" });
+    notifySuccess("Mundo arquivado.");
     router.push("/app/worlds");
   }
 
@@ -709,26 +728,48 @@ export default function WorldDetailPage() {
                   <DialogHeader>
                     <DialogTitle>Iniciar nova campanha</DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={handleCreateCampaign} className="space-y-4">
-                    <Input
-                      placeholder="Nome da campanha"
-                      value={form.name}
-                      onChange={(currentEvent) =>
-                        setForm((prev) => ({ ...prev, name: currentEvent.target.value }))
-                      }
-                      required
-                    />
-                    <Textarea
-                      placeholder="Descricao curta"
-                      value={form.description}
-                      onChange={(currentEvent) =>
-                        setForm((prev) => ({ ...prev, description: currentEvent.target.value }))
-                      }
-                    />
-                    <Button type="submit" className="w-full">
-                      Criar jornada
-                    </Button>
-                  </form>
+                  <Form {...campaignForm}>
+                    <form onSubmit={campaignForm.handleSubmit(handleCreateCampaign)} className="space-y-4">
+                      <FormField
+                        control={campaignForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nome</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Nome da campanha" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={campaignForm.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Descricao</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Descricao curta"
+                                value={field.value ?? ""}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {campaignForm.formState.errors.root?.message ? (
+                        <p className="text-sm text-destructive">
+                          {campaignForm.formState.errors.root.message}
+                        </p>
+                      ) : null}
+                      <Button type="submit" className="w-full" disabled={campaignForm.formState.isSubmitting}>
+                        {campaignForm.formState.isSubmitting ? "Criando jornada..." : "Criar jornada"}
+                      </Button>
+                    </form>
+                  </Form>
                 </DialogContent>
               </Dialog>
 
@@ -1090,42 +1131,41 @@ export default function WorldDetailPage() {
                       onChange={(currentEvent) => setMemoryQuery(currentEvent.target.value)}
                       placeholder="Buscar por morte, ausencia, mudanca, sessao..."
                     />
-                    <select
-                      className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                    <SelectField
+                      className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
                       value={memoryVisibility}
-                      onChange={(currentEvent) =>
-                        setMemoryVisibility(currentEvent.target.value as "ALL" | "MASTER" | "PLAYERS")
-                      }
-                    >
-                      <option value="ALL">Toda visibilidade</option>
-                      <option value="PLAYERS">Publico</option>
-                      <option value="MASTER">Mestre</option>
-                    </select>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                      onValueChange={(value) => setMemoryVisibility(value as "ALL" | "MASTER" | "PLAYERS")}
+                      options={[
+                        { value: "ALL", label: "Toda visibilidade" },
+                        { value: "PLAYERS", label: "Publico" },
+                        { value: "MASTER", label: "Mestre" },
+                      ]}
+                    />
+                    <SelectField
+                      className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
                       value={memoryTone}
-                      onChange={(currentEvent) =>
-                        setMemoryTone(currentEvent.target.value as "ALL" | "summary" | "change" | "death" | "note")
+                      onValueChange={(value) =>
+                        setMemoryTone(value as "ALL" | "summary" | "change" | "death" | "note")
                       }
-                    >
-                      <option value="ALL">Todo tipo</option>
-                      <option value="summary">Resumo</option>
-                      <option value="change">Mudanca</option>
-                      <option value="death">Morte</option>
-                      <option value="note">Nota</option>
-                    </select>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-white/10 bg-black/20 px-3 text-sm text-foreground"
+                      options={[
+                        { value: "ALL", label: "Todo tipo" },
+                        { value: "summary", label: "Resumo" },
+                        { value: "change", label: "Mudanca" },
+                        { value: "death", label: "Morte" },
+                        { value: "note", label: "Nota" },
+                      ]}
+                    />
+                    <SelectField
+                      className="h-10 border-white/10 bg-black/20 px-3 text-sm text-foreground"
                       value={memoryTimeFilter}
-                      onChange={(currentEvent) =>
-                        setMemoryTimeFilter(currentEvent.target.value as "ALL" | "7D" | "30D" | "90D")
-                      }
-                    >
-                      <option value="ALL">Todo periodo</option>
-                      <option value="7D">Ultimos 7 dias</option>
-                      <option value="30D">Ultimos 30 dias</option>
-                      <option value="90D">Ultimos 90 dias</option>
-                    </select>
+                      onValueChange={(value) => setMemoryTimeFilter(value as "ALL" | "7D" | "30D" | "90D")}
+                      options={[
+                        { value: "ALL", label: "Todo periodo" },
+                        { value: "7D", label: "Ultimos 7 dias" },
+                        { value: "30D", label: "Ultimos 30 dias" },
+                        { value: "90D", label: "Ultimos 90 dias" },
+                      ]}
+                    />
                   </div>
                   <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                     {visibleMemoryEvents.length} eventos visiveis neste recorte
