@@ -16,6 +16,8 @@
 - [ ] [A7-R3-PREP] Pacote de execucao de campo publicado em `docs/99-reports/live-table-a7-r3-field-execution-packet-2026-03-30.md`; aguardando rodada real para fechamento.
 - [ ] [A1-BP1] Transformar blueprint consolidado em prototipo navegavel no Figma (Fase A + B).
 - [x] [A1-LP4] Implementar camada premium do shell interno (video cinematografico + profundidade 3D leve) para iniciar o novo front operacional sem alterar a landing.
+- [x] [A1-LP5-R1] Iniciar refatoracao do front interno conforme Figma: sidebar por secoes (MUNDO/MESA/APOIO), mode switcher (Normal/Lousa/Quadro) e rotas canonicas `visual`, `memory`, `lousa`, `quadro`.
+- [ ] [A1-LP5-R2] Expandir refatoracao visual Figma-guided para superfices internas de modulo (Forja/Codex/Grafo/Campanhas/Memoria) preservando funcionalidades atuais e sem reduzir profundidade de fluxo.
 
 ## Concluidas
 - [x] Inicializar estrutura de memoria externa em `ai/`.

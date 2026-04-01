@@ -738,3 +738,39 @@
   - validar em browser real a intensidade da camada imersiva em desktop e mobile.
 - Proximo passo recomendado:
   - atacar `A1-LP5` com recorte de design system operacional (tokens de profundidade, componentes de hero interno e cards de modulo com estados).
+
+### Sessao: 2026-03-31 - A1-LP5-R1 refatoracao Figma-guided sem reduzir funcionalidade
+- Objetivo da sessao: iniciar a migracao visual/estrutural para o guia Figma mantendo o produto real mais completo como fonte funcional.
+- O que foi feito:
+  - alinhada navegacao lateral ao blueprint Figma com secoes `MUNDO`, `MESA` e `APOIO` em `src/components/app-sidebar.tsx`.
+  - atualizada taxonomia de rotas do shell para superficies canonicas: `visual`, `memory`, `lousa`, `quadro`.
+  - criado `src/components/world/mode-switcher.tsx` e integrado ao cockpit principal em `src/app/app/worlds/[id]/page.tsx`.
+  - adicionadas novas superficies world-scoped:
+    - `src/app/app/worlds/[id]/visual/page.tsx` (alias canonico para visual library),
+    - `src/app/app/worlds/[id]/memory/page.tsx` (memoria do mundo com busca em `/api/worlds/[id]/memory/search`),
+    - `src/app/app/worlds/[id]/lousa/page.tsx` (hub de ideacao com ponte para modulos reais),
+    - `src/app/app/worlds/[id]/quadro/page.tsx` (ponte operacional para mesa ao vivo em `/app/play/[campaignId]`).
+  - ajustado `src/components/topbar.tsx` para rotulagem contextual dos novos modos/rotas.
+  - registrada DEC-022 para formalizar Figma como guia visual sem cortar profundidade de dominio.
+- Arquivos alterados:
+  - `src/components/app-sidebar.tsx`
+  - `src/components/topbar.tsx`
+  - `src/components/world/mode-switcher.tsx`
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `src/app/app/worlds/[id]/visual/page.tsx`
+  - `src/app/app/worlds/[id]/memory/page.tsx`
+  - `src/app/app/worlds/[id]/lousa/page.tsx`
+  - `src/app/app/worlds/[id]/quadro/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint` nos arquivos alterados do recorte -> sem erros.
+- Decisoes tomadas:
+  - DEC-022 registrada.
+- Pendencias:
+  - executar `A1-LP5-R2` para harmonizar visual de todas as superfices de modulo sem regressao de fluxo.
+- Proximo passo recomendado:
+  - atacar Forja/Codex/Grafo/Campanhas com componentes visuais comuns (header de modo, blocos operacionais, estados vazios/erro unificados) mantendo dados e contratos atuais.

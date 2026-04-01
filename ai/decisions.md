@@ -287,3 +287,16 @@
   - Positivo: eleva imediatamente a percepcao de qualidade do cockpit interno e cria linguagem visual unica para os proximos recortes (Forja/Codex/Grafo/Visual/Campanhas/Memoria).
   - Negativo / trade-off: video remoto depende de rede e pode variar por ambiente; por isso foi mantido fallback visual sem bloqueio funcional.
 - Plano de revisao: no recorte `A1-LP5`, validar desempenho/legibilidade em desktop e ajustar intensidade de opacidade/parallax por modulo.
+
+### DEC-022: Usar Figma como guia visual, preservando profundidade funcional do produto
+- Data: 2026-03-31
+- Status: aceita
+- Contexto: o blueprint/Make do Figma define linguagem visual e organizacao de fluxo, mas o produto real ja possui funcionalidades mais profundas que nao podem ser reduzidas para caber no prototipo.
+- Decisao: aplicar o Figma como contrato de UX/UI e IA de navegacao (shell, modos, rotas canonicas), mantendo os modulos reais (Forja/Codex/Grafo/Visual/Campanhas/Memoria/Mesa) como fonte funcional principal.
+- Alternativas consideradas:
+  - copiar literalmente o escopo do prototipo Figma e simplificar o app real;
+  - ignorar o Figma e seguir com refinamentos sem padrao visual unico.
+- Impacto:
+  - Positivo: ganha consistencia visual e de fluxo sem perder valor funcional acumulado no projeto.
+  - Negativo / trade-off: exige camada de compatibilidade entre rotas/nomes novos e superfices legadas ate a migracao completa.
+- Plano de revisao: em `A1-LP5-R2`, reduzir gradualmente rotas/labels legados apos consolidar equivalentes canonicos e validar uso real.

@@ -11,14 +11,12 @@ import {
   Globe2,
   Images,
   LayoutDashboard,
-  MapPin,
-  NotebookPen,
+  Presentation,
   ScrollText,
+  Scale,
   Sparkles,
   Swords,
   Waypoints,
-  UserCircle2,
-  Users2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -33,34 +31,71 @@ const baseNavItems = [
   { id: "worlds", href: "/app/worlds", label: "Mundos", icon: Globe2 },
 ];
 
-const worldNavItems = [
-  { id: "hub", path: "", label: "Cockpit", icon: LayoutDashboard },
-  { id: "forge", path: "forge", label: "Forja", icon: Flame },
-  { id: "codex", path: "codex", label: "Codex", icon: Crown },
-  { id: "graph", path: "graph", label: "Grafo", icon: Waypoints },
-  { id: "visual-library", path: "visual-library", label: "Visual", icon: Images },
-  { id: "campaigns", path: "campaigns", label: "Campanhas", icon: Swords },
-  { id: "characters", path: "characters", label: "Personagens", icon: UserCircle2 },
-  { id: "npcs", path: "npcs", label: "NPCs", icon: Users2 },
-  { id: "locations", path: "locations", label: "Locais", icon: MapPin },
-  { id: "compendium", path: "compendium", label: "Compendio", icon: BookOpenText },
-  { id: "diary", path: "diary", label: "Diario", icon: NotebookPen },
-  { id: "map", path: "map", label: "Atlas", icon: ScrollText },
-];
+const worldNavSections = [
+  {
+    id: "world",
+    label: "MUNDO",
+    items: [
+      { id: "hub", path: "", label: "Cockpit", icon: LayoutDashboard },
+      { id: "forge", path: "forge", label: "Forja", icon: Flame },
+      { id: "codex", path: "codex", label: "Codex", icon: Crown },
+      { id: "graph", path: "graph", label: "Grafo", icon: Waypoints },
+      { id: "visual", path: "visual", label: "Visual", icon: Images },
+    ],
+  },
+  {
+    id: "table",
+    label: "MESA",
+    items: [
+      { id: "campaigns", path: "campaigns", label: "Campanhas", icon: Swords },
+      { id: "quadro", path: "quadro", label: "Mesa ao Vivo", icon: Presentation, badge: "Hot" },
+      { id: "memory", path: "memory", label: "Memoria", icon: BookMarked },
+    ],
+  },
+  {
+    id: "support",
+    label: "APOIO",
+    items: [
+      { id: "compendium", path: "compendium", label: "Compendio", icon: BookOpenText },
+      { id: "map", path: "map", label: "Atlas", icon: ScrollText },
+      { id: "balance", path: "#", label: "Balanceamento", icon: Scale },
+    ],
+  },
+] as const;
 
 export function AppSidebar() {
   const pathname = usePathname();
   const worldId = extractWorldIdFromPath(pathname);
   const isInWorld = worldId !== null;
 
-  const navItems = isInWorld
-    ? worldNavItems.map((item) => ({
-        id: item.id,
-        href: item.path === "" ? `/app/worlds/${worldId}` : `/app/worlds/${worldId}/${item.path}`,
-        label: item.label,
-        icon: item.icon,
+  const worldSections = isInWorld
+    ? worldNavSections.map((section) => ({
+        id: section.id,
+        label: section.label,
+        items: section.items.map((item) => ({
+          id: item.id,
+          href:
+            item.path === "#"
+              ? "#"
+              : item.path === ""
+                ? `/app/worlds/${worldId}`
+                : `/app/worlds/${worldId}/${item.path}`,
+          label: item.label,
+          icon: item.icon,
+          badge: "badge" in item ? item.badge : undefined,
+          disabled: item.path === "#",
+        })),
       }))
-    : baseNavItems;
+    : [
+        {
+          id: "global",
+          label: "NAVEGACAO GLOBAL",
+          items: baseNavItems.map((item) => ({
+            ...item,
+            disabled: false,
+          })),
+        },
+      ];
 
   return (
     <aside className="relative z-20 hidden lg:block">
@@ -87,38 +122,57 @@ export function AppSidebar() {
 
           <Separator className="border-white/10" />
 
-          <div className="space-y-3">
-            <p className="section-eyebrow px-2">{isInWorld ? "Navegacao do mundo" : "Navegacao global"}</p>
-            <nav className="space-y-2">
-              {navItems.map((item) => {
-                const active =
-                  pathname === item.href ||
-                  (item.href !== "/app" &&
-                    item.href !== `/app/worlds/${worldId}` &&
-                    pathname.startsWith(item.href));
+          <div className="space-y-4">
+            {worldSections.map((section) => (
+              <div key={section.id} className="space-y-2">
+                <p className="section-eyebrow px-2">{section.label}</p>
+                <nav className="space-y-1.5">
+                  {section.items.map((item) => {
+                    const active =
+                      item.href !== "#" &&
+                      (pathname === item.href ||
+                        (item.href !== "/app" &&
+                          item.href !== `/app/worlds/${worldId}` &&
+                          pathname.startsWith(item.href)));
 
-                const Icon = item.icon;
+                    const Icon = item.icon;
 
-                return (
-                  <Button
-                    asChild
-                    key={item.id}
-                    variant="ghost"
-                    className={cn(
-                      "w-full justify-start gap-3 rounded-2xl border border-transparent px-4 py-5 text-sm font-medium transition duration-200",
-                      active
-                        ? "border-primary/25 bg-primary/12 text-primary shadow-[0_0_18px_rgba(188,74,63,0.18)]"
-                        : "text-muted-foreground hover:border-white/10 hover:bg-white/5 hover:text-foreground"
-                    )}
-                  >
-                    <Link href={item.href}>
-                      <Icon className="h-4 w-4" />
-                      {item.label}
-                    </Link>
-                  </Button>
-                );
-              })}
-            </nav>
+                    return (
+                      <Button
+                        asChild={!item.disabled}
+                        key={item.id}
+                        variant="ghost"
+                        className={cn(
+                          "w-full justify-start gap-3 rounded-2xl border border-transparent px-4 py-5 text-sm font-medium transition duration-200",
+                          active
+                            ? "border-primary/25 bg-primary/12 text-primary shadow-[0_0_18px_rgba(188,74,63,0.18)]"
+                            : item.disabled
+                              ? "cursor-not-allowed text-white/30"
+                              : "text-muted-foreground hover:border-white/10 hover:bg-white/5 hover:text-foreground"
+                        )}
+                      >
+                        {item.disabled ? (
+                          <span className="flex items-center gap-3">
+                            <Icon className="h-4 w-4" />
+                            {item.label}
+                          </span>
+                        ) : (
+                          <Link href={item.href}>
+                            <Icon className="h-4 w-4" />
+                            {item.label}
+                            {item.badge ? (
+                              <Badge className="ml-auto border-orange-400/20 bg-orange-500/10 text-orange-300">
+                                {item.badge}
+                              </Badge>
+                            ) : null}
+                          </Link>
+                        )}
+                      </Button>
+                    );
+                  })}
+                </nav>
+              </div>
+            ))}
           </div>
 
           <div className="space-y-3">

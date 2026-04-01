@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 import {
   Dialog,
   DialogContent,
@@ -662,6 +663,8 @@ export default function WorldDetailPage() {
                 {world.description || "Este mundo ainda nao tem descricao registrada, mas o cockpit ja esta pronto para operar campanhas, memoria e contexto."}
               </p>
             </div>
+
+            <ModeSwitcher worldId={worldId} />
 
             <div className="grid gap-3 sm:grid-cols-4">
               <div className="cinematic-frame rounded-2xl p-4">

@@ -33,6 +33,7 @@
 - QA visual da landing foi executado em browser real (desktop/mobile) com ajuste fino de legibilidade na secao de missao; `RPG-248` fechado em `Done`.
 - Blueprint consolidado de redesign para Figma foi publicado em `docs/99-reports/t20-os-figma-design-blueprint-2026-03-31.md` com IA alvo, modos Normal/Lousa/Quadro, fluxos canonicos e ordem de construcao de telas.
 - Shell interno ganhou camada premium imersiva no front operacional (`A1-LP4`), com backdrop cinematografico em video (fallback gradiente), profundidade 3D leve por parallax e ajustes globais de atmosfera sem mexer na landing publica.
+- Primeiro corte de refatoracao Figma-guided no app interno (`A1-LP5-R1`) entrou em codigo: sidebar por secoes `MUNDO/MESA/APOIO`, tabs de modo `Normal/Lousa/Quadro` no cockpit e novas rotas canonicas world-scoped (`visual`, `memory`, `lousa`, `quadro`) sem retirar funcionalidades ja existentes.
 
 ## Em Andamento
 - A8 foi encerrada no `attack-index`; A1-A7 e A9 seguem em `[-]`.
@@ -63,6 +64,7 @@
 5. Derivar recorte `A1-LP3` a partir do benchmark funcional `vvd.world`, com foco em continuidade de cockpit e modelagem de tipos/relacoes.
 6. Executar `A1-BP1`: prototipo Figma navegavel com shell, entrada global, biblioteca de mundos e cockpit do mundo como base canonica.
 7. Derivar `A1-LP5`: aplicar a mesma linguagem premium imersiva nos modulos Forja/Codex/Grafo/Visual/Campanhas/Memoria com componentes reutilizaveis e estados de carregamento/erro padronizados.
+8. Executar `A1-LP5-R2` com foco em consolidar consistencia visual entre modulos internos sem simplificar fluxos funcionais ja maduros do produto.
 
 ## Riscos Atuais
 - Branch discipline incompleta entre frentes pode gerar codigo funcional fora da linha principal - impacto: alto, mitigacao: encerrar por PR curta e merge sistematico.

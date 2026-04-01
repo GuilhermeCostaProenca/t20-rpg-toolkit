@@ -7,6 +7,7 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 - `src/app`: Superficies de produto (cockpit global, mundo, campanha, mesa ao vivo, APIs).
 - `src/components`: Shell, cockpit, war-room, quick inspect, superficies visuais e modulos de sessao.
 - `src/components/immersive-backdrop.tsx`: camada visual premium do app interno com video cinematografico, overlays atmosfericos e parallax leve para profundidade.
+- `src/components/world/mode-switcher.tsx`: seletor de modo do cockpit (`Normal`, `Lousa`, `Quadro`) como linguagem de navegacao continua.
 - `src/app/(public)/page.tsx`: landing publica de entrada do produto com narrativa comercial e CTA para o cockpit.
 - `src/components/landing/*`: secoes modulares da landing (navbar, hero, toolkit, generos, missao, showcase, CTA e footer) com interacoes via Framer Motion.
 - `src/lib`: Dominio e motor de apoio (combat, balanceamento T20, eventos, validacao, utilitarios).
@@ -29,6 +30,7 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 - Organizacao de rotas: tudo do dominio principal sob `/app/worlds/[id]/...` ou contexto equivalente de campanha.
 - Estados e erros: feedback operacional no proprio cockpit, evitando troca de superficie.
 - Atmosfera visual: `src/app/app/layout.tsx` injeta backdrop imersivo fixo (video + gradientes + camadas 3D) para reforcar sensacao de war room sem alterar contratos de dominio.
+- Rotas canonicas de modulo world-scoped: `visual`, `memory`, `lousa` e `quadro` agora existem em `src/app/app/worlds/[id]/*` para alinhar IA e navegacao ao blueprint Figma sem descontinuar rotas legadas.
 - Documentacao: status executivo no `attack-index`; continuidade operacional em `ai/*`.
 
 ## Divida Tecnica Relevante

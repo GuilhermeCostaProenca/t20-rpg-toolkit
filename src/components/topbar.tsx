@@ -21,6 +21,11 @@ function resolveSectionLabel(pathname: string) {
   if (pathname === "/app") return "Painel do mestre";
   if (pathname === "/app/worlds") return "Biblioteca de mundos";
   if (pathname.includes("/campaign")) return "Campanha";
+  if (pathname.includes("/quadro")) return "Mesa ao Vivo";
+  if (pathname.includes("/lousa")) return "Modo Lousa";
+  if (pathname.includes("/memory")) return "Memoria";
+  if (pathname.includes("/visual")) return "Visual";
+  if (pathname.includes("/visual-library")) return "Visual";
   if (pathname.includes("/characters")) return "Personagens";
   if (pathname.includes("/npcs")) return "NPCs";
   if (pathname.includes("/locations")) return "Locais";
