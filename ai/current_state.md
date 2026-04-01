@@ -34,6 +34,7 @@
 - Blueprint consolidado de redesign para Figma foi publicado em `docs/99-reports/t20-os-figma-design-blueprint-2026-03-31.md` com IA alvo, modos Normal/Lousa/Quadro, fluxos canonicos e ordem de construcao de telas.
 - Shell interno ganhou camada premium imersiva no front operacional (`A1-LP4`), com backdrop cinematografico em video (fallback gradiente), profundidade 3D leve por parallax e ajustes globais de atmosfera sem mexer na landing publica.
 - Primeiro corte de refatoracao Figma-guided no app interno (`A1-LP5-R1`) entrou em codigo: sidebar por secoes `MUNDO/MESA/APOIO`, tabs de modo `Normal/Lousa/Quadro` no cockpit e novas rotas canonicas world-scoped (`visual`, `memory`, `lousa`, `quadro`) sem retirar funcionalidades ja existentes.
+- Segundo corte de refatoracao Figma-guided (`A1-LP5-R2`) harmonizou superficies reais de modulo com `ModeSwitcher` compartilhado: cockpit do mundo, forja, codex, grafo, campanhas, visual library, memoria, lousa e quadro agora operam com o mesmo padrao de modo e leitura.
 
 ## Em Andamento
 - A8 foi encerrada no `attack-index`; A1-A7 e A9 seguem em `[-]`.
@@ -65,6 +66,7 @@
 6. Executar `A1-BP1`: prototipo Figma navegavel com shell, entrada global, biblioteca de mundos e cockpit do mundo como base canonica.
 7. Derivar `A1-LP5`: aplicar a mesma linguagem premium imersiva nos modulos Forja/Codex/Grafo/Visual/Campanhas/Memoria com componentes reutilizaveis e estados de carregamento/erro padronizados.
 8. Executar `A1-LP5-R2` com foco em consolidar consistencia visual entre modulos internos sem simplificar fluxos funcionais ja maduros do produto.
+9. Executar `A1-LP5-R3` para finalizar convergencia de rotas canonicas (`visual`/`memory`) em links legados ainda apontando para `visual-library`/`diary`.
 
 ## Riscos Atuais
 - Branch discipline incompleta entre frentes pode gerar codigo funcional fora da linha principal - impacto: alto, mitigacao: encerrar por PR curta e merge sistematico.

@@ -7,6 +7,7 @@ import { ArrowRight, Filter, Network, Pencil, RefreshCw, Save, ScanSearch, Trash
 
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 import { EmptyState } from "@/components/empty-state";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 import {
   NarrativeGraphBoard,
   type NarrativeGraphEdge,
@@ -479,6 +480,7 @@ export default function WorldGraphPage() {
                   : "Este e o primeiro slice do grafo: leitura world-scoped, foco em entidade e salto direto para o Codex."}
               </p>
             </div>
+            <ModeSwitcher worldId={worldId} />
             <div className="flex flex-wrap gap-3">
               <Button variant="outline" className="border-white/10 bg-white/5" onClick={() => void loadGraph()}>
                 <RefreshCw className="mr-2 h-4 w-4" />

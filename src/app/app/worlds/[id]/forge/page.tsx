@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { EmptyState } from "@/components/empty-state";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -565,6 +566,8 @@ export default function WorldForgePage() {
                 criativo antes de abrir casas, genealogias, politica, Codex e referencias.
               </p>
             </div>
+
+            <ModeSwitcher worldId={worldId} />
 
             <div className="grid gap-3 sm:grid-cols-4">
               <div className="cinematic-frame rounded-2xl p-4">

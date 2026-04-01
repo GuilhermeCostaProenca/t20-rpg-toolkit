@@ -7,6 +7,7 @@ import { AlertTriangle, Clock3, Play, Swords, Timer } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 
 type Campaign = {
   id: string;
@@ -87,6 +88,7 @@ export default function WorldQuadroPage() {
                 O Quadro conecta a preparação já existente (forja, codex, reveals, memória) com a operação ao vivo em `/app/play`.
               </p>
             </div>
+            <ModeSwitcher worldId={worldId} />
             <div className="flex flex-wrap gap-3">
               {targetCampaign ? (
                 <Button asChild>

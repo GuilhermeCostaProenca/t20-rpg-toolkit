@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 import { prisma } from "@/lib/prisma";
 import {
   getVisualKindLabel,
@@ -372,6 +373,7 @@ export default async function WorldVisualLibraryPage({ params, searchParams }: P
                 ativos diretamente para a mesa sem depender de Pinterest e janelas espalhadas.
               </p>
             </div>
+            <ModeSwitcher worldId={id} />
             <div className="flex flex-wrap gap-3">
               <Button variant="outline" className="border-white/10 bg-white/5" asChild>
                 <Link href={`/app/worlds/${id}`}>

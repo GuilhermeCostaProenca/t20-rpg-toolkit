@@ -774,3 +774,43 @@
   - executar `A1-LP5-R2` para harmonizar visual de todas as superfices de modulo sem regressao de fluxo.
 - Proximo passo recomendado:
   - atacar Forja/Codex/Grafo/Campanhas com componentes visuais comuns (header de modo, blocos operacionais, estados vazios/erro unificados) mantendo dados e contratos atuais.
+
+### Sessao: 2026-04-01 - A1-LP5-R2 harmonizacao de modo nas superficies reais
+- Objetivo da sessao: expandir o padrão visual/fluxo guiado pelo Figma para os modulos reais do produto sem perder profundidade funcional.
+- O que foi feito:
+  - integrado `ModeSwitcher` compartilhado nas superficies:
+    - `world/[id]` (cockpit),
+    - `world/[id]/forge`,
+    - `world/[id]/codex`,
+    - `world/[id]/graph`,
+    - `world/[id]/campaigns`,
+    - `world/[id]/visual-library`,
+    - `world/[id]/memory`,
+    - `world/[id]/lousa`,
+    - `world/[id]/quadro`.
+  - mantidos intactos os fluxos funcionais existentes de cada modulo (dados, APIs e interacoes de dominio).
+  - atualizada memoria de projeto em `ai/tasks.md`, `ai/current_state.md`, `ai/architecture.md`.
+- Arquivos alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `src/app/app/worlds/[id]/forge/page.tsx`
+  - `src/app/app/worlds/[id]/codex/page.tsx`
+  - `src/app/app/worlds/[id]/graph/page.tsx`
+  - `src/app/app/worlds/[id]/campaigns/page.tsx`
+  - `src/app/app/worlds/[id]/visual-library/page.tsx`
+  - `src/app/app/worlds/[id]/memory/page.tsx`
+  - `src/app/app/worlds/[id]/lousa/page.tsx`
+  - `src/app/app/worlds/[id]/quadro/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint` nos arquivos alterados -> sem erros.
+  - validacao runtime em docker ficou bloqueada porque Docker Desktop caiu durante a sessao (`dockerDesktopLinuxEngine` indisponivel).
+- Decisoes tomadas:
+  - sem nova decisao arquitetural (execucao de DEC-022).
+- Pendencias:
+  - executar `A1-LP5-R3` para convergencia total de links legados para rotas canonicas.
+  - revalidar as rotas novas com Docker restabelecido.
+- Proximo passo recomendado:
+  - normalizar todos os links internos de `visual-library/diary` para `visual/memory` com redirect controlado onde necessario.

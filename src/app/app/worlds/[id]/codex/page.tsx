@@ -15,6 +15,7 @@ import {
 
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 import { EmptyState } from "@/components/empty-state";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -417,6 +418,7 @@ export default function WorldCodexPage() {
                 Crie, filtre e inspecione personagens, faccoes, lugares, casas e artefatos dentro de uma superficie central do mestre.
               </p>
             </div>
+            <ModeSwitcher worldId={worldId} />
             <div className="flex flex-wrap gap-3">
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>

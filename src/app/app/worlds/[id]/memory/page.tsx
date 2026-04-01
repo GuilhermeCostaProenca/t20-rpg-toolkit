@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/empty-state";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 
 type MemoryEvent = {
   id: string;
@@ -79,6 +80,7 @@ export default function WorldMemoryPage() {
                 Esta rota canonica consolida a leitura de memoria do mundo e centraliza busca de acontecimentos para prep e mesa.
               </p>
             </div>
+            <ModeSwitcher worldId={worldId} />
             <div className="flex flex-wrap gap-3">
               <Button variant="outline" className="border-white/10 bg-white/5" asChild>
                 <Link href={`/app/worlds/${worldId}`}>Voltar ao cockpit</Link>

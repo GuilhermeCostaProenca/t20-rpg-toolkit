@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/empty-state";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CampaignCreateSchema } from "@/lib/validators";
@@ -134,6 +135,7 @@ export default function WorldCampaignsPage() {
                 Esta superficie agora fala a mesma lingua do cockpit principal. Cada campanha e uma frente ativa dentro do mundo, com sala, contexto e retorno rapido para a mesa.
               </p>
             </div>
+            <ModeSwitcher worldId={worldId} />
             <div className="flex flex-wrap gap-3">
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>

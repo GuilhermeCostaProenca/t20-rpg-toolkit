@@ -31,6 +31,7 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 - Estados e erros: feedback operacional no proprio cockpit, evitando troca de superficie.
 - Atmosfera visual: `src/app/app/layout.tsx` injeta backdrop imersivo fixo (video + gradientes + camadas 3D) para reforcar sensacao de war room sem alterar contratos de dominio.
 - Rotas canonicas de modulo world-scoped: `visual`, `memory`, `lousa` e `quadro` agora existem em `src/app/app/worlds/[id]/*` para alinhar IA e navegacao ao blueprint Figma sem descontinuar rotas legadas.
+- Superficies de modulo (`world`, `forge`, `codex`, `graph`, `campaigns`, `visual-library`, `memory`, `lousa`, `quadro`) compartilham o mesmo `ModeSwitcher`, reduzindo quebra de contexto entre criacao e operacao ao vivo.
 - Documentacao: status executivo no `attack-index`; continuidade operacional em `ai/*`.
 
 ## Divida Tecnica Relevante

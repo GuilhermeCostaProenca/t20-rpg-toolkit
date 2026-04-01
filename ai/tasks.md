@@ -17,7 +17,8 @@
 - [ ] [A1-BP1] Transformar blueprint consolidado em prototipo navegavel no Figma (Fase A + B).
 - [x] [A1-LP4] Implementar camada premium do shell interno (video cinematografico + profundidade 3D leve) para iniciar o novo front operacional sem alterar a landing.
 - [x] [A1-LP5-R1] Iniciar refatoracao do front interno conforme Figma: sidebar por secoes (MUNDO/MESA/APOIO), mode switcher (Normal/Lousa/Quadro) e rotas canonicas `visual`, `memory`, `lousa`, `quadro`.
-- [ ] [A1-LP5-R2] Expandir refatoracao visual Figma-guided para superfices internas de modulo (Forja/Codex/Grafo/Campanhas/Memoria) preservando funcionalidades atuais e sem reduzir profundidade de fluxo.
+- [x] [A1-LP5-R2] Expandir refatoracao visual Figma-guided para superfices internas de modulo (Forja/Codex/Grafo/Campanhas/Memoria/Visual) preservando funcionalidades atuais e sem reduzir profundidade de fluxo.
+- [ ] [A1-LP5-R3] Consolidar links/rotas canonicas internas (`visual`/`memory`) nos pontos legados remanescentes e reduzir ambiguidade de nomenclatura (`diary` vs `memory`, `visual-library` vs `visual`) sem regressao funcional.
 
 ## Concluidas
 - [x] Inicializar estrutura de memoria externa em `ai/`.

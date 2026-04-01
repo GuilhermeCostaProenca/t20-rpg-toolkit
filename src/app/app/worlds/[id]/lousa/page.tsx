@@ -6,6 +6,7 @@ import { BookOpenText, Crown, Images, Network, ScrollText, Sparkles } from "luci
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ModeSwitcher } from "@/components/world/mode-switcher";
 
 const lousaCards = [
   {
@@ -76,6 +77,7 @@ export default function WorldLousaPage() {
               Nada é descartado: o objetivo é reduzir fricção entre ferramentas.
             </p>
           </div>
+          <ModeSwitcher worldId={worldId} />
           <div className="flex flex-wrap gap-3">
             <Button asChild>
               <Link href={`/app/worlds/${worldId}`}>Voltar ao modo normal</Link>
