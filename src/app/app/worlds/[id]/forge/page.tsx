@@ -688,7 +688,7 @@ export default function WorldForgePage() {
                 <Button
                   variant="outline"
                   className="justify-between border-white/10 bg-white/5"
-                  onClick={() => router.push(`/app/worlds/${worldId}/visual-library`)}
+                  onClick={() => router.push(`/app/worlds/${worldId}/visual`)}
                 >
                   Abrir biblioteca visual
                   <Images className="h-4 w-4" />
@@ -1304,7 +1304,7 @@ export default function WorldForgePage() {
             </p>
           </div>
         </Link>
-        <Link href={`/app/worlds/${worldId}/visual-library`} className="group">
+        <Link href={`/app/worlds/${worldId}/visual`} className="group">
           <div className="cinematic-frame rounded-[28px] p-5 transition group-hover:border-primary/25">
             <div className="flex items-center gap-2 text-foreground">
               <Images className="h-4 w-4 text-sky-200/80" />
@@ -1483,3 +1483,4 @@ export default function WorldForgePage() {
     </div>
   );
 }
+

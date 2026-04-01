@@ -309,9 +309,9 @@ export default function WorldForgeTimelinePage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="border-white/10 bg-white/5">
-                <Link href={`/app/worlds/${worldId}/diary`}>
+                <Link href={`/app/worlds/${worldId}/memory`}>
                   <Waypoints className="mr-2 h-4 w-4" />
-                  Abrir diario
+                  Abrir memoria
                 </Link>
               </Button>
             </div>
@@ -492,3 +492,4 @@ export default function WorldForgeTimelinePage() {
     </div>
   );
 }
+

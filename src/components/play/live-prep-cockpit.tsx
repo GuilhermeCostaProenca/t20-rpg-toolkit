@@ -575,7 +575,7 @@ export function LivePrepCockpit({
     params.set("campaignId", campaignId);
     if (preset) params.set("preset", preset);
     const suffix = params.toString();
-    const href = `/app/worlds/${worldId}/visual-library${suffix ? `?${suffix}` : ""}`;
+    const href = `/app/worlds/${worldId}/visual${suffix ? `?${suffix}` : ""}`;
     window.open(href, "_blank", "noopener,noreferrer");
   };
   const openSessionForge = () => {
@@ -1864,3 +1864,4 @@ export function LivePrepCockpit({
     </div>
   );
 }
+

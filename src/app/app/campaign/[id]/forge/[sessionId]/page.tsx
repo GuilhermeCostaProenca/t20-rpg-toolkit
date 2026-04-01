@@ -38,7 +38,7 @@ import {
   type LorePrepContext,
   type LorePrepFocus,
 } from "@/lib/lore";
-import { getVisualKindLabel, getVisualKindPriority } from "@/lib/visual-library";
+import { getVisualKindLabel, getVisualKindPriority } from "@/lib/visual";
 import {
   buildSessionMetadata,
   getEmptySessionForgeState,
@@ -1945,7 +1945,7 @@ export default function SessionForgePage() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
-                  <Link href={`/app/worlds/${campaign.world.id}/visual-library`}>
+                  <Link href={`/app/worlds/${campaign.world.id}/visual`}>
                     Biblioteca visual
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -4482,7 +4482,7 @@ export default function SessionForgePage() {
                   Assets puxados das entidades ligadas ao preparo. Use isso para montar reveals e consulta rapida sem sair da sessao.
                 </p>
                 <Button asChild variant="outline" className="border-white/10 bg-white/5">
-                  <Link href={`/app/worlds/${campaign.world.id}/visual-library?campaignId=${campaign.id}`}>
+                  <Link href={`/app/worlds/${campaign.world.id}/visual?campaignId=${campaign.id}`}>
                     Biblioteca visual
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
@@ -4935,7 +4935,7 @@ export default function SessionForgePage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="justify-between border-white/10 bg-white/5">
-                <Link href={`/app/worlds/${campaign.world.id}/visual-library`}>
+                <Link href={`/app/worlds/${campaign.world.id}/visual`}>
                   Biblioteca visual
                   <Eye className="h-4 w-4" />
                 </Link>
@@ -4953,3 +4953,4 @@ export default function SessionForgePage() {
     </div>
   );
 }
+

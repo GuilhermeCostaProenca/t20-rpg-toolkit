@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { Search } from "lucide-react";
 
-import { VisualLibraryBrowser } from "@/components/visual/visual-library-browser";
+import { VisualLibraryBrowser } from "@/components/visual/visual-browser";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,7 +15,7 @@ import {
   getVisualKindLabel,
   getVisualKindPriority,
   normalizeVisualKind,
-} from "@/lib/visual-library";
+} from "@/lib/visual";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -65,7 +65,7 @@ function buildVisualLibraryHref(
     Object.entries(params).filter((entry): entry is [string, string] => Boolean(entry[1]))
   );
   const suffix = search.toString();
-  return `/app/worlds/${worldId}/visual-library${suffix ? `?${suffix}` : ""}`;
+  return `/app/worlds/${worldId}/visual${suffix ? `?${suffix}` : ""}`;
 }
 
 async function getVisualLibrary(
@@ -470,7 +470,7 @@ export default async function WorldVisualLibraryPage({ params, searchParams }: P
                         asChild
                       >
                         <Link
-                          href={`/app/worlds/${id}/visual-library?${new URLSearchParams({
+                          href={`/app/worlds/${id}/visual?${new URLSearchParams({
                             campaignId: data.mesaPrep.focusCampaign?.id || "",
                             assetId: asset.id,
                           }).toString()}`}
@@ -498,7 +498,7 @@ export default async function WorldVisualLibraryPage({ params, searchParams }: P
                         asChild
                       >
                         <Link
-                          href={`/app/worlds/${id}/visual-library?${new URLSearchParams({
+                          href={`/app/worlds/${id}/visual?${new URLSearchParams({
                             campaignId: data.mesaPrep.focusCampaign?.id || "",
                             assetId: asset.id,
                           }).toString()}`}
@@ -526,7 +526,7 @@ export default async function WorldVisualLibraryPage({ params, searchParams }: P
                         asChild
                       >
                         <Link
-                          href={`/app/worlds/${id}/visual-library?${new URLSearchParams({
+                          href={`/app/worlds/${id}/visual?${new URLSearchParams({
                             campaignId: data.mesaPrep.focusCampaign?.id || "",
                             assetId: asset.id,
                           }).toString()}`}
@@ -644,19 +644,19 @@ export default async function WorldVisualLibraryPage({ params, searchParams }: P
       <section className="chrome-panel rounded-[30px] p-6">
         <div className="mb-4 flex flex-wrap gap-2">
           <Button variant="outline" className="border-white/10 bg-white/5" asChild>
-            <Link href={`/app/worlds/${id}/visual-library`}>Todos</Link>
+            <Link href={`/app/worlds/${id}/visual`}>Todos</Link>
           </Button>
           <Button variant="outline" className="border-white/10 bg-white/5" asChild>
-            <Link href={`/app/worlds/${id}/visual-library?preset=places`}>Lugares</Link>
+            <Link href={`/app/worlds/${id}/visual?preset=places`}>Lugares</Link>
           </Button>
           <Button variant="outline" className="border-white/10 bg-white/5" asChild>
-            <Link href={`/app/worlds/${id}/visual-library?preset=portraits`}>Retratos</Link>
+            <Link href={`/app/worlds/${id}/visual?preset=portraits`}>Retratos</Link>
           </Button>
           <Button variant="outline" className="border-white/10 bg-white/5" asChild>
-            <Link href={`/app/worlds/${id}/visual-library?preset=reveals`}>Reveals</Link>
+            <Link href={`/app/worlds/${id}/visual?preset=reveals`}>Reveals</Link>
           </Button>
           <Button variant="outline" className="border-white/10 bg-white/5" asChild>
-            <Link href={`/app/worlds/${id}/visual-library?preset=scenes`}>Cenas</Link>
+            <Link href={`/app/worlds/${id}/visual?preset=scenes`}>Cenas</Link>
           </Button>
         </div>
         <form className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(5,minmax(0,0.9fr))]">
@@ -745,7 +745,7 @@ export default async function WorldVisualLibraryPage({ params, searchParams }: P
                 asChild
               >
                 <Link
-                  href={`/app/worlds/${id}/visual-library?${new URLSearchParams({
+                  href={`/app/worlds/${id}/visual?${new URLSearchParams({
                     ...(filters.preset ? { preset: filters.preset } : {}),
                     ...(filters.type ? { type: filters.type } : {}),
                     ...(filters.kind ? { kind: filters.kind } : {}),
@@ -811,3 +811,4 @@ export default async function WorldVisualLibraryPage({ params, searchParams }: P
     </div>
   );
 }
+

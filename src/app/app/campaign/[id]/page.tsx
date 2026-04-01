@@ -1305,7 +1305,7 @@ export default function CampaignPage() {
                   </Link>
                 </Button>
                 <Button variant="outline" className="justify-between border-white/10 bg-white/5" asChild>
-                  <Link href={`/app/worlds/${campaign.world.id}/diary`}>
+                  <Link href={`/app/worlds/${campaign.world.id}/memory`}>
                     Diario e memoria
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -2422,7 +2422,7 @@ export default function CampaignPage() {
                   </Link>
                 </Button>
                 <Button variant="outline" className="justify-between border-white/10 bg-white/5" asChild>
-                  <Link href={`/app/worlds/${campaign.world.id}/diary`}>
+                  <Link href={`/app/worlds/${campaign.world.id}/memory`}>
                     <CalendarClock className="mr-2 h-4 w-4" />
                     Diario
                   </Link>
@@ -3016,3 +3016,4 @@ export default function CampaignPage() {
     </div>
   );
 }
+

@@ -808,7 +808,7 @@ export default function WorldDetailPage() {
                 <Button
                   variant="outline"
                   className="justify-between border-white/10 bg-white/5"
-                  onClick={() => router.push(`/app/worlds/${worldId}/visual-library`)}
+                  onClick={() => router.push(`/app/worlds/${worldId}/visual`)}
                 >
                   Biblioteca visual
                   <ChevronRight className="h-4 w-4" />
@@ -1020,7 +1020,7 @@ export default function WorldDetailPage() {
                 </h2>
               </div>
               <Button asChild variant="outline" className="border-white/10 bg-white/5">
-                <Link href={`/app/worlds/${worldId}/diary`}>Abrir diario</Link>
+                <Link href={`/app/worlds/${worldId}/memory`}>Abrir memoria</Link>
               </Button>
             </div>
 
@@ -1349,7 +1349,7 @@ export default function WorldDetailPage() {
                   <Button
                     variant="outline"
                     className="justify-between border-white/10 bg-white/5"
-                    onClick={() => router.push(`/app/worlds/${worldId}/visual-library`)}
+                    onClick={() => router.push(`/app/worlds/${worldId}/visual`)}
                   >
                     Biblioteca visual
                     <Images className="h-4 w-4" />

@@ -228,7 +228,7 @@ export default function MapPage() {
                 </Link>
               </Button>
               <Button variant="outline" className="justify-between border-white/10 bg-white/5" asChild>
-                <Link href={`/app/worlds/${world.id}/diary`}>
+                <Link href={`/app/worlds/${world.id}/memory`}>
                   Diario do mundo
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -276,3 +276,4 @@ export default function MapPage() {
     </div>
   );
 }
+

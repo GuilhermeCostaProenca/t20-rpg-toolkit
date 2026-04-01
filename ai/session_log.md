@@ -814,3 +814,42 @@
   - revalidar as rotas novas com Docker restabelecido.
 - Proximo passo recomendado:
   - normalizar todos os links internos de `visual-library/diary` para `visual/memory` com redirect controlado onde necessario.
+
+### Sessao: 2026-04-01 - A1-LP5-R3 convergencia de rotas canonicas
+- Objetivo da sessao: finalizar a convergencia de links internos para os caminhos canonicos `visual` e `memory`.
+- O que foi feito:
+  - trocados links de produto de `visual-library` para `visual` em:
+    - cockpit do mundo,
+    - forja do mundo,
+    - forja de sessao/campanha,
+    - prep ao vivo.
+  - trocados links de `diary` para `memory` em:
+    - cockpit do mundo,
+    - mapa do mundo,
+    - timeline da forja,
+    - estacao de campanha.
+  - ajustada CTA da pagina de memoria para `Abrir campanhas` em vez de apontar para diario legado.
+  - executada varredura final (`rg`) para detectar referencias residuais; mantido apenas fallback de compatibilidade em `src/app/app/worlds/[id]/visual/page.tsx` com redirect para rota legado.
+- Arquivos principais alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `src/app/app/worlds/[id]/forge/page.tsx`
+  - `src/app/app/worlds/[id]/visual-library/page.tsx`
+  - `src/app/app/worlds/[id]/map/page.tsx`
+  - `src/app/app/worlds/[id]/forge/timeline/page.tsx`
+  - `src/app/app/worlds/[id]/memory/page.tsx`
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `src/app/app/campaign/[id]/forge/[sessionId]/page.tsx`
+  - `src/components/play/live-prep-cockpit.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint` nos arquivos alterados do recorte -> sem erros.
+  - validacao visual no docker estava intermitente por instabilidade anterior do Docker Desktop; codigo confirmado no volume do container.
+- Decisoes tomadas:
+  - sem nova decisao estrutural (continuidade de DEC-022).
+- Pendencias:
+  - validar no browser os fluxos de link com Docker estabilizado.
+- Proximo passo recomendado:
+  - inverter fallback de compatibilidade (tornar `visual` a rota implementada principal e `visual-library` apenas redirect) quando houver janela segura de refactor.

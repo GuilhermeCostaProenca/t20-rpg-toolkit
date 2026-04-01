@@ -86,7 +86,7 @@ export default function WorldMemoryPage() {
                 <Link href={`/app/worlds/${worldId}`}>Voltar ao cockpit</Link>
               </Button>
               <Button variant="outline" className="border-white/10 bg-white/5" asChild>
-                <Link href={`/app/worlds/${worldId}/diary`}>Abrir diario</Link>
+                <Link href={`/app/worlds/${worldId}/campaigns`}>Abrir campanhas</Link>
               </Button>
             </div>
           </div>
@@ -145,3 +145,4 @@ export default function WorldMemoryPage() {
     </div>
   );
 }
+
