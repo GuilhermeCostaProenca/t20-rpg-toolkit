@@ -128,3 +128,11 @@
 - Foram removidos estados locais ad hoc de edicao (`form`) para esse fluxo, com reset sincronizado no `loadWorkspace`.
 - Validacao tecnica:
   - `npx eslint "src/app/app/worlds/[id]/codex/[entityId]/page.tsx"` -> ok.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R10)
+- `worlds/[id]/codex/[entityId]/page.tsx` agora tambem usa RHF+Zod nos formularios auxiliares de:
+  - adicionar imagem na galeria visual;
+  - criar relacao entre entidades.
+- Estados locais ad hoc desses formularios foram removidos (`imageDraft`, `relationDraft`, `imageSubmitting`, `relationSubmitting`) em favor de `imageForm/relationForm`.
+- Validacao tecnica:
+  - `npx eslint "src/app/app/worlds/[id]/codex/[entityId]/page.tsx"` -> ok.

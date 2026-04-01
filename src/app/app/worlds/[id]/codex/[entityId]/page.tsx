@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Link2, Pencil, Plus, RefreshCw, Save, Trash2, Upload } from "lucide-react";
@@ -115,6 +115,34 @@ const initialEntityForm = {
   coverImageUrl: "",
   portraitImageUrl: "",
 };
+const relationFormSchema = z.object({
+  toEntityId: z.string().trim().min(1, "Selecione uma entidade"),
+  type: z.string().trim().min(2, "Tipo de relacao precisa de pelo menos 2 caracteres"),
+  directionality: z.enum(["DIRECTED", "BIDIRECTIONAL"]),
+  weight: z.string().optional(),
+  notes: z.string().optional(),
+  visibility: z.enum(["MASTER", "PLAYERS"]),
+});
+const initialRelationForm = {
+  toEntityId: "",
+  type: "",
+  directionality: "DIRECTED" as "DIRECTED" | "BIDIRECTIONAL",
+  weight: "",
+  notes: "",
+  visibility: "MASTER" as "MASTER" | "PLAYERS",
+};
+const imageFormSchema = z.object({
+  url: z.string().trim().url("Informe uma URL valida para imagem"),
+  kind: z.string().trim().min(1, "Selecione o papel visual"),
+  caption: z.string().optional(),
+  sortOrder: z.string().optional(),
+});
+const initialImageForm = {
+  url: "",
+  kind: "reference",
+  caption: "",
+  sortOrder: "0",
+};
 
 function getMemoryChangeTypeLabel(event: { meta?: Record<string, unknown> | null }) {
   const meta = event.meta && typeof event.meta === "object" ? event.meta : null;
@@ -184,20 +212,9 @@ export default function CodexEntityWorkspacePage() {
   const [codex, setCodex] = useState<CodexPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [relationSubmitting, setRelationSubmitting] = useState(false);
-  const [imageSubmitting, setImageSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [editingRelationId, setEditingRelationId] = useState<string | null>(null);
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
-  const [imageDraft, setImageDraft] = useState({ url: "", kind: "reference", caption: "", sortOrder: "0" });
-  const [relationDraft, setRelationDraft] = useState({
-    toEntityId: "",
-    type: "",
-    directionality: "DIRECTED",
-    weight: "",
-    notes: "",
-    visibility: "MASTER",
-  });
   const [relationEditDraft, setRelationEditDraft] = useState({
     fromEntityId: entityId,
     toEntityId: "",
@@ -218,6 +235,14 @@ export default function CodexEntityWorkspacePage() {
   const entityForm = useForm<typeof initialEntityForm>({
     resolver: zodResolver(entityFormSchema),
     defaultValues: initialEntityForm,
+  });
+  const relationForm = useForm<typeof initialRelationForm>({
+    resolver: zodResolver(relationFormSchema),
+    defaultValues: initialRelationForm,
+  });
+  const imageForm = useForm<typeof initialImageForm>({
+    resolver: zodResolver(imageFormSchema),
+    defaultValues: initialImageForm,
   });
 
   const loadWorkspace = useCallback(async () => {
@@ -291,32 +316,31 @@ export default function CodexEntityWorkspacePage() {
     }
   }
 
-  async function handleCreateRelationship(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setRelationSubmitting(true);
+  async function handleCreateRelationship(values: typeof initialRelationForm) {
+    relationForm.clearErrors("root");
     try {
       const res = await fetch(`/api/worlds/${worldId}/relationships`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           fromEntityId: entityId,
-          toEntityId: relationDraft.toEntityId,
-          type: relationDraft.type,
-          directionality: relationDraft.directionality,
-          weight: relationDraft.weight ? Number(relationDraft.weight) : undefined,
-          notes: relationDraft.notes || undefined,
-          visibility: relationDraft.visibility,
+          toEntityId: values.toEntityId,
+          type: values.type,
+          directionality: values.directionality,
+          weight: values.weight ? Number(values.weight) : undefined,
+          notes: values.notes || undefined,
+          visibility: values.visibility,
         }),
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao criar relacao");
       notifySuccess("Relacao adicionada.");
-      setRelationDraft({ toEntityId: "", type: "", directionality: "DIRECTED", weight: "", notes: "", visibility: "MASTER" });
+      relationForm.reset(initialRelationForm);
       await loadWorkspace();
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Falha ao criar relacao");
-    } finally {
-      setRelationSubmitting(false);
+      const message = err instanceof Error ? err.message : "Falha ao criar relacao";
+      relationForm.setError("root", { type: "server", message });
+      notifyError(message);
     }
   }
 
@@ -370,29 +394,28 @@ export default function CodexEntityWorkspacePage() {
     }
   }
 
-  async function handleAddImage(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setImageSubmitting(true);
+  async function handleAddImage(values: typeof initialImageForm) {
+    imageForm.clearErrors("root");
     try {
       const res = await fetch(`/api/worlds/${worldId}/entities/${entityId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          url: imageDraft.url,
-          kind: imageDraft.kind,
-          caption: imageDraft.caption || undefined,
-          sortOrder: Number(imageDraft.sortOrder || "0"),
+          url: values.url,
+          kind: values.kind,
+          caption: values.caption || undefined,
+          sortOrder: Number(values.sortOrder || "0"),
         }),
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao adicionar imagem");
       notifySuccess("Imagem adicionada.");
-      setImageDraft({ url: "", kind: "reference", caption: "", sortOrder: "0" });
+      imageForm.reset(initialImageForm);
       await loadWorkspace();
     } catch (err) {
-      notifyError(err instanceof Error ? err.message : "Falha ao adicionar imagem");
-    } finally {
-      setImageSubmitting(false);
+      const message = err instanceof Error ? err.message : "Falha ao adicionar imagem";
+      imageForm.setError("root", { type: "server", message });
+      notifyError(message);
     }
   }
 
@@ -454,7 +477,7 @@ export default function CodexEntityWorkspacePage() {
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error ?? "Falha ao enviar imagem");
-      setImageDraft((prev) => ({ ...prev, url: payload.url || "" }));
+      imageForm.setValue("url", payload.url || "");
       notifySuccess("Upload concluido.");
     } catch (err) {
       notifyError(err instanceof Error ? err.message : "Falha ao enviar imagem");
@@ -750,27 +773,77 @@ export default function CodexEntityWorkspacePage() {
           <Card className="rounded-[28px] border-white/10 bg-card/70">
             <CardHeader><CardTitle className="text-xl font-black uppercase tracking-[0.04em]">Galeria visual</CardTitle></CardHeader>
             <CardContent className="space-y-5">
-              <form className="grid gap-4 rounded-[24px] border border-white/8 bg-white/4 p-4" onSubmit={handleAddImage}>
-                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">URL da imagem</label><Input value={imageDraft.url} onChange={(event) => setImageDraft((prev) => ({ ...prev, url: event.target.value }))} /></div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Papel visual</label>
-                    <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={imageDraft.kind} onValueChange={(value) => setImageDraft((prev) => ({ ...prev, kind: value }))} options={VISUAL_KIND_OPTIONS.map((option) => ({ value: option.value, label: option.label }))} />
+              <Form {...imageForm}>
+                <form className="grid gap-4 rounded-[24px] border border-white/8 bg-white/4 p-4" onSubmit={imageForm.handleSubmit(handleAddImage)}>
+                  <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
+                    <FormField
+                      control={imageForm.control}
+                      name="url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL da imagem</FormLabel>
+                          <FormControl>
+                            <Input value={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={imageForm.control}
+                      name="kind"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Papel visual</FormLabel>
+                          <FormControl>
+                            <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={field.value} onValueChange={field.onChange} options={VISUAL_KIND_OPTIONS.map((option) => ({ value: option.value, label: option.label }))} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Legenda</label><Input value={imageDraft.caption} onChange={(event) => setImageDraft((prev) => ({ ...prev, caption: event.target.value }))} /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Ordem</label><Input value={imageDraft.sortOrder} onChange={(event) => setImageDraft((prev) => ({ ...prev, sortOrder: event.target.value }))} /></div>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <label className="inline-flex cursor-pointer items-center rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm text-foreground transition hover:bg-white/10">
-                    <Upload className="mr-2 h-4 w-4" />
-                    {uploadingImage ? "Enviando..." : "Subir arquivo"}
-                    <input type="file" accept="image/*" className="hidden" disabled={uploadingImage} onChange={handleUploadImageFile} />
-                  </label>
-                  <Button type="submit" disabled={imageSubmitting}><Plus className="mr-2 h-4 w-4" />{imageSubmitting ? "Adicionando..." : "Adicionar imagem"}</Button>
-                </div>
-              </form>
+                  <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
+                    <FormField
+                      control={imageForm.control}
+                      name="caption"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Legenda</FormLabel>
+                          <FormControl>
+                            <Input value={field.value ?? ""} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={imageForm.control}
+                      name="sortOrder"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ordem</FormLabel>
+                          <FormControl>
+                            <Input value={field.value ?? ""} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {imageForm.formState.errors.root?.message ? (
+                    <p className="text-sm text-destructive">{imageForm.formState.errors.root.message}</p>
+                  ) : null}
+                  <div className="flex flex-wrap gap-3">
+                    <label className="inline-flex cursor-pointer items-center rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm text-foreground transition hover:bg-white/10">
+                      <Upload className="mr-2 h-4 w-4" />
+                      {uploadingImage ? "Enviando..." : "Subir arquivo"}
+                      <input type="file" accept="image/*" className="hidden" disabled={uploadingImage} onChange={handleUploadImageFile} />
+                    </label>
+                    <Button type="submit" disabled={imageForm.formState.isSubmitting}><Plus className="mr-2 h-4 w-4" />{imageForm.formState.isSubmitting ? "Adicionando..." : "Adicionar imagem"}</Button>
+                  </div>
+                </form>
+              </Form>
               {entity.images.length ? (
                 <div className="grid gap-4 sm:grid-cols-2">
                   {entity.images.slice().sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((image) => (
@@ -812,19 +885,96 @@ export default function CodexEntityWorkspacePage() {
           <Card className="rounded-[28px] border-white/10 bg-card/70">
             <CardHeader><CardTitle className="text-xl font-black uppercase tracking-[0.04em]">Relacoes</CardTitle></CardHeader>
             <CardContent className="space-y-5">
-              <form className="space-y-4 rounded-[24px] border border-white/8 bg-white/4 p-4" onSubmit={handleCreateRelationship}>
-                <div className="space-y-2"><label className="text-sm font-medium text-foreground">Conectar com</label><SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationDraft.toEntityId} onValueChange={(value) => setRelationDraft((prev) => ({ ...prev, toEntityId: value }))} placeholder="Selecionar entidade" options={relatedOptions.map((option) => ({ value: option.id, label: `${option.name} (${option.type})` }))} /></div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Tipo de relacao</label><Input value={relationDraft.type} onChange={(event) => setRelationDraft((prev) => ({ ...prev, type: event.target.value }))} placeholder="aliado, odeia, irmao..." /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Direcionalidade</label><SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationDraft.directionality} onValueChange={(value) => setRelationDraft((prev) => ({ ...prev, directionality: value }))} options={directionalityOptions} /></div>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-[120px_minmax(0,1fr)]">
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Peso</label><Input value={relationDraft.weight} onChange={(event) => setRelationDraft((prev) => ({ ...prev, weight: event.target.value }))} /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium text-foreground">Visibilidade</label><SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={relationDraft.visibility} onValueChange={(value) => setRelationDraft((prev) => ({ ...prev, visibility: value }))} options={visibilityOptions} /></div>
-                </div>
-                <div className="space-y-2"><label className="text-sm font-medium text-foreground">Notas</label><Textarea rows={3} value={relationDraft.notes} onChange={(event) => setRelationDraft((prev) => ({ ...prev, notes: event.target.value }))} /></div>
-                <Button type="submit" disabled={relationSubmitting}><Link2 className="mr-2 h-4 w-4" />{relationSubmitting ? "Conectando..." : "Criar relacao"}</Button>
-              </form>
+              <Form {...relationForm}>
+                <form className="space-y-4 rounded-[24px] border border-white/8 bg-white/4 p-4" onSubmit={relationForm.handleSubmit(handleCreateRelationship)}>
+                  <FormField
+                    control={relationForm.control}
+                    name="toEntityId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Conectar com</FormLabel>
+                        <FormControl>
+                          <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={field.value} onValueChange={field.onChange} placeholder="Selecionar entidade" options={relatedOptions.map((option) => ({ value: option.id, label: `${option.name} (${option.type})` }))} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={relationForm.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tipo de relacao</FormLabel>
+                          <FormControl>
+                            <Input value={field.value} onChange={field.onChange} placeholder="aliado, odeia, irmao..." />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={relationForm.control}
+                      name="directionality"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Direcionalidade</FormLabel>
+                          <FormControl>
+                            <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={field.value} onValueChange={field.onChange} options={directionalityOptions} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-[120px_minmax(0,1fr)]">
+                    <FormField
+                      control={relationForm.control}
+                      name="weight"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Peso</FormLabel>
+                          <FormControl>
+                            <Input value={field.value ?? ""} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={relationForm.control}
+                      name="visibility"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Visibilidade</FormLabel>
+                          <FormControl>
+                            <SelectField className="h-10 w-full rounded-md border-white/10 bg-black/20" value={field.value} onValueChange={field.onChange} options={visibilityOptions} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={relationForm.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Notas</FormLabel>
+                        <FormControl>
+                          <Textarea rows={3} value={field.value ?? ""} onChange={field.onChange} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {relationForm.formState.errors.root?.message ? (
+                    <p className="text-sm text-destructive">{relationForm.formState.errors.root.message}</p>
+                  ) : null}
+                  <Button type="submit" disabled={relationForm.formState.isSubmitting}><Link2 className="mr-2 h-4 w-4" />{relationForm.formState.isSubmitting ? "Conectando..." : "Criar relacao"}</Button>
+                </form>
+              </Form>
               <div className="space-y-3">
                 {allRelations.length ? allRelations.map((relation) => (
                   <div key={relation.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">

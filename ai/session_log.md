@@ -1062,3 +1062,23 @@
   - formularios auxiliares de `codex/[entityId]` (adicionar imagem, criar relacao) ainda estao em estado ad hoc.
 - Proximo passo recomendado:
   - fechar o lote final desses formularios auxiliares para concluir padrao de forms no modulo Codex.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R10: codex entity aux forms)
+- Objetivo da sessao: eliminar os ultimos formularios ad hoc do workspace de entidade no Codex.
+- O que foi feito:
+  - migrado form de `adicionar imagem` para RHF+Zod (`imageForm`) em `codex/[entityId]`.
+  - migrado form de `criar relacao` para RHF+Zod (`relationForm`) em `codex/[entityId]`.
+  - removidos estados locais legados desses fluxos (`imageDraft`, `relationDraft`, `imageSubmitting`, `relationSubmitting`).
+- Arquivos alterados:
+  - `src/app/app/worlds/[id]/codex/[entityId]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/worlds/[id]/codex/[entityId]/page.tsx"` -> ok.
+- Decisoes tomadas:
+  - sem nova ADR (continuidade de DEC-023/DEC-024).
+- Pendencias abertas:
+  - seguir varredura de forms ad hoc residuais fora do Codex (forja/grafo/combat), em lotes controlados.
+- Proximo passo recomendado:
+  - consolidar checklist final de aceite da Fase 1+2 por rota e iniciar fechamento executivo do recorte.
