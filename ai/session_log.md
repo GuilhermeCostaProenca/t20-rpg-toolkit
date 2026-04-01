@@ -1104,3 +1104,23 @@
   - revisar posteriormente a estrategia definitiva de `ui/select` para evitar regressao de UX acessivel em longo prazo.
 - Proximo passo recomendado:
   - seguir com varredura final de padrao/formulario e depois iniciar fase de refinamento visual operacional.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R11: feedback characters)
+- Objetivo da sessao: eliminar uso residual de feedback legado no modulo de personagens world-scoped.
+- O que foi feito:
+  - removido import de `sonner` em `worlds/[id]/characters/page.tsx`.
+  - espelhamento de personagem para Codex agora usa `notifySuccess/notifyError` via `useAppFeedback`.
+- Arquivos alterados:
+  - `src/app/app/worlds/[id]/characters/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/worlds/[id]/characters/page.tsx"` -> ok.
+  - `rg -n "from \"sonner\"|toast\\." src/app src/components --glob "*.tsx"` -> sem ocorrencias.
+- Decisoes tomadas:
+  - sem nova ADR (continuidade de DEC-023/DEC-024).
+- Pendencias abertas:
+  - concluir varredura de formulários ad hoc de menor prioridade (forja/grafo/combat) no proximo lote.
+- Proximo passo recomendado:
+  - preparar fechamento executivo da Fase 1+2 com checklist final por rota/modulo.

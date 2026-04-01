@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, Plus, RefreshCw, Search, Shield, Users2 } from "lucide-react";
-import { toast } from "sonner";
 
 import { CharacterWizard } from "@/components/character-wizard";
 import { EmptyState } from "@/components/empty-state";
+import { useAppFeedback } from "@/components/app-feedback-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -72,6 +72,7 @@ export default function WorldCharactersPage() {
   const [campaignFilter, setCampaignFilter] = useState("");
   const [wizardOpen, setWizardOpen] = useState(false);
   const [syncingCharacterId, setSyncingCharacterId] = useState<string | null>(null);
+  const { notifyError, notifySuccess } = useAppFeedback();
 
   const loadData = useCallback(async () => {
     if (!worldId) return;
@@ -161,10 +162,10 @@ export default function WorldCharactersPage() {
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error || "Falha ao criar entidade no Codex");
-      toast.success("Personagem espelhado no Codex.");
+      notifySuccess("Personagem espelhado no Codex.");
       await loadData();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao espelhar personagem no Codex");
+      notifyError("Falha ao espelhar personagem no Codex", err instanceof Error ? err.message : "Erro inesperado", true);
     } finally {
       setSyncingCharacterId(null);
     }

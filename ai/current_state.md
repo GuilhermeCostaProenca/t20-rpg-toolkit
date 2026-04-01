@@ -143,3 +143,9 @@
 - `worlds/[id]/characters/page.tsx` foi atualizado para usar `SelectField` no filtro de campanha.
 - Validacao de runtime:
   - `GET /app` no container retornando `200 OK` apos restart.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R11)
+- `worlds/[id]/characters/page.tsx` deixou de usar `sonner/toast` direto e passou a operar com `useAppFeedback` para sucesso/erro no espelhamento de personagem para o Codex.
+- Validacao tecnica:
+  - `npx eslint "src/app/app/worlds/[id]/characters/page.tsx"` -> ok.
+  - `rg -n "from \"sonner\"|toast\\." src/app src/components --glob "*.tsx"` -> sem ocorrencias.
