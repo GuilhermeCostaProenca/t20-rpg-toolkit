@@ -149,3 +149,9 @@
 - Validacao tecnica:
   - `npx eslint "src/app/app/worlds/[id]/characters/page.tsx"` -> ok.
   - `rg -n "from \"sonner\"|toast\\." src/app src/components --glob "*.tsx"` -> sem ocorrencias.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R12)
+- `components/combat/combat-panel.tsx` teve o dialog de `Adicionar inimigo` migrado para RHF+Zod (`createNpcForm`) com `FormField/FormMessage`.
+- Estados locais ad hoc do formulario foram removidos (`npcForm`, `npcError`, `npcSubmitting`) em favor de `formState` e `errors.root`.
+- Validacao tecnica:
+  - `npx eslint "src/components/combat/combat-panel.tsx"` -> ainda falha por debt preexistente de `no-explicit-any` e hooks warnings no arquivo (nao introduzidos por este recorte).

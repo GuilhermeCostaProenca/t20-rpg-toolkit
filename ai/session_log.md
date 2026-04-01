@@ -1124,3 +1124,23 @@
   - concluir varredura de formulários ad hoc de menor prioridade (forja/grafo/combat) no proximo lote.
 - Proximo passo recomendado:
   - preparar fechamento executivo da Fase 1+2 com checklist final por rota/modulo.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R12: combat panel npc form)
+- Objetivo da sessao: padronizar formulario residual do combate para reduzir estado local ad hoc.
+- O que foi feito:
+  - migrado formulario de `Adicionar inimigo` em `src/components/combat/combat-panel.tsx` para RHF+Zod.
+  - removidos estados locais `npcForm`, `npcError`, `npcSubmitting`.
+  - integrado `FormField`, `FormMessage` e submit por `formState.isSubmitting`.
+- Arquivos alterados:
+  - `src/components/combat/combat-panel.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/components/combat/combat-panel.tsx"` -> falha por debt preexistente de `@typescript-eslint/no-explicit-any` e warnings de hooks neste arquivo.
+- Decisoes tomadas:
+  - sem nova ADR (continuidade de DEC-023/DEC-024).
+- Pendencias abertas:
+  - varredura final em forms residuais de forja/grafo.
+- Proximo passo recomendado:
+  - abrir recorte dedicado de debt tipagem/hook para `combat-panel` antes do fechamento definitivo de lint no modulo.

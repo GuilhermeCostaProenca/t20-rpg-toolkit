@@ -1,11 +1,12 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Loader2, Plus, ScrollText } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { SelectField } from "@/components/ui/select-field";
 import { Separator } from "@/components/ui/separator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 type CharacterLite = { id: string; name: string };
 
@@ -65,6 +69,18 @@ type ActionResult = {
   damage?: { total: number; detail?: string; isCrit?: boolean };
   costMp?: number;
 };
+const npcFormSchema = z.object({
+  name: z.string().trim().min(2, "Defina um nome para o inimigo"),
+  hpMax: z.coerce.number().int().min(1, "PV maximo deve ser >= 1"),
+  defenseFinal: z.coerce.number().int().min(0, "Defesa deve ser >= 0"),
+  damageFormula: z.string().trim().min(1, "Informe a formula de dano"),
+});
+const initialNpcForm = {
+  name: "",
+  hpMax: 10,
+  defenseFinal: 10,
+  damageFormula: "1d6",
+};
 
 export function CombatPanel({ campaignId, characters }: Props) {
   const [loading, setLoading] = useState(false);
@@ -81,14 +97,10 @@ export function CombatPanel({ campaignId, characters }: Props) {
   const [overrideInputs, setOverrideInputs] = useState<Record<string, string>>({});
   const [pendingActions, setPendingActions] = useState<any[]>([]);
   const [npcDialogOpen, setNpcDialogOpen] = useState(false);
-  const [npcForm, setNpcForm] = useState({
-    name: "",
-    hpMax: 10,
-    defenseFinal: 10,
-    damageFormula: "1d6",
+  const createNpcForm = useForm<typeof initialNpcForm>({
+    resolver: zodResolver(npcFormSchema),
+    defaultValues: initialNpcForm,
   });
-  const [npcError, setNpcError] = useState<string | null>(null);
-  const [npcSubmitting, setNpcSubmitting] = useState(false);
 
   const orderedCombatants = useMemo(() => {
     if (!combat?.combatants) return [];
@@ -237,25 +249,19 @@ export function CombatPanel({ campaignId, characters }: Props) {
     }
   }
 
-  async function createNpc(event?: FormEvent<HTMLFormElement>) {
-    event?.preventDefault();
+  async function createNpc(values: typeof initialNpcForm) {
     if (!campaignId) return;
-    if (!npcForm.name.trim()) {
-      setNpcError("Defina um nome para o inimigo.");
-      return;
-    }
-    setNpcSubmitting(true);
-    setNpcError(null);
+    createNpcForm.clearErrors("root");
     try {
       const res = await fetch(`/api/campaigns/${campaignId}/combat/combatants`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: npcForm.name.trim(),
+          name: values.name.trim(),
           kind: "NPC",
-          hpMax: npcForm.hpMax,
-          defenseFinal: npcForm.defenseFinal,
-          damageFormula: npcForm.damageFormula,
+          hpMax: values.hpMax,
+          defenseFinal: values.defenseFinal,
+          damageFormula: values.damageFormula,
         }),
       });
       const payload = await res.json();
@@ -263,13 +269,11 @@ export function CombatPanel({ campaignId, characters }: Props) {
         throw new Error(payload.error ?? "Falha ao criar inimigo");
       }
       setNpcDialogOpen(false);
-      setNpcForm({ name: "", hpMax: 10, defenseFinal: 10, damageFormula: "1d6" });
+      createNpcForm.reset(initialNpcForm);
       await refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Erro ao criar inimigo";
-      setNpcError(msg);
-    } finally {
-      setNpcSubmitting(false);
+      createNpcForm.setError("root", { type: "server", message: msg });
     }
   }
 
@@ -474,7 +478,13 @@ export function CombatPanel({ campaignId, characters }: Props) {
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <Dialog open={npcDialogOpen} onOpenChange={setNpcDialogOpen}>
+            <Dialog
+              open={npcDialogOpen}
+              onOpenChange={(open) => {
+                setNpcDialogOpen(open);
+                if (!open) createNpcForm.clearErrors("root");
+              }}
+            >
               <DialogTrigger asChild>
                 <Button variant="outline" disabled={loading || !campaignId}>
                   <Plus className="h-4 w-4" />
@@ -486,72 +496,85 @@ export function CombatPanel({ campaignId, characters }: Props) {
                   <DialogTitle>Novo inimigo</DialogTitle>
                   <DialogDescription>Defina nome, PV, defesa e dano base.</DialogDescription>
                 </DialogHeader>
-                <form className="flex min-h-0 flex-1 flex-col" onSubmit={createNpc}>
-                  <div className="flex-1 space-y-3 overflow-y-auto px-6 pb-4">
-                  <div className="space-y-1">
-                    <label className="text-sm text-muted-foreground">Nome</label>
-                    <Input
-                      value={npcForm.name}
-                      onChange={(e) => setNpcForm((prev) => ({ ...prev, name: e.target.value }))}
-                      placeholder="Esqueleto"
-                    />
-                  </div>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-sm text-muted-foreground">PV Max</label>
-                      <Input
-                        type="number"
-                        min={1}
-                        value={npcForm.hpMax}
-                        onChange={(e) =>
-                          setNpcForm((prev) => ({ ...prev, hpMax: Number(e.target.value) || 1 }))
-                        }
+                <Form {...createNpcForm}>
+                  <form className="flex min-h-0 flex-1 flex-col" onSubmit={createNpcForm.handleSubmit(createNpc)}>
+                    <div className="flex-1 space-y-3 overflow-y-auto px-6 pb-4">
+                      <FormField
+                        control={createNpcForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem className="space-y-1">
+                            <FormLabel className="text-sm text-muted-foreground">Nome</FormLabel>
+                            <FormControl>
+                              <Input value={field.value} onChange={field.onChange} placeholder="Esqueleto" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm text-muted-foreground">Defesa</label>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={npcForm.defenseFinal}
-                        onChange={(e) =>
-                          setNpcForm((prev) => ({
-                            ...prev,
-                            defenseFinal: Number(e.target.value) || 0,
-                          }))
-                        }
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <FormField
+                          control={createNpcForm.control}
+                          name="hpMax"
+                          render={({ field }) => (
+                            <FormItem className="space-y-1">
+                              <FormLabel className="text-sm text-muted-foreground">PV Max</FormLabel>
+                              <FormControl>
+                                <Input type="number" min={1} value={field.value} onChange={(e) => field.onChange(Number(e.target.value) || 1)} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={createNpcForm.control}
+                          name="defenseFinal"
+                          render={({ field }) => (
+                            <FormItem className="space-y-1">
+                              <FormLabel className="text-sm text-muted-foreground">Defesa</FormLabel>
+                              <FormControl>
+                                <Input type="number" min={0} value={field.value} onChange={(e) => field.onChange(Number(e.target.value) || 0)} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        control={createNpcForm.control}
+                        name="damageFormula"
+                        render={({ field }) => (
+                          <FormItem className="space-y-1">
+                            <FormLabel className="text-sm text-muted-foreground">Dano base</FormLabel>
+                            <FormControl>
+                              <Input value={field.value} onChange={field.onChange} placeholder="1d6+2" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
+                      {createNpcForm.formState.errors.root?.message ? (
+                        <p className="text-sm text-destructive">{createNpcForm.formState.errors.root.message}</p>
+                      ) : null}
                     </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm text-muted-foreground">Dano base</label>
-                    <Input
-                      value={npcForm.damageFormula}
-                      onChange={(e) =>
-                        setNpcForm((prev) => ({ ...prev, damageFormula: e.target.value }))
-                      }
-                      placeholder="1d6+2"
-                    />
-                  </div>
-                  {npcError ? <p className="text-sm text-destructive">{npcError}</p> : null}
-                  </div>
-                  <div className="shrink-0 border-t border-white/10 px-6 py-4">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        type="button"
-                        className="text-muted-foreground"
-                        onClick={() => setNpcDialogOpen(false)}
-                        disabled={npcSubmitting}
-                      >
-                        Cancelar
-                      </Button>
-                      <Button type="submit" disabled={npcSubmitting}>
-                        {npcSubmitting ? "Criando..." : "Adicionar"}
-                      </Button>
+                    <div className="shrink-0 border-t border-white/10 px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          type="button"
+                          className="text-muted-foreground"
+                          onClick={() => setNpcDialogOpen(false)}
+                          disabled={createNpcForm.formState.isSubmitting}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button type="submit" disabled={createNpcForm.formState.isSubmitting}>
+                          {createNpcForm.formState.isSubmitting ? "Criando..." : "Adicionar"}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </form>
+                  </form>
+                </Form>
               </DialogContent>
             </Dialog>
             <Button onClick={startCombat} disabled={loading || !campaignId}>

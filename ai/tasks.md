@@ -21,6 +21,7 @@
 - [x] [A1-FRONT-FOUNDATION-R9] Migrar formulario de edicao principal em `worlds/[id]/codex/[entityId]` para RHF+Zod (overview da entidade).
 - [x] [A1-FRONT-FOUNDATION-R10] Migrar formularios auxiliares de `codex/[entityId]` (adicionar imagem + criar relacao) para RHF+Zod.
 - [x] [A1-FRONT-FOUNDATION-R11] Remover feedback legado (`sonner/toast`) de `worlds/[id]/characters` e consolidar `useAppFeedback`.
+- [x] [A1-FRONT-FOUNDATION-R12] Migrar formulario de criacao de inimigo em `components/combat/combat-panel` para RHF+Zod com estado unificado de submit/erro.
 - [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional (`docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`).
 - [ ] [DOCS] Sincronizar status executivo entre `ai/current_state.md` e `docs/00-strategy/attack-index.md` nos proximos recortes.
 - [ ] [A1-LP3] Traduzir benchmark funcional completo do `vvd.world` em backlog priorizado de UX world-first para shell/codex/grafo sem quebrar ordem oficial das frentes.
