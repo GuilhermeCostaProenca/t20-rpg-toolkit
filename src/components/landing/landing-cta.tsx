@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -45,10 +45,10 @@ export function LandingCta() {
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/app"
+            href="#toolkit"
             className="rounded-xl bg-white px-6 py-2.5 text-sm font-semibold text-black transition-transform duration-200 hover:-translate-y-0.5"
           >
-            Entrar agora
+            Explorar recursos
           </Link>
           <a
             href="#toolkit"

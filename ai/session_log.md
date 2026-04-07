@@ -1144,3 +1144,248 @@
   - varredura final em forms residuais de forja/grafo.
 - Proximo passo recomendado:
   - abrir recorte dedicado de debt tipagem/hook para `combat-panel` antes do fechamento definitivo de lint no modulo.
+
+### Sessao: 2026-04-01 - Hotfix operacional de module resolution no Docker
+- Objetivo da sessao: corrigir erro de build em runtime (`Can't resolve '@hookform/resolvers/zod'` e `Can't resolve 'react-hook-form'`) sem alterar backend/regra de negocio.
+- O que foi feito:
+  - validada presenca de dependencias em `package.json`/`package-lock.json`.
+  - diagnosticada divergencia entre host e container: no container, artefatos ESM dos pacotes estavam ausentes (`react-hook-form/dist/index.esm.mjs`, `@hookform/resolvers/zod/dist/zod.mjs`).
+  - confirmado que o problema era de volume `node_modules` do Docker (estado corrompido), nao de import no codigo.
+  - recriado volume `t20-rpg-toolkit_app_node_modules` e reiniciado stack com `docker compose --env-file .env.docker up -d app`.
+- Arquivos alterados:
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `ls` no container confirmando retorno de `index.esm.mjs` e `zod.mjs` -> ok.
+  - smoke HTTP:
+    - `GET http://127.0.0.1:3000/` -> `200`
+    - `GET http://127.0.0.1:3000/app` -> `200`
+    - `GET http://127.0.0.1:3000/app/worlds` -> `200`
+- Decisoes tomadas:
+  - sem nova ADR (hotfix operacional de ambiente).
+- Pendencias abertas:
+  - monitorar estabilidade do Docker Desktop (ocorreu erro interno de snapshot em tentativa de `docker compose build app`).
+- Proximo passo recomendado:
+  - seguir com a varredura restante da Fase 1+2 no front, agora com runtime estabilizado.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R13: hardening visual de entrada)
+- Objetivo da sessao: tornar as mudancas da Fase 1+2 visiveis nas telas de entrada sem iniciar redesign estrutural.
+- O que foi feito:
+  - `src/app/app/worlds/page.tsx`:
+    - aplicado `PageContainer` e `Toolbar` como presets de layout;
+    - trocado loading skeleton ad hoc por `LoadingState`;
+    - trocado erro de carregamento para `ErrorState`.
+  - `src/app/app/page.tsx`:
+    - aplicado `PageContainer` na composicao da pagina;
+    - trocado loading ad hoc de mundos recentes por `LoadingState`;
+    - substituidas superficies laterais e bloco principal por `Panel` (`variant=\"elevated\"`) para padrao visual unificado.
+- Arquivos alterados:
+  - `src/app/app/worlds/page.tsx`
+  - `src/app/app/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/worlds/page.tsx" "src/app/app/page.tsx"` -> ok.
+  - `GET http://127.0.0.1:3000/app` -> `200`.
+  - `GET http://127.0.0.1:3000/app/worlds` -> `200`.
+- Decisoes tomadas:
+  - sem nova ADR; execucao de fundacao ja aprovada (DEC-023/DEC-024).
+- Pendencias abertas:
+  - expandir o mesmo hardening para rotas world-scoped de maior trafego (`world/[id]`, `campaign/[id]` e `forge`).
+- Proximo passo recomendado:
+  - aplicar lote seguinte de consistencia visual (states/layout/panel) nessas tres superficies para reduzir contraste entre modulos.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R14: cockpit do mundo)
+- Objetivo da sessao: reduzir a disparidade visual entre entrada e cockpit world-scoped mantendo o escopo da Fase 1+2.
+- O que foi feito:
+  - `src/app/app/worlds/[id]/page.tsx`:
+    - substituido loading inicial com `Skeleton` por `LoadingState`;
+    - aplicado `PageContainer` no wrapper da pagina para padrao de composicao.
+- Arquivos alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/page.tsx" "src/app/app/worlds/page.tsx" "src/app/app/worlds/[id]/page.tsx"` -> ok.
+  - `GET http://127.0.0.1:3000/app` -> `200`.
+  - `GET http://127.0.0.1:3000/app/worlds` -> `200`.
+  - `GET http://127.0.0.1:3000/app/worlds/[id]` -> `200`.
+- Decisoes tomadas:
+  - sem nova ADR.
+- Pendencias abertas:
+  - aplicar o mesmo padrao de states/layout em `campaign/[id]` e `campaign/[id]/forge/[sessionId]`.
+- Proximo passo recomendado:
+  - seguir para essas duas superficies no proximo lote, mantendo Fase 1+2 sem redesign completo.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R15: campanha + forja)
+- Objetivo da sessao: consolidar o hardening visual nas superficies de campanha e remover regressao de runtime da forja.
+- O que foi feito:
+  - `src/app/app/campaign/[id]/page.tsx`:
+    - loading ad hoc substituido por `LoadingState`;
+    - wrapper principal convertido para `PageContainer`.
+  - `src/app/app/campaign/[id]/forge/[sessionId]/page.tsx`:
+    - loading ad hoc (`Skeleton`) substituido por `LoadingState`;
+    - wrapper principal convertido para `PageContainer`.
+  - regressao corrigida na forja:
+    - rota estava quebrando com `ReferenceError: Cannot access 'jumpToSceneCard' before initialization`;
+    - callback foi reorganizado para evitar zona temporal morta e manter comportamento de navegacao entre cenas.
+- Arquivos alterados:
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `src/app/app/campaign/[id]/forge/[sessionId]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/campaign/[id]/forge/[sessionId]/page.tsx" "src/app/app/campaign/[id]/page.tsx" "src/app/app/worlds/page.tsx" "src/app/app/worlds/[id]/page.tsx" "src/app/app/page.tsx"` -> ok.
+  - smoke HTTP:
+    - `GET /app` -> `200`
+    - `GET /app/worlds` -> `200`
+    - `GET /app/worlds/invalid` -> `200` (empty state esperado)
+    - `GET /app/campaign/invalid` -> `200` (empty state esperado)
+    - `GET /app/campaign/invalid/forge/invalid` -> `200` (empty state esperado)
+- Decisoes tomadas:
+  - sem nova ADR.
+- Pendencias abertas:
+  - expandir padronizacao visual de surfaces para blocos internos ainda com `chrome-panel` ad hoc em forja/campanha.
+- Proximo passo recomendado:
+  - atacar lote de convergencia de superfices (`Panel`) e spacing em cards internos de campanha/forja, mantendo o escopo de estabilizacao sem redesign completo.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R16: convergencia de Panel na forja)
+- Objetivo da sessao: reduzir variacao ad hoc no modulo mais denso (`forja`) sem alterar logica de negocio.
+- O que foi feito:
+  - `src/app/app/campaign/[id]/forge/[sessionId]/page.tsx`:
+    - importado `Panel` DS;
+    - convertidas superficies principais de `section` com `chrome-panel` para `Panel` (`variant="elevated"`):
+      - barra de atalhos da forja;
+      - `forge-section-briefing`;
+      - `forge-section-scenes`;
+      - `forge-section-beats`;
+      - `forge-section-dramatic`;
+      - `forge-section-visual`;
+      - bloco de `Memoria do mundo`.
+- Arquivos alterados:
+  - `src/app/app/campaign/[id]/forge/[sessionId]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/page.tsx" "src/app/app/worlds/page.tsx" "src/app/app/worlds/[id]/page.tsx" "src/app/app/campaign/[id]/page.tsx" "src/app/app/campaign/[id]/forge/[sessionId]/page.tsx"` -> ok.
+  - smoke HTTP:
+    - `/app` -> `200`
+    - `/app/worlds` -> `200`
+    - `/app/worlds/invalid` -> `200`
+    - `/app/campaign/invalid` -> `200`
+    - `/app/campaign/invalid/forge/invalid` -> `200`
+- Decisoes tomadas:
+  - sem nova ADR.
+- Pendencias abertas:
+  - aplicar convergencia de superficie equivalente nos blocos internos remanescentes de `campaign/[id]`.
+- Proximo passo recomendado:
+  - recorte seguinte focado em `campaign/[id]` para reduzir variacoes de container/card e fechar alinhamento visual da trilha de campanha.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R17: coluna lateral da forja)
+- Objetivo da sessao: finalizar a convergencia visual do modulo de forja cobrindo tambem a coluna lateral.
+- O que foi feito:
+  - em `src/app/app/campaign/[id]/forge/[sessionId]/page.tsx`, migrados para `Panel` (`variant="elevated"`) os blocos:
+    - `Lore em foco`;
+    - `Pacote visual da mesa`;
+    - `Entidades em foco`;
+    - `Encontros preparados`;
+    - `Passagem para a mesa`.
+- Arquivos alterados:
+  - `src/app/app/campaign/[id]/forge/[sessionId]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/campaign/[id]/forge/[sessionId]/page.tsx"` -> ok.
+  - `GET /app/campaign/invalid/forge/invalid` -> `200`.
+- Decisoes tomadas:
+  - sem nova ADR.
+- Pendencias abertas:
+  - padronizar blocos equivalentes no `campaign/[id]` para reduzir contraste residual entre campanha e forja.
+- Proximo passo recomendado:
+  - continuar em `campaign/[id]` com convergencia de superfices e estados internos para fechar o lote de consistencia da trilha de campanha.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R18: wrappers de campanha)
+- Objetivo da sessao: reduzir a diferenca visual residual no modulo `campaign/[id]` com conversao de wrappers para DS.
+- O que foi feito:
+  - `src/app/app/campaign/[id]/page.tsx`:
+    - importado `Panel`;
+    - wrappers `cinematic-frame` migrados para `Panel` (`variant="elevated"`) nos blocos:
+      - metricas do hero;
+      - leitura tatica e atalhos;
+      - visao geral;
+      - aba `links` (3 cards de ecossistema).
+- Arquivos alterados:
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/campaign/[id]/page.tsx"` -> ok.
+  - smoke HTTP:
+    - `GET /app/campaign/invalid` -> `200`
+    - `GET /app/campaign/invalid/forge/invalid` -> `200`
+- Decisoes tomadas:
+  - sem nova ADR.
+- Pendencias abertas:
+  - convergir blocos internos restantes de detalhe (`rounded-[24px] border ...`) para padrao DS sem alterar conteudo operacional.
+- Proximo passo recomendado:
+  - atacar recorte final de blocos internos de detalhe/inspect para encerrar este lote de consistencia de campanha.
+
+### Sessao: 2026-04-01 - A1-FRONT-FOUNDATION (R19: limpeza de blocos de inspect)
+- Objetivo da sessao: reduzir duplicacao de classes de UI no trecho de inspect da campanha.
+- O que foi feito:
+  - em `src/app/app/campaign/[id]/page.tsx`, os blocos internos com classe repetida
+    `rounded-[24px] border border-white/8 bg-white/4 p-4`
+    foram centralizados via constante `inspectBlockClass`.
+- Arquivos alterados:
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint "src/app/app/campaign/[id]/page.tsx" "src/app/app/campaign/[id]/forge/[sessionId]/page.tsx"` -> ok.
+  - `GET /app/campaign/invalid` -> `200`.
+  - `GET /app/campaign/invalid/forge/invalid` -> `200`.
+- Decisoes tomadas:
+  - sem nova ADR.
+- Pendencias abertas:
+  - continuar varredura de convergencia para modulo world (`worlds/[id]`) em blocos `chrome-panel` ainda ad hoc.
+- Proximo passo recomendado:
+  - iniciar lote de convergencia no `worlds/[id]` para manter simetria visual entre world/campaign/forge.
+
+### Sessao: 2026-04-07 - RPG-251 landing-only reset
+- Objetivo da sessao: atender ao recorte explicito de apagar todo frontend interno e manter apenas landing page.
+- O que foi feito:
+  - criada branch `codex/landing-only-reset`.
+  - checagem de rastreio no Linear: issue inexistente para o recorte; issue `RPG-251` criada e movida para `In Progress`.
+  - removidas rotas de frontend operacional (`src/app/app/**` e `src/app/play/**`).
+  - simplificado `src/app/layout.tsx` para modo landing-only (sem `AppFeedbackProvider`).
+  - ajustados CTAs da landing para nao apontar mais para `/app`.
+  - atualizados arquivos de memoria externa em `ai/*` com estado real pos-reset.
+- Arquivos alterados:
+  - `src/app/layout.tsx`
+  - `src/components/landing/landing-navbar.tsx`
+  - `src/components/landing/landing-hero.tsx`
+  - `src/components/landing/landing-cta.tsx`
+  - `src/components/landing/landing-footer.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - listagem de `src/app` apos limpeza -> apenas landing e `api/**` ativos.
+  - `npm run lint` -> falha por debt preexistente amplo fora do escopo (principalmente `no-explicit-any` em APIs/components legados remanescentes).
+  - `npm run build` -> falha por erro preexistente em backend API (`src/app/api/campaigns/[id]/map/route.ts` e `.../map/pin/route.ts` com import duplicado de `prisma`).
+- Decisoes tomadas:
+  - DEC-025.
+- Pendencias abertas:
+  - fechar ciclo git (commit/push/PR/merge) se for para promover essa mudanca.
+  - corrigir debt preexistente de lint/build se necessario para pipeline verde.
+- Proximo passo recomendado:
+  - confirmar se o reset deve ser mergeado em `master` imediatamente ou mantido como branch de corte temporario.

@@ -326,3 +326,16 @@
   - Positivo: consistencia real do design system em toda camada operacional do front e menor variacao de comportamento entre modulos.
   - Negativo / trade-off: maior acoplamento com componente client para filtros server-side e necessidade de testar querystring com mais cuidado.
 - Plano de revisao: revisar acessibilidade/comportamento de navegacao por teclado nos filtros de biblioteca visual na rodada de QA de Fase 1+2.
+
+### DEC-025: Reset de frontend para modo landing-only
+- Data: 2026-04-07
+- Status: aceita
+- Contexto: solicitacao explicita da tarefa atual para apagar todo frontend interno e manter apenas a landing page.
+- Decisao: remover as superficies de produto em `src/app/app/**` e `src/app/play/**`, mantendo somente a landing publica e ajustando CTAs para nao depender de `/app`.
+- Alternativas consideradas:
+  - manter o front interno e apenas esconder navegacao;
+  - desativar rotas via redirect sem remover codigo.
+- Impacto:
+  - Positivo: atende integralmente ao recorte solicitado e reduz a superficie visual para uma unica pagina.
+  - Negativo / trade-off: interrompe o fluxo operacional world-first no frontend ate novo ciclo de implementacao.
+- Plano de revisao: reavaliar se/como reintroduzir superficies internas quando houver nova diretriz explicita de produto.

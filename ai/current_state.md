@@ -155,3 +155,110 @@
 - Estados locais ad hoc do formulario foram removidos (`npcForm`, `npcError`, `npcSubmitting`) em favor de `formState` e `errors.root`.
 - Validacao tecnica:
   - `npx eslint "src/components/combat/combat-panel.tsx"` -> ainda falha por debt preexistente de `no-explicit-any` e hooks warnings no arquivo (nao introduzidos por este recorte).
+
+## Atualizacao 2026-04-01 (HOTFIX-RUNTIME-MODULE-RESOLUTION)
+- Erro de build/runtime no app (`Module not found` para `react-hook-form` e `@hookform/resolvers/zod`) foi identificado como corrupcao/incompletude de pacotes no volume Docker `app_node_modules`, nao como falha de codigo.
+- Diagnostico confirmado por diferenca entre host e container:
+  - host com artefatos ESM presentes (`index.esm.mjs`, `zod.mjs`);
+  - container sem esses artefatos, apesar de `npm ls` e `require.resolve` funcionarem.
+- Mitigacao aplicada:
+  - recriacao do volume `t20-rpg-toolkit_app_node_modules`;
+  - subida do app via `docker compose --env-file .env.docker up -d app`.
+- Resultado:
+  - rotas `GET /`, `GET /app` e `GET /app/worlds` voltaram a `200`.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R13)
+- Hardening visual inicial aplicado nas superficies de entrada mais usadas:
+  - `src/app/app/page.tsx`
+  - `src/app/app/worlds/page.tsx`
+- Estados de carregamento/erro dessas telas foram convergidos para primitives oficiais:
+  - `LoadingState` para carregamento de listas/painel;
+  - `ErrorState` para falha de carregamento em `worlds`.
+- Presets de composicao agora aparecem nessas telas (`PageContainer`, `Toolbar`) e cards laterais/containers foram normalizados para `Panel` em `/app`.
+- Validacao de runtime:
+  - `GET /app` -> `200`
+  - `GET /app/worlds` -> `200`
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R14)
+- Cockpit de mundo (`src/app/app/worlds/[id]/page.tsx`) recebeu padrao oficial de estado para carregamento inicial:
+  - removido bloco de `Skeleton` ad hoc;
+  - aplicado `LoadingState` com mensagem operacional consistente.
+- Wrapper da pagina foi convergido para preset de layout (`PageContainer`) para alinhar composicao com `/app` e `/app/worlds`.
+- Validacao de runtime:
+  - `GET /app/worlds/[id]` -> `200`.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R15)
+- Hardening visual expandido para superficies de campanha:
+  - `src/app/app/campaign/[id]/page.tsx`
+  - `src/app/app/campaign/[id]/forge/[sessionId]/page.tsx`
+- Padroes aplicados:
+  - loading inicial ad hoc substituido por `LoadingState`;
+  - wrapper principal convergido para `PageContainer`.
+- Correcao de integridade em runtime:
+  - rota de forja estava com `500` por `ReferenceError` (`jumpToSceneCard` em zona temporal morta);
+  - ordem/uso do callback foi corrigida para eliminar a regressao sem alterar regra de negocio.
+- Validacao de runtime:
+  - `GET /app` -> `200`
+  - `GET /app/worlds` -> `200`
+  - `GET /app/worlds/[id]` -> `200`
+  - `GET /app/campaign/[id]` -> `200`
+  - `GET /app/campaign/[id]/forge/[sessionId]` -> `200`
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R16)
+- Forja de sessao (`campaign/[id]/forge/[sessionId]`) teve convergencia de superficies principais para o componente DS `Panel`:
+  - barra de atalhos da forja;
+  - blocos `briefing`, `cenas`, `beats`, `camada dramatica`, `notas operacionais` e `memoria do mundo`.
+- Resultado do recorte:
+  - reducao de blocos `chrome-panel` ad hoc no caminho critico de preparacao;
+  - maior consistencia com o mesmo vocabulario visual adotado em `/app`, `/worlds` e `/worlds/[id]`.
+- Validacao tecnica:
+  - `eslint` das telas principais de entrada/campanha/forja -> ok.
+  - smoke de rotas invalidadas (empty states) e rotas base -> `200`.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R17)
+- A convergencia de superficies na forja foi estendida para a coluna lateral, substituindo blocos `chrome-panel` por `Panel` DS em:
+  - `Lore em foco`;
+  - `Pacote visual da mesa`;
+  - `Entidades em foco`;
+  - `Encontros preparados`;
+  - `Passagem para a mesa`.
+- Impacto:
+  - menor fragmentacao visual no modulo mais denso da fase;
+  - maior consistencia entre areas principal e lateral da forja.
+- Validacao:
+  - `eslint` da forja -> ok;
+  - rota `campaign/[id]/forge/[sessionId]` -> `200`.
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R18)
+- `campaign/[id]` recebeu convergencia adicional de superficie:
+  - wrappers `cinematic-frame` da campanha foram migrados para `Panel` (`variant="elevated"`) em:
+    - metricas do hero;
+    - coluna de leitura tatica/atalhos;
+    - bloco de visao geral;
+    - blocos da aba `links` (ecossistema).
+- Impacto:
+  - continuidade visual maior entre campanha e forja;
+  - reducao de variacoes de container fora do DS no fluxo de campanha.
+- Validacao:
+  - `eslint` de `campaign/[id]` -> ok;
+  - `GET /app/campaign/[id]` e `GET /app/campaign/[id]/forge/[sessionId]` -> `200` (incluindo cenarios de empty state).
+
+## Atualizacao 2026-04-01 (A1-FRONT-FOUNDATION-R19)
+- Limpeza de codigo de UI no `campaign/[id]`:
+  - consolidado padrao repetido de bloco interno de inspect (`rounded-[24px] border border-white/8 bg-white/4 p-4`) em constante unica `inspectBlockClass`.
+- Impacto:
+  - reduz repeticao de utilitarios em trecho denso de UI;
+  - melhora maintainability sem alterar composicao nem comportamento.
+- Validacao:
+  - `eslint` de campanha/forja -> ok;
+  - rotas de campanha e forja seguem `200`.
+
+## Atualizacao 2026-04-07 (RPG-251 - Landing Only Reset)
+- Frontend operacional interno foi removido por decisao explicita da tarefa atual.
+- Rotas de produto removidas:
+  - `src/app/app/**`
+  - `src/app/play/**`
+- Superficie web ativa agora: apenas landing publica em `src/app/(public)/page.tsx`.
+- Layout raiz simplificado para modo landing-only (`src/app/layout.tsx` sem provider de feedback operacional).
+- CTAs da landing foram ajustados para navegacao interna da propria landing (sem link para `/app`).
+- API routes em `src/app/api/**` foram mantidas.

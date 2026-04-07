@@ -22,6 +22,13 @@
 - [x] [A1-FRONT-FOUNDATION-R10] Migrar formularios auxiliares de `codex/[entityId]` (adicionar imagem + criar relacao) para RHF+Zod.
 - [x] [A1-FRONT-FOUNDATION-R11] Remover feedback legado (`sonner/toast`) de `worlds/[id]/characters` e consolidar `useAppFeedback`.
 - [x] [A1-FRONT-FOUNDATION-R12] Migrar formulario de criacao de inimigo em `components/combat/combat-panel` para RHF+Zod com estado unificado de submit/erro.
+- [x] [A1-FRONT-FOUNDATION-R13] Aplicar hardening visual de estados/layout em superficies de entrada (`/app` e `/app/worlds`) usando `LoadingState/ErrorState`, `Panel` e presets de layout.
+- [x] [A1-FRONT-FOUNDATION-R14] Estender hardening visual para `worlds/[id]` com estado oficial de loading e wrapper de layout (`PageContainer`) no cockpit do mundo.
+- [x] [A1-FRONT-FOUNDATION-R15] Estender hardening visual para `campaign/[id]` e `campaign/[id]/forge/[sessionId]` com `LoadingState` + `PageContainer` e corrigir regressao de runtime da forja (`jumpToSceneCard`).
+- [x] [A1-FRONT-FOUNDATION-R16] Convergir superficies internas da forja para `Panel` DS (briefing/cenas/beats/dramatica/visual/memoria + barra de atalhos) reduzindo `chrome-panel` ad hoc no fluxo principal.
+- [x] [A1-FRONT-FOUNDATION-R17] Convergir paineis da coluna lateral da forja para `Panel` DS (`lore`, `pacote visual`, `entidades`, `encontros`, `passagem para mesa`).
+- [x] [A1-FRONT-FOUNDATION-R18] Convergir wrappers `cinematic-frame` de `campaign/[id]` para `Panel` DS em hero metrics, coluna tatico/atalhos e blocos de visao geral/ecossistema.
+- [x] [A1-FRONT-FOUNDATION-R19] Centralizar classe repetida de blocos internos de inspect em `campaign/[id]` (`inspectBlockClass`) para reduzir duplicacao de utilitarios.
 - [ ] [A7-R3] Validar em mesa real o fluxo pos-combate narrativo com checklist operacional (`docs/99-reports/live-table-a7-r3-field-validation-2026-03-27.md`).
 - [ ] [DOCS] Sincronizar status executivo entre `ai/current_state.md` e `docs/00-strategy/attack-index.md` nos proximos recortes.
 - [ ] [A1-LP3] Traduzir benchmark funcional completo do `vvd.world` em backlog priorizado de UX world-first para shell/codex/grafo sem quebrar ordem oficial das frentes.
@@ -78,3 +85,6 @@
   - [ ] `ai/decisions.md` atualizado (se aplicavel)
   - [ ] `ai/session_log.md` atualizado
   - [ ] Issue/PR/commit vinculados (se aplicavel)
+
+## Atualizacao 2026-04-07 (RPG-251 - Landing Only Reset)
+- [x] [RPG-251] Remover todo front operacional (`src/app/app` e `src/app/play`) e manter apenas a landing publica como unica superficie web.
