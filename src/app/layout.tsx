@@ -1,9 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { AppFeedbackProvider } from "@/components/app-feedback-provider";
-import { cn } from "@/lib/utils";
-
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Tormenta 20 OS",
-  description: "Painel privado para comandar campanhas Tormenta 20.",
+  description: "Landing page oficial do Tormenta 20 OS.",
 };
 
 export default function RootLayout({
@@ -30,13 +27,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark" suppressHydrationWarning>
       <body
-        className={cn(
-          "min-h-screen bg-background text-foreground antialiased",
-          geistSans.variable,
-          geistMono.variable
-        )}
+        className={`min-h-screen bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable}`}
       >
-        <AppFeedbackProvider>{children}</AppFeedbackProvider>
+        {children}
       </body>
     </html>
   );

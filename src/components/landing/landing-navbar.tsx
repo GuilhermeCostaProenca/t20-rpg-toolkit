@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -45,10 +45,10 @@ export function LandingNavbar() {
           </a>
         </div>
         <Link
-          href="/app"
+          href="#toolkit"
           className="rounded-xl border border-white/25 bg-white px-3 py-1.5 text-xs font-semibold text-black transition-transform duration-200 hover:-translate-y-0.5"
         >
-          Abrir cockpit
+          Ver plataforma
         </Link>
       </div>
     </motion.nav>

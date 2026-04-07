@@ -52,3 +52,13 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 - `SelectField` foi consolidado como camada de selecao transversal para modulos de operacao (`graph`, `codex entity`, `combat`, `quick-sheet`, `character wizard`, `character sheet`, `visual browser`).
 - `src/components/visual/visual-library-filters.tsx` foi introduzido para manter filtros de querystring em pagina server-side com primitives do DS (sem `<select>` nativo).
 - Contrato de feedback unificado (`useAppFeedback`) passou a cobrir os modulos de visual/graph/codex; uso direto de `toast` foi removido de `src/app` e `src/components`.
+
+## Atualizacao 2026-04-07 - Landing Only
+- Frontend de produto foi descontinuado no codigo: a aplicacao web agora expõe somente a landing publica.
+- Estrutura de rotas frontend ativa:
+  - `src/app/(public)/page.tsx`
+  - `src/app/layout.tsx`
+- Rotas operacionais removidas:
+  - `src/app/app/**`
+  - `src/app/play/**`
+- `src/app/api/**` permaneceu intacto como camada de backend.
