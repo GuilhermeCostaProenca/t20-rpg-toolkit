@@ -262,3 +262,24 @@
 - Layout raiz simplificado para modo landing-only (`src/app/layout.tsx` sem provider de feedback operacional).
 - CTAs da landing foram ajustados para navegacao interna da propria landing (sem link para `/app`).
 - API routes em `src/app/api/**` foram mantidas.
+
+## Atualizacao 2026-04-07 (RPG-252 - World OS v1 rebuild slice)
+- Shell world-OS bootstrap evoluiu para superficie operacional com:
+  - command bar com navegacao + acoes de criacao;
+  - inspect lateral contextual unificado (`world-inspect-context`).
+- Dominio/persistencia novos adicionados:
+  - `NoteDocument`, `NoteLink`, `BoardDocument`, `BoardNode`, `BoardEdge`.
+- Caderno hibrido operacional entregue:
+  - APIs `GET/POST /api/worlds/[id]/notes`,
+  - `GET/PATCH/DELETE /api/worlds/[id]/notes/[noteId]`,
+  - `GET /api/worlds/[id]/notes/[noteId]/backlinks`,
+  - markdown salvo em `storage/worlds/{worldId}/notes/{noteId}.md`,
+  - indexacao de links `[[wikilink]]`, `@e:slug`, `@n:slug` com status `resolved/unresolved`.
+- Grafo world-scoped agora agrega arestas semanticas de `NoteLink` resolvido alem de `EntityRelationship`.
+- Lousa v1 operacional entregue com nodes/edges persistidos por mundo via APIs de `boards`.
+- Pendencias abertas do plano travado:
+  - integrar engine Lexical custom no notebook;
+  - integrar engine tldraw na lousa.
+- Validacao tecnica executada:
+  - `eslint` focal dos arquivos alterados -> ok.
+  - `npm run build` (com `PRISMA_GENERATE_NO_ENGINE=1`) compila recorte novo, mas segue bloqueado por erro preexistente fora do escopo em `src/components/app-sidebar.tsx` (`item.badge` tipagem).

@@ -61,6 +61,24 @@ export function WorldCommandBar({ worldId }: WorldCommandBarProps) {
         description: "Cards e conexoes visuais para planejamento espacial.",
         href: `/app/worlds/${worldId}/board`,
       },
+      {
+        id: "create-entity",
+        label: "Criar entidade",
+        description: "Abre o Codex com formulario de entidade em foco.",
+        href: `/app/worlds/${worldId}/codex?create=entity`,
+      },
+      {
+        id: "create-note",
+        label: "Criar nota",
+        description: "Abre o Caderno para registrar uma nova nota markdown.",
+        href: `/app/worlds/${worldId}/notebook?create=note`,
+      },
+      {
+        id: "create-board-node",
+        label: "Criar board node",
+        description: "Abre a Lousa para inserir um card de entidade ou nota.",
+        href: `/app/worlds/${worldId}/board?create=node`,
+      },
     ],
     [worldId]
   );
@@ -122,4 +140,3 @@ export function WorldCommandBar({ worldId }: WorldCommandBarProps) {
     </>
   );
 }
-

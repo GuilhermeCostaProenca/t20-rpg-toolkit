@@ -339,3 +339,16 @@
   - Positivo: atende integralmente ao recorte solicitado e reduz a superficie visual para uma unica pagina.
   - Negativo / trade-off: interrompe o fluxo operacional world-first no frontend ate novo ciclo de implementacao.
 - Plano de revisao: reavaliar se/como reintroduzir superficies internas quando houver nova diretriz explicita de produto.
+
+### DEC-026: Caderno hibrido com parser de links server-side e resolucao incremental
+- Data: 2026-04-07
+- Status: aceita
+- Contexto: o rebuild World OS v1 exige caderno em markdown persistido em arquivo com indexacao relacional para backlinks/grafo; links nao resolvidos nao podem ser descartados.
+- Decisao: persistir markdown em `storage/worlds/{worldId}/notes/{noteId}.md`, manter espelho canonical em `NoteDocument.contentMd` e processar `[[wikilink]]`, `@e:slug`, `@n:slug` no servidor para tabela `NoteLink` com `status` (`resolved|unresolved`) e reidratacao incremental.
+- Alternativas consideradas:
+  - parse apenas no cliente e salvar links prontos no backend;
+  - descartar links nao resolvidos no save.
+- Impacto:
+  - Positivo: backlinks/grafo semantico passam a ser deterministicos e rastreaveis no backend.
+  - Negativo / trade-off: operacao de save de nota ganha custo adicional de parse/sync e exige mais cuidado em transacoes.
+- Plano de revisao: revisar apos integrar Lexical custom para validar serializer/parsing bidirecional e custo em mundo medio.

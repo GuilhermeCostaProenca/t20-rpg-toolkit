@@ -2,14 +2,14 @@ type WorldEventLike = {
   id: string;
   type: string;
   text?: string | null;
-  ts: string;
+  ts: string | Date;
   visibility: string;
   scope?: string;
   campaignId?: string | null;
   sessionId?: string | null;
   actorId?: string | null;
   targetId?: string | null;
-  meta?: Record<string, unknown> | null;
+  meta?: unknown;
 };
 
 function getMemoryMeta(event: WorldEventLike) {
@@ -121,7 +121,7 @@ export function getMemoryEventLinkedEntityIds(event: WorldEventLike) {
   );
 }
 
-export function formatMemoryEventTemporalLabel(ts: string, now = new Date()) {
+export function formatMemoryEventTemporalLabel(ts: string | Date, now = new Date()) {
   const eventDate = new Date(ts);
   if (Number.isNaN(eventDate.getTime())) return "Sem data";
 

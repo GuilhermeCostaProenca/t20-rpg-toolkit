@@ -10,6 +10,13 @@
 - [ ] [TRIAL] Executar trial Jarvez + criacao de mundo do zero e converter gaps em backlog priorizado.
 
 ## Em Execucao
+- [-] [RPG-252] World OS v1: implementar Codex + Grafo + Caderno + Lousa sobre bootstrap `codex/world-os-rebuild-v1` (schema/API/UI, markdown hibrido e inspect unificado).
+  - [x] Criar modelos `NoteDocument/NoteLink/BoardDocument/BoardNode/BoardEdge` no Prisma + migration.
+  - [x] Entregar APIs world-scoped de `notes`, `backlinks` e `boards` com persistencia de markdown em `storage/worlds/{worldId}/notes/{noteId}.md`.
+  - [x] Incluir arestas semanticas (`NoteLink` resolvido) no endpoint de grafo.
+  - [x] Reativar rotas operacionais com shell unico, command bar e inspect contextual.
+  - [ ] Integrar editor Lexical custom no caderno (atual: editor markdown operacional em `textarea`).
+  - [ ] Integrar engine `tldraw` na lousa (atual: board operacional custom com persistencia de nodes/edges).
 - [ ] [A1-FRONT-FOUNDATION] Fase 1+2 do rebuild de front: feedback global, primitives de DS, formularios padrao (RHF+Zod) e limpeza de `alert/confirm/select` legacy.
 - [x] [A1-FRONT-FOUNDATION-R2] Eliminar `<select>` ad hoc de `src/app` e `src/components` e consolidar `SelectField` como padrao unico de selecao no front.
 - [x] [A1-FRONT-FOUNDATION-R3] Remover uso direto de `sonner` em `src/app` e `src/components`, mantendo contrato unico via `useAppFeedback`.

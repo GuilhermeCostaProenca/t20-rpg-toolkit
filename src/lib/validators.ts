@@ -416,3 +416,41 @@ export const ActionRequestCreateSchema = z.object({
 export const ActionRequestApplySchema = z.object({
   action: z.enum(["apply", "reject"]).default("apply"),
 });
+
+export const NoteCreateSchema = z.object({
+  title: z.string().trim().min(2, "Titulo obrigatorio").max(180, "Titulo muito longo"),
+  slug: z.string().trim().max(180, "Slug muito longo").optional().or(z.literal("").transform(() => undefined)),
+  contentMd: z.string().default("").optional(),
+});
+
+export const NoteUpdateSchema = NoteCreateSchema.partial();
+
+const BoardNodeSchema = z.object({
+  id: z.string().trim().optional(),
+  nodeType: z.enum(["entity", "note"]),
+  refId: z.string().trim().min(1, "Referencia obrigatoria"),
+  x: z.coerce.number(),
+  y: z.coerce.number(),
+  w: z.coerce.number().positive(),
+  h: z.coerce.number().positive(),
+  z: z.coerce.number().int().default(0).optional(),
+});
+
+const BoardEdgeSchema = z.object({
+  id: z.string().trim().optional(),
+  sourceNodeId: z.string().trim().min(1, "Origem obrigatoria"),
+  targetNodeId: z.string().trim().min(1, "Destino obrigatorio"),
+  label: z.string().trim().max(180, "Label muito longa").optional().or(z.literal("").transform(() => undefined)),
+});
+
+export const BoardCreateSchema = z.object({
+  name: z.string().trim().min(2, "Nome obrigatorio").max(180, "Nome muito longo"),
+  viewportJson: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const BoardUpdateSchema = z.object({
+  name: z.string().trim().min(2, "Nome obrigatorio").max(180, "Nome muito longo").optional(),
+  viewportJson: z.record(z.string(), z.unknown()).optional(),
+  nodes: z.array(BoardNodeSchema).optional(),
+  edges: z.array(BoardEdgeSchema).optional(),
+});

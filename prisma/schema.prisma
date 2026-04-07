@@ -80,6 +80,123 @@ model World {
   sessions         Session[]
   sessionSummaries SessionSummary[]
   rulesetDocuments RulesetDocument[]
+  notes            NoteDocument[]
+  noteLinks        NoteLink[]
+  boards           BoardDocument[]
+  boardNodes       BoardNode[]
+  boardEdges       BoardEdge[]
+}
+
+enum NoteLinkSyntaxType {
+  wikilink
+  mention_entity
+  mention_note
+}
+
+enum NoteLinkStatus {
+  resolved
+  unresolved
+}
+
+model NoteDocument {
+  id        String   @id @default(cuid())
+  worldId   String
+  title     String   @db.VarChar(180)
+  slug      String   @db.VarChar(180)
+  contentMd String   @db.Text
+  filePath  String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  world        World      @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  outgoingLinks NoteLink[] @relation("NoteLinkFrom")
+  incomingLinks NoteLink[] @relation("NoteLinkToNote")
+
+  @@unique([worldId, slug])
+  @@index([worldId, updatedAt])
+}
+
+model NoteLink {
+  id           String             @id @default(cuid())
+  worldId      String
+  fromNoteId   String
+  syntaxType   NoteLinkSyntaxType
+  rawRef       String             @db.VarChar(220)
+  toEntityId   String?
+  toNoteId     String?
+  status       NoteLinkStatus     @default(unresolved)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  world      World        @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  fromNote   NoteDocument @relation("NoteLinkFrom", fields: [fromNoteId], references: [id], onDelete: Cascade)
+  toEntity   Entity?      @relation(fields: [toEntityId], references: [id], onDelete: SetNull)
+  toNote     NoteDocument? @relation("NoteLinkToNote", fields: [toNoteId], references: [id], onDelete: SetNull)
+
+  @@index([worldId, fromNoteId])
+  @@index([worldId, toEntityId])
+  @@index([worldId, toNoteId])
+  @@index([worldId, status])
+  @@unique([worldId, fromNoteId, syntaxType, rawRef])
+}
+
+model BoardDocument {
+  id           String   @id @default(cuid())
+  worldId      String
+  name         String   @db.VarChar(180)
+  viewportJson Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  world World      @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  nodes BoardNode[]
+  edges BoardEdge[]
+
+  @@index([worldId, updatedAt])
+}
+
+enum BoardNodeType {
+  entity
+  note
+}
+
+model BoardNode {
+  id       String        @id @default(cuid())
+  boardId  String
+  worldId  String
+  nodeType BoardNodeType
+  refId    String
+  x        Float
+  y        Float
+  w        Float
+  h        Float
+  z        Int           @default(0)
+
+  board BoardDocument @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  world World         @relation(fields: [worldId], references: [id], onDelete: Cascade)
+
+  outgoingEdges BoardEdge[] @relation("BoardEdgeSource")
+  incomingEdges BoardEdge[] @relation("BoardEdgeTarget")
+
+  @@index([boardId, z])
+  @@index([worldId, refId])
+}
+
+model BoardEdge {
+  id           String @id @default(cuid())
+  boardId      String
+  worldId      String
+  sourceNodeId String
+  targetNodeId String
+  label        String? @db.VarChar(180)
+
+  board      BoardDocument @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  world      World         @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  sourceNode BoardNode     @relation("BoardEdgeSource", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode BoardNode     @relation("BoardEdgeTarget", fields: [targetNodeId], references: [id], onDelete: Cascade)
+
+  @@index([boardId])
+  @@index([worldId])
 }
 
 model Entity {
@@ -106,6 +223,7 @@ model Entity {
   images            EntityImage[]
   outgoingRelations EntityRelationship[] @relation("EntityRelationshipFrom")
   incomingRelations EntityRelationship[] @relation("EntityRelationshipTo")
+  noteLinks         NoteLink[]
 
   @@index([worldId, updatedAt])
   @@index([worldId, type])

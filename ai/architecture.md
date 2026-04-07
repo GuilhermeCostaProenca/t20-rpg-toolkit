@@ -62,3 +62,19 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
   - `src/app/app/**`
   - `src/app/play/**`
 - `src/app/api/**` permaneceu intacto como camada de backend.
+
+## Atualizacao 2026-04-07 - World OS v1 (RPG-252)
+- Novo nucleo de conhecimento world-scoped:
+  - `NoteDocument` + `NoteLink` para caderno hibrido markdown + indice relacional.
+  - `BoardDocument` + `BoardNode` + `BoardEdge` para persistencia da lousa por mundo.
+- Persistencia hibrida do caderno:
+  - arquivo markdown em `storage/worlds/{worldId}/notes/{noteId}.md`;
+  - indice de links no Postgres com resolucao `resolved/unresolved`.
+- Endpoints novos:
+  - `src/app/api/worlds/[id]/notes/route.ts`
+  - `src/app/api/worlds/[id]/notes/[noteId]/route.ts`
+  - `src/app/api/worlds/[id]/notes/[noteId]/backlinks/route.ts`
+  - `src/app/api/worlds/[id]/boards/route.ts`
+  - `src/app/api/worlds/[id]/boards/[boardId]/route.ts`
+- `src/app/api/worlds/[id]/graph/route.ts` passou a combinar arestas explicitas e semanticas.
+- Shell world-OS ganhou inspect contextual unico via provider (`src/components/world-os/world-inspect-context.tsx`).

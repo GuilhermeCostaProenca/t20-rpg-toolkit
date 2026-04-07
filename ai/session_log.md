@@ -1389,3 +1389,50 @@
   - corrigir debt preexistente de lint/build se necessario para pipeline verde.
 - Proximo passo recomendado:
   - confirmar se o reset deve ser mergeado em `master` imediatamente ou mantido como branch de corte temporario.
+
+### Sessao: 2026-04-07 - RPG-252 world-os v1 (slice backend + UI operacional)
+- Objetivo da sessao: executar o plano de rebuild v1 no branch `codex/world-os-rebuild-v1` com 4 modos funcionais (Codex/Grafo/Caderno/Lousa), persistencia hibrida de notas e shell unificado.
+- O que foi feito:
+  - adicionado modelo Prisma para `NoteDocument`, `NoteLink`, `BoardDocument`, `BoardNode`, `BoardEdge` + migration SQL.
+  - criado parser/link-sync server-side para `[[wikilink]]`, `@e:slug`, `@n:slug` com status `resolved/unresolved`.
+  - implementadas APIs world-scoped de notas/backlinks e boards.
+  - grafo passou a agregar arestas semanticas derivadas de `NoteLink` resolvido.
+  - shell world-OS ganhou inspect contextual unico (`WorldInspectProvider`) e command bar expandida com acoes de criacao.
+  - stubs das rotas foram substituidos por superficies operacionais:
+    - `codex`: criar entidade, relacionar, deep-link para caderno/lousa;
+    - `notebook`: CRUD de notas markdown + links/backlinks;
+    - `graph`: filtros e leitura de arestas explicitas/semanticas;
+    - `board`: cards/conexoes persistidos por mundo.
+  - corrigidos erros preexistentes de build em APIs de map (imports duplicados).
+- Arquivos alterados:
+  - `prisma/schema.prisma`
+  - `prisma/migrations/20260407174500_add_world_os_note_and_board_models/migration.sql`
+  - `src/lib/world-os/*`
+  - `src/app/api/worlds/[id]/notes/**`
+  - `src/app/api/worlds/[id]/boards/**`
+  - `src/app/api/worlds/[id]/graph/route.ts`
+  - `src/components/world-os/world-workspace-shell.tsx`
+  - `src/components/world-os/world-command-bar.tsx`
+  - `src/components/world-os/world-inspect-context.tsx`
+  - `src/app/app/worlds/[id]/{codex,graph,notebook,board}/page.tsx`
+  - `src/lib/validators.ts`
+  - `src/lib/world-memory.ts`
+  - `src/app/api/campaigns/[id]/map/route.ts`
+  - `src/app/api/campaigns/[id]/map/pin/route.ts`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npx eslint` focal nos arquivos alterados -> ok.
+  - `npx prisma generate` -> bloqueado por lock de engine (`EPERM`), contornado com `PRISMA_GENERATE_NO_ENGINE=1`.
+  - `npm run build` com `PRISMA_GENERATE_NO_ENGINE=1` -> recorte novo compila; build segue falhando por erro preexistente fora do escopo em `src/components/app-sidebar.tsx` (tipo `item.badge`).
+- Decisoes tomadas:
+  - DEC-026.
+- Pendencias abertas:
+  - integrar Lexical custom no Caderno (atual: textarea markdown operacional).
+  - integrar tldraw na Lousa (atual: board custom operacional persistido).
+  - resolver erro preexistente de build em `app-sidebar` para pipeline verde total.
+- Proximo passo recomendado:
+  - recorte `RPG-252-R2`: substituir editor atual por Lexical custom (markdown serializer/parsing) e migrar Lousa para tldraw mantendo contrato de persistencia de nodes/edges.

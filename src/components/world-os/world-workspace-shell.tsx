@@ -6,6 +6,7 @@ import { BookOpenText, LayoutDashboard, Network, PanelRightOpen, StickyNote } fr
 import type { ReactNode } from "react";
 
 import { WorldCommandBar } from "@/components/world-os/world-command-bar";
+import { WorldInspectProvider, useWorldInspect } from "@/components/world-os/world-inspect-context";
 import { cn } from "@/lib/utils";
 
 type WorldWorkspaceShellProps = {
@@ -24,60 +25,89 @@ export function WorldWorkspaceShell({ worldId, children }: WorldWorkspaceShellPr
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[#04060b] text-white">
-      <div className="mx-auto grid max-w-[1720px] grid-cols-12 gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <aside className="col-span-12 rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl lg:col-span-2">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-white/50">Core Mundo</p>
-          <nav className="mt-3 space-y-2">
-            {coreLinks.map((item) => {
-              const href = `/app/worlds/${worldId}/${item.path}`;
-              const active = pathname === href;
-              const Icon = item.icon;
+    <WorldInspectProvider>
+      <div className="min-h-screen bg-[#04060b] text-white">
+        <div className="mx-auto grid max-w-[1720px] grid-cols-12 gap-4 px-4 py-4 sm:px-6 lg:px-8">
+          <aside className="col-span-12 rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl lg:col-span-2">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-white/50">Core Mundo</p>
+            <nav className="mt-3 space-y-2">
+              {coreLinks.map((item) => {
+                const href = `/app/worlds/${worldId}/${item.path}`;
+                const active = pathname === href;
+                const Icon = item.icon;
 
-              return (
-                <Link
-                  key={item.id}
-                  href={href}
-                  className={cn(
-                    "flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition",
-                    active
-                      ? "border-primary/40 bg-primary/15 text-white"
-                      : "border-white/10 bg-black/20 text-white/75 hover:bg-white/10 hover:text-white"
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </aside>
+                return (
+                  <Link
+                    key={item.id}
+                    href={href}
+                    className={cn(
+                      "flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition",
+                      active
+                        ? "border-primary/40 bg-primary/15 text-white"
+                        : "border-white/10 bg-black/20 text-white/75 hover:bg-white/10 hover:text-white"
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </aside>
 
-        <section className="col-span-12 rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl lg:col-span-8">
-          <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-5">
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.18em] text-white/50">World OS Workspace</p>
-              <p className="text-sm text-white/80">Mundo ativo: {worldId}</p>
-            </div>
-            <WorldCommandBar worldId={worldId} />
-          </header>
-          <main className="p-4 sm:p-5">{children}</main>
-        </section>
+          <section className="col-span-12 rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl lg:col-span-8">
+            <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-5">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.18em] text-white/50">World OS Workspace</p>
+                <p className="text-sm text-white/80">Mundo ativo: {worldId}</p>
+              </div>
+              <WorldCommandBar worldId={worldId} />
+            </header>
+            <main className="p-4 sm:p-5">{children}</main>
+          </section>
 
-        <aside className="col-span-12 rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl lg:col-span-2">
-          <div className="flex items-center gap-2 text-sm font-semibold text-white/90">
-            <PanelRightOpen className="h-4 w-4" />
-            Inspect
-          </div>
+          <InspectPanel />
+        </div>
+      </div>
+    </WorldInspectProvider>
+  );
+}
+
+function InspectPanel() {
+  const { payload } = useWorldInspect();
+
+  return (
+    <aside className="col-span-12 rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl lg:col-span-2">
+      <div className="flex items-center gap-2 text-sm font-semibold text-white/90">
+        <PanelRightOpen className="h-4 w-4" />
+        Inspect
+      </div>
+      {payload ? (
+        <>
+          <p className="mt-3 text-xs uppercase tracking-[0.18em] text-white/45">{payload.subtitle ?? "Contexto"}</p>
+          <h3 className="mt-2 text-sm font-semibold text-white">{payload.title}</h3>
+          {payload.body ? <p className="mt-2 text-xs leading-6 text-white/70">{payload.body}</p> : null}
+          {payload.meta?.length ? (
+            <dl className="mt-3 space-y-2 rounded-2xl border border-white/10 bg-black/25 p-3 text-xs">
+              {payload.meta.map((item) => (
+                <div key={item.label} className="flex items-start justify-between gap-2">
+                  <dt className="text-white/55">{item.label}</dt>
+                  <dd className="text-right text-white/85">{item.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </>
+      ) : (
+        <>
           <p className="mt-3 text-xs leading-6 text-white/65">
             Painel reservado para inspecao contextual de entidade, nota e conexoes do modo atual.
           </p>
           <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-3 text-xs text-white/60">
-            Bootstrap v1: shell + rotas base conectadas ao command bar.
+            Selecione um item no workspace para carregar detalhes neste painel.
           </div>
-        </aside>
-      </div>
-    </div>
+        </>
+      )}
+    </aside>
   );
 }
-

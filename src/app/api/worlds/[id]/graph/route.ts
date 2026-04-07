@@ -13,7 +13,7 @@ export async function GET(req: Request, { params }: Context) {
     const relationType = (searchParams.get("relationType") || "").trim().toLowerCase();
     const limit = Math.min(Number(searchParams.get("limit") || "120"), 240);
 
-    const [world, entities] = await Promise.all([
+    const [world, entities, semanticLinks] = await Promise.all([
       prisma.world.findUnique({
         where: { id },
         select: {
@@ -31,6 +31,24 @@ export async function GET(req: Request, { params }: Context) {
         include: ENTITY_INCLUDE,
         orderBy: [{ updatedAt: "desc" }, { name: "asc" }],
         take: limit,
+      }),
+      prisma.noteLink.findMany({
+        where: {
+          worldId: id,
+          status: "resolved",
+          OR: [{ toEntityId: { not: null } }, { toNoteId: { not: null } }],
+        },
+        include: {
+          fromNote: {
+            select: { id: true, title: true, slug: true },
+          },
+          toNote: {
+            select: { id: true, title: true, slug: true },
+          },
+          toEntity: {
+            select: { id: true, name: true, type: true },
+          },
+        },
       }),
     ]);
 
@@ -82,12 +100,7 @@ export async function GET(req: Request, { params }: Context) {
       }
     }
 
-    const edges = Array.from(edgeMap.values());
-    const relationCounts = edges.reduce<Record<string, number>>((acc, edge) => {
-      acc[edge.fromEntityId] = (acc[edge.fromEntityId] ?? 0) + 1;
-      acc[edge.toEntityId] = (acc[edge.toEntityId] ?? 0) + 1;
-      return acc;
-    }, {});
+    const relationCounts: Record<string, number> = {};
 
     const nodes = filteredEntities.map((entity) => ({
       id: entity.id,
@@ -115,7 +128,79 @@ export async function GET(req: Request, { params }: Context) {
       relationCount: relationCounts[entity.id] ?? 0,
     }));
 
-    const relationTypes = Array.from(new Set(edges.map((edge) => edge.type))).sort((a, b) =>
+    for (const link of semanticLinks) {
+      const fromId = `note:${link.fromNote.id}`;
+      const toId = link.toEntityId ? link.toEntityId : link.toNoteId ? `note:${link.toNoteId}` : "";
+      if (!toId) continue;
+      const semanticType = `semantic:${link.syntaxType}`;
+      if (relationType && semanticType.toLowerCase() !== relationType) continue;
+
+      const key = `semantic:${fromId}:${toId}:${link.syntaxType}`;
+      edgeMap.set(key, {
+        id: key,
+        fromEntityId: fromId,
+        toEntityId: toId,
+        type: semanticType,
+        weight: 1,
+        notes: link.rawRef,
+        visibility: "MASTER",
+        metadata: { source: "semantic", noteLinkId: link.id },
+      });
+    }
+
+    const noteNodes = new Map(
+      semanticLinks.flatMap((link) => {
+        const nodes = [
+          {
+            id: `note:${link.fromNote.id}`,
+            name: link.fromNote.title,
+            type: "note",
+            status: "active",
+            orderHint: null,
+            metadata: { slug: link.fromNote.slug, source: "note" },
+            summary: null,
+            campaignId: null,
+            campaignName: null,
+            portraitImageUrl: null,
+            tags: [],
+            relationCount: 0,
+          },
+        ];
+        if (link.toNote) {
+          nodes.push({
+            id: `note:${link.toNote.id}`,
+            name: link.toNote.title,
+            type: "note",
+            status: "active",
+            orderHint: null,
+            metadata: { slug: link.toNote.slug, source: "note" },
+            summary: null,
+            campaignId: null,
+            campaignName: null,
+            portraitImageUrl: null,
+            tags: [],
+            relationCount: 0,
+          });
+        }
+        return nodes.map((node) => [node.id, node] as const);
+      })
+    );
+
+    const allEdges = Array.from(edgeMap.values());
+    for (const edge of allEdges) {
+      relationCounts[edge.fromEntityId] = (relationCounts[edge.fromEntityId] ?? 0) + 1;
+      relationCounts[edge.toEntityId] = (relationCounts[edge.toEntityId] ?? 0) + 1;
+    }
+
+    const allNodes = [
+      ...nodes.map((node) => ({ ...node, relationCount: relationCounts[node.id] ?? 0 })),
+      ...Array.from(noteNodes.values()).map((node) => ({
+        ...node,
+        relationCount: relationCounts[node.id] ?? 0,
+      })),
+    ];
+
+    const relationTypes = Array.from(new Set(allEdges.map((edge) => edge.type))).sort((a, b) =>
       a.localeCompare(b)
     );
 
@@ -123,11 +208,11 @@ export async function GET(req: Request, { params }: Context) {
       data: {
         world,
         stats: {
-          nodes: nodes.length,
-          edges: edges.length,
+          nodes: allNodes.length,
+          edges: allEdges.length,
         },
-        nodes,
-        edges,
+        nodes: allNodes,
+        edges: allEdges,
         relationTypes,
       },
     });
