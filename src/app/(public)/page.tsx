@@ -1,4 +1,5 @@
 import { LandingCta } from "@/components/landing/landing-cta";
+import { LandingFlow } from "@/components/landing/landing-flow";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingGenres } from "@/components/landing/landing-genres";
 import { LandingHero } from "@/components/landing/landing-hero";
@@ -16,6 +17,7 @@ export default function LandingPage() {
       <LandingGenres />
       <LandingMission />
       <LandingShowcase />
+      <LandingFlow />
       <LandingCta />
       <LandingFooter />
     </main>
