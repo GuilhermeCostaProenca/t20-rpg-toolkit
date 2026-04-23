@@ -5,12 +5,18 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   ArrowRight,
+  Clock,
   Crown,
+  Feather,
   Filter,
+  Map,
   Plus,
   RefreshCw,
+  ScrollText,
   Search,
+  Shield,
   Sparkles,
+  Swords,
 } from "lucide-react";
 
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
@@ -138,36 +144,64 @@ const typeMeta = {
     label: "Personagens",
     singular: "personagem",
     accent: "from-sky-500/20 via-sky-400/10 to-transparent",
+    color: "#4f7cff",
+    dim: "rgba(79,124,255,0.12)",
+    border: "rgba(79,124,255,0.3)",
+    Icon: Shield,
   },
   npc: {
     label: "NPCs",
     singular: "npc",
     accent: "from-amber-500/20 via-orange-400/10 to-transparent",
+    color: "#9b5de5",
+    dim: "rgba(155,93,229,0.12)",
+    border: "rgba(155,93,229,0.3)",
+    Icon: Feather,
   },
   faction: {
     label: "Faccoes",
     singular: "faccao",
     accent: "from-rose-500/20 via-rose-400/10 to-transparent",
+    color: "#bc4a3f",
+    dim: "rgba(188,74,63,0.12)",
+    border: "rgba(188,74,63,0.3)",
+    Icon: Swords,
   },
   house: {
     label: "Casas",
     singular: "casa",
     accent: "from-violet-500/20 via-fuchsia-400/10 to-transparent",
+    color: "#d5a240",
+    dim: "rgba(213,162,64,0.12)",
+    border: "rgba(213,162,64,0.3)",
+    Icon: Crown,
   },
   place: {
     label: "Lugares",
     singular: "lugar",
     accent: "from-emerald-500/20 via-teal-400/10 to-transparent",
+    color: "#4b9f91",
+    dim: "rgba(75,159,145,0.12)",
+    border: "rgba(75,159,145,0.3)",
+    Icon: Map,
   },
   artifact: {
     label: "Artefatos",
     singular: "artefato",
     accent: "from-yellow-500/20 via-yellow-300/10 to-transparent",
+    color: "#d5a240",
+    dim: "rgba(213,162,64,0.12)",
+    border: "rgba(213,162,64,0.3)",
+    Icon: ScrollText,
   },
   event: {
     label: "Marcos",
     singular: "marco",
     accent: "from-red-500/20 via-red-400/10 to-transparent",
+    color: "#e879f9",
+    dim: "rgba(232,121,249,0.12)",
+    border: "rgba(232,121,249,0.3)",
+    Icon: Clock,
   },
 } as const;
 
@@ -176,6 +210,10 @@ function getTypeMeta(type: string) {
     label: type,
     singular: type,
     accent: "from-white/10 to-transparent",
+    color: "#b5aea4",
+    dim: "rgba(181,174,164,0.08)",
+    border: "rgba(181,174,164,0.2)",
+    Icon: Shield,
   };
 }
 
@@ -347,70 +385,98 @@ export default function WorldCodexPage() {
 
   const spotlightEntity = entities[0] ?? null;
 
-  function renderEntityCard(entity: Entity, index: number) {
+  function renderEntityCard(entity: Entity, _index: number) {
+    const meta = getTypeMeta(entity.type);
+    const { Icon } = meta;
+    const relationCount = entity.outgoingRelations.length + entity.incomingRelations.length;
+
     return (
-      <Card key={entity.id} className="overflow-hidden rounded-[28px] border-white/10 bg-black/20">
-        <CardContent className="p-0">
-          <button
-            type="button"
-            onClick={() => setInspectId(entity.id)}
-            className="block min-h-[300px] w-full text-left"
-          >
+      <button
+        key={entity.id}
+        type="button"
+        onClick={() => setInspectId(entity.id)}
+        className="group relative overflow-hidden rounded-[16px] text-left transition-transform duration-200 hover:-translate-y-0.5"
+        style={{
+          border: `1px solid rgba(255,255,255,0.07)`,
+          background:
+            "linear-gradient(160deg, rgba(14,13,19,0.97), rgba(8,7,12,0.95))",
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.03), 0 8px 30px rgba(0,0,0,0.4)",
+        }}
+      >
+        {/* Top color strip */}
+        <div
+          className="h-[3px] w-full transition-opacity duration-200 group-hover:opacity-100"
+          style={{
+            background: `linear-gradient(90deg, ${meta.color}, transparent)`,
+            opacity: 0.5,
+          }}
+        />
+
+        <div className="p-4">
+          {/* Icon + status */}
+          <div className="mb-3 flex items-start justify-between">
             <div
-              className="flex h-full min-h-[300px] flex-col justify-between p-5"
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-[12px]"
               style={{
-                backgroundImage:
-                  entity.portraitImageUrl || entity.coverImageUrl
-                    ? `linear-gradient(180deg, rgba(8,8,13,0.18), rgba(8,8,13,0.94)), url(${entity.portraitImageUrl || entity.coverImageUrl})`
-                    : index % 2 === 0
-                      ? "linear-gradient(135deg, rgba(188,74,63,0.18), rgba(8,8,13,0.95))"
-                      : "linear-gradient(135deg, rgba(213,162,64,0.14), rgba(8,8,13,0.95))",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
+                background: meta.dim,
+                border: `1px solid ${meta.border}`,
+                boxShadow: `0 0 20px ${meta.color}22`,
               }}
             >
-              <div className="flex items-center justify-between gap-3">
-                <Badge className="border-white/10 bg-black/28 text-white">{getTypeMeta(entity.type).singular}</Badge>
-                <Badge className="border-white/10 bg-black/28 text-white/70">{getStatusLabel(entity.status)}</Badge>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-white">
-                    {entity.name}
-                  </h2>
-                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/72">
-                    {entity.summary || entity.description || "Sem resumo registrado para esta entidade."}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-2xl border border-white/10 bg-black/28 p-3">
-                    <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">Campanha</p>
-                    <p className="mt-2 text-sm font-semibold text-white">
-                      {entity.campaign?.name || "Mundo base"}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/28 p-3">
-                    <p className="text-[11px] uppercase tracking-[0.16em] text-white/55">Relacoes</p>
-                    <p className="mt-2 text-sm font-semibold text-white">
-                      {entity.outgoingRelations.length + entity.incomingRelations.length}
-                    </p>
-                  </div>
-                </div>
-
-                {Array.isArray(entity.tags) && entity.tags.length ? (
-                  <div className="flex flex-wrap gap-2">
-                    {entity.tags.slice(0, 3).map((tag) => (
-                      <Badge key={tag} className="border-white/10 bg-black/30 text-white/80">{tag}</Badge>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
+              <Icon className="h-5 w-5" style={{ color: meta.color }} />
             </div>
-          </button>
-        </CardContent>
-      </Card>
+            <span
+              className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "rgba(255,255,255,0.55)",
+              }}
+            >
+              {getStatusLabel(entity.status)}
+            </span>
+          </div>
+
+          {/* Name */}
+          <p className="mb-1 text-sm font-bold leading-snug tracking-[0.02em] text-foreground">
+            {entity.name}
+          </p>
+
+          {/* Summary */}
+          <p
+            className="mb-3 line-clamp-2 text-xs leading-relaxed"
+            style={{ color: "rgba(255,255,255,0.45)" }}
+          >
+            {entity.summary || entity.description || "Sem resumo registrado."}
+          </p>
+
+          {/* Footer: type badge + cta */}
+          <div className="flex items-center justify-between">
+            <span
+              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]"
+              style={{
+                background: meta.dim,
+                border: `1px solid ${meta.border}`,
+                color: meta.color,
+              }}
+            >
+              <Icon className="h-2.5 w-2.5" style={{ color: meta.color }} />
+              {meta.singular}
+            </span>
+            <span
+              className="flex items-center gap-1 text-[10px] transition-colors duration-200 group-hover:text-foreground"
+              style={{ color: "rgba(255,255,255,0.25)" }}
+            >
+              {relationCount > 0 ? (
+                <span className="mr-1">{relationCount} rel.</span>
+              ) : null}
+              Ver ficha
+              <ArrowRight className="h-2.5 w-2.5" />
+            </span>
+          </div>
+        </div>
+      </button>
     );
   }
 
@@ -757,8 +823,48 @@ export default function WorldCodexPage() {
         </div>
       </section>
 
+      {/* Type filter chips */}
+      {!loading && !error ? (
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setTypeFilter("")}
+            className="inline-flex items-center rounded-[10px] px-3 py-1.5 text-xs transition-all duration-150"
+            style={{
+              border: `1px solid ${!typeFilter ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.08)"}`,
+              background: !typeFilter ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.03)",
+              color: !typeFilter ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)",
+              fontWeight: !typeFilter ? 700 : 400,
+            }}
+          >
+            Todos
+          </button>
+          {Object.entries(typeMeta).map(([type, meta]) => {
+            const isActive = typeFilter === type;
+            const { Icon: TypeIcon } = meta;
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setTypeFilter(isActive ? "" : type)}
+                className="inline-flex items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-xs transition-all duration-150"
+                style={{
+                  border: `1px solid ${isActive ? meta.border : "rgba(255,255,255,0.08)"}`,
+                  background: isActive ? meta.dim : "rgba(255,255,255,0.03)",
+                  color: isActive ? meta.color : "rgba(255,255,255,0.45)",
+                  fontWeight: isActive ? 700 : 400,
+                }}
+              >
+                <TypeIcon className="h-3 w-3" style={{ color: isActive ? meta.color : "rgba(255,255,255,0.35)" }} />
+                {meta.label}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
       {loading ? (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 6 }).map((_, index) => (
             <div key={index} className="h-[260px] animate-pulse rounded-[28px] border border-white/10 bg-white/4" />
           ))}
@@ -795,7 +901,7 @@ export default function WorldCodexPage() {
               <Badge className="border-primary/20 bg-primary/10 text-primary">tag: {tagFilter}</Badge>
             ) : null}
           </div>
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {entities.map((entity, index) => renderEntityCard(entity, index))}
           </div>
         </div>
@@ -879,7 +985,7 @@ export default function WorldCodexPage() {
                   Filtrar {group.meta.label.toLowerCase()}
                 </Button>
               </div>
-              <div className={`grid gap-6 md:grid-cols-2 xl:grid-cols-3 rounded-[32px] border border-white/8 bg-gradient-to-br ${group.meta.accent} p-4`}>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {group.items.slice(0, 6).map((entity, index) => renderEntityCard(entity, index))}
               </div>
             </section>
