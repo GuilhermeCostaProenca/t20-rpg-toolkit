@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 20px; }
+  .row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .dot { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+  .name { font-size: 11px; font-weight: 600; color: rgba(244,239,231,0.9); width: 120px; }
+  .usage { font-size: 10px; color: rgba(181,174,164,0.75); flex: 1; }
+  .val { font-size: 9px; font-family: monospace; color: rgba(213,162,64,0.65); width: 110px; text-align: right; }
+  .section-title { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(213,162,64,0.75); margin: 14px 0 6px; }
+</style></head><body>
+<div class="section-title">Papéis Principais</div>
+<div class="row"><div class="dot" style="background:#06070c; border:1px solid rgba(255,255,255,0.15)"></div><div class="name">Background</div><div class="usage">Fundo da página e app shell</div><div class="val">#06070c</div></div>
+<div class="row"><div class="dot" style="background:#f4efe7"></div><div class="name">Foreground</div><div class="usage">Texto principal, headings</div><div class="val">#f4efe7</div></div>
+<div class="row"><div class="dot" style="background:#bc4a3f"></div><div class="name">Primary</div><div class="usage">CTAs, active states, brand accent</div><div class="val">#bc4a3f</div></div>
+<div class="row"><div class="dot" style="background:#fff9f2"></div><div class="name">Primary Fg</div><div class="usage">Texto sobre botão primário</div><div class="val">#fff9f2</div></div>
+<div class="row"><div class="dot" style="background:rgba(15,14,20,0.94); border:1px solid rgba(255,255,255,0.08)"></div><div class="name">Card</div><div class="usage">Surface de cards e painéis</div><div class="val">rgba(15,14,20,.94)</div></div>
+<div class="row"><div class="dot" style="background:#b5aea4"></div><div class="name">Muted Fg</div><div class="usage">Texto secundário, descrições</div><div class="val">#b5aea4</div></div>
+<div class="row"><div class="dot" style="background:#1a1821"></div><div class="name">Muted</div><div class="usage">Fundo de seções secundárias</div><div class="val">#1a1821</div></div>
+<div class="row"><div class="dot" style="background:#24212d"></div><div class="name">Accent</div><div class="usage">Hover states, highlights suaves</div><div class="val">#24212d</div></div>
+<div class="section-title">Bordas & Estados</div>
+<div class="row"><div class="dot" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.3)"></div><div class="name">Border</div><div class="usage">Separadores e bordas de card</div><div class="val">rgba(255,255,255,.08)</div></div>
+<div class="row"><div class="dot" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3)"></div><div class="name">Input</div><div class="usage">Fundo de inputs e selects</div><div class="val">rgba(255,255,255,.12)</div></div>
+<div class="row"><div class="dot" style="background:rgba(188,74,63,0.65); border:1px solid rgba(255,255,255,0.2)"></div><div class="name">Ring</div><div class="usage">Focus ring, glow de seleção</div><div class="val">rgba(188,74,63,.65)</div></div>
+<div class="row"><div class="dot" style="background:#de6250"></div><div class="name">Destructive</div><div class="usage">Erros, ações destrutivas</div><div class="val">#de6250</div></div>
+<div class="section-title">Charts</div>
+<div class="row">
+  <div class="dot" style="background:#bc4a3f; border-radius:50%"></div>
+  <div class="dot" style="background:#9b7f56; border-radius:50%"></div>
+  <div class="dot" style="background:#4b9f91; border-radius:50%"></div>
+  <div class="dot" style="background:#d5a240; border-radius:50%"></div>
+  <div class="dot" style="background:#7b536d; border-radius:50%"></div>
+  <div class="name" style="margin-left:4px">Chart 1–5</div>
+  <div class="usage">Vermelho · Ouro · Teal · Âmbar · Roxo</div>
+</div>
+</body></html>

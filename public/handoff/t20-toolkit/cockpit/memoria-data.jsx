@@ -1,0 +1,172 @@
+// memoria-data.jsx — World memory: events, consequences, world state
+
+const EVENT_TYPES = {
+  Combate:     { color: "#bc4a3f", icon: "swords",        border: "rgba(188,74,63,.35)"  },
+  Narrativa:   { color: "#4b9f91", icon: "scroll-text",   border: "rgba(75,159,145,.3)"  },
+  Descoberta:  { color: "#d5a240", icon: "sparkles",      border: "rgba(213,162,64,.3)"  },
+  Político:    { color: "#4f7cff", icon: "scale",         border: "rgba(79,124,255,.3)"  },
+  Exploração:  { color: "#9b5de5", icon: "map",           border: "rgba(155,93,229,.3)"  },
+  Perda:       { color: "#f97316", icon: "alert-triangle",border: "rgba(249,115,22,.3)"  },
+};
+
+const IMPACT_LEVELS = {
+  "Crítico":  { color: "#bc4a3f", dot: "#e06155" },
+  "Alto":     { color: "#d5a240", dot: "#f6ae2d" },
+  "Médio":    { color: "#4b9f91", dot: "#67e8b8" },
+  "Baixo":    { color: "#b5aea4", dot: "#b5aea4" },
+};
+
+const WORLD_EVENTS = [
+  {
+    id: "e1",
+    title: "Batalha do Porto — Desfecho",
+    type: "Combate",
+    impact: "Crítico",
+    session: 12,
+    date: "23 Abr",
+    entities: ["Serafina Valdris", "Cap. Sombrio", "Valkaria"],
+    summary: "O grupo confrontou o Capitão Sombrio no Armazém 7. O porto leste foi parcialmente destruído. O Capitão escapou pelo portal com documentos do Arsenal Real antes de ser abatido.",
+    consequences: [
+      "Porto leste em reconstrução — 3 semanas fora de operação",
+      "Documentos do Arsenal comprometidos — 3 depósitos secretos expostos",
+      "Guarda corrupta identificada — 12 membros presos, 4 fugiram",
+    ],
+    pending: true,
+    worldChange: "O porto de Valkaria opera com 40% de capacidade. Tensão entre a guarda leal e os sobreviventes da Ordem.",
+    gmNote: "O Capitão não está morto — ele entrou no portal. Aparece na Sessão 14.",
+  },
+  {
+    id: "e2",
+    title: "Grimório reage à Serafina",
+    type: "Descoberta",
+    impact: "Crítico",
+    session: 12,
+    date: "23 Abr",
+    entities: ["Serafina Valdris", "Grimório da Sombra"],
+    summary: "Ao tocar o Grimório da Sombra durante o confronto, as runas brilharam em resposta a Serafina. A conexão com a linhagem Valdris parece real e significativa.",
+    consequences: [
+      "Conexão linhagem Valdris — Grimório investigado em Sessão 13",
+      "Ordem da Chama confirma interesse — objetivo real era o Grimório",
+    ],
+    pending: true,
+    worldChange: "A Ordem da Chama agora sabe que Serafina tem o Grimório. Alvo prioritário.",
+    gmNote: "O pai de Serafina está vivo e tem informações sobre a linhagem. Revelar gradualmente.",
+  },
+  {
+    id: "e3",
+    title: "Trog Irontooth — Desaparecimento",
+    type: "Narrativa",
+    impact: "Alto",
+    session: 12,
+    date: "23 Abr",
+    entities: ["Trog Irontooth", "Ordem da Chama"],
+    summary: "Trog desapareceu após a batalha. Evidências sugerem que ele entrou em contato com um membro da Ordem antes do confronto. Paradeiro desconhecido.",
+    consequences: [
+      "Rede de informantes de Trog — acesso perdido",
+      "Suspeita de traição — grupo dividido sobre lealdade de Trog",
+    ],
+    pending: true,
+    worldChange: "A rede de informantes de Trog em Valkaria está silenciosa. Alguém assume o controle.",
+    gmNote: "Trog está escondido. Ele testemunhou algo que o assustou — vai contatar Serafina na Sessão 13.",
+  },
+  {
+    id: "e4",
+    title: "Infiltração da Guarda confirmada",
+    type: "Político",
+    impact: "Alto",
+    session: 11,
+    date: "15 Abr",
+    entities: ["Ordem da Chama", "Valkaria"],
+    summary: "Serafina descobriu que a Ordem da Chama controla metade da guarda de Valkaria. O Conselho dos Arcanistas foi informado discretamente.",
+    consequences: [
+      "Guarda em quarentena — inspeção silenciosa em andamento",
+      "Conselho dos Arcanistas suspeito — um membro pode ser da Ordem",
+    ],
+    pending: true,
+    worldChange: "A guarda de Valkaria está sob investigação interna. Moral baixa, operações comprometidas.",
+    gmNote: "O conselheiro Arzan é o líder da Ordem. Não revelado ainda.",
+  },
+  {
+    id: "e5",
+    title: "Grimório recuperado em Yuden",
+    type: "Descoberta",
+    impact: "Crítico",
+    session: 10,
+    date: "02 Abr",
+    entities: ["Serafina Valdris", "Grimório da Sombra", "Kulthar Rex"],
+    summary: "Nas ruínas de Yuden, o grupo encontrou o Grimório da Sombra. Arcanistas identificaram pulsos de energia ligados a Tenebra. O livro resiste a todas as tentativas de decifração.",
+    consequences: [
+      "Grimório em posse do grupo — alvo de múltiplas facções",
+      "Ruínas de Yuden seladas — colapso estrutural após recuperação",
+    ],
+    pending: false,
+    worldChange: "As ruínas de Yuden estão seladas. Outros aventureiros investigam o colapso.",
+    gmNote: "O Grimório contém o mapa do esconderijo do General Valdris.",
+  },
+  {
+    id: "e6",
+    title: "Chegada a Valkaria",
+    type: "Exploração",
+    impact: "Médio",
+    session: 10,
+    date: "02 Abr",
+    entities: ["Serafina Valdris", "Kulthar Rex", "Trog Irontooth", "Valkaria"],
+    summary: "O grupo chegou à capital após 3 semanas de viagem. Primeira reunião com o Conselho dos Arcanistas. Valkaria está em alerta elevado após rumores de infiltração.",
+    consequences: [
+      "Acesso ao Conselho estabelecido — recurso para próximas missões",
+      "Identidades do grupo conhecidas na capital",
+    ],
+    pending: false,
+    worldChange: "O grupo é reconhecido como aventureiros de confiança em Valkaria.",
+    gmNote: null,
+  },
+  {
+    id: "e7",
+    title: "Morte do Capitão do Porto",
+    type: "Perda",
+    impact: "Médio",
+    session: 11,
+    date: "15 Abr",
+    entities: ["Valkaria", "Ordem da Chama"],
+    summary: "O Capitão do Porto de Valkaria, Henrick Dova, foi assassinado pela Ordem da Chama antes de poder revelar informações ao grupo. Sua morte foi encenada como acidente.",
+    consequences: [
+      "Fonte de informação perdida — Dova tinha contatos cruciais",
+      "Porto sem liderança — operações caóticas",
+    ],
+    pending: false,
+    worldChange: "O porto opera sem capitão há 2 semanas. Contrabando aumentou 40%.",
+    gmNote: "A filha de Dova, Mira, sabe que o pai foi assassinado. Pode ser aliada.",
+  },
+  {
+    id: "e8",
+    title: "Kulthar ferido gravemente",
+    type: "Combate",
+    impact: "Médio",
+    session: 12,
+    date: "23 Abr",
+    entities: ["Kulthar Rex"],
+    summary: "Kulthar Rex sofreu ferimentos graves durante o confronto no porto — 12 de 38 PV. Recusa tratamento mágico arcano por princípios tribais. Recuperação será lenta.",
+    consequences: [
+      "Kulthar fora de combate intenso por 1 sessão",
+      "Grupo reduzido a 2 combatentes efetivos",
+    ],
+    pending: true,
+    worldChange: null,
+    gmNote: "Kulthar aceita cura divina (Serafina) mas não arcana. Oportunidade de cena de personagem.",
+  },
+];
+
+const WORLD_STATE = [
+  { id: "ws1", label: "Porto de Valkaria",       status: "Em reconstrução",  color: "#f97316", icon: "alert-triangle" },
+  { id: "ws2", label: "Guarda Real",              status: "Comprometida",     color: "#bc4a3f", icon: "shield" },
+  { id: "ws3", label: "Ordem da Chama",           status: "Ativa — alerta",   color: "#9b5de5", icon: "flame" },
+  { id: "ws4", label: "Arsenal Real",             status: "Exposto",          color: "#bc4a3f", icon: "swords" },
+  { id: "ws5", label: "Grimório da Sombra",       status: "Com o grupo",      color: "#4f7cff", icon: "scroll" },
+  { id: "ws6", label: "Trog Irontooth",           status: "Desaparecido",     color: "#d5a240", icon: "eye-off" },
+  { id: "ws7", label: "Conselho Arcanistas",      status: "Suspeito",         color: "#d5a240", icon: "scale" },
+  { id: "ws8", label: "Cap. Sombrio",             status: "Paradeiro ignoto", color: "#bc4a3f", icon: "target" },
+];
+
+const FILTER_EVENTS = ["Todos", ...Object.keys(EVENT_TYPES)];
+
+Object.assign(window, { EVENT_TYPES, IMPACT_LEVELS, WORLD_EVENTS, WORLD_STATE, FILTER_EVENTS });

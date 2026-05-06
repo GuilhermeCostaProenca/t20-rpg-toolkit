@@ -36,6 +36,14 @@
 - Primeiro corte de refatoracao Figma-guided no app interno (`A1-LP5-R1`) entrou em codigo: sidebar por secoes `MUNDO/MESA/APOIO`, tabs de modo `Normal/Lousa/Quadro` no cockpit e novas rotas canonicas world-scoped (`visual`, `memory`, `lousa`, `quadro`) sem retirar funcionalidades ja existentes.
 - Segundo corte de refatoracao Figma-guided (`A1-LP5-R2`) harmonizou superficies reais de modulo com `ModeSwitcher` compartilhado: cockpit do mundo, forja, codex, grafo, campanhas, visual library, memoria, lousa e quadro agora operam com o mesmo padrao de modo e leitura.
 - Terceiro corte de convergencia (`A1-LP5-R3`) moveu links internos de produto para rotas canonicas `visual` e `memory` (campanha, mapa, timeline da forja, prep ao vivo, cockpit do mundo e fluxos de visual), reduzindo ambiguidade de navegação com fallback legado preservado.
+- Quarto corte de convergencia visual (`A1-LP6-R1`) aplicou handoff de design na fundacao do shell: tipografia oficial via `next/font` (DM Sans/JetBrains Mono/Cinzel), `AppSidebar` colapsavel com persistencia local, `Topbar` em leitura de cockpit (status + relogio) e refinamento do `ModeSwitcher` para o mesmo idioma visual operacional.
+- Quinto corte de convergencia visual (`A1-LP6-R2`) substituiu a landing publica por uma implementacao fiel ao handoff (nav pill, hero com mapa/camada atmosferica, tipografia display `Cinzel`, D20 central e painel `Tweaks` interativo).
+- Sexto corte (`A1-LP6-R3`) conectou o CTA principal da landing para a nova rota publica `/mestre` e entregou a primeira pagina do mestre em layout cockpit completo (topbar de operacao, trilho lateral, iniciativa, mapa de cena e coluna de rolagens/notas/ambiente).
+- Setimo corte (`A1-LP6-R4`) substituiu `/mestre` para servir o cockpit original do handoff (arquivo `Cockpit.html` + scripts `cockpit-*.jsx`), garantindo paridade visual e comportamento funcional com o design aprovado.
+- Oitavo corte (`A1-LP6-R5`) convergiu o indice real do Codex (`/app/worlds/[id]/codex`) para a anatomia do handoff: header compacto, filtros em toolbar, chips de tipo, grid denso de entidades, dialog de criacao preservado e painel lateral deslizante de quick inspect com relacoes/memoria/workspace.
+- `src/app/app/layout.tsx` agora aplica `min-w-0` na area principal do shell para evitar overflow horizontal entre sidebar, topbar e superficies densas como o novo Codex.
+- Nono corte (`A1-LP6-R6`) importou o novo pacote completo `T20-toolkit` do Claude Design para `public/handoff/t20-toolkit`, atualizou `/` para servir a landing desse bundle e atualizou `/mestre` para servir o cockpit; a vitrine estatica agora navega entre Landing, Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa do handoff.
+- Complemento (`A1-LP6-R6B`) criou o Hub cinematografico do handoff em `/mestre`, com cards de entrada para os modulos e script global de transicao entre Landing, Hub e telas estaticas do pacote.
 
 ## Em Andamento
 - A8 foi encerrada no `attack-index`; A1-A7 e A9 seguem em `[-]`.
@@ -52,6 +60,9 @@
 - Executar rodada real de A7-R3 usando o pacote de campo e consolidar resultado final em report + Linear.
 - Traduzir o benchmark funcional completo do `vvd.world` em backlog acionavel para A1/A2/A3 sem romper a ordem oficial do attack index.
 - Materializar o blueprint consolidado em prototipo navegavel no Figma (Fase A + B) para servir de contrato visual antes dos proximos recortes de implementacao.
+- Convergir tecnicamente o cockpit estatico de `/mestre` para componentes internos React/TypeScript quando a paridade visual estiver aceita.
+- Aplicar a mesma anatomia de handoff do Codex nas proximas superficies reais de modulo, priorizando Cockpit do Mundo e Forja sem trocar dados reais por prototipo.
+- Converter o novo handoff completo para rotas reais por modulo, priorizando primeiro o Cockpit do Mundo e preservando o bundle estatico apenas como referencia/QA visual.
 
 ## Problemas Conhecidos
 - Restam varreduras pontuais para garantir que referencias legadas de docs nao reaparecam em novos recortes.

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 24px; color: #f4efe7; }
+  .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,221,177,0.78); margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-start; }
+  .shadow-box { width: 120px; height: 72px; border-radius: 12px; background: rgba(15,14,20,0.94); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; }
+  .shadow-label { font-size: 9px; font-family: monospace; color: rgba(213,162,64,0.6); text-align: center; margin-top: 4px; line-height: 1.4; }
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
+  .name { font-size: 10px; font-weight: 600; color: rgba(244,239,231,0.7); text-align: center; }
+</style></head><body>
+
+<div class="eyebrow">Shadow System</div>
+<div class="row">
+  <div>
+    <div class="shadow-box" style="box-shadow: 0 20px 80px rgba(0,0,0,0.55)">
+      <div class="name">Base</div>
+    </div>
+    <div class="shadow-label">0 20px 80px<br>rgba(0,0,0,.55)</div>
+  </div>
+  <div>
+    <div class="shadow-box" style="box-shadow: 0 18px 70px rgba(0,0,0,0.42)">
+      <div class="name">Card</div>
+    </div>
+    <div class="shadow-label">0 18px 70px<br>rgba(0,0,0,.42)</div>
+  </div>
+  <div>
+    <div class="shadow-box" style="box-shadow: inset 0 1px 0 rgba(255,255,255,0.05)">
+      <div class="name">Inset</div>
+    </div>
+    <div class="shadow-label">inset 0 1px 0<br>rgba(white,.05)</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="eyebrow">Glow System</div>
+<div class="row">
+  <div>
+    <div class="shadow-box" style="box-shadow: 0 0 0 1px rgba(188,74,63,0.25), 0 12px 40px rgba(0,0,0,0.35), 0 0 32px rgba(188,74,63,0.25)">
+      <div class="name">Glow Ring</div>
+    </div>
+    <div class="shadow-label">3-layer red glow<br>focus / active</div>
+  </div>
+  <div>
+    <div class="shadow-box" style="box-shadow: 0 0 18px rgba(188,74,63,0.18)">
+      <div class="name">Nav Active</div>
+    </div>
+    <div class="shadow-label">0 0 18px<br>rgba(red,.18)</div>
+  </div>
+  <div>
+    <div class="shadow-box" style="box-shadow: 0 10px 34px rgba(226,69,69,0.35)">
+      <div class="name">Brand Icon</div>
+    </div>
+    <div class="shadow-label">0 10px 34px<br>rgba(red,.35)</div>
+  </div>
+  <div>
+    <div class="shadow-box" style="background: rgba(213,162,64,0.1); box-shadow: 0 0 0 1px rgba(213,162,64,0.2), 0 0 24px rgba(213,162,64,0.15)">
+      <div class="name">Gold Glow</div>
+    </div>
+    <div class="shadow-label">gold variant<br>rare usage</div>
+  </div>
+</div>
+
+</body></html>

@@ -35,7 +35,7 @@ export function ModeSwitcher({ worldId }: ModeSwitcherProps) {
   const pathname = usePathname();
 
   return (
-    <div className="inline-flex items-center gap-1 rounded-2xl border border-white/10 bg-black/30 p-1">
+    <div className="inline-flex items-center gap-1 rounded-2xl border border-white/10 bg-black/35 p-1 backdrop-blur-xl">
       {modes.map((mode) => {
         const Icon = mode.icon;
         const href = mode.href(worldId);
@@ -48,8 +48,8 @@ export function ModeSwitcher({ worldId }: ModeSwitcherProps) {
             className={cn(
               "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition",
               isActive
-                ? "bg-white text-black"
-                : "text-muted-foreground hover:bg-white/10 hover:text-foreground"
+                ? "border border-primary/30 bg-primary/15 text-primary shadow-[0_0_16px_rgba(188,74,63,0.16)]"
+                : "border border-transparent text-muted-foreground hover:border-white/10 hover:bg-white/8 hover:text-foreground"
             )}
           >
             <Icon className="h-4 w-4" />

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T20 OS — UI Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #06070c;
+    color: #f4efe7;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(188,74,63,.18), transparent 32%),
+      radial-gradient(circle at 78% 12%, rgba(182,143,71,.18), transparent 24%),
+      radial-gradient(circle at 72% 68%, rgba(58,95,136,.16), transparent 28%);
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(-45deg, rgba(255,255,255,.022) 0, rgba(255,255,255,.022) 2px, transparent 3px, transparent 8px);
+    opacity: .55; pointer-events: none; z-index: -1;
+  }
+  #root { display: flex; min-height: 100vh; }
+  * { scrollbar-width: thin; scrollbar-color: rgba(188,74,63,.4) transparent; }
+  *::-webkit-scrollbar { width: 5px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb { background: rgba(188,74,63,.4); border-radius: 9999px; }
+  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.4 } }
+
+  /* Tweaks panel */
+  .tweaks-panel {
+    position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+    background: rgba(12,11,18,.96); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px; padding: 18px; width: 220px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    backdrop-filter: blur(24px);
+    display: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tweaks-panel.open { display: block; }
+  .tweaks-title { font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,221,177,.78); margin-bottom: 14px; }
+  .tweak-row { margin-bottom: 12px; }
+  .tweak-label { font-size: 11px; color: #b5aea4; margin-bottom: 4px; display: block; }
+  .tweak-select, .tweak-input { width: 100%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; color: #f4efe7; font-family: inherit; font-size: 12px; padding: 6px 10px; outline: none; }
+  .tweak-select option { background: #1a1821; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="Sidebar.jsx"></script>
+<script type="text/babel" src="Cards.jsx"></script>
+<script type="text/babel" src="AppShell.jsx"></script>
+<script type="text/babel" src="LandingPage.jsx"></script>
+
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "worldName": "Arton",
+  "startView": "landing",
+  "accentColor": "#bc4a3f"
+}/*EDITMODE-END*/;
+
+function AppMain() {
+  const saved = (() => { try { return JSON.parse(localStorage.getItem("t20os_view") || "{}") } catch { return {} } })();
+  const [view, setView] = React.useState(saved.view || TWEAK_DEFAULTS.startView);
+  const [activeModule, setActiveModule] = React.useState(saved.module || "cockpit");
+  const [worldName] = React.useState(TWEAK_DEFAULTS.worldName);
+  const [tweaksOpen, setTweaksOpen] = React.useState(false);
+  const [localWorld, setLocalWorld] = React.useState(worldName);
+
+  React.useEffect(() => {
+    localStorage.setItem("t20os_view", JSON.stringify({ view, module: activeModule }));
+  }, [view, activeModule]);
+
+  // Tweaks integration
+  React.useEffect(() => {
+    window.addEventListener("message", (e) => {
+      if (e.data?.type === "__activate_edit_mode") setTweaksOpen(true);
+      if (e.data?.type === "__deactivate_edit_mode") setTweaksOpen(false);
+    });
+    window.parent.postMessage({ type: "__edit_mode_available" }, "*");
+  }, []);
+
+  const enterApp = () => { setView("app"); setActiveModule("cockpit"); };
+
+  const moduleViews = {
+    cockpit: <CockpitView worldName={localWorld} />,
+    codex: <CodexView />,
+    forge: <ForgeView />,
+    live: <LiveView />,
+    memory: <MemoryView />,
+  };
+
+  if (view === "landing") {
+    return (
+      <>
+        <div style={{ flex: 1 }}>
+          <LandingPage onEnter={enterApp} />
+        </div>
+        <TweaksPanel open={tweaksOpen} onWorldChange={setLocalWorld} onStartChange={(v) => { setView(v); setActiveModule("cockpit"); }} localWorld={localWorld} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+        <Sidebar activeModule={activeModule} onNavigate={(id) => setActiveModule(id)} worldName={localWorld} />
+        <main style={{ flex: 1, padding: "32px 36px", overflowY: "auto", minHeight: "100vh" }}>
+          {/* Topbar */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32, gap: 16, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button onClick={() => setView("landing")} style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 10, padding: "6px 12px", fontSize: 12, color: "#b5aea4", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
+                ← Landing
+              </button>
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,.25)" }}>·</span>
+              <span style={{ fontSize: 13, color: "#b5aea4" }}>{localWorld}</span>
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,.25)" }}>/</span>
+              <span style={{ fontSize: 13, color: "#f4efe7", fontWeight: 600, textTransform: "capitalize" }}>{activeModule}</span>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ display: "inline-flex", border: "1px solid rgba(75,159,145,.3)", background: "rgba(75,159,145,.08)", borderRadius: 9999, padding: "4px 12px", fontSize: 10, fontWeight: 600, color: "rgba(75,159,145,.9)", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#4b9f91", animation: "pulse 1.5s infinite" }} />
+                Sessão ativa
+              </div>
+              <button style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 10, padding: "6px 14px", fontSize: 12, color: "#f4efe7", cursor: "pointer", fontFamily: "inherit" }}>
+                + Nova entidade
+              </button>
+            </div>
+          </div>
+          {/* Module content */}
+          {moduleViews[activeModule] || (
+            <div style={{ textAlign: "center", padding: 80, color: "#b5aea4" }}>
+              <div style={{ fontFamily: "'Cinzel',serif", fontSize: 28, fontWeight: 700, color: "#f4efe7", textTransform: "uppercase", marginBottom: 12 }}>Em construção</div>
+              <p style={{ fontSize: 14 }}>Este módulo será disponibilizado na próxima atualização.</p>
+            </div>
+          )}
+        </main>
+      </div>
+      <TweaksPanel open={tweaksOpen} onWorldChange={setLocalWorld} onStartChange={(v) => { setView(v); setActiveModule("cockpit"); }} localWorld={localWorld} />
+    </>
+  );
+}
+
+function TweaksPanel({ open, onWorldChange, onStartChange, localWorld }) {
+  return (
+    <div className={`tweaks-panel ${open ? "open" : ""}`}>
+      <div className="tweaks-title">Tweaks</div>
+      <div className="tweak-row">
+        <label className="tweak-label">Nome do mundo</label>
+        <input className="tweak-input" value={localWorld} onChange={e => {
+          onWorldChange(e.target.value);
+          window.parent.postMessage({ type: "__edit_mode_set_keys", edits: { worldName: e.target.value } }, "*");
+        }} />
+      </div>
+      <div className="tweak-row">
+        <label className="tweak-label">Vista inicial</label>
+        <select className="tweak-select" defaultValue={TWEAK_DEFAULTS.startView} onChange={e => {
+          onStartChange(e.target.value);
+          window.parent.postMessage({ type: "__edit_mode_set_keys", edits: { startView: e.target.value } }, "*");
+        }}>
+          <option value="landing">Landing page</option>
+          <option value="app">App cockpit</option>
+        </select>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<AppMain />);
+</script>
+</body>
+</html>

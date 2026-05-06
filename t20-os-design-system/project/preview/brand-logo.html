@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700;900&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 32px 24px; display: flex; flex-direction: column; gap: 36px; align-items: center; }
+
+  /* Grain overlay */
+  body::after { content: ""; position: fixed; inset: 0; background: repeating-linear-gradient(-45deg, rgba(255,255,255,.018) 0, rgba(255,255,255,.018) 2px, transparent 3px, transparent 8px); opacity: .6; pointer-events: none; z-index: 0; }
+
+  .row { display: flex; gap: 32px; align-items: center; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .meta { font-size: 9px; font-family: monospace; color: rgba(213,162,64,.5); letter-spacing: .06em; text-align: center; }
+  .divider { width: 100%; border: none; border-top: 1px solid rgba(255,255,255,.06); position: relative; z-index: 1; }
+
+  /* ── D20 SVG icon ── */
+  .d20-glow { filter: drop-shadow(0 0 10px rgba(188,74,63,.55)) drop-shadow(0 4px 18px rgba(0,0,0,.7)); }
+</style>
+</head>
+<body>
+
+<!-- ── FULL LOCKUP ─────────────────────────────────────────────── -->
+<div class="row">
+  <div class="col">
+
+    <!-- PRIMARY LOCKUP -->
+    <div style="display:flex; align-items:center; gap:18px">
+
+      <!-- D20 icon -->
+      <div class="d20-glow" style="flex-shrink:0">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="faceTop" x1="32" y1="4" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#2a0a0a"/>
+              <stop offset="100%" stop-color="#6b1220"/>
+            </linearGradient>
+            <linearGradient id="faceL" x1="8" y1="28" x2="32" y2="52" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#4a0e0e"/>
+              <stop offset="100%" stop-color="#1a0505"/>
+            </linearGradient>
+            <linearGradient id="faceR" x1="56" y1="28" x2="32" y2="52" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#8b1a1a"/>
+              <stop offset="100%" stop-color="#3a0a0a"/>
+            </linearGradient>
+            <linearGradient id="edgeGold" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+              <stop offset="0%" stop-color="#9b7f3a"/>
+              <stop offset="50%" stop-color="#c9a84c"/>
+              <stop offset="100%" stop-color="#9b7f3a"/>
+            </linearGradient>
+            <filter id="innerGlow">
+              <feGaussianBlur stdDeviation="1.5" result="blur"/>
+              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+          </defs>
+
+          <!-- D20 body — icosahedral projection -->
+          <!-- Top triangle face -->
+          <polygon points="32,5 54,28 10,28" fill="url(#faceTop)" stroke="#c9a84c" stroke-width=".8" stroke-linejoin="round"/>
+          <!-- Bottom-left face -->
+          <polygon points="10,28 32,52 32,28" fill="url(#faceL)" stroke="#9b7f3a" stroke-width=".8" stroke-linejoin="round"/>
+          <!-- Bottom-right face -->
+          <polygon points="54,28 32,52 32,28" fill="url(#faceR)" stroke="#c9a84c" stroke-width=".8" stroke-linejoin="round"/>
+          <!-- Center split line -->
+          <line x1="32" y1="28" x2="32" y2="52" stroke="#9b7f3a" stroke-width=".6" opacity=".7"/>
+          <!-- Outer glow rim -->
+          <polygon points="32,5 54,28 32,52 10,28" fill="none" stroke="#c9a84c" stroke-width="1.2" opacity=".5"/>
+
+          <!-- "20" numeral inside -->
+          <text x="32" y="23.5" text-anchor="middle" font-family="'Cinzel',serif" font-weight="900" font-size="11" fill="#c9a84c" letter-spacing="0.5" opacity=".9">20</text>
+
+          <!-- Small rune marks on bottom faces -->
+          <text x="21" y="43" text-anchor="middle" font-family="serif" font-size="9" fill="rgba(201,168,76,.35)">ᚱ</text>
+          <text x="43" y="43" text-anchor="middle" font-family="serif" font-size="9" fill="rgba(201,168,76,.25)">ᛏ</text>
+        </svg>
+      </div>
+
+      <!-- Text lockup -->
+      <div>
+        <div style="font-family:'Cinzel',serif; font-size:22px; font-weight:900; color:#f4efe7; letter-spacing:.05em; line-height:1; text-transform:lowercase">t20-rpg</div>
+        <div style="font-family:'Cinzel',serif; font-size:22px; font-weight:900; letter-spacing:.05em; line-height:1; text-transform:lowercase; background:linear-gradient(90deg,#9b7f3a,#c9a84c,#9b7f3a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text">toolkit</div>
+        <div style="margin-top:5px; font-size:8px; font-weight:700; letter-spacing:.28em; text-transform:uppercase; color:rgba(188,74,63,.8)">Sistema Operacional do Mestre</div>
+      </div>
+    </div>
+
+    <div class="meta">Lockup primário · ícone + wordmark + tagline</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── ICON VARIANTS ──────────────────────────────────────────── -->
+<div class="row">
+
+  <!-- Large icon -->
+  <div class="col">
+    <div style="width:80px; height:80px; border-radius:20px; background:linear-gradient(145deg,#0d0508,#1a0608); border:1px solid rgba(201,168,76,.3); display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 1px rgba(188,74,63,.15), 0 12px 40px rgba(0,0,0,.7), 0 0 28px rgba(188,74,63,.2)">
+      <svg class="d20-glow" width="50" height="50" viewBox="0 0 64 64" fill="none">
+        <defs>
+          <linearGradient id="ft2" x1="32" y1="4" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#2a0a0a"/><stop offset="100%" stop-color="#6b1220"/></linearGradient>
+          <linearGradient id="fl2" x1="8" y1="28" x2="32" y2="52" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#4a0e0e"/><stop offset="100%" stop-color="#1a0505"/></linearGradient>
+          <linearGradient id="fr2" x1="56" y1="28" x2="32" y2="52" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#8b1a1a"/><stop offset="100%" stop-color="#3a0a0a"/></linearGradient>
+        </defs>
+        <polygon points="32,5 54,28 10,28" fill="url(#ft2)" stroke="#c9a84c" stroke-width=".8"/>
+        <polygon points="10,28 32,52 32,28" fill="url(#fl2)" stroke="#9b7f3a" stroke-width=".8"/>
+        <polygon points="54,28 32,52 32,28" fill="url(#fr2)" stroke="#c9a84c" stroke-width=".8"/>
+        <polygon points="32,5 54,28 32,52 10,28" fill="none" stroke="#c9a84c" stroke-width="1.2" opacity=".5"/>
+        <text x="32" y="23.5" text-anchor="middle" font-family="'Cinzel',serif" font-weight="900" font-size="11" fill="#c9a84c" letter-spacing="0.5">20</text>
+        <text x="21" y="43" text-anchor="middle" font-family="serif" font-size="9" fill="rgba(201,168,76,.4)">ᚱ</text>
+        <text x="43" y="43" text-anchor="middle" font-family="serif" font-size="9" fill="rgba(201,168,76,.3)">ᛏ</text>
+      </svg>
+    </div>
+    <div class="meta">App icon · 80px</div>
+  </div>
+
+  <!-- Medium icon -->
+  <div class="col">
+    <div style="width:52px; height:52px; border-radius:14px; background:linear-gradient(145deg,#0d0508,#1a0608); border:1px solid rgba(201,168,76,.25); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 30px rgba(0,0,0,.6), 0 0 18px rgba(188,74,63,.18)">
+      <svg class="d20-glow" width="34" height="34" viewBox="0 0 64 64" fill="none">
+        <polygon points="32,5 54,28 10,28" fill="#4a0e0e" stroke="#c9a84c" stroke-width="1"/>
+        <polygon points="10,28 32,52 32,28" fill="#1a0505" stroke="#9b7f3a" stroke-width="1"/>
+        <polygon points="54,28 32,52 32,28" fill="#6b1220" stroke="#c9a84c" stroke-width="1"/>
+        <polygon points="32,5 54,28 32,52 10,28" fill="none" stroke="#c9a84c" stroke-width="1.4" opacity=".45"/>
+        <text x="32" y="24" text-anchor="middle" font-family="'Cinzel',serif" font-weight="900" font-size="12" fill="#c9a84c">20</text>
+      </svg>
+    </div>
+    <div class="meta">Nav icon · 52px</div>
+  </div>
+
+  <!-- Small icon -->
+  <div class="col">
+    <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(145deg,#0d0508,#1a0608); border:1px solid rgba(201,168,76,.2); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,.5), 0 0 10px rgba(188,74,63,.15)">
+      <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
+        <polygon points="32,5 54,28 10,28" fill="#4a0e0e" stroke="#c9a84c" stroke-width="1.5"/>
+        <polygon points="10,28 32,52 32,28" fill="#1a0505" stroke="#9b7f3a" stroke-width="1.5"/>
+        <polygon points="54,28 32,52 32,28" fill="#6b1220" stroke="#c9a84c" stroke-width="1.5"/>
+        <polygon points="32,5 54,28 32,52 10,28" fill="none" stroke="#c9a84c" stroke-width="2" opacity=".4"/>
+      </svg>
+    </div>
+    <div class="meta">Favicon · 36px</div>
+  </div>
+
+</div>
+
+<hr class="divider">
+
+<!-- ── WORDMARK VARIANTS ───────────────────────────────────────── -->
+<div class="row">
+
+  <!-- Horizontal compact -->
+  <div class="col">
+    <div style="display:flex; align-items:center; gap:10px; padding:10px 18px; border:1px solid rgba(255,255,255,.07); border-radius:12px; background:rgba(255,255,255,.02)">
+      <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
+        <polygon points="32,5 54,28 10,28" fill="#4a0e0e" stroke="#c9a84c" stroke-width="1.5"/>
+        <polygon points="10,28 32,52 32,28" fill="#1a0505" stroke="#9b7f3a" stroke-width="1.5"/>
+        <polygon points="54,28 32,52 32,28" fill="#6b1220" stroke="#c9a84c" stroke-width="1.5"/>
+        <polygon points="32,5 54,28 32,52 10,28" fill="none" stroke="#c9a84c" stroke-width="2" opacity=".4"/>
+      </svg>
+      <span style="font-family:'Cinzel',serif; font-size:14px; font-weight:700; letter-spacing:.08em; color:#f4efe7">t20-rpg-toolkit</span>
+    </div>
+    <div class="meta">Navbar wordmark</div>
+  </div>
+
+  <!-- All gold -->
+  <div class="col">
+    <div style="display:flex; align-items:baseline; gap:0; line-height:1">
+      <span style="font-family:'Cinzel',serif; font-size:20px; font-weight:900; letter-spacing:.03em; background:linear-gradient(135deg,#9b7f3a,#c9a84c 40%,#f6de8a 60%,#9b7f3a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text">t20</span>
+      <span style="font-family:'Cinzel',serif; font-size:20px; font-weight:400; color:rgba(255,255,255,.2)">-</span>
+      <span style="font-family:'Cinzel',serif; font-size:20px; font-weight:900; letter-spacing:.03em; color:rgba(188,74,63,.9)">rpg</span>
+      <span style="font-family:'Cinzel',serif; font-size:20px; font-weight:400; color:rgba(255,255,255,.2)">-</span>
+      <span style="font-family:'Cinzel',serif; font-size:20px; font-weight:900; letter-spacing:.03em; color:#f4efe7">toolkit</span>
+    </div>
+    <div class="meta">Text-only · tricolor</div>
+  </div>
+
+</div>
+
+<hr class="divider">
+
+<!-- ── COLOR ON DARK SECTION ──────────────────────────────────── -->
+<div class="row">
+  <!-- On parchment bg -->
+  <div class="col">
+    <div style="background:#0d0508; border:1px solid rgba(201,168,76,.15); border-radius:16px; padding:20px 28px; display:flex; flex-direction:column; align-items:center; gap:10px">
+      <svg class="d20-glow" width="44" height="44" viewBox="0 0 64 64" fill="none">
+        <polygon points="32,5 54,28 10,28" fill="#2a0a0a" stroke="#c9a84c" stroke-width="1"/>
+        <polygon points="10,28 32,52 32,28" fill="#0d0303" stroke="#9b7f3a" stroke-width="1"/>
+        <polygon points="54,28 32,52 32,28" fill="#4a0e0e" stroke="#c9a84c" stroke-width="1"/>
+        <polygon points="32,5 54,28 32,52 10,28" fill="none" stroke="#c9a84c" stroke-width="1.2" opacity=".6"/>
+        <text x="32" y="23.5" text-anchor="middle" font-family="'Cinzel',serif" font-weight="900" font-size="11" fill="#c9a84c">20</text>
+        <text x="21" y="43" text-anchor="middle" font-family="serif" font-size="9" fill="rgba(201,168,76,.5)">ᚱ</text>
+        <text x="43" y="43" text-anchor="middle" font-family="serif" font-size="9" fill="rgba(201,168,76,.35)">ᛏ</text>
+      </svg>
+      <div style="font-family:'Cinzel',serif; font-size:13px; font-weight:700; letter-spacing:.1em; color:rgba(201,168,76,.9)">t20-rpg-toolkit</div>
+      <div style="font-size:7px; font-weight:700; letter-spacing:.28em; text-transform:uppercase; color:rgba(188,74,63,.65)">Sistema Operacional do Mestre</div>
+    </div>
+    <div class="meta">Vertical compact · dark surface</div>
+  </div>
+
+  <!-- Glow version -->
+  <div class="col">
+    <div style="position:relative; background:radial-gradient(circle at center, rgba(139,26,26,.18), transparent 60%), #06070c; border:1px solid rgba(201,168,76,.12); border-radius:16px; padding:20px 32px; display:flex; align-items:center; gap:14px">
+      <svg style="filter:drop-shadow(0 0 14px rgba(188,74,63,.6)) drop-shadow(0 0 4px rgba(201,168,76,.4))" width="36" height="36" viewBox="0 0 64 64" fill="none">
+        <polygon points="32,5 54,28 10,28" fill="#3a0d0d" stroke="#c9a84c" stroke-width="1.2"/>
+        <polygon points="10,28 32,52 32,28" fill="#1a0505" stroke="#9b7f3a" stroke-width="1.2"/>
+        <polygon points="54,28 32,52 32,28" fill="#6b1220" stroke="#c9a84c" stroke-width="1.2"/>
+        <polygon points="32,5 54,28 32,52 10,28" fill="none" stroke="#c9a84c" stroke-width="1.5" opacity=".6"/>
+        <text x="32" y="24" text-anchor="middle" font-family="'Cinzel',serif" font-weight="900" font-size="12" fill="#c9a84c">20</text>
+      </svg>
+      <div>
+        <div style="font-family:'Cinzel',serif; font-size:15px; font-weight:900; letter-spacing:.06em; color:#f4efe7; line-height:1">t20-rpg-toolkit</div>
+        <div style="font-size:8px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:rgba(188,74,63,.75); margin-top:4px">GM Operating System</div>
+      </div>
+    </div>
+    <div class="meta">Glow variant · ember red aura</div>
+  </div>
+
+</div>
+
+</body></html>

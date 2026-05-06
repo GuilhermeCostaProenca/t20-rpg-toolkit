@@ -16,7 +16,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <ImmersiveBackdrop />
           <div className="relative z-10 flex min-h-screen">
             <AppSidebar />
-            <div className="flex-1">
+            <div className="min-w-0 flex-1">
               <Topbar />
               <main>
                 <Shell className="pt-6" fluid>{children}</Shell>

@@ -1,0 +1,268 @@
+/*
+ * T20 OS Design System — Colors & Typography
+ * Source: src/app/globals.css + component analysis
+ * Google Font substitutions for Geist Sans → DM Sans, Geist Mono → JetBrains Mono
+ * ⚠ Request original Geist TTFs from team for pixel-perfect build
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ─── Base Tokens ──────────────────────────────────────────────────────────── */
+
+:root {
+  /* Colors — Raw */
+  --t20-black:        #06070c;
+  --t20-black-deep:   #04050a;
+  --t20-black-mid:    #0b0b12;
+  --t20-black-card:   rgba(15, 14, 20, 0.94);
+  --t20-black-sidebar:rgba(9, 9, 14, 0.96);
+  --t20-black-popover:rgba(10, 10, 17, 0.94);
+
+  --t20-red:          #bc4a3f;
+  --t20-red-bright:   #e24545;
+  --t20-red-deep:     #6b1220;
+  --t20-red-muted:    rgba(188, 74, 63, 0.12);
+
+  --t20-gold:         #d5a240;
+  --t20-gold-bright:  #f6ae2d;
+  --t20-gold-muted:   rgba(213, 162, 64, 0.16);
+  --t20-gold-warm:    rgba(245, 221, 177, 0.78);
+
+  --t20-parchment:    #f4efe7;
+  --t20-parchment-2:  #fbf7f1;
+  --t20-parchment-3:  #f2e8d5;
+
+  --t20-muted-bg:     #1a1821;
+  --t20-muted-mid:    #121117;
+  --t20-muted-fg:     #b5aea4;
+  --t20-accent-bg:    #24212d;
+
+  --t20-blue-chart:   #4b9f91;
+  --t20-teal:         rgba(67, 124, 168, 0.16);
+
+  /* Colors — Semantic */
+  --background:       var(--t20-black);
+  --foreground:       var(--t20-parchment);
+  --card:             var(--t20-black-card);
+  --card-foreground:  var(--t20-parchment-2);
+  --popover:          var(--t20-black-popover);
+  --popover-foreground: #f4f1ec;
+  --primary:          var(--t20-red);
+  --primary-foreground: #fff9f2;
+  --secondary:        var(--t20-muted-mid);
+  --secondary-foreground: #e6ddd2;
+  --muted:            var(--t20-muted-bg);
+  --muted-foreground: var(--t20-muted-fg);
+  --accent:           var(--t20-accent-bg);
+  --accent-foreground: #f4f1ec;
+  --destructive:      #de6250;
+  --border:           rgba(255, 255, 255, 0.08);
+  --border-strong:    rgba(255, 255, 255, 0.14);
+  --input:            rgba(255, 255, 255, 0.12);
+  --ring:             rgba(188, 74, 63, 0.65);
+  --sidebar:          var(--t20-black-sidebar);
+  --sidebar-foreground: #f4f1ec;
+  --sidebar-primary:  var(--t20-red);
+  --sidebar-border:   rgba(255, 255, 255, 0.08);
+
+  /* Radius */
+  --radius:           0.9rem;       /* 14.4px — base */
+  --radius-sm:        calc(var(--radius) - 4px);   /* ~10px */
+  --radius-md:        calc(var(--radius) - 2px);   /* ~12px */
+  --radius-lg:        var(--radius);               /* ~14px — rounded-xl */
+  --radius-xl:        calc(var(--radius) + 4px);   /* ~18px — rounded-2xl */
+  --radius-2xl:       calc(var(--radius) + 8px);   /* ~22px — rounded-3xl */
+  --radius-pill:      9999px;
+
+  /* Shadows */
+  --shadow-base:      0 20px 80px rgba(0, 0, 0, 0.55);
+  --shadow-card:      0 18px 70px rgba(0, 0, 0, 0.42);
+  --shadow-glow-red:  0 0 0 1px rgba(188, 74, 63, 0.25), 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 32px rgba(188, 74, 63, 0.25);
+  --shadow-active:    0 0 18px rgba(188, 74, 63, 0.18);
+  --shadow-inset:     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  /* Spacing — matches Tailwind scale */
+  --space-1:  0.25rem;   /* 4px */
+  --space-2:  0.5rem;    /* 8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.25rem;   /* 20px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+
+  /* Typography — Fonts */
+  --font-display:    'Cinzel', 'Georgia', 'Cambria', ui-serif, serif;
+  --font-body:       'DM Sans', 'Geist Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:       'JetBrains Mono', 'Geist Mono', ui-monospace, 'Courier New', monospace;
+
+  /* Typography — Scale */
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg:   1.125rem;   /* 18px */
+  --text-xl:   1.25rem;    /* 20px */
+  --text-2xl:  1.5rem;     /* 24px */
+  --text-3xl:  1.875rem;   /* 30px */
+  --text-4xl:  2.25rem;    /* 36px */
+  --text-5xl:  3rem;       /* 48px */
+  --text-6xl:  3.75rem;    /* 60px */
+  --text-7xl:  4.5rem;     /* 72px */
+
+  /* Typography — Line heights */
+  --leading-tight:  0.95;
+  --leading-snug:   1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed:1.625;
+
+  /* Typography — Letter spacing */
+  --tracking-tight:    -0.02em;
+  --tracking-normal:    0;
+  --tracking-wide:      0.02em;   /* h1/h2/h3 base */
+  --tracking-wider:     0.05em;
+  --tracking-widest:    0.14em;   /* brand mark */
+  --tracking-eyebrow:   0.22em;   /* section-eyebrow */
+}
+
+/* ─── Semantic Type Styles ─────────────────────────────────────────────────── */
+
+/* Display heading — hero titles, section majors */
+.t20-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+/* Section heading */
+.t20-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+/* Module / card heading */
+.t20-h3 {
+  font-family: var(--font-body);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+/* Body copy */
+.t20-body {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: var(--leading-normal);
+  color: var(--muted-foreground);
+}
+
+/* Body emphasized */
+.t20-body-em {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: var(--leading-normal);
+  color: var(--foreground);
+}
+
+/* Section eyebrow — above section titles */
+.t20-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--t20-gold-warm);
+}
+
+/* Label / nav item */
+.t20-label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted-foreground);
+}
+
+/* Brand mark */
+.t20-brand {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+/* Code / terminal */
+.t20-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: var(--leading-relaxed);
+  color: var(--foreground);
+}
+
+/* ─── Component Utilities ──────────────────────────────────────────────────── */
+
+/* Chrome panel — sidebar info blocks, major cards */
+.chrome-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(160deg, rgba(255, 250, 244, 0.045), rgba(255, 255, 255, 0.02) 40%, rgba(188, 74, 63, 0.06) 100%),
+    linear-gradient(145deg, rgba(188, 74, 63, 0.08), transparent 42%, rgba(192, 149, 71, 0.1) 100%);
+  box-shadow: var(--shadow-base);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Cinematic frame — content cards, priority blocks */
+.cinematic-frame {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(15, 14, 20, 0.9) 0%, rgba(10, 10, 16, 0.86) 100%),
+    radial-gradient(circle at top left, rgba(188, 74, 63, 0.12), transparent 36%);
+  box-shadow: var(--shadow-inset), var(--shadow-card);
+}
+
+/* Glow ring — active/focus states */
+.glow-ring {
+  box-shadow: var(--shadow-glow-red);
+}
+
+/* Section eyebrow utility (matches .section-eyebrow in globals.css) */
+.section-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--t20-gold-warm);
+}
+
+/* ─── Body reset (for standalone HTML files) ───────────────────────────────── */
+.t20-body-reset {
+  background-color: var(--t20-black);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(188, 74, 63, 0.18), transparent 32%),
+    radial-gradient(circle at 78% 12%, rgba(182, 143, 71, 0.18), transparent 24%),
+    radial-gradient(circle at 72% 68%, rgba(58, 95, 136, 0.16), transparent 28%);
+}

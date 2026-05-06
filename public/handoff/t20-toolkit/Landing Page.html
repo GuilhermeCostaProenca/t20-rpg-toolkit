@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>T20 OS — Construa mundos. Comande histórias.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #06070c;
+    --red:        #bc4a3f;
+    --red-deep:   #6b1220;
+    --gold:       #d5a240;
+    --gold-warm:  rgba(245,221,177,0.78);
+    --parchment:  #f4efe7;
+    --muted:      #b5aea4;
+    --border:     rgba(255,255,255,0.08);
+    --font-d:     'Cinzel', Georgia, serif;
+    --font-b:     'DM Sans', sans-serif;
+    --font-m:     'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--parchment);
+    font-family: var(--font-b);
+    overflow-x: hidden;
+  }
+
+  /* ─── GRAIN OVERLAY ─────────────────────────────── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    background-image: repeating-linear-gradient(
+      47deg,
+      rgba(255,255,255,0.015) 0px, transparent 1px,
+      transparent 4px, rgba(255,255,255,0.01) 5px
+    );
+    opacity: 0.55;
+  }
+
+  /* ─── NAV ────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 16px; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: center;
+  }
+  .nav-pill {
+    width: min(1100px, calc(100vw - 32px));
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: linear-gradient(140deg, rgba(7,10,18,0.88), rgba(9,15,30,0.76));
+    backdrop-filter: blur(24px);
+    transition: border-color 0.3s;
+  }
+  .nav-brand {
+    font-family: var(--font-b); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase; color: #fff;
+  }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-links a {
+    font-size: 12px; color: rgba(255,255,255,0.65); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: #fff; }
+  .nav-cta {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; font-family: var(--font-b); font-size: 12px; font-weight: 600;
+    padding: 7px 18px; border-radius: 12px; cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .nav-cta:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+  .nav-pill > a.nav-cta[href^="https://github.com"] { display: none; }
+
+  /* ─── HERO ───────────────────────────────────────── */
+  #hero {
+    position: relative; min-height: 100vh; overflow: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  /* Map */
+  .hero-map {
+    position: absolute; inset: 0;
+    background: url('assets/arton-map.jpg') center/cover no-repeat;
+    opacity: 0.12;
+    filter: saturate(0.8) contrast(1.2) brightness(0.6);
+  }
+
+  /* Ambient gradient */
+  .hero-ambient {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(188,74,63,0.22), transparent 55%),
+      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(107,18,32,0.18), transparent 50%),
+      radial-gradient(ellipse 50% 40% at 80% 70%, rgba(58,40,8,0.22), transparent 48%),
+      linear-gradient(180deg, rgba(6,7,12,0) 0%, rgba(6,7,12,0.7) 60%, #06070c 100%);
+  }
+
+  /* Mist blobs */
+  .mist { position: absolute; inset: 0; pointer-events: none; }
+  .mist-blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(80px); opacity: 0;
+    animation: mistDrift linear infinite;
+  }
+  .mist-blob:nth-child(1) {
+    width: 600px; height: 300px; left: -100px; top: 30%;
+    background: radial-gradient(ellipse, rgba(188,74,63,0.12), transparent 70%);
+    animation-duration: 18s; animation-delay: 0s;
+  }
+  .mist-blob:nth-child(2) {
+    width: 500px; height: 250px; right: -80px; top: 50%;
+    background: radial-gradient(ellipse, rgba(213,162,64,0.09), transparent 70%);
+    animation-duration: 22s; animation-delay: -7s;
+  }
+  .mist-blob:nth-child(3) {
+    width: 700px; height: 200px; left: 10%; bottom: 20%;
+    background: radial-gradient(ellipse, rgba(100,60,20,0.1), transparent 70%);
+    animation-duration: 28s; animation-delay: -14s;
+  }
+  .mist-blob:nth-child(4) {
+    width: 400px; height: 400px; left: 40%; top: 20%;
+    background: radial-gradient(circle, rgba(188,74,63,0.07), transparent 65%);
+    animation-duration: 15s; animation-delay: -5s;
+  }
+
+  @keyframes mistDrift {
+    0%   { opacity: 0;    transform: translateX(0) translateY(0) scale(1); }
+    15%  { opacity: 1; }
+    50%  { transform: translateX(40px) translateY(-20px) scale(1.08); }
+    85%  { opacity: 1; }
+    100% { opacity: 0;    transform: translateX(-20px) translateY(10px) scale(0.95); }
+  }
+
+  /* Hero content */
+  .hero-content {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 120px 24px 80px; text-align: center;
+    max-width: 1100px; width: 100%;
+  }
+
+  /* D20 */
+  .d20-wrap {
+    position: relative; margin-bottom: 48px;
+    animation: d20Float 4s ease-in-out infinite;
+  }
+  @keyframes d20Float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-12px); }
+  }
+  .d20-glow {
+    position: absolute; inset: -40px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(188,74,63,0.35) 0%, rgba(188,74,63,0.12) 40%, transparent 70%);
+    animation: glowPulse 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .d20-glow-outer {
+    position: absolute; inset: -80px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(213,162,64,0.12) 0%, transparent 65%);
+    animation: glowPulse 3s ease-in-out infinite reverse;
+    pointer-events: none;
+  }
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50%       { opacity: 1;   transform: scale(1.12); }
+  }
+
+  .d20-svg { position: relative; z-index: 1; display: block; }
+
+  /* Eyebrow */
+  .hero-eyebrow {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-warm);
+    margin-bottom: 20px;
+    opacity: 0; animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  /* Title */
+  .hero-title {
+    font-family: var(--font-d);
+    font-size: clamp(2.8rem, 7vw, 7rem);
+    font-weight: 900; line-height: 0.92;
+    letter-spacing: 0.02em; text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0 80px rgba(188,74,63,0.4), 0 2px 0 rgba(0,0,0,0.8);
+    margin-bottom: 28px;
+    opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
+  }
+  .hero-title em {
+    font-style: normal;
+    background: linear-gradient(135deg, #f4efe7, #d5a240 60%, #bc4a3f);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Sub */
+  .hero-sub {
+    font-size: clamp(14px, 1.5vw, 18px); color: rgba(255,255,255,0.6);
+    line-height: 1.65; max-width: 520px; margin: 0 auto 40px;
+    opacity: 0; animation: fadeUp 0.7s 0.5s forwards;
+  }
+
+  /* CTA buttons */
+  .hero-actions {
+    display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+    opacity: 0; animation: fadeUp 0.7s 0.65s forwards;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--red); border: none; color: #fff9f2;
+    font-family: var(--font-m); font-size: 13px; font-weight: 600;
+    padding: 14px 28px; border-radius: 14px; cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(188,74,63,0.4), 0 12px 40px rgba(188,74,63,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px rgba(188,74,63,0.5), 0 18px 50px rgba(188,74,63,0.45);
+  }
+  .btn-primary .icon { font-size: 16px; }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.85); font-family: var(--font-b);
+    font-size: 13px; font-weight: 600;
+    padding: 14px 28px; border-radius: 14px; cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    text-decoration: none;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 10px; letter-spacing: 0.18em; color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    animation: fadeIn 1s 1.5s both;
+  }
+  .scroll-arrow {
+    width: 1px; height: 40px;
+    background: linear-gradient(180deg, rgba(188,74,63,0.6), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50%       { opacity: 1;   transform: scaleY(1.2); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ─── DEMO SECTION ────────────────────────────────── */
+  #demo {
+    position: relative; padding: 120px 24px;
+    display: flex; justify-content: center;
+    overflow: hidden;
+  }
+  #demo::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 50%, rgba(188,74,63,0.08), transparent 60%),
+      linear-gradient(180deg, #06070c 0%, rgba(10,8,14,1) 50%, #06070c 100%);
+  }
+
+  .demo-inner {
+    position: relative; z-index: 1;
+    width: min(900px, 100%);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center;
+  }
+
+  /* Left: Roll display */
+  .roll-arena {
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+    padding: 48px 32px;
+    border: 1px solid rgba(255,255,255,0.07); border-radius: 24px;
+    background: linear-gradient(160deg, rgba(15,14,20,0.92), rgba(8,7,12,0.88));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 80px rgba(0,0,0,0.55);
+    position: relative; overflow: hidden;
+  }
+  .roll-arena::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(188,74,63,0.12), transparent 50%);
+  }
+
+  .roll-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-warm);
+  }
+
+  /* Big rolling die */
+  .die-display {
+    position: relative;
+    width: 140px; height: 140px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .die-ring {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 2px solid rgba(188,74,63,0.3);
+    animation: ringRotate 8s linear infinite;
+  }
+  .die-ring::after {
+    content: ''; position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 8px; border-radius: 50%; background: var(--red);
+    box-shadow: 0 0 12px var(--red);
+  }
+  @keyframes ringRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .die-face {
+    width: 112px; height: 112px;
+    position: relative; z-index: 1;
+    overflow: visible;
+    filter: drop-shadow(0 0 28px rgba(188,74,63,0.32)) drop-shadow(0 18px 26px rgba(0,0,0,0.45));
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: filter 0.3s;
+  }
+  .die-face.critical {
+    filter: drop-shadow(0 0 22px rgba(213,162,64,0.65)) drop-shadow(0 0 70px rgba(188,74,63,0.45)) drop-shadow(0 18px 26px rgba(0,0,0,0.48));
+  }
+  .die-face.critical .d20-outline,
+  .die-face.critical .d20-edge {
+    stroke: rgba(213,162,64,0.78);
+  }
+  .die-face.critical .d20-core {
+    fill: rgba(213,162,64,0.14);
+  }
+  .die-number {
+    font-family: var(--font-d); font-size: 44px; font-weight: 900;
+    fill: #fff; line-height: 1;
+    text-shadow: 0 0 20px rgba(188,74,63,0.6);
+    transition: color 0.2s;
+    user-select: none;
+    pointer-events: none;
+  }
+  .die-number.critical-num {
+    fill: #d5a240;
+  }
+  .die-label {
+    font-size: 10px; color: rgba(255,255,255,0.35);
+    letter-spacing: 0.12em; text-transform: uppercase;
+    font-family: var(--font-m);
+  }
+
+  .roll-result {
+    text-align: center; min-height: 52px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .result-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; padding: 4px 14px; border-radius: 999px;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .result-tag.show { opacity: 1; }
+  .result-tag.success {
+    background: rgba(213,162,64,0.15); border: 1px solid rgba(213,162,64,0.4);
+    color: #d5a240;
+  }
+  .result-tag.fail {
+    background: rgba(188,74,63,0.12); border: 1px solid rgba(188,74,63,0.3);
+    color: #bc4a3f;
+  }
+  .result-desc {
+    font-size: 12px; color: rgba(255,255,255,0.5);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .result-desc.show { opacity: 1; }
+
+  .roll-btn {
+    background: var(--red); border: none; color: #fff9f2;
+    font-family: var(--font-b); font-size: 13px; font-weight: 700;
+    padding: 12px 32px; border-radius: 12px; cursor: pointer;
+    box-shadow: 0 8px 28px rgba(188,74,63,0.35);
+    transition: transform 0.15s, box-shadow 0.2s;
+    position: relative; z-index: 1;
+    letter-spacing: 0.04em;
+  }
+  .roll-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(188,74,63,0.5); }
+  .roll-btn:active { transform: translateY(0); }
+  .roll-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Right: Character card */
+  .char-card {
+    border: 1px solid rgba(255,255,255,0.07); border-radius: 24px;
+    background: linear-gradient(160deg, rgba(15,14,20,0.92), rgba(8,7,12,0.88));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 80px rgba(0,0,0,0.55);
+    overflow: hidden;
+  }
+  .char-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(135deg, rgba(188,74,63,0.1), transparent 50%);
+  }
+  .char-class-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--gold-warm);
+    margin-bottom: 8px;
+  }
+  .char-class-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--gold); box-shadow: 0 0 6px var(--gold);
+  }
+  .char-name {
+    font-family: var(--font-d); font-size: 20px; font-weight: 700;
+    color: #fff; letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+  .char-desc {
+    font-size: 11px; color: var(--muted);
+  }
+
+  .char-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* HP bar */
+  .stat-row { display: flex; flex-direction: column; gap: 6px; }
+  .stat-label-row { display: flex; justify-content: space-between; align-items: center; }
+  .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+  .stat-value { font-family: var(--font-m); font-size: 12px; color: #fff; }
+  .stat-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .stat-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.2,0.65,0.3,0.9); }
+  .fill-hp   { background: linear-gradient(90deg, #bc4a3f, #e24545); box-shadow: 0 0 8px rgba(188,74,63,0.5); }
+  .fill-mana { background: linear-gradient(90deg, #4b9f91, #67e8b8); box-shadow: 0 0 8px rgba(75,159,145,0.4); }
+  .fill-xp   { background: linear-gradient(90deg, #d5a240, #f6ae2d); box-shadow: 0 0 8px rgba(213,162,64,0.4); }
+
+  /* Attribute grid */
+  .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .attr-cell {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 10px 6px; border-radius: 10px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .attr-cell.highlighted {
+    border-color: rgba(213,162,64,0.35); background: rgba(213,162,64,0.06);
+  }
+  .attr-abbr { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+  .attr-val  { font-family: var(--font-d); font-size: 20px; font-weight: 700; color: #fff; line-height: 1; }
+  .attr-mod  { font-family: var(--font-m); font-size: 10px; color: var(--muted); }
+
+  /* Roll effect burst */
+  .burst {
+    position: fixed; pointer-events: none;
+    width: 4px; height: 4px; border-radius: 50%;
+    animation: burstAnim 0.6s forwards;
+    z-index: 200;
+  }
+  @keyframes burstAnim {
+    0%   { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
+  }
+
+  /* ─── INSTALL SECTION ─────────────────────────────── */
+  #install {
+    padding: 100px 24px 120px;
+    display: flex; flex-direction: column; align-items: center; gap: 40px;
+    position: relative;
+  }
+  #install::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 50% 60% at 50% 0%, rgba(107,18,32,0.12), transparent 55%),
+      radial-gradient(ellipse 40% 40% at 30% 100%, rgba(213,162,64,0.06), transparent 50%);
+  }
+
+  .install-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-warm);
+    position: relative;
+  }
+  .install-title {
+    font-family: var(--font-d);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 900; line-height: 1; letter-spacing: 0.04em;
+    text-transform: uppercase; color: #fff; text-align: center;
+    position: relative;
+    text-shadow: 0 0 60px rgba(188,74,63,0.3);
+  }
+
+  /* Terminal block */
+  .terminal {
+    width: min(600px, 100%);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(188,74,63,0.1);
+    position: relative;
+  }
+  .terminal-bar {
+    display: flex; align-items: center; gap: 7px;
+    padding: 12px 16px;
+    background: rgba(15,14,20,0.95); border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .term-dot:nth-child(1) { background: #ff5f56; }
+  .term-dot:nth-child(2) { background: #ffbd2e; }
+  .term-dot:nth-child(3) { background: #27c93f; }
+  .terminal-body {
+    padding: 20px 24px 24px;
+    background: rgba(8,8,13,0.98);
+  }
+  .term-line {
+    font-family: var(--font-m); font-size: 14px; color: rgba(255,255,255,0.55);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+  }
+  .term-prompt { color: var(--red); font-weight: 600; }
+  .term-cmd { color: #fff; }
+  .term-comment { color: rgba(255,255,255,0.3); font-size: 12px; }
+  .term-output { color: rgba(75,159,145,0.9); }
+  .term-success { color: rgba(213,162,64,0.9); }
+  .cursor {
+    display: inline-block; width: 8px; height: 14px;
+    background: var(--red); vertical-align: middle; margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute; top: 48px; right: 16px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.5); font-family: var(--font-m); font-size: 10px;
+    padding: 5px 10px; border-radius: 8px; cursor: pointer;
+    transition: all 0.2s; letter-spacing: 0.06em;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .copy-btn.copied { color: #27c93f; border-color: rgba(39,201,63,0.3); }
+
+  /* GitHub CTA */
+  .github-cta {
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    position: relative;
+  }
+  .github-btn {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16);
+    color: rgba(255,255,255,0.85); font-family: var(--font-b); font-size: 14px; font-weight: 600;
+    padding: 14px 32px; border-radius: 14px; cursor: pointer; text-decoration: none;
+    transition: background 0.2s, transform 0.2s, border-color 0.2s;
+  }
+  .github-btn:hover {
+    background: rgba(255,255,255,0.1); transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.28);
+  }
+  .github-btn svg { opacity: 0.8; }
+  .github-note { font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 0.06em; }
+
+  /* Divider */
+  .divider {
+    width: min(800px, 90%); height: 1px; margin: 0 auto;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06) 30%, rgba(188,74,63,0.15) 50%, rgba(255,255,255,0.06) 70%, transparent);
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 24px;
+    display: flex; justify-content: center;
+  }
+  .footer-inner {
+    width: min(1100px,100%); display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 12px;
+    font-size: 11px; color: rgba(255,255,255,0.3);
+  }
+  .footer-inner a { color: inherit; text-decoration: none; }
+  .footer-inner a:hover { color: rgba(255,255,255,0.6); }
+
+  /* ─── RESPONSIVE ──────────────────────────────────── */
+  @media (max-width: 680px) {
+    .demo-inner { grid-template-columns: 1fr; }
+    .char-card  { display: none; }
+    .nav-links  { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-pill">
+    <span class="nav-brand">T20 OS</span>
+    <div class="nav-links">
+      <a href="#demo">Demo</a>
+      <a href="#install">Instalar</a>
+      <a href="Hub.html">Hub</a>
+    </div>
+    <button class="nav-cta" type="button" onclick="transitionToHandoff('Hub.html','Hub do Mestre')">Entrar no hub</button>
+    <a href="https://github.com/GuilhermeCostaProenca/t20-rpg-toolkit" target="_blank" class="nav-cta">GitHub →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-map"></div>
+  <div class="hero-ambient"></div>
+  <div class="mist">
+    <div class="mist-blob"></div>
+    <div class="mist-blob"></div>
+    <div class="mist-blob"></div>
+    <div class="mist-blob"></div>
+  </div>
+
+  <div class="hero-content">
+    <!-- D20 -->
+    <div class="d20-wrap">
+      <div class="d20-glow-outer"></div>
+      <div class="d20-glow"></div>
+      <svg class="d20-svg" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Outer glow filter -->
+        <defs>
+          <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow2" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <linearGradient id="faceGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="rgba(30,26,38,1)"/>
+            <stop offset="100%" stop-color="rgba(15,13,20,1)"/>
+          </linearGradient>
+        </defs>
+        <!-- d20 shape: regular polygon + inner lines -->
+        <!-- Outer polygon (icosahedron silhouette) -->
+        <polygon
+          points="50,4 94,28 94,72 50,96 6,72 6,28"
+          fill="url(#faceGrad)"
+          stroke="rgba(188,74,63,0.7)" stroke-width="1.5"
+          filter="url(#glow)"
+        />
+        <!-- Inner triangle lines -->
+        <polygon
+          points="50,18 82,62 18,62"
+          fill="none"
+          stroke="rgba(188,74,63,0.3)" stroke-width="1"
+        />
+        <!-- Top lines -->
+        <line x1="50" y1="4"  x2="50" y2="18"  stroke="rgba(188,74,63,0.2)" stroke-width="1"/>
+        <line x1="94" y1="28" x2="82" y2="62"  stroke="rgba(188,74,63,0.2)" stroke-width="1"/>
+        <line x1="94" y1="72" x2="82" y2="62"  stroke="rgba(188,74,63,0.2)" stroke-width="1"/>
+        <line x1="6"  y1="72" x2="18" y2="62"  stroke="rgba(188,74,63,0.2)" stroke-width="1"/>
+        <line x1="6"  y1="28" x2="18" y2="62"  stroke="rgba(188,74,63,0.2)" stroke-width="1"/>
+        <!-- 20 text -->
+        <text x="50" y="47" text-anchor="middle" dominant-baseline="middle"
+          font-family="'Cinzel',serif" font-size="22" font-weight="900"
+          fill="#f4efe7" filter="url(#glow2)"
+          letter-spacing="1">20</text>
+        <!-- Shine top-left -->
+        <ellipse cx="32" cy="22" rx="8" ry="4" fill="rgba(255,255,255,0.06)" transform="rotate(-30 32 22)"/>
+      </svg>
+    </div>
+
+    <div class="hero-eyebrow">Sistema operacional para mestres Tormenta 20</div>
+
+    <h1 class="hero-title">
+      Construa <em>mundos.</em><br/>Comande histórias.
+    </h1>
+
+    <p class="hero-sub">
+      Do worldbuilding à mesa ao vivo — um cockpit contínuo para mestres que levam a campanha a sério.
+    </p>
+
+    <div class="hero-actions">
+      <a href="Hub.html" class="btn-primary" onclick="event.preventDefault(); transitionToHandoff('Hub.html','Hub do Mestre')">
+        <span>Entrar no hub</span>
+      </a>
+      <a href="#demo" class="btn-ghost">Ver demo ao vivo</a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Rolar</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="demo-inner">
+
+    <!-- Roll arena -->
+    <div class="roll-arena">
+      <div class="roll-eyebrow">Rolagem ao vivo</div>
+
+      <div class="die-display">
+        <div class="die-ring" id="dieRing"></div>
+        <svg class="die-face" id="dieFace" viewBox="0 0 100 100" role="img" aria-label="Dado d20">
+          <defs>
+            <linearGradient id="d20Outer" x1="12" y1="8" x2="88" y2="96" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#332632"/>
+              <stop offset="0.42" stop-color="#17131e"/>
+              <stop offset="1" stop-color="#08070d"/>
+            </linearGradient>
+            <linearGradient id="d20FacetA" x1="20" y1="12" x2="70" y2="88" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="rgba(244,239,231,0.16)"/>
+              <stop offset="1" stop-color="rgba(188,74,63,0.05)"/>
+            </linearGradient>
+            <linearGradient id="d20FacetB" x1="78" y1="18" x2="18" y2="86" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="rgba(188,74,63,0.22)"/>
+              <stop offset="1" stop-color="rgba(6,7,12,0.34)"/>
+            </linearGradient>
+          </defs>
+          <polygon class="d20-outline" points="50,4 84,18 98,52 82,84 50,98 18,84 2,52 16,18" fill="url(#d20Outer)" stroke="rgba(188,74,63,0.66)" stroke-width="1.2"/>
+          <polygon points="50,4 84,18 64,40 36,40 16,18" fill="url(#d20FacetA)" opacity="0.9"/>
+          <polygon points="84,18 98,52 68,56 64,40" fill="url(#d20FacetB)" opacity="0.88"/>
+          <polygon points="98,52 82,84 62,70 68,56" fill="rgba(188,74,63,0.12)"/>
+          <polygon points="82,84 50,98 50,72 62,70" fill="rgba(244,239,231,0.05)"/>
+          <polygon points="50,98 18,84 38,70 50,72" fill="rgba(6,7,12,0.32)"/>
+          <polygon points="18,84 2,52 32,56 38,70" fill="rgba(188,74,63,0.08)"/>
+          <polygon points="2,52 16,18 36,40 32,56" fill="rgba(244,239,231,0.08)"/>
+          <polygon class="d20-core" points="36,40 64,40 68,56 62,70 50,72 38,70 32,56" fill="rgba(6,7,12,0.48)" stroke="rgba(244,239,231,0.14)" stroke-width="0.7"/>
+          <path class="d20-edge" d="M50 4 50 72M16 18l20 22M84 18 64 40M2 52l30 4M98 52l-30 4M18 84l20-14M82 84 62 70M50 98V72M36 40l-4 16 6 14 12 2 12-2 6-14-4-16H36Z" fill="none" stroke="rgba(188,74,63,0.34)" stroke-width="0.8"/>
+          <text class="die-number" id="dieNumber" x="50" y="59" text-anchor="middle" dominant-baseline="middle">20</text>
+        </svg>
+      </div>
+      <div class="die-label">d20</div>
+
+      <div class="roll-result">
+        <span class="result-tag success show" id="resultTag">Crítico</span>
+        <span class="result-desc show" id="resultDesc">Ataque certeiro — dano máximo</span>
+      </div>
+
+      <button class="roll-btn" id="rollBtn" onclick="rollDice()">Rolar d20</button>
+    </div>
+
+    <!-- Character card -->
+    <div class="char-card">
+      <div class="char-header">
+        <div class="char-class-badge">
+          <div class="char-class-dot"></div>
+          Guerreiro · Nível 8
+        </div>
+        <div class="char-name">Kaelindra</div>
+        <div class="char-desc">Ordem dos Cavaleiros de Valkaria</div>
+      </div>
+      <div class="char-body">
+        <div class="stat-row">
+          <div class="stat-label-row">
+            <span class="stat-label">Pontos de Vida</span>
+            <span class="stat-value" id="hpVal">72 / 88</span>
+          </div>
+          <div class="stat-bar"><div class="stat-fill fill-hp" id="hpBar" style="width:82%"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label-row">
+            <span class="stat-label">Mana</span>
+            <span class="stat-value">14 / 20</span>
+          </div>
+          <div class="stat-bar"><div class="stat-fill fill-mana" style="width:70%"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label-row">
+            <span class="stat-label">Experiência</span>
+            <span class="stat-value">12.400 XP</span>
+          </div>
+          <div class="stat-bar"><div class="stat-fill fill-xp" style="width:55%"></div></div>
+        </div>
+
+        <div class="attr-grid" id="attrGrid">
+          <div class="attr-cell" data-attr="FOR">
+            <span class="attr-abbr">FOR</span>
+            <span class="attr-val">18</span>
+            <span class="attr-mod">+4</span>
+          </div>
+          <div class="attr-cell" data-attr="DES">
+            <span class="attr-abbr">DES</span>
+            <span class="attr-val">14</span>
+            <span class="attr-mod">+2</span>
+          </div>
+          <div class="attr-cell" data-attr="CON">
+            <span class="attr-abbr">CON</span>
+            <span class="attr-val">16</span>
+            <span class="attr-mod">+3</span>
+          </div>
+          <div class="attr-cell" data-attr="INT">
+            <span class="attr-abbr">INT</span>
+            <span class="attr-val">10</span>
+            <span class="attr-mod">+0</span>
+          </div>
+          <div class="attr-cell" data-attr="SAB">
+            <span class="attr-abbr">SAB</span>
+            <span class="attr-val">12</span>
+            <span class="attr-mod">+1</span>
+          </div>
+          <div class="attr-cell" data-attr="CAR">
+            <span class="attr-abbr">CAR</span>
+            <span class="attr-val">8</span>
+            <span class="attr-mod">-1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- INSTALL -->
+<section id="install">
+  <div class="install-eyebrow">Comece agora</div>
+  <h2 class="install-title">Um comando.<br/>O mundo inteiro.</h2>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="term-dot"></div>
+      <div class="term-dot"></div>
+      <div class="term-dot"></div>
+    </div>
+    <div class="terminal-body">
+      <div class="term-line">
+        <span class="term-prompt">~</span>
+        <span class="term-comment"># instalar o toolkit</span>
+      </div>
+      <div class="term-line">
+        <span class="term-prompt">$</span>
+        <span class="term-cmd">npm install t20-rpg-toolkit</span>
+      </div>
+      <div class="term-line" style="margin-top:8px">
+        <span class="term-output">✔ Dependências instaladas</span>
+      </div>
+      <div class="term-line">
+        <span class="term-output">✔ Prisma schema sincronizado</span>
+      </div>
+      <div class="term-line">
+        <span class="term-success">⚡ Cockpit pronto — porta 3000</span>
+        <span class="cursor"></span>
+      </div>
+    </div>
+    <button class="copy-btn" id="copyBtn" onclick="copyCommand()">copiar</button>
+  </div>
+
+  <div class="github-cta">
+    <a href="https://github.com/GuilhermeCostaProenca/t20-rpg-toolkit" target="_blank" class="github-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+      </svg>
+      Ver no GitHub
+    </a>
+    <span class="github-note">Open source · MIT License</span>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <span>T20 OS · Tormenta 20 RPG Toolkit · <a href="https://github.com/GuilhermeCostaProenca">@GuilhermeCostaProenca</a></span>
+    <span>Feito para mestres que constroem mundos</span>
+  </div>
+</footer>
+
+<script src="handoff-navigation.js"></script>
+<script>
+  /* ─── DICE ROLL ─────────────────────────────────── */
+  let rolling = false;
+
+  function rollDice() {
+    if (rolling) return;
+    rolling = true;
+
+    const btn      = document.getElementById('rollBtn');
+    const face     = document.getElementById('dieFace');
+    const num      = document.getElementById('dieNumber');
+    const tag      = document.getElementById('resultTag');
+    const desc     = document.getElementById('resultDesc');
+    const ring     = document.getElementById('dieRing');
+    const attrs    = document.querySelectorAll('.attr-cell');
+
+    btn.disabled = true;
+    tag.classList.remove('show');
+    desc.classList.remove('show');
+    face.classList.remove('critical');
+    num.classList.remove('critical-num');
+    face.style.animation = 'none';
+
+    // Shake animation
+    face.style.animation = 'dieShake 0.5s ease-in-out';
+    ring.style.animationDuration = '0.4s';
+
+    const final = Math.floor(Math.random() * 20) + 1;
+    let count = 0;
+    const total = 18;
+    const interval = setInterval(() => {
+      const fake = Math.floor(Math.random() * 20) + 1;
+      num.textContent = fake;
+      count++;
+      if (count >= total) {
+        clearInterval(interval);
+        num.textContent = final;
+        ring.style.animationDuration = '8s';
+
+        // Result
+        if (final === 20) {
+          face.classList.add('critical');
+          num.classList.add('critical-num');
+          tag.className = 'result-tag success show';
+          tag.textContent = 'Crítico!';
+          desc.textContent = 'Rolagem natural 20 — acerto perfeito';
+          spawnBurst(face);
+        } else if (final >= 15) {
+          tag.className = 'result-tag success show';
+          tag.textContent = 'Sucesso';
+          desc.textContent = `Resultado: ${final} — ataque conecta`;
+        } else if (final >= 8) {
+          tag.className = 'result-tag show';
+          tag.style.background = 'rgba(255,255,255,0.06)';
+          tag.style.border = '1px solid rgba(255,255,255,0.12)';
+          tag.style.color = 'rgba(255,255,255,0.55)';
+          tag.textContent = 'Parcial';
+          desc.textContent = `Resultado: ${final} — ataque fraco`;
+        } else {
+          tag.className = 'result-tag fail show';
+          tag.textContent = 'Falha';
+          desc.textContent = `Resultado: ${final} — ataque errado`;
+        }
+        desc.classList.add('show');
+
+        // Highlight matching attr
+        attrs.forEach(a => a.classList.remove('highlighted'));
+        if (final >= 15) {
+          const forAttr = document.querySelector('[data-attr="FOR"]');
+          if (forAttr) forAttr.classList.add('highlighted');
+        }
+
+        setTimeout(() => {
+          rolling = false;
+          btn.disabled = false;
+          face.style.animation = '';
+        }, 400);
+      }
+    }, 40);
+  }
+
+  function spawnBurst(el) {
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height / 2;
+    const colors = ['#bc4a3f','#d5a240','#f4efe7','#e24545','#f6ae2d'];
+    for (let i = 0; i < 16; i++) {
+      const b = document.createElement('div');
+      b.className = 'burst';
+      const angle = (i / 16) * Math.PI * 2;
+      const dist  = 40 + Math.random() * 60;
+      b.style.cssText = `
+        left:${cx}px; top:${cy}px;
+        background:${colors[i % colors.length]};
+        --tx:${Math.cos(angle)*dist}px;
+        --ty:${Math.sin(angle)*dist}px;
+        box-shadow: 0 0 6px ${colors[i % colors.length]};
+        width:${3+Math.random()*4}px;
+        height:${3+Math.random()*4}px;
+      `;
+      document.body.appendChild(b);
+      setTimeout(() => b.remove(), 700);
+    }
+  }
+
+  /* ─── COPY COMMAND ───────────────────────────────── */
+  function copyCommand() {
+    navigator.clipboard.writeText('npm install t20-rpg-toolkit').then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = 'copiado!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'copiar';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  /* ─── DIE SHAKE KEYFRAMES ────────────────────────── */
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes dieShake {
+      0%  { transform: rotate(0) scale(1); }
+      15% { transform: rotate(-8deg) scale(1.08); }
+      30% { transform: rotate(6deg)  scale(1.05); }
+      45% { transform: rotate(-4deg) scale(1.1); }
+      60% { transform: rotate(3deg)  scale(1.06); }
+      75% { transform: rotate(-2deg) scale(1.04); }
+      90% { transform: rotate(1deg)  scale(1.02); }
+      100%{ transform: rotate(0) scale(1); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* ─── TWEAKS ─────────────────────────────────────── */
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "accentColor": "#bc4a3f",
+    "titleSize": 7,
+    "mistIntensity": "alta",
+    "showCharCard": true
+  }/*EDITMODE-END*/;
+
+  let tweaksOpen = false;
+
+  function applyTweaks(t) {
+    document.documentElement.style.setProperty('--red', t.accentColor);
+    document.querySelectorAll('.char-card').forEach(el => {
+      el.style.display = t.showCharCard ? '' : 'none';
+    });
+  }
+
+  applyTweaks(TWEAK_DEFAULTS);
+
+  // Tweaks panel
+  const tweakPanel = document.createElement('div');
+  tweakPanel.id = 'tweakPanel';
+  tweakPanel.style.cssText = `
+    position:fixed; bottom:24px; right:24px; z-index:9000;
+    width:240px; border-radius:16px; display:none;
+    border:1px solid rgba(255,255,255,0.1);
+    background:rgba(12,11,18,0.97); backdrop-filter:blur(20px);
+    box-shadow:0 20px 60px rgba(0,0,0,0.7);
+    padding:18px; font-family:'DM Sans',sans-serif;
+  `;
+  tweakPanel.innerHTML = `
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(245,221,177,0.78);margin-bottom:14px">Tweaks</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <label style="display:flex;flex-direction:column;gap:5px">
+        <span style="font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.1em;text-transform:uppercase">Cor de destaque</span>
+        <div style="display:flex;gap:6px">
+          ${['#bc4a3f','#4b9f91','#d5a240','#7b5ea7'].map(c=>`
+            <div onclick="setAccent('${c}')" style="width:24px;height:24px;border-radius:6px;background:${c};cursor:pointer;border:2px solid transparent;transition:border-color 0.15s" data-color="${c}"></div>
+          `).join('')}
+        </div>
+      </label>
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+        <span style="font-size:11px;color:rgba(255,255,255,0.6)">Mostrar ficha</span>
+        <div id="charToggle" onclick="toggleChar()" style="width:36px;height:20px;border-radius:10px;background:rgba(188,74,63,0.8);cursor:pointer;position:relative;transition:background 0.2s">
+          <div style="position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:right 0.2s"></div>
+        </div>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:5px">
+        <span style="font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.1em;text-transform:uppercase">Névoa: <span id="mistLabel">Alta</span></span>
+        <input type="range" min="0" max="2" step="1" value="1" oninput="setMist(this.value)"
+          style="width:100%;accent-color:var(--red)">
+      </label>
+    </div>
+  `;
+  document.body.appendChild(tweakPanel);
+
+  let state = { ...TWEAK_DEFAULTS };
+  let charOn = true;
+
+  function setAccent(c) {
+    state.accentColor = c;
+    document.documentElement.style.setProperty('--red', c);
+    document.querySelectorAll('[data-color]').forEach(el => {
+      el.style.borderColor = el.dataset.color === c ? 'rgba(255,255,255,0.6)' : 'transparent';
+    });
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { accentColor: c } }, '*');
+  }
+
+  function toggleChar() {
+    charOn = !charOn;
+    const t = document.getElementById('charToggle');
+    const dot = t.querySelector('div');
+    t.style.background = charOn ? 'rgba(188,74,63,0.8)' : 'rgba(255,255,255,0.15)';
+    dot.style.right = charOn ? '3px' : '19px';
+    document.querySelectorAll('.char-card').forEach(el => {
+      el.style.display = charOn ? '' : 'none';
+    });
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { showCharCard: charOn } }, '*');
+  }
+
+  const mistLabels = ['Nenhuma','Média','Alta'];
+  function setMist(v) {
+    const opacities = [0, 0.5, 1];
+    document.querySelectorAll('.mist-blob').forEach(b => {
+      b.style.animationPlayState = v == 0 ? 'paused' : 'running';
+      b.style.opacity = v == 0 ? '0' : '';
+    });
+    document.getElementById('mistLabel').textContent = mistLabels[v];
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { mistIntensity: mistLabels[v].toLowerCase() } }, '*');
+  }
+
+  window.addEventListener('message', e => {
+    if (e.data?.type === '__activate_edit_mode')   { tweakPanel.style.display = 'block'; }
+    if (e.data?.type === '__deactivate_edit_mode')  { tweakPanel.style.display = 'none'; }
+  });
+
+  window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+</script>
+
+</body>
+</html>

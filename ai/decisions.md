@@ -326,3 +326,95 @@
   - Positivo: consistencia real do design system em toda camada operacional do front e menor variacao de comportamento entre modulos.
   - Negativo / trade-off: maior acoplamento com componente client para filtros server-side e necessidade de testar querystring com mais cuidado.
 - Plano de revisao: revisar acessibilidade/comportamento de navegacao por teclado nos filtros de biblioteca visual na rodada de QA de Fase 1+2.
+
+### DEC-025: Aplicar handoff de design por recorte de fundacao no shell antes de refatorar modulos
+- Data: 2026-04-23
+- Status: aceita
+- Contexto: o handoff entregue (`T20-toolkit-handoff` + `t20-os-design-system`) trouxe uma linguagem visual mais fechada para tipografia e cockpit, mas uma migracao total em um unico passo aumentaria risco de regressao funcional em modulos maduros.
+- Decisao: executar um recorte de fundacao no shell (`layout/globals/sidebar/topbar/mode switcher`) para absorver o idioma visual do handoff sem alterar contratos de dominio dos modulos.
+- Alternativas consideradas:
+  - tentar migracao visual total de todos os modulos em uma rodada unica;
+  - manter o handoff apenas como referencia e adiar qualquer integracao de codigo.
+- Impacto:
+  - Positivo: acelera convergencia visual com risco controlado e cria base reutilizavel para os proximos recortes de UI.
+  - Negativo / trade-off: alguns modulos internos ainda ficarao em estado intermediario ate o proximo ciclo de refatoracao visual.
+- Plano de revisao: validar em browser real o shell atualizado e derivar `A1-LP6-R2` para aplicar o mesmo acabamento nos workspaces de modulo (world/campaign/codex/forge/mesa).
+
+### DEC-026: Priorizar fidelidade visual da landing ao handoff em componente dedicado
+- Data: 2026-04-23
+- Status: aceita
+- Contexto: a landing implementada anteriormente estava funcional, mas divergente do handoff aprovado (hierarquia tipografica, composicao hero, nav pill e painel de tweaks).
+- Decisao: substituir a landing publica por um componente dedicado (`landing-handoff`) com CSS proprio e estrutura 1:1 ao handoff como contrato visual de curto prazo.
+- Alternativas consideradas:
+  - ajustar incrementalmente a landing modular existente ate aproximar visual;
+  - manter a landing atual e aplicar o handoff apenas no app interno.
+- Impacto:
+  - Positivo: reduz gap visual imediato com o design aprovado e elimina ambiguidade de referencia para refinamentos.
+  - Negativo / trade-off: reduz reuso da composicao modular anterior na landing publica e aumenta area de CSS especializado.
+- Plano de revisao: no proximo ciclo de A1-LP6, avaliar se a superficie dedicada deve ser refatorada para reuso parcial sem perder fidelidade.
+
+### DEC-027: Entregar pagina do mestre em rota publica dedicada (`/mestre`)
+- Data: 2026-04-23
+- Status: aceita
+- Contexto: o CTA principal da landing precisava levar para uma experiencia visual de "pagina do mestre" alinhada ao handoff de cockpit, sem conflitar com o shell funcional existente em `/app`.
+- Decisao: criar rota publica independente (`/mestre`) com layout cockpit dedicado e atualizar o CTA principal da landing para apontar diretamente para essa rota.
+- Alternativas consideradas:
+  - redirecionar CTA para `/app` e adaptar o shell interno existente;
+  - manter o CTA sem destino de produto enquanto a pagina do mestre nao estivesse pronta.
+- Impacto:
+  - Positivo: entrega fluxo imediato de navegacao landing -> cockpit do mestre com visual coerente ao design aprovado.
+  - Negativo / trade-off: introduz superficie paralela de cockpit que ainda nao compartilha comportamento funcional do `/app`.
+- Plano de revisao: decidir no proximo recorte se `/mestre` vira apenas vitrine visual ou se sera convergida tecnicamente com o cockpit funcional.
+
+### DEC-028: Usar o cockpit estatico oficial do handoff em `/mestre`
+- Data: 2026-04-23
+- Status: aceita
+- Contexto: a implementacao React aproximada de `/mestre` nao atingiu paridade visual percebida; o handoff entregue ja inclui cockpit funcional completo em HTML+JSX.
+- Decisao: servir o cockpit oficial diretamente a partir de `public/handoff/cockpit` e embuti-lo em `/mestre` via iframe.
+- Alternativas consideradas:
+  - continuar refinando uma replica React ate atingir parity visual;
+  - redirecionar diretamente para `/app` sem usar o handoff.
+- Impacto:
+  - Positivo: garante equivalencia imediata com o design funcional aprovado.
+  - Negativo / trade-off: cria dependencia de um bundle estatico paralelo (fora do fluxo Next/TypeScript do app interno).
+- Plano de revisao: avaliar convergencia posterior do bundle estatico para componentes internos sem perder fidelity.
+
+### DEC-029: Converter o Codex real para a anatomia do handoff
+- Data: 2026-04-27
+- Status: aceita
+- Contexto: os handoffs do Claude Design ja estavam parcialmente integrados na landing, shell e `/mestre`, mas o app funcional ainda precisava absorver o novo front em superficies reais, nao apenas em iframe/prototipo.
+- Decisao: refatorar `/app/worlds/[id]/codex` para usar a anatomia visual do handoff (`codex-grid`, `codex-detail`, `codex-app`) mantendo dados reais, APIs existentes, formulario de criacao e links para o workspace completo da entidade.
+- Alternativas consideradas:
+  - manter o Codex atual e usar o handoff apenas como referencia visual futura;
+  - servir o Codex do handoff como bundle estatico paralelo;
+  - reescrever tambem o workspace completo da entidade no mesmo recorte.
+- Impacto:
+  - Positivo: inicia a migracao do novo front para produto real, com menor risco do que copiar o prototipo estatico.
+  - Negativo / trade-off: o workspace profundo da entidade ainda permanece no layout anterior e precisa de convergencia posterior.
+- Plano de revisao: aplicar o mesmo criterio em Cockpit do Mundo/Forja e depois decidir o recorte para o workspace `codex/[entityId]`.
+
+### DEC-030: Preservar o novo handoff completo como vitrine navegavel antes da conversao real por modulo
+- Data: 2026-04-30
+- Status: aceita
+- Contexto: o novo pacote `C:\Users\guilh\Downloads\T20-toolkit` enviado pelo Claude Design expandiu o handoff para multiplas telas (Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa), enquanto o produto real ja possui rotas, APIs e fluxos maduros para esses modulos.
+- Decisao: importar o pacote completo para `public/handoff/t20-toolkit`, apontar `/` para a `Landing Page.html` desse bundle e apontar `/mestre` para o `Cockpit.html`, usando o pacote como vitrine fiel e contrato visual de QA. A conversao funcional continua por rotas reais, modulo a modulo, sem substituir dados reais por mocks/localStorage do prototipo.
+- Alternativas consideradas:
+  - copiar diretamente o JSX do handoff para as rotas reais em uma unica rodada;
+  - manter somente o pacote antigo `public/handoff/cockpit`;
+  - ignorar o bundle estatico e usar apenas screenshots como referencia.
+- Motivo: o pacote completo permite comparar rapidamente o visual aprovado e navegar por todos os modulos, mas evita uma regressao grande no app real ao misturar prototipo estatico com contratos de dominio.
+- Impacto: `/` e `/mestre` viram a referencia visual completa do novo front; os proximos recortes devem converter Cockpit do Mundo, Grafo, Visual, Memoria, Forjas e Mesa para componentes internos React/TypeScript usando dados reais.
+- Riscos/observacoes: o bundle estatico usa React 18/Babel via CDN e mocks locais; ele nao deve ser tratado como implementacao final do produto funcional.
+
+### DEC-031: Introduzir Hub cinematografico como entrada operacional do handoff
+- Data: 2026-04-30
+- Status: aceita
+- Contexto: o handoff completo tinha multiplas telas, mas a experiencia ainda ficava fragmentada entre landing, `/mestre` e arquivos estaticos de modulo.
+- Decisao: criar `Hub.html` como entrada operacional do mestre e adicionar `handoff-navigation.js` para transicoes compartilhadas entre Landing, Hub e modulos. `/mestre` passa a abrir o Hub, nao o Cockpit diretamente.
+- Alternativas consideradas:
+  - manter `/mestre` apontando direto ao Cockpit;
+  - criar apenas links simples sem transicao;
+  - converter imediatamente tudo para rotas reais Next/React.
+- Motivo: o Hub materializa a intencao do Claude Design de uma navegacao global cinematografica sem arriscar regressao nos fluxos reais do produto.
+- Impacto: o pacote estatico agora funciona como mini-app navegavel e referencia visual mais completa para a futura conversao dos modulos reais.
+- Riscos/observacoes: continua sendo vitrine estatica com mocks; a implementacao real deve reaproveitar a intencao visual, nao depender do bundle estatico como arquitetura final.

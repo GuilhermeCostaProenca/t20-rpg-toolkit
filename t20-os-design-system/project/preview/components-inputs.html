@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 24px; color: #f4efe7; display: flex; flex-direction: column; gap: 14px; }
+  .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,221,177,0.78); margin-bottom: 6px; }
+  .meta { font-size: 9px; font-family: monospace; color: rgba(213,162,64,0.5); }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 12px; font-weight: 500; color: rgba(244,239,231,0.8); }
+  input, textarea, select { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f4efe7; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 12px; outline: none; transition: border 0.15s, box-shadow 0.15s; width: 280px; }
+  input::placeholder, textarea::placeholder { color: #b5aea4; }
+  input:focus, textarea:focus, select:focus { border-color: rgba(188,74,63,0.5); box-shadow: 0 0 0 3px rgba(188,74,63,0.15); }
+  .input-error { border-color: rgba(222,98,80,0.5) !important; box-shadow: 0 0 0 3px rgba(222,98,80,0.15) !important; }
+  .error-msg { font-size: 11px; color: #de6250; }
+  select option { background: #1a1821; }
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); }
+</style></head><body>
+
+<div class="eyebrow">Inputs</div>
+<div class="field">
+  <label>Nome do mundo</label>
+  <input type="text" placeholder="Ex: Arton, Terra Sombria…">
+  <span class="meta">estado padrão</span>
+</div>
+<div class="field">
+  <label>Nome do personagem</label>
+  <input type="text" value="Serafina Valdris" style="border-color:rgba(188,74,63,0.5); box-shadow: 0 0 0 3px rgba(188,74,63,0.15)">
+  <span class="meta">estado focus</span>
+</div>
+<div class="field">
+  <label>Email</label>
+  <input type="text" value="invalido" class="input-error">
+  <span class="error-msg">Campo inválido</span>
+  <span class="meta">estado error</span>
+</div>
+
+<hr class="divider">
+
+<div class="eyebrow">Select & Textarea</div>
+<div class="field">
+  <label>Sistema de regras</label>
+  <select>
+    <option value="">Selecione…</option>
+    <option selected>Tormenta 20</option>
+    <option>D&D 5e</option>
+  </select>
+</div>
+<div class="field">
+  <label>Descrição</label>
+  <textarea rows="3" placeholder="Contexto do mundo…" style="resize:vertical; width:280px"></textarea>
+</div>
+
+</body></html>
