@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>T20 OS — Hub do Mestre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #06070c;
+    --fg: #f4efe7;
+    --muted: #b5aea4;
+    --red: #bc4a3f;
+    --gold: #d5a240;
+    --teal: #4b9f91;
+    --violet: #9b5de5;
+    --font-d: "Cinzel", Georgia, serif;
+    --font-b: "DM Sans", sans-serif;
+    --font-m: "JetBrains Mono", monospace;
+  }
+  html, body { min-height: 100%; }
+  body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-b);
+    -webkit-font-smoothing: antialiased;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    opacity: .48;
+    background-image: repeating-linear-gradient(47deg, rgba(255,255,255,.012) 0px, transparent 1px, transparent 4px, rgba(255,255,255,.008) 5px);
+  }
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(ellipse 40% 34% at 16% 26%, rgba(188,74,63,.18), transparent 64%),
+      radial-gradient(ellipse 44% 34% at 84% 70%, rgba(75,159,145,.13), transparent 62%),
+      linear-gradient(180deg, rgba(6,7,12,.68), #06070c 82%),
+      url("assets/arton-map.jpg") center/cover no-repeat;
+    filter: saturate(.72) contrast(1.08) brightness(.5);
+  }
+  .mist {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 52% 20% at 14% 78%, rgba(188,74,63,.08), transparent 64%),
+      radial-gradient(ellipse 46% 18% at 76% 18%, rgba(213,162,64,.07), transparent 64%);
+    animation: mistFloat 8s ease-in-out infinite alternate;
+  }
+  @keyframes mistFloat {
+    from { opacity: .72; transform: translate3d(-8px, 0, 0); }
+    to { opacity: 1; transform: translate3d(8px, -6px, 0); }
+  }
+  .page {
+    width: min(1420px, calc(100vw - 28px));
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 18px 0 28px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 14px;
+  }
+  .topbar,
+  .world-console,
+  .module-card,
+  .briefing {
+    border: 1px solid rgba(255,255,255,.08);
+    background: linear-gradient(155deg, rgba(13,12,18,.92), rgba(8,7,12,.82));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 24px 80px rgba(0,0,0,.34);
+    backdrop-filter: blur(18px);
+  }
+  .topbar {
+    min-height: 68px;
+    border-radius: 20px;
+    padding: 13px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    background: linear-gradient(140deg, rgba(7,10,18,.9), rgba(9,15,30,.78));
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 10px;
+    border: 1px solid rgba(188,74,63,.45);
+    background: linear-gradient(135deg, rgba(188,74,63,.95), #6b1220);
+    box-shadow: 0 0 24px rgba(188,74,63,.32);
+    font-size: 11px;
+    font-weight: 900;
+  }
+  .brand-copy span,
+  .eyebrow,
+  .section-label {
+    display: block;
+    color: rgba(245,221,177,.72);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+  }
+  .brand-copy strong {
+    display: block;
+    margin-top: 2px;
+    font-family: var(--font-d);
+    font-size: 16px;
+    letter-spacing: .08em;
+    white-space: nowrap;
+  }
+  .top-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  button, .link-button {
+    font-family: inherit;
+  }
+  .ghost-link,
+  .primary-link,
+  .real-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    border-radius: 12px;
+    padding: 0 15px;
+    border: 1px solid rgba(255,255,255,.12);
+    color: rgba(244,239,231,.82);
+    background: rgba(255,255,255,.045);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .primary-link {
+    color: #fff;
+    border-color: rgba(188,74,63,.42);
+    background: linear-gradient(135deg, rgba(188,74,63,.58), rgba(107,18,32,.72));
+    box-shadow: 0 0 26px rgba(188,74,63,.22);
+  }
+  .real-link {
+    color: rgba(75,159,145,.95);
+    border-color: rgba(75,159,145,.34);
+    background: rgba(75,159,145,.10);
+  }
+  .shell {
+    display: grid;
+    grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+    gap: 14px;
+    min-height: 0;
+  }
+  .world-console {
+    border-radius: 24px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 720px;
+  }
+  .world-hero {
+    min-height: 220px;
+    border-radius: 20px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.08);
+    background:
+      linear-gradient(180deg, rgba(6,7,12,.26), rgba(6,7,12,.88)),
+      url("assets/arton-map.jpg") center/cover no-repeat;
+  }
+  .world-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 24% 20%, rgba(188,74,63,.28), transparent 42%);
+  }
+  .world-hero > * { position: relative; z-index: 1; }
+  .demo-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    border: 1px solid rgba(213,162,64,.28);
+    border-radius: 999px;
+    padding: 6px 10px;
+    color: rgba(213,162,64,.9);
+    background: rgba(213,162,64,.08);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  h1 {
+    margin-top: 16px;
+    font-family: var(--font-d);
+    font-size: clamp(42px, 7vw, 82px);
+    line-height: .88;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .world-hero p,
+  .briefing p,
+  .module-card p,
+  .console-note {
+    color: rgba(244,239,231,.62);
+    font-size: 13px;
+    line-height: 1.62;
+  }
+  .world-hero p {
+    margin-top: 14px;
+    max-width: 320px;
+  }
+  .world-actions {
+    display: grid;
+    gap: 9px;
+  }
+  .world-action {
+    width: 100%;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    color: var(--fg);
+    background: rgba(255,255,255,.035);
+    text-align: left;
+    cursor: pointer;
+  }
+  .world-action strong {
+    display: block;
+    font-size: 13px;
+  }
+  .world-action span {
+    display: block;
+    margin-top: 3px;
+    color: rgba(255,255,255,.4);
+    font-size: 11px;
+  }
+  .world-action i {
+    color: rgba(213,162,64,.82);
+    font-style: normal;
+    font-family: var(--font-m);
+    font-size: 13px;
+  }
+  .briefing {
+    border-radius: 18px;
+    padding: 16px;
+  }
+  .briefing p { margin-top: 10px; font-size: 12px; }
+  .workspace {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 14px;
+  }
+  .headline {
+    min-height: 292px;
+    border-radius: 24px;
+    padding: clamp(26px, 4vw, 48px);
+    border: 1px solid rgba(255,255,255,.08);
+    background:
+      radial-gradient(circle at 80% 18%, rgba(188,74,63,.16), transparent 28%),
+      linear-gradient(155deg, rgba(13,12,18,.88), rgba(8,7,12,.78));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 24px 80px rgba(0,0,0,.32);
+    overflow: hidden;
+  }
+  .headline h2 {
+    max-width: 860px;
+    margin-top: 14px;
+    font-family: var(--font-d);
+    font-size: clamp(34px, 5vw, 68px);
+    line-height: .96;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .headline p {
+    max-width: 720px;
+    margin-top: 16px;
+    color: rgba(244,239,231,.66);
+    font-size: 15px;
+    line-height: 1.72;
+  }
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .module-card {
+    min-height: 210px;
+    border-radius: 20px;
+    padding: 17px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .module-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--accent), white 10%);
+    background: linear-gradient(155deg, color-mix(in srgb, var(--accent), transparent 88%), rgba(8,7,12,.88));
+  }
+  .module-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 82% 10%, color-mix(in srgb, var(--accent), transparent 72%), transparent 34%),
+      linear-gradient(180deg, transparent, rgba(0,0,0,.22));
+  }
+  .module-card > * { position: relative; z-index: 1; }
+  .module-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .module-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    border: 1px solid color-mix(in srgb, var(--accent), white 8%);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent), transparent 84%);
+    font-family: var(--font-d);
+    font-weight: 900;
+    font-size: 15px;
+  }
+  .module-kicker {
+    color: color-mix(in srgb, var(--accent), white 18%);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+  }
+  .module-card h3 {
+    margin-top: 14px;
+    font-family: var(--font-d);
+    font-size: 23px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .module-card p {
+    margin-top: 9px;
+    min-height: 54px;
+    font-size: 12px;
+  }
+  .module-footer {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: rgba(255,255,255,.5);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  .module-footer i {
+    width: 38px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  @media (max-width: 1120px) {
+    .shell { grid-template-columns: 1fr; }
+    .world-console { min-height: auto; }
+    .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 700px) {
+    .page { width: min(100vw - 20px, 1420px); padding-top: 10px; }
+    .topbar { align-items: flex-start; flex-direction: column; }
+    .top-actions { justify-content: flex-start; }
+    .module-grid { grid-template-columns: 1fr; }
+    .headline { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="backdrop"></div>
+<div class="mist"></div>
+
+<main class="page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">T20</div>
+      <div class="brand-copy">
+        <span>Hub do mestre</span>
+        <strong>Navegação world-first</strong>
+      </div>
+    </div>
+    <nav class="top-actions" aria-label="Navegação principal">
+      <button class="ghost-link" type="button" onclick="transitionToHandoff('Landing%20Page.html','Landing')">Voltar para landing</button>
+      <button class="real-link" type="button" onclick="openRealWorlds()">Gerenciar mundos</button>
+      <button class="primary-link" type="button" onclick="transitionToHandoff('cockpit/Cockpit.html','Cockpit demo')">Cockpit demo</button>
+    </nav>
+  </header>
+
+  <section class="shell">
+    <aside class="world-console" aria-label="Console de mundos">
+      <div class="world-hero">
+        <div class="demo-pill">Mundo de demonstração</div>
+        <h1>Arton</h1>
+        <p>Este é só o mundo usado pelo protótipo visual do Claude Design. O produto real continua permitindo múltiplos mundos.</p>
+      </div>
+
+      <div class="world-actions">
+        <button class="world-action" type="button" onclick="openRealWorlds()">
+          <span><strong>Abrir biblioteca de mundos</strong><span>Escolher, criar, arquivar ou continuar um mundo real.</span></span>
+          <i>↗</i>
+        </button>
+        <button class="world-action" type="button" onclick="openRealWorlds()">
+          <span><strong>Criar novo mundo</strong><span>Vai para a tela real onde o fluxo de criação já existe.</span></span>
+          <i>+</i>
+        </button>
+        <button class="world-action" type="button" onclick="transitionToHandoff('cockpit/Cockpit.html','Cockpit demo')">
+          <span><strong>Explorar demo visual</strong><span>Abrir as telas estáticas usando Arton como exemplo.</span></span>
+          <i>20</i>
+        </button>
+      </div>
+
+      <div class="briefing">
+        <span class="section-label">Regra do hub</span>
+        <p>O hub não deve fingir que só existe um mundo. Ele separa claramente a vitrine visual do handoff dos mundos reais gerenciados pelo app.</p>
+      </div>
+    </aside>
+
+    <section class="workspace" aria-label="Módulos disponíveis">
+      <div class="headline">
+        <div class="eyebrow">Depois do mundo, escolha o módulo</div>
+        <h2>Um cockpit para cada frente da campanha.</h2>
+        <p>Use os cards abaixo para navegar pelo protótipo cinematográfico. Quando a conversão real avançar, esses mesmos módulos serão conectados ao mundo escolhido no app.</p>
+      </div>
+
+      <div class="module-grid">
+        <article class="module-card" style="--accent:#bc4a3f" onclick="transitionToHandoff('cockpit/Cockpit.html','Cockpit')">
+          <div><div class="module-top"><div class="module-icon">C</div><span class="module-kicker">Operação</span></div><h3>Cockpit</h3><p>Iniciativa, cena ativa, mapa com névoa, rolagens e notas rápidas.</p></div>
+          <div class="module-footer"><span>Abrir demo</span><i></i></div>
+        </article>
+        <article class="module-card" style="--accent:#d5a240" onclick="transitionToHandoff('cockpit/Codex.html','Codex')">
+          <div><div class="module-top"><div class="module-icon">X</div><span class="module-kicker">Conhecimento</span></div><h3>Codex</h3><p>Entidades do mundo, facções, personagens, lugares e relações.</p></div>
+          <div class="module-footer"><span>Abrir demo</span><i></i></div>
+        </article>
+        <article class="module-card" style="--accent:#e06155" onclick="transitionToHandoff('cockpit/Forja.html','Forja')">
+          <div><div class="module-top"><div class="module-icon">F</div><span class="module-kicker">Preparação</span></div><h3>Forja</h3><p>Estrutura de sessão, cenas, beats, stakes e reveals.</p></div>
+          <div class="module-footer"><span>Abrir demo</span><i></i></div>
+        </article>
+        <article class="module-card" style="--accent:#4b9f91" onclick="transitionToHandoff('cockpit/Grafo.html','Grafo')">
+          <div><div class="module-top"><div class="module-icon">G</div><span class="module-kicker">Relações</span></div><h3>Grafo</h3><p>Mapa narrativo de entidades, vínculos e tensões políticas.</p></div>
+          <div class="module-footer"><span>Abrir demo</span><i></i></div>
+        </article>
+        <article class="module-card" style="--accent:#9b5de5" onclick="transitionToHandoff('cockpit/Visual.html','Visual')">
+          <div><div class="module-top"><div class="module-icon">V</div><span class="module-kicker">Referência</span></div><h3>Visual</h3><p>Mapas, retratos, lugares, criaturas, cenas e itens.</p></div>
+          <div class="module-footer"><span>Abrir demo</span><i></i></div>
+        </article>
+        <article class="module-card" style="--accent:#4b9f91" onclick="transitionToHandoff('cockpit/Memoria.html','Memória')">
+          <div><div class="module-top"><div class="module-icon">M</div><span class="module-kicker">Continuidade</span></div><h3>Memória</h3><p>Eventos, pendências, consequências e fatos persistentes.</p></div>
+          <div class="module-footer"><span>Abrir demo</span><i></i></div>
+        </article>
+        <article class="module-card" style="--accent:#bc4a3f" onclick="transitionToHandoff('cockpit/Mesa.html','Mesa ao Vivo')">
+          <div><div class="module-top"><div class="module-icon">20</div><span class="module-kicker">Live</span></div><h3>Mesa ao Vivo</h3><p>Superfície densa para condução ativa durante a sessão.</p></div>
+          <div class="module-footer"><span>Abrir demo</span><i></i></div>
+        </article>
+      </div>
+    </section>
+  </section>
+</main>
+
+<script src="handoff-navigation.js"></script>
+<script>
+  function openRealWorlds() {
+    window.top.location.href = "/app/worlds";
+  }
+</script>
+</body>
+</html>

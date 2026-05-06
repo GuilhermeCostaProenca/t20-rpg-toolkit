@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 24px; color: #f4efe7; }
+  .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,221,177,0.78); margin-bottom: 12px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
+  /* Button base */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; font-size: 13px; font-weight: 500; padding: 7px 16px; cursor: pointer; border: none; transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+  /* Variants */
+  .btn-primary { background: #bc4a3f; color: #fff9f2; }
+  .btn-primary:hover { background: rgba(188,74,63,0.88); transform: translateY(-1px); }
+  .btn-white { background: #ffffff; color: #000; }
+  .btn-white:hover { transform: translateY(-2px); }
+  .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.25); color: rgba(244,239,231,0.9); }
+  .btn-outline:hover { background: rgba(255,255,255,0.10); }
+  .btn-ghost { background: transparent; color: #b5aea4; }
+  .btn-ghost:hover { background: rgba(255,255,255,0.05); color: #f4efe7; border: 1px solid rgba(255,255,255,0.1); }
+  .btn-secondary { background: #121117; color: #e6ddd2; }
+  .btn-secondary:hover { background: rgba(18,17,23,0.8); }
+  .btn-destructive { background: #de6250; color: #fff; }
+  /* Sizes */
+  .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+  .btn-lg { padding: 10px 24px; font-size: 14px; border-radius: 10px; }
+  .btn-icon { width: 36px; height: 36px; padding: 0; border-radius: 8px; }
+  /* Disabled */
+  .btn-disabled { opacity: 0.5; pointer-events: none; }
+  .meta { font-size: 9px; font-family: monospace; color: rgba(213,162,64,0.5); margin-top: 8px; display: block; }
+  .btn-active-nav { background: rgba(188,74,63,0.12); border: 1px solid rgba(188,74,63,0.25); color: #bc4a3f; box-shadow: 0 0 18px rgba(188,74,63,0.18); border-radius: 16px; padding: 10px 20px; font-size: 13px; font-weight: 500; }
+</style></head><body>
+
+<div class="eyebrow">Primary Actions</div>
+<div class="row">
+  <button class="btn btn-primary">Entrar no cockpit</button>
+  <button class="btn btn-white">Abrir cockpit</button>
+  <button class="btn btn-outline">Explorar plataforma</button>
+  <button class="btn btn-secondary">Secundário</button>
+  <button class="btn btn-destructive">Destrutivo</button>
+  <button class="btn btn-ghost">Ghost</button>
+</div>
+<span class="meta">Primário · Branco (landing) · Outline · Secundário · Destrutivo · Ghost</span>
+
+<hr class="divider">
+
+<div class="eyebrow">Tamanhos</div>
+<div class="row" style="align-items:center">
+  <button class="btn btn-primary btn-sm">Pequeno</button>
+  <button class="btn btn-primary">Padrão</button>
+  <button class="btn btn-primary btn-lg">Grande</button>
+  <button class="btn btn-outline btn-icon">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  </button>
+</div>
+
+<hr class="divider">
+
+<div class="eyebrow">Estado Ativo (Nav)</div>
+<div class="row">
+  <div class="btn-active-nav">Codex</div>
+  <div style="background:transparent; border:1px solid transparent; color:#b5aea4; border-radius:16px; padding:10px 20px; font-size:13px; font-weight:500">Forja</div>
+  <div style="background:transparent; border:1px solid transparent; color:rgba(244,239,231,0.3); border-radius:16px; padding:10px 20px; font-size:13px; font-weight:500">Balanceamento</div>
+</div>
+<span class="meta">Ativo (glow red) · Inativo · Desabilitado</span>
+
+<hr class="divider">
+
+<div class="eyebrow">Disabled</div>
+<div class="row">
+  <button class="btn btn-primary btn-disabled">Primário</button>
+  <button class="btn btn-outline btn-disabled">Outline</button>
+</div>
+
+</body></html>

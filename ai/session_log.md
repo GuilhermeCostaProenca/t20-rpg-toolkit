@@ -1144,3 +1144,256 @@
   - varredura final em forms residuais de forja/grafo.
 - Proximo passo recomendado:
   - abrir recorte dedicado de debt tipagem/hook para `combat-panel` antes do fechamento definitivo de lint no modulo.
+
+### Sessao: 2026-04-23 - A1-LP6-R1 handoff de design no shell base
+- Objetivo da sessao: iniciar a refatoracao de front-end a partir dos handoffs de design, aplicando o idioma visual novo sem quebrar fluxos funcionais existentes.
+- O que foi feito:
+  - leitura obrigatoria de contexto (`ai/*`, `README`, `ARCHITECTURE`, planos estrategicos e frente ativa de shell/cockpit).
+  - leitura completa dos handoffs (`C:\Users\guilh\Downloads\T20-toolkit-handoff` e `t20-os-design-system`) para extrair tokens, tipografia, shell e navegacao.
+  - criacao da branch `codex/rpg-252-handoff-shell-foundation`.
+  - atualizacao de `src/app/layout.tsx` para usar tipografia oficial do handoff via `next/font` (DM Sans, JetBrains Mono, Cinzel).
+  - refinamento de tokens tipograficos em `src/app/globals.css` (`--font-display`, `--font-body`, classes `t20-h1/t20-h2/t20-body`).
+  - refatoracao de `src/components/app-sidebar.tsx` com modo colapsavel persistido em `localStorage` (`t20:sidebar-collapsed`) mantendo IA world-scoped.
+  - refinamento de `src/components/topbar.tsx` para leitura de cockpit com status operacional e relogio ao vivo.
+  - refinamento visual de `src/components/world/mode-switcher.tsx` para padrao operacional coerente com o handoff.
+  - ajuste da hero da landing em `src/components/landing/landing-hero.tsx` para usar tipografia display padronizada (`t20-h1`).
+  - sincronizacao de rastreabilidade em `ai/tasks.md`, `ai/current_state.md`, `ai/architecture.md` e `ai/decisions.md`.
+- Arquivos alterados:
+  - `src/app/layout.tsx`
+  - `src/app/globals.css`
+  - `src/components/app-sidebar.tsx`
+  - `src/components/topbar.tsx`
+  - `src/components/world/mode-switcher.tsx`
+  - `src/components/landing/landing-hero.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npm install` -> dependencias instaladas para restaurar toolchain local.
+  - `npx eslint src/app/layout.tsx src/components/app-sidebar.tsx src/components/topbar.tsx src/components/world/mode-switcher.tsx src/components/landing/landing-hero.tsx` -> ok.
+- Decisoes tomadas:
+  - DEC-025 registrada (integracao do handoff por recorte de fundacao no shell).
+- Pendencias abertas:
+  - aplicar o mesmo recorte visual de handoff nos workspaces de modulo (world/campaign/codex/forge/mesa).
+  - validar comportamento visual do novo shell em browser real desktop/mobile com Docker ativo.
+- Proximo passo recomendado:
+  - executar `A1-LP6-R2` focado em convergencia visual dos workspaces internos usando os novos tokens/typography ja integrados.
+
+### Sessao: 2026-04-23 - A1-LP6-R2 landing fiel ao handoff
+- Objetivo da sessao: alinhar a landing publica 1:1 ao handoff aprovado, removendo interpretacoes visuais divergentes.
+- O que foi feito:
+  - leitura direta dos arquivos de handoff (`Landing Page.html`, `colors_and_type.css`, `ui_kits/LandingPage.jsx`) em `C:\Users\guilh\Downloads\T20-toolkit-handoff`.
+  - substituida a composicao de `src/app/(public)/page.tsx` por um componente dedicado `LandingHandoff`.
+  - criada superficie visual especifica (`landing-handoff.module.css`) com nav pill fixa, hero com mapa atmosferico, badge D20, titulo display de alto impacto e card `Tweaks` fixo.
+  - adicionada interatividade de `Tweaks` (cor de destaque, toggle de ficha e controle de nevoa) no componente client.
+  - reiniciado container `app` e validada resposta de `/` com strings esperadas (`Construa`, `Comande`, `Tweaks`).
+- Arquivos alterados:
+  - `src/app/(public)/page.tsx`
+  - `src/components/landing/landing-handoff.tsx`
+  - `src/components/landing/landing-handoff.module.css`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `docker compose -p t20-clean --env-file .env.docker restart app` -> ok.
+  - `Invoke-WebRequest http://127.0.0.1:3000/` com busca de `Construa`, `Comande`, `Tweaks`, `T20 OS` -> presentes no HTML.
+  - `npx eslint "src/app/(public)/page.tsx" "src/components/landing/landing-handoff.tsx"` -> falhou por dependencia local ausente (`Cannot find package 'eslint'`), sem bloquear runtime.
+- Decisoes tomadas:
+  - DEC-026 registrada (landing dedicada para fidelidade visual do handoff).
+- Pendencias abertas:
+  - ajustar detalhes finos de pixel parity (ex.: animacoes secundarias do HTML original e secao de demo/install) se o usuario exigir equivalencia completa de toda a pagina.
+  - regularizar toolchain local de lint para voltar a validar fora do container.
+- Proximo passo recomendado:
+  - colher feedback visual em browser e aplicar recorte final de parity (spacing, opacidade e sombras) no mesmo componente dedicado.
+
+### Sessao: 2026-04-23 - A1-LP6-R3 CTA para pagina do mestre + cockpit dedicado
+- Objetivo da sessao: conectar a landing a uma "pagina do mestre" navegavel e entregar a tela no estilo cockpit do handoff.
+- O que foi feito:
+  - alterado CTA principal de `LandingHandoff` para apontar para `/mestre`.
+  - criado componente dedicado `MestreCockpit` com layout completo: topbar operacional, trilho lateral de modulos, bloco de iniciativa, mapa de cena e coluna de rolagens/notas/ambiente.
+  - criada rota publica `src/app/(public)/mestre/page.tsx` para servir a nova pagina do mestre sem depender do shell interno `/app`.
+  - reiniciado container de app e validado HTML de `/` e `/mestre`.
+- Arquivos alterados:
+  - `src/components/landing/landing-handoff.tsx`
+  - `src/components/mestre/mestre-cockpit.tsx`
+  - `src/components/mestre/mestre-cockpit.module.css`
+  - `src/app/(public)/mestre/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `docker compose -p t20-clean --env-file .env.docker restart app` -> ok.
+  - `Invoke-WebRequest http://127.0.0.1:3000/` -> contem `Entrar no cockpit do mestre` e link `/mestre`.
+  - `Invoke-WebRequest http://127.0.0.1:3000/mestre` -> contem `Cena ativa`, `Iniciativa`, `Rolagens`.
+- Decisoes tomadas:
+  - DEC-027 registrada (rota publica dedicada para pagina do mestre).
+- Pendencias abertas:
+  - decidir convergencia futura entre cockpit visual de `/mestre` e cockpit funcional de `/app`.
+  - ajustar microdetalhes de pixel parity (tipografia/espacamentos/animacoes) conforme novo feedback visual.
+- Proximo passo recomendado:
+  - executar recorte de refinamento visual fino no `/mestre` com base em comparacao lado a lado com o handoff final aprovado.
+
+### Sessao: 2026-04-23 - A1-LP6-R4 paridade via cockpit oficial do handoff
+- Objetivo da sessao: eliminar divergencia visual/funcional de `/mestre` usando exatamente o cockpit funcional entregue no handoff.
+- O que foi feito:
+  - copiado bundle oficial do cockpit para `public/handoff/cockpit` (`Cockpit.html`, `cockpit-app.jsx`, `cockpit-sidebar.jsx`, `cockpit-initiative.jsx`, `cockpit-map.jsx`, `cockpit-right.jsx`, `cockpit-icons.jsx`).
+  - copiado asset de mapa para `public/handoff/cockpit/assets/arton-map.jpg`.
+  - alterado `src/app/(public)/mestre/page.tsx` para renderizar iframe apontando para `/handoff/cockpit/Cockpit.html`.
+  - reiniciado container e validado entrega de `/mestre` + arquivos do handoff.
+- Arquivos alterados:
+  - `src/app/(public)/mestre/page.tsx`
+  - `public/handoff/cockpit/Cockpit.html`
+  - `public/handoff/cockpit/cockpit-app.jsx`
+  - `public/handoff/cockpit/cockpit-icons.jsx`
+  - `public/handoff/cockpit/cockpit-initiative.jsx`
+  - `public/handoff/cockpit/cockpit-map.jsx`
+  - `public/handoff/cockpit/cockpit-right.jsx`
+  - `public/handoff/cockpit/cockpit-sidebar.jsx`
+  - `public/handoff/cockpit/assets/arton-map.jpg`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `docker compose -p t20-clean --env-file .env.docker restart app` -> ok.
+  - `GET /mestre` -> contem iframe para `/handoff/cockpit/Cockpit.html`.
+  - `GET /handoff/cockpit/Cockpit.html` -> carrega scripts `cockpit-*.jsx`.
+  - `GET /handoff/cockpit/cockpit-app.jsx` -> contem `function CockpitApp`.
+- Decisoes tomadas:
+  - DEC-028 registrada.
+- Pendencias abertas:
+  - decidir quando convergir o cockpit estatico para codigo interno React/TypeScript do produto.
+- Proximo passo recomendado:
+  - validar visualmente em browser se a paridade com o handoff esta aceita; depois decidir estrategia de convergencia tecnica.
+
+### Sessao: 2026-04-27 15:07 - A1-LP6-R5 Codex real com layout do handoff
+- Objetivo da sessao: iniciar a implementacao real do novo front vindo dos handoffs, levando a anatomia visual do Codex para a rota funcional world-scoped.
+- O que foi feito:
+  - lidos os handoffs `T20-toolkit-handoff` e `t20-os-design-system`, incluindo `index.html`, `AppShell.jsx`, `Sidebar.jsx`, `Cards.jsx`, `LandingPage.jsx`, `codex-app.jsx`, `codex-grid.jsx`, `codex-detail.jsx` e `codex-data.jsx`.
+  - reescrito `src/app/app/worlds/[id]/codex/page.tsx` para usar header compacto, toolbar de busca/filtros, chips de tipo, grid denso de entidades e painel lateral deslizante de quick inspect.
+  - preservados os contratos reais: `GET /api/worlds/[id]/codex`, `GET /api/worlds/[id]/entities/[entityId]`, `POST /api/worlds/[id]/entities`, filtros, criacao de entidade e link para workspace profundo.
+  - corrigido overflow horizontal do shell adicionando `min-w-0` na area principal de `src/app/app/layout.tsx`.
+  - removidos artefatos temporarios de Playwright e logs locais criados durante QA.
+- Arquivos principais alterados:
+  - `src/app/app/worlds/[id]/codex/page.tsx`
+  - `src/app/app/layout.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacao executada:
+  - `npm install` -> restaurou toolchain local; auditoria reportou 10 vulnerabilidades (4 moderadas, 6 altas) preexistentes/fora do recorte.
+  - `npx eslint -- "src/app/app/worlds/[id]/codex/page.tsx"` -> ok.
+  - `npx eslint -- "src/app/app/worlds/[id]/codex/page.tsx" src/app/app/layout.tsx` -> ok.
+  - `npx tsc --noEmit --pretty false` -> falhou por dividas preexistentes fora do recorte (`output/audit.spec.ts`, rotas de mapa, memory search, campaign/forge, combat-panel, live-prep-cockpit, ordem-sheet).
+  - `GET http://127.0.0.1:3000/app/worlds/cld8cbf762d6a0cf28a9465e7e/codex` -> 200, contendo `Codex do Mundo` e `Nova entidade`.
+  - Playwright desktop 1440x900 em Docker -> rota renderiza o novo Codex; ajustes aplicados para corrigir overflow/corte lateral. Console ainda mostra erro de HMR/WebSocket do ambiente Docker, sem bloquear renderizacao.
+- Decisoes tomadas:
+  - DEC-029 registrada.
+- Pendencias abertas:
+  - convergir o workspace `codex/[entityId]` para a mesma linguagem visual sem perder edicao/relacoes/galeria/memoria.
+  - decidir a estrategia final para transformar o cockpit estatico de `/mestre` em componentes internos.
+- Proximo passo recomendado:
+  - executar recorte `A1-LP6-R6` no Cockpit do Mundo ou no workspace de entidade, mantendo o mesmo criterio: handoff como anatomia visual, dados reais como fonte funcional.
+
+### Sessao: 2026-04-30 13:31 - A1-LP6-R6 novo handoff completo como vitrine navegavel
+- Objetivo:
+  - incorporar o novo pacote `T20-toolkit` enviado pelo Claude Design e permitir que o front aprovado seja navegado completo dentro do projeto.
+- O que foi feito:
+  - inspecionado o novo pacote em `C:\Users\guilh\Downloads\T20-toolkit`, incluindo telas de Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa.
+  - copiado o bundle completo para `public/handoff/t20-toolkit`, preservando estrutura original (`cockpit`, `assets`, `ui_kits`, `scraps`, landing e tokens).
+  - atualizado `/` para apontar o iframe para `/handoff/t20-toolkit/Landing%20Page.html`.
+  - atualizado `/mestre` para apontar o iframe para `/handoff/t20-toolkit/cockpit/Cockpit.html`.
+  - corrigida a navegacao estatica do sidebar do bundle para abrir Codex, Forja, Grafo, Visual, Memoria, Mesa e Landing em vez de ficar preso no Cockpit.
+  - registrado que o bundle estatico e referencia visual/QA, enquanto a conversao funcional deve seguir por rotas reais e dados reais.
+- Arquivos principais alterados:
+  - `src/app/(public)/mestre/page.tsx`
+  - `src/app/(public)/page.tsx`
+  - `public/handoff/t20-toolkit/*`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validações executadas:
+  - `npx eslint -- "src/app/(public)/mestre/page.tsx"` -> ok.
+  - `npx eslint -- "src/app/(public)/page.tsx" "src/app/(public)/mestre/page.tsx"` -> ok.
+  - `GET http://127.0.0.1:3000/` -> 200, contem iframe para `/handoff/t20-toolkit/Landing%20Page.html`.
+  - `GET http://127.0.0.1:3000/mestre` -> 200, contem iframe para `/handoff/t20-toolkit/cockpit/Cockpit.html`.
+  - `GET http://127.0.0.1:3000/handoff/t20-toolkit/cockpit/Cockpit.html` -> 200, contem `cockpit-app.jsx`.
+  - `GET http://127.0.0.1:3000/handoff/t20-toolkit/cockpit/Mesa.html` -> 200, contem `mesa-app.jsx`.
+  - `GET` direto para `Landing Page.html`, `Cockpit.html`, `Codex.html`, `Forja.html`, `Grafo.html`, `Visual.html`, `Memoria.html` e `Mesa.html` -> todos `200`.
+  - Playwright desktop 1440x900 em `/mestre` -> renderizou cockpit completo; console ficou sem erros apos corrigir asset `cockpit/assets/arton-map.jpg` e path SVG do icone `skull`. Permanece apenas aviso esperado do Babel in-browser do bundle estatico.
+- Decisoes tomadas:
+  - DEC-030 registrada.
+- Pendencias:
+  - validar `/mestre` em browser real e converter o Cockpit real do mundo para a anatomia do novo pacote.
+- Proximo passo recomendado:
+  - executar `A1-LP6-R7` no Cockpit do Mundo (`/app/worlds/[id]`) usando o bundle completo como referencia visual e mantendo contratos reais.
+
+### Sessao: 2026-04-30 - Ajuste visual do d20 da landing
+- Objetivo:
+  - substituir o bloco quadrado da rolagem ao vivo na landing do handoff por um d20 visualmente reconhecivel.
+- O que foi feito:
+  - trocado o antigo `div.die-face` por um SVG facetado de d20 em `public/handoff/t20-toolkit/Landing Page.html`.
+  - preservado o script existente de rolagem: o resultado continua atualizando `#dieNumber`, e o estado critico continua aplicando destaque visual.
+- Arquivos principais alterados:
+  - `public/handoff/t20-toolkit/Landing Page.html`
+- Validações executadas:
+  - `GET http://127.0.0.1:3000/handoff/t20-toolkit/Landing%20Page.html` -> 200, contem `aria-label="Dado d20"` e `d20-outline`.
+  - `npx eslint -- "src/app/(public)/page.tsx"` -> ok.
+- Pendências:
+  - Playwright MCP estava com contexto de browser fechado nesta rodada; validacao visual automatizada ficou indisponivel.
+
+### Sessao: 2026-04-30 - Hub cinematografico e navegacao global do handoff
+- Objetivo:
+  - materializar a ideia de Hub de Navegacao e navegacao global cinematografica mencionada no handoff.
+- O que foi feito:
+  - criado `public/handoff/t20-toolkit/Hub.html` com cards de entrada para Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa ao Vivo.
+  - criado `public/handoff/t20-toolkit/handoff-navigation.js` com overlay de transicao cinematografica e suporte a `prefers-reduced-motion`.
+  - atualizado `/mestre` para abrir o Hub em vez do Cockpit diretamente.
+  - conectado `Landing Page.html` ao Hub e carregado o script de transicao.
+  - atualizado `cockpit-sidebar.jsx` para incluir Hub/Landing e usar `transitionToHandoff` nas trocas de modulo.
+  - carregado `handoff-navigation.js` nos HTMLs estaticos de modulo.
+- Arquivos principais alterados:
+  - `src/app/(public)/mestre/page.tsx`
+  - `src/app/(public)/page.tsx`
+  - `public/handoff/t20-toolkit/Hub.html`
+  - `public/handoff/t20-toolkit/handoff-navigation.js`
+  - `public/handoff/t20-toolkit/Landing Page.html`
+  - `public/handoff/t20-toolkit/cockpit/*`
+- Validações executadas:
+  - `npx eslint -- "src/app/(public)/page.tsx" "src/app/(public)/mestre/page.tsx"` -> ok.
+  - `GET` para `/handoff/t20-toolkit/Landing%20Page.html`, `Hub.html`, `handoff-navigation.js`, `cockpit/Cockpit.html`, `cockpit/Codex.html`, `cockpit/Forja.html`, `cockpit/Grafo.html`, `cockpit/Visual.html`, `cockpit/Memoria.html`, `cockpit/Mesa.html` -> todos `200`.
+  - `GET http://127.0.0.1:3000/mestre` -> 200, contem iframe para `/handoff/t20-toolkit/Hub.html` e CTA `Ver landing`.
+  - `GET http://127.0.0.1:3000/` -> 200, contem iframe para `Landing%20Page.html` e CTA `Entrar no hub`.
+  - Varredura dos HTMLs de modulo confirmou carregamento de `../handoff-navigation.js` em Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa.
+  - Playwright MCP indisponivel nesta rodada por contexto de browser fechado; QA visual automatizado ficou pendente.
+- Decisoes tomadas:
+  - DEC-031 registrada.
+- Pendencias:
+  - validar browser desktop/mobile e confirmar visualmente que o overlay nao fica preso durante navegacao.
+
+### Sessao: 2026-04-30 - Reposicionamento world-first do Hub
+- Objetivo:
+  - corrigir o Hub para nao sugerir que existe apenas um mundo e para funcionar como entrada de mundo antes dos modulos.
+- O que foi feito:
+  - reestruturado `public/handoff/t20-toolkit/Hub.html` com coluna de console de mundos.
+  - marcado Arton explicitamente como `Mundo de demonstracao` do prototipo visual.
+  - adicionadas acoes para `Gerenciar mundos`, `Abrir biblioteca de mundos` e `Criar novo mundo`, apontando para `/app/worlds` no app real via `window.top.location.href`.
+  - preservados os cards de modulo como demo visual do handoff, deixando claro que a conversao real deve conectar esses modulos ao mundo escolhido.
+- Arquivos principais alterados:
+  - `public/handoff/t20-toolkit/Hub.html`
+- Validações executadas:
+  - `GET http://127.0.0.1:3000/handoff/t20-toolkit/Hub.html` -> 200, contem `Mundo de demonstração`, `/app/worlds` e `Criar novo mundo`.
+  - `npx eslint -- "src/app/(public)/mestre/page.tsx"` -> ok.
+- Pendencias:
+  - validar visualmente no browser aberto pelo usuario e ajustar densidade/estetica conforme feedback.

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 24px; color: #f4efe7; display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,221,177,0.78); margin-bottom: 8px; }
+  .meta { font-size: 9px; font-family: monospace; color: rgba(213,162,64,0.5); margin-top: 8px; }
+  /* Chrome panel */
+  .chrome-panel { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(160deg, rgba(255,250,244,0.045), rgba(255,255,255,0.02) 40%, rgba(188,74,63,0.06) 100%), linear-gradient(145deg, rgba(188,74,63,0.08), transparent 42%, rgba(192,149,71,0.1) 100%); box-shadow: 0 20px 80px rgba(0,0,0,0.55); backdrop-filter: blur(20px); }
+  /* Cinematic frame */
+  .cinematic-frame { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(15,14,20,0.9) 0%, rgba(10,10,16,0.86) 100%), radial-gradient(circle at top left, rgba(188,74,63,0.12), transparent 36%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 18px 70px rgba(0,0,0,0.42); }
+  /* World hero */
+  .world-hero { border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(120deg, rgba(8,8,13,0.9), rgba(12,10,13,0.78)), radial-gradient(circle at top left, rgba(188,74,63,0.34), transparent 30%), radial-gradient(circle at 78% 0%, rgba(213,162,64,0.22), transparent 28%); box-shadow: 0 28px 90px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.05); }
+</style></head><body>
+
+<div>
+  <div class="chrome-panel" style="border-radius:24px; padding:20px; width:220px">
+    <p class="eyebrow">Mundo ativo</p>
+    <p style="margin-top:8px; font-size:13px; font-weight:600">Cockpit contextual do mestre</p>
+    <p style="margin-top:4px; font-size:12px; color:#b5aea4; line-height:1.5">Navegue pelo mundo sem perder o contexto do que está vivo na mesa.</p>
+  </div>
+  <div class="meta">.chrome-panel · sidebar info blocks</div>
+</div>
+
+<div>
+  <div class="cinematic-frame" style="border-radius:16px; padding:20px; width:220px">
+    <div style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600">
+      <span style="color:rgba(251,191,36,0.8); font-size:14px">⬡</span>
+      Atualização 1
+    </div>
+    <p style="margin-top:8px; font-size:12px; color:#b5aea4; line-height:1.5">Shell total, cockpit vivo e base visual cinemática.</p>
+  </div>
+  <div class="meta">.cinematic-frame · priority / content cards</div>
+</div>
+
+<div>
+  <div class="world-hero" style="border-radius:20px; padding:20px; width:220px">
+    <p class="eyebrow">Sessão ativa</p>
+    <p style="margin-top:8px; font-size:16px; font-weight:700; letter-spacing:0.02em; text-transform:uppercase">Campanha dos Dragões</p>
+    <p style="margin-top:6px; font-size:12px; color:rgba(244,239,231,0.65)">Mesa operando · 4 jogadores</p>
+  </div>
+  <div class="meta">.world-hero · world cockpit header</div>
+</div>
+
+</body></html>

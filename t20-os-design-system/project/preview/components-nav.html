@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 20px; color: #f4efe7; }
+  .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,221,177,0.78); margin-bottom: 8px; }
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 14px 0; }
+  .meta { font-size: 9px; font-family: monospace; color: rgba(213,162,64,0.5); margin-top: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 16px; border: 1px solid transparent; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .nav-active { border-color: rgba(188,74,63,0.25); background: rgba(188,74,63,0.12); color: #bc4a3f; box-shadow: 0 0 18px rgba(188,74,63,0.18); }
+  .nav-inactive { color: #b5aea4; }
+  .nav-inactive:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #f4efe7; }
+  .nav-disabled { color: rgba(255,255,255,0.3); cursor: not-allowed; }
+  .icon { width: 16px; height: 16px; opacity: 0.8; flex-shrink: 0; }
+  .section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,221,177,0.78); padding: 0 16px; margin-bottom: 4px; }
+  .badge { display: inline-flex; border-radius: 9999px; padding: 1px 8px; font-size: 10px; font-weight: 600; margin-left: auto; }
+  .badge-hot { border: 1px solid rgba(255,165,0,0.2); background: rgba(249,115,22,0.1); color: rgba(251,191,36,0.9); }
+</style></head><body>
+
+<div class="eyebrow">Sidebar Navigation</div>
+<div style="width: 220px; background: rgba(9,9,14,0.96); border-radius: 20px; padding: 12px; border: 1px solid rgba(255,255,255,0.08)">
+  <div class="section-label">MUNDO</div>
+  <div style="margin-bottom:4px">
+    <div class="nav-item nav-inactive">
+      <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Cockpit
+    </div>
+    <div class="nav-item nav-active">
+      <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+      Codex
+    </div>
+    <div class="nav-item nav-inactive">
+      <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Forja
+    </div>
+    <div class="nav-item nav-inactive">
+      <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3"/></svg>
+      Grafo
+    </div>
+  </div>
+  <div class="section-label" style="margin-top:10px">MESA</div>
+  <div>
+    <div class="nav-item nav-inactive">
+      <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+      Mesa ao Vivo
+      <span class="badge badge-hot">Hot</span>
+    </div>
+    <div class="nav-item nav-disabled">
+      <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      Balanceamento
+    </div>
+  </div>
+</div>
+<div class="meta">ativo · inativo · hover · desabilitado</div>
+
+</body></html>

@@ -48,6 +48,9 @@
 
 :root {
   --radius: 0.9rem;
+  --font-display: var(--font-cinzel), ui-serif, Georgia, Cambria, serif;
+  --font-body: var(--font-geist-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono-ui: var(--font-geist-mono), "JetBrains Mono", ui-monospace, monospace;
   --background: #06070c;
   --foreground: #f4efe7;
   --card: rgba(15, 14, 20, 0.94);
@@ -121,6 +124,7 @@
   }
 body {
     @apply text-foreground antialiased;
+    font-family: var(--font-body);
     min-height: 100vh;
     background:
       radial-gradient(circle at 12% 18%, rgba(188, 74, 63, 0.18), transparent 32%),
@@ -168,12 +172,25 @@ body::after {
   h1,
   h2,
   h3 {
+    font-family: var(--font-display);
     letter-spacing: 0.02em;
     text-transform: uppercase;
   }
 
   h1 {
+    font-weight: 900;
+    line-height: 0.95;
+  }
+
+  h2 {
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  h3 {
+    font-family: var(--font-body);
     font-weight: 800;
+    line-height: 1.2;
   }
 
   a {
@@ -250,7 +267,7 @@ body::after {
     color: rgba(245, 221, 177, 0.78);
   }
 
-.world-hero {
+  .world-hero {
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -261,6 +278,31 @@ body::after {
     box-shadow:
       0 28px 90px rgba(0, 0, 0, 0.48),
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .t20-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 6vw, 4.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .t20-h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .t20-body {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--muted-foreground);
   }
 
   .app-shell {

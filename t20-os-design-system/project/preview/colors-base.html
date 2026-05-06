@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .swatch { border-radius: 8px; height: 64px; position: relative; }
+  .label { font-size: 10px; color: rgba(244,239,231,0.55); margin-top: 5px; letter-spacing: 0.04em; text-align: center; }
+  .value { font-size: 9px; color: rgba(244,239,231,0.35); text-align: center; font-family: monospace; }
+  .row { display: flex; flex-direction: column; align-items: center; }
+  .section { margin-bottom: 16px; }
+  .section-title { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(213,162,64,0.75); margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="section">
+  <div class="section-title">Escuros</div>
+  <div class="grid">
+    <div class="row"><div class="swatch" style="background:#04050a"></div><div class="label">Deep</div><div class="value">#04050a</div></div>
+    <div class="row"><div class="swatch" style="background:#06070c"></div><div class="label">Black</div><div class="value">#06070c</div></div>
+    <div class="row"><div class="swatch" style="background:#0b0b12"></div><div class="label">Mid</div><div class="value">#0b0b12</div></div>
+    <div class="row"><div class="swatch" style="background:#121117"></div><div class="label">Secondary</div><div class="value">#121117</div></div>
+    <div class="row"><div class="swatch" style="background:#1a1821"></div><div class="label">Muted</div><div class="value">#1a1821</div></div>
+    <div class="row"><div class="swatch" style="background:#24212d"></div><div class="label">Accent</div><div class="value">#24212d</div></div>
+    <div class="row"><div class="swatch" style="background:rgba(15,14,20,0.94); border:1px solid rgba(255,255,255,0.08)"></div><div class="label">Card</div><div class="value">rgba card</div></div>
+    <div class="row"><div class="swatch" style="background:rgba(9,9,14,0.96); border:1px solid rgba(255,255,255,0.08)"></div><div class="label">Sidebar</div><div class="value">rgba sidebar</div></div>
+  </div>
+</div>
+<div class="section">
+  <div class="section-title">Vermelho</div>
+  <div class="grid">
+    <div class="row"><div class="swatch" style="background:#6b1220"></div><div class="label">Deep</div><div class="value">#6b1220</div></div>
+    <div class="row"><div class="swatch" style="background:#8B1A1A"></div><div class="label">Blood</div><div class="value">#8B1A1A</div></div>
+    <div class="row"><div class="swatch" style="background:#bc4a3f"></div><div class="label">Primary</div><div class="value">#bc4a3f</div></div>
+    <div class="row"><div class="swatch" style="background:#e24545"></div><div class="label">Bright</div><div class="value">#e24545</div></div>
+    <div class="row"><div class="swatch" style="background:#de6250"></div><div class="label">Destructive</div><div class="value">#de6250</div></div>
+    <div class="row"><div class="swatch" style="background:rgba(188,74,63,0.25)"></div><div class="label">Ring</div><div class="value">0.25 alpha</div></div>
+    <div class="row"><div class="swatch" style="background:rgba(188,74,63,0.12)"></div><div class="label">Muted</div><div class="value">0.12 alpha</div></div>
+    <div class="row"><div class="swatch" style="background:rgba(188,74,63,0.06)"></div><div class="label">Ghost</div><div class="value">0.06 alpha</div></div>
+  </div>
+</div>
+<div class="section">
+  <div class="section-title">Ouro & Pergaminho</div>
+  <div class="grid">
+    <div class="row"><div class="swatch" style="background:#9b7f56"></div><div class="label">Aged</div><div class="value">#9b7f56</div></div>
+    <div class="row"><div class="swatch" style="background:#C9A84C"></div><div class="label">Antique</div><div class="value">#C9A84C</div></div>
+    <div class="row"><div class="swatch" style="background:#d5a240"></div><div class="label">Gold</div><div class="value">#d5a240</div></div>
+    <div class="row"><div class="swatch" style="background:#f6ae2d"></div><div class="label">Bright</div><div class="value">#f6ae2d</div></div>
+    <div class="row"><div class="swatch" style="background:rgba(245,221,177,0.78)"></div><div class="label">Eyebrow</div><div class="value">warm/0.78</div></div>
+    <div class="row"><div class="swatch" style="background:#f2e8d5"></div><div class="label">Parchment</div><div class="value">#f2e8d5</div></div>
+    <div class="row"><div class="swatch" style="background:#f4efe7"></div><div class="label">Fg</div><div class="value">#f4efe7</div></div>
+    <div class="row"><div class="swatch" style="background:#fbf7f1"></div><div class="label">Fg+</div><div class="value">#fbf7f1</div></div>
+  </div>
+</div>
+</body></html>

@@ -31,6 +31,15 @@
 - [x] [A1-LP5-R1] Iniciar refatoracao do front interno conforme Figma: sidebar por secoes (MUNDO/MESA/APOIO), mode switcher (Normal/Lousa/Quadro) e rotas canonicas `visual`, `memory`, `lousa`, `quadro`.
 - [x] [A1-LP5-R2] Expandir refatoracao visual Figma-guided para superfices internas de modulo (Forja/Codex/Grafo/Campanhas/Memoria/Visual) preservando funcionalidades atuais e sem reduzir profundidade de fluxo.
 - [x] [A1-LP5-R3] Consolidar links/rotas canonicas internas (`visual`/`memory`) nos pontos legados remanescentes e reduzir ambiguidade de nomenclatura (`diary` vs `memory`, `visual-library` vs `visual`) sem regressao funcional.
+- [x] [A1-LP6-R1] Integrar handoff de design no shell base: tipografia oficial (DM Sans + JetBrains Mono + Cinzel), sidebar colapsavel persistida, topbar em leitura de cockpit e refinamento visual do mode switcher/hero.
+- [x] [A1-LP6-R2] Substituir landing publica por implementacao fiel ao handoff (`Landing Page.html`): nav pill, hero tipografica, mapa/ambient, badge D20 e painel `Tweaks` com variacoes visuais.
+- [x] [A1-LP6-R3] Conectar CTA da landing para `/mestre` e entregar pagina do mestre em layout cockpit (sidebar, iniciativa, mapa de cena e coluna operacional).
+- [x] [A1-LP6-R4] Trocar `/mestre` para o cockpit original do handoff (HTML+JSX) para paridade visual/funcional imediata.
+- [x] [A1-LP6-R5] Convergir o indice real do Codex (`/app/worlds/[id]/codex`) para o layout do handoff, preservando dados reais, APIs atuais, filtros, criacao de entidade e quick inspect.
+- [x] [A1-LP6-R6] Importar o novo pacote completo `T20-toolkit` do Claude Design para `public/handoff/t20-toolkit`, apontar `/` para a landing desse bundle e `/mestre` para o cockpit, preservando navegacao estatica entre Landing, Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa.
+- [x] [A1-LP6-R6B] Criar Hub cinematografico do handoff e navegacao global com transicoes entre Landing, Hub, Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa.
+- [ ] [A1-LP6-R7] Converter o Cockpit real do mundo (`/app/worlds/[id]`) para a anatomia do novo handoff completo, mantendo dados reais, APIs existentes e links canonicos.
+- [ ] [A1-LP6-R8] Converter Grafo, Visual, Memoria e Forjas reais para a nova anatomia do handoff completo, por recortes pequenos e validados.
 
 ## Concluidas
 - [x] Inicializar estrutura de memoria externa em `ai/`.

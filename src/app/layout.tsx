@@ -1,20 +1,27 @@
-﻿import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata } from "next";
+import { Cinzel, DM_Sans, JetBrains_Mono } from "next/font/google";
 
 import { AppFeedbackProvider } from "@/components/app-feedback-provider";
 import { cn } from "@/lib/utils";
 
 import "./globals.css";
 
-const geistSans = Geist({
+const dmSans = DM_Sans({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
+const jetBrainsMono = JetBrains_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+  weight: ["600", "700", "900"],
 });
 
 export const metadata: Metadata = {
@@ -32,8 +39,9 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background text-foreground antialiased",
-          geistSans.variable,
-          geistMono.variable
+          dmSans.variable,
+          jetBrainsMono.variable,
+          cinzel.variable
         )}
       >
         <AppFeedbackProvider>{children}</AppFeedbackProvider>

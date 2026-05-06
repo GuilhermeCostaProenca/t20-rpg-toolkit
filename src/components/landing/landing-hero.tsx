@@ -38,8 +38,7 @@ export function LandingHero() {
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.1 }}
-          className="max-w-5xl text-4xl leading-[0.95] text-white sm:text-6xl lg:text-7xl"
-          style={{ fontFamily: "ui-serif, Georgia, Cambria, serif" }}
+          className="t20-h1 max-w-5xl text-white"
         >
           Um cockpit de fantasia para mestres que levam o mundo a serio
         </motion.h1>

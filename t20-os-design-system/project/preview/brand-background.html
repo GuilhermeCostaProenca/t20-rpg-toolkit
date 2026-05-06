@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .bg-card { width: 180px; height: 110px; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.06); }
+  .label { position: absolute; bottom: 6px; left: 8px; font-size: 8px; font-family: monospace; color: rgba(213,162,64,0.7); letter-spacing: 0.06em; }
+</style></head><body>
+
+<!-- Body base background -->
+<div class="bg-card">
+  <div style="position:absolute; inset:0; background: radial-gradient(circle at 12% 18%, rgba(188,74,63,0.18), transparent 32%), radial-gradient(circle at 78% 12%, rgba(182,143,71,0.18), transparent 24%), radial-gradient(circle at 72% 68%, rgba(58,95,136,0.16), transparent 28%), linear-gradient(135deg, #06070c 0%, #0b0b12 46%, #09070d 100%)"></div>
+  <div class="label">body · base gradient</div>
+</div>
+
+<!-- Grain texture -->
+<div class="bg-card">
+  <div style="position:absolute; inset:0; background:#06070c"></div>
+  <div style="position:absolute; inset:0; opacity:0.55; background: repeating-linear-gradient(-45deg, rgba(255,255,255,0.028) 0, rgba(255,255,255,0.028) 2px, transparent 3px, transparent 8px), radial-gradient(circle at 15% 85%, rgba(188,74,63,0.12), transparent 22%), radial-gradient(circle at 85% 20%, rgba(213,162,64,0.08), transparent 25%)"></div>
+  <div class="label">grain texture · ::after overlay</div>
+</div>
+
+<!-- App immersive backdrop -->
+<div class="bg-card">
+  <div style="position:absolute; inset:0; background: radial-gradient(circle at 12% 18%, rgba(188,74,63,0.24), transparent 32%), radial-gradient(circle at 78% 14%, rgba(213,162,64,0.22), transparent 30%), radial-gradient(circle at 58% 84%, rgba(67,124,168,0.16), transparent 36%), linear-gradient(130deg, rgba(5,5,8,0.98), rgba(8,9,14,0.9))"></div>
+  <div class="label">app immersive backdrop</div>
+</div>
+
+<!-- World hero overlay -->
+<div class="bg-card">
+  <div style="position:absolute; inset:0; background:linear-gradient(120deg, rgba(8,8,13,0.9), rgba(12,10,13,0.78)), radial-gradient(circle at top left, rgba(188,74,63,0.34), transparent 30%), radial-gradient(circle at 78% 0%, rgba(213,162,64,0.22), transparent 28%)"></div>
+  <div class="label">world-hero overlay</div>
+</div>
+
+<!-- Navbar gradient -->
+<div class="bg-card">
+  <div style="position:absolute; inset:0; background: linear-gradient(140deg, rgba(7,10,18,0.88), rgba(9,15,30,0.76)); border-radius:12px; border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(16px)"></div>
+  <div class="label">navbar · scrolled state</div>
+</div>
+
+<!-- Sidebar -->
+<div class="bg-card">
+  <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(8,8,12,0.98), rgba(12,11,16,0.94))"></div>
+  <div class="label">sidebar · linear gradient</div>
+</div>
+
+</body></html>

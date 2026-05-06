@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 24px; color: #f4efe7; }
+  .specimen { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .specimen:last-child { border-bottom: none; }
+  .meta { font-size: 9px; font-family: monospace; color: rgba(213,162,64,0.55); margin-top: 4px; }
+  .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,221,177,0.78); margin-bottom: 4px; }
+  .scale-row { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .scale-item { display: flex; flex-direction: column; align-items: flex-start; }
+  .scale-label { font-size: 9px; font-family: monospace; color: rgba(213,162,64,0.5); margin-top: 2px; }
+</style></head><body>
+<div class="specimen">
+  <div class="eyebrow">Body Regular</div>
+  <div style="font-size:14px; font-weight:400; line-height:1.5; color:#b5aea4; max-width:480px">Crie, prepare e opere campanhas Tormenta 20 em um fluxo único: do worldbuilding até a mesa ao vivo. Centralizado, sem fragmentação.</div>
+  <div class="meta">DM Sans 400 · 14px · leading 1.5 · muted-foreground</div>
+</div>
+<div class="specimen">
+  <div class="eyebrow">Body Semibold</div>
+  <div style="font-size:14px; font-weight:600; line-height:1.5; color:#f4efe7; max-width:480px">Cockpit contínuo em vez de navegação fragmentada. Mundo primeiro, campanha como linha do tempo.</div>
+  <div class="meta">DM Sans 600 · 14px · leading 1.5 · foreground</div>
+</div>
+<div class="specimen">
+  <div class="eyebrow">Body Small</div>
+  <div style="font-size:12px; font-weight:400; line-height:1.5; color:#b5aea4">Navegue pelo mundo sem perder o contexto do que está vivo na mesa.</div>
+  <div class="meta">DM Sans 400 · 12px · leading 1.5</div>
+</div>
+<div class="specimen">
+  <div class="eyebrow">Type Scale</div>
+  <div class="scale-row">
+    <div class="scale-item"><span style="font-size:12px">Xs</span><span class="scale-label">12px</span></div>
+    <div class="scale-item"><span style="font-size:14px">Sm</span><span class="scale-label">14px</span></div>
+    <div class="scale-item"><span style="font-size:16px">Base</span><span class="scale-label">16px</span></div>
+    <div class="scale-item"><span style="font-size:18px">Lg</span><span class="scale-label">18px</span></div>
+    <div class="scale-item"><span style="font-size:20px">Xl</span><span class="scale-label">20px</span></div>
+    <div class="scale-item"><span style="font-size:24px">2xl</span><span class="scale-label">24px</span></div>
+    <div class="scale-item"><span style="font-size:30px">3xl</span><span class="scale-label">30px</span></div>
+  </div>
+</div>
+<div class="specimen">
+  <div class="eyebrow">Mono / Code</div>
+  <div style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:400; line-height:1.6; color:#f4efe7; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px">
+    <span style="color:#bc4a3f">const</span> dice = <span style="color:#d5a240">rollD20</span>() + modifier;<br>
+    <span style="color:#bc4a3f">if</span> (dice &gt;= dc) <span style="color:#4b9f91">/* sucesso crítico */</span>
+  </div>
+  <div class="meta">JetBrains Mono 400 · 13px · leading 1.6</div>
+</div>
+</body></html>

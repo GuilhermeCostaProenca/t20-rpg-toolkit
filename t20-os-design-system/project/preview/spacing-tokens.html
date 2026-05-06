@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06070c; font-family: 'DM Sans', sans-serif; padding: 24px; color: #f4efe7; }
+  .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,221,177,0.78); margin-bottom: 10px; }
+  .row { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .token { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .block { background: rgba(188,74,63,0.25); border-radius: 3px; }
+  .label { font-size: 9px; font-family: monospace; color: rgba(213,162,64,0.6); text-align: center; }
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
+  .radius-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .radius-box { width: 48px; height: 48px; background: rgba(188,74,63,0.18); border: 1px solid rgba(188,74,63,0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+</style></head><body>
+
+<div class="eyebrow">Spacing Scale</div>
+<div class="row">
+  <div class="token"><div class="block" style="width:4px; height:4px"></div><div class="label">1 · 4px</div></div>
+  <div class="token"><div class="block" style="width:8px; height:8px"></div><div class="label">2 · 8px</div></div>
+  <div class="token"><div class="block" style="width:12px; height:12px"></div><div class="label">3 · 12px</div></div>
+  <div class="token"><div class="block" style="width:16px; height:16px"></div><div class="label">4 · 16px</div></div>
+  <div class="token"><div class="block" style="width:20px; height:20px"></div><div class="label">5 · 20px</div></div>
+  <div class="token"><div class="block" style="width:24px; height:24px"></div><div class="label">6 · 24px</div></div>
+  <div class="token"><div class="block" style="width:32px; height:32px"></div><div class="label">8 · 32px</div></div>
+  <div class="token"><div class="block" style="width:40px; height:40px"></div><div class="label">10 · 40px</div></div>
+  <div class="token"><div class="block" style="width:48px; height:48px"></div><div class="label">12 · 48px</div></div>
+</div>
+
+<hr class="divider">
+
+<div class="eyebrow">Border Radius</div>
+<div class="radius-row">
+  <div class="token"><div class="radius-box" style="border-radius:6px"></div><div class="label">sm · 10px</div></div>
+  <div class="token"><div class="radius-box" style="border-radius:8px"></div><div class="label">md · 12px</div></div>
+  <div class="token"><div class="radius-box" style="border-radius:14px"></div><div class="label">lg · 14px</div></div>
+  <div class="token"><div class="radius-box" style="border-radius:18px"></div><div class="label">xl · 18px</div></div>
+  <div class="token"><div class="radius-box" style="border-radius:22px"></div><div class="label">2xl · 22px</div></div>
+  <div class="token"><div class="radius-box" style="border-radius:9999px; width:64px; height:28px"></div><div class="label">pill</div></div>
+</div>
+
+<hr class="divider">
+
+<div class="eyebrow">Border Weight</div>
+<div class="row" style="align-items:center">
+  <div style="width:80px; height:32px; border:1px solid rgba(255,255,255,0.08); border-radius:6px; display:flex; align-items:center; justify-content:center">
+    <span style="font-size:9px; font-family:monospace; color:rgba(213,162,64,0.6)">0.08 white</span>
+  </div>
+  <div style="width:80px; height:32px; border:1px solid rgba(255,255,255,0.14); border-radius:6px; display:flex; align-items:center; justify-content:center">
+    <span style="font-size:9px; font-family:monospace; color:rgba(213,162,64,0.6)">0.14 white</span>
+  </div>
+  <div style="width:80px; height:32px; border:1px solid rgba(188,74,63,0.25); border-radius:6px; display:flex; align-items:center; justify-content:center">
+    <span style="font-size:9px; font-family:monospace; color:rgba(213,162,64,0.6)">0.25 red</span>
+  </div>
+  <div style="width:80px; height:32px; border:1px solid rgba(188,74,63,0.4); border-radius:6px; display:flex; align-items:center; justify-content:center">
+    <span style="font-size:9px; font-family:monospace; color:rgba(213,162,64,0.6)">0.40 red</span>
+  </div>
+</div>
+</body></html>
