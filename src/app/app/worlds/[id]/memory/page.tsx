@@ -10,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/empty-state";
 import { ModeSwitcher } from "@/components/world/mode-switcher";
+import {
+  formatMemoryEventText,
+  formatMemoryEventType,
+  formatMemoryEventVisibility,
+  formatMemoryEventKind,
+  formatMemoryEventTemporalLabel,
+} from "@/lib/world-memory";
 
 type MemoryEvent = {
   id: string;
@@ -19,7 +26,34 @@ type MemoryEvent = {
   visibility: string;
   campaignId?: string | null;
   sessionId?: string | null;
+  meta?: Record<string, unknown> | null;
 };
+
+type EventVisualMeta = {
+  label: string;
+  color: string;
+  dimColor: string;
+};
+
+function getEventVisualMeta(type: string): EventVisualMeta {
+  switch (type) {
+    case "NPC_DEATH":
+      return { label: "Combate", color: "#bc4a3f", dimColor: "rgba(188,74,63,0.15)" };
+    case "SESSION_END":
+      return { label: "Narrativa", color: "#4b9f91", dimColor: "rgba(75,159,145,0.15)" };
+    case "WORLD_CHANGE":
+      return { label: "Descoberta", color: "#d5a240", dimColor: "rgba(213,162,64,0.15)" };
+    default:
+      return { label: "Nota", color: "#9b7f56", dimColor: "rgba(155,127,86,0.15)" };
+  }
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  });
+}
 
 function formatDateTime(value: string) {
   return new Date(value).toLocaleString("pt-BR", {
@@ -28,6 +62,65 @@ function formatDateTime(value: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function TimelineEvent({ event }: { event: MemoryEvent }) {
+  const visual = getEventVisualMeta(event.type);
+  const temporalLabel = formatMemoryEventTemporalLabel(event.ts);
+  const kind = formatMemoryEventKind(event);
+
+  return (
+    <div className="relative mb-5 pl-4">
+      <div
+        className="absolute left-[-22px] top-[5px] h-[10px] w-[10px] rounded-full border-2"
+        style={{
+          background: visual.color,
+          borderColor: "var(--background, #06070c)",
+        }}
+      />
+      <div
+        className="cinematic-frame rounded-[20px] p-4"
+        style={{ borderColor: `${visual.color}22` }}
+      >
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            {formatDate(event.ts)}
+          </span>
+          <span className="text-[10px] text-white/20">·</span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            {temporalLabel}
+          </span>
+          <div
+            className="ml-auto rounded-full px-2 py-[2px] text-[9px] font-semibold uppercase tracking-[0.06em]"
+            style={{
+              border: `1px solid ${visual.color}44`,
+              background: visual.dimColor,
+              color: visual.color,
+            }}
+          >
+            {visual.label}
+          </div>
+        </div>
+
+        <p className="mb-1 text-sm font-semibold text-foreground">
+          {formatMemoryEventText(event)}
+        </p>
+        <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{kind}</p>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Badge className="border-white/10 bg-black/24 text-white/70">
+            {formatMemoryEventVisibility(event.visibility)}
+          </Badge>
+          <Badge className="border-white/10 bg-black/24 text-white/60">
+            {formatMemoryEventType(event.type)}
+          </Badge>
+          <span className="ml-auto text-[10px] text-muted-foreground/60">
+            {formatDateTime(event.ts)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function WorldMemoryPage() {
@@ -72,12 +165,12 @@ export default function WorldMemoryPage() {
               </Badge>
             </div>
             <div className="space-y-3">
-              <p className="section-eyebrow">Linha narrativa</p>
+              <p className="section-eyebrow">Continuidade narrativa</p>
               <h1 className="text-4xl font-black uppercase tracking-[0.04em] text-foreground sm:text-5xl">
-                O mundo lembra por eventos, nao por memoria manual.
+                Memoria do Mundo
               </h1>
               <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
-                Esta rota canonica consolida a leitura de memoria do mundo e centraliza busca de acontecimentos para prep e mesa.
+                Linha narrativa consolidada. Tudo que ficou da mesa, em ordem cronologica.
               </p>
             </div>
             <ModeSwitcher worldId={worldId} />
@@ -125,24 +218,24 @@ export default function WorldMemoryPage() {
           icon={<History className="h-6 w-6" />}
         />
       ) : (
-        <div className="space-y-3">
+        <div
+          className="relative pl-6"
+          style={{
+            paddingLeft: "24px",
+          }}
+        >
+          <div
+            className="pointer-events-none absolute left-[6px] top-0 bottom-0 w-px"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(188,74,63,0.5) 0%, rgba(188,74,63,0.15) 70%, rgba(188,74,63,0) 100%)",
+            }}
+          />
           {grouped.map((event) => (
-            <div key={event.id} className="rounded-[24px] border border-white/8 bg-white/4 p-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="border-white/10 bg-black/24 text-white/80">{event.type}</Badge>
-                <Badge className="border-white/10 bg-black/24 text-white/60">{event.visibility}</Badge>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-foreground">
-                {event.text || "Evento sem descricao textual."}
-              </p>
-              <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                {formatDateTime(event.ts)}
-              </p>
-            </div>
+            <TimelineEvent key={event.id} event={event} />
           ))}
         </div>
       )}
     </div>
   );
 }
-
