@@ -17,6 +17,14 @@ type WorldContext = {
   title: string;
 };
 
+function formatClock(value: Date) {
+  return value.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
 function resolveSectionLabel(pathname: string) {
   if (pathname === "/app") return "Painel do mestre";
   if (pathname === "/app/worlds") return "Biblioteca de mundos";
@@ -39,7 +47,7 @@ export function Topbar() {
   const pathname = usePathname();
   const worldId = extractWorldIdFromPath(pathname);
   const [worldContext, setWorldContext] = useState<WorldContext | null>(null);
-  const [now, setNow] = useState(() => new Date());
+  const [formattedClock, setFormattedClock] = useState("--:--:--");
 
   useEffect(() => {
     let cancelled = false;
@@ -69,20 +77,11 @@ export function Topbar() {
   }, [worldId]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    const timer = window.setInterval(() => setFormattedClock(formatClock(new Date())), 1000);
     return () => window.clearInterval(timer);
   }, []);
 
   const sectionLabel = useMemo(() => resolveSectionLabel(pathname), [pathname]);
-  const formattedClock = useMemo(
-    () =>
-      now.toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }),
-    [now]
-  );
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/8 bg-[linear-gradient(90deg,rgba(8,7,12,0.96),rgba(12,10,16,0.9))] backdrop-blur-2xl">

@@ -241,7 +241,7 @@ function ForjaApp() {
 
       <CockpitSidebar
         activeModule="forge"
-        onNavigate={navigateHandoffModule}
+        onNavigate={id => { if (id === "cockpit") window.location.href = "Cockpit.html"; if (id === "codex") window.location.href = "Codex.html"; }}
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(c => !c)}
       />

@@ -78,7 +78,8 @@ function CodexApp() {
   }
 
   function handleNavigation(moduleId) {
-    navigateHandoffModule(moduleId);
+    if (moduleId === "cockpit") { window.location.href = "Cockpit.html"; return; }
+    setActiveModule(moduleId);
   }
 
   return (

@@ -16,6 +16,15 @@ function normalizeOriginHost(value: string): string | null {
   }
 }
 
+function normalizeOriginHostname(value: string): string | null {
+  try {
+    const parsed = new URL(value);
+    return parsed.hostname;
+  } catch {
+    return value.replace(/^https?:\/\//, "").split(":")[0]?.trim() || null;
+  }
+}
+
 const trustedOrigins = parseList(process.env.TRUSTED_ORIGINS);
 const trustedOriginHosts = Array.from(
   new Set(
@@ -24,10 +33,17 @@ const trustedOriginHosts = Array.from(
       .filter((value): value is string => Boolean(value)),
   ),
 );
+const trustedOriginHostnames = Array.from(
+  new Set(
+    trustedOrigins
+      .map(normalizeOriginHostname)
+      .filter((value): value is string => Boolean(value)),
+  ),
+);
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  allowedDevOrigins: trustedOriginHosts,
+  allowedDevOrigins: trustedOriginHostnames,
   experimental: {
     serverActions:
       trustedOriginHosts.length > 0

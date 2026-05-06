@@ -418,3 +418,16 @@
 - Motivo: o Hub materializa a intencao do Claude Design de uma navegacao global cinematografica sem arriscar regressao nos fluxos reais do produto.
 - Impacto: o pacote estatico agora funciona como mini-app navegavel e referencia visual mais completa para a futura conversao dos modulos reais.
 - Riscos/observacoes: continua sendo vitrine estatica com mocks; a implementacao real deve reaproveitar a intencao visual, nao depender do bundle estatico como arquitetura final.
+
+### DEC-032: Converter handoff HTML para React real por modulo
+- Data: 2026-05-06
+- Status: aceita
+- Contexto: o Claude Design segue entregando telas em HTML/JSX estatico no pacote `T20-toolkit`, incluindo a nova versao `T20-toolkit (1).zip` com telas adicionais de Campanha e Lousa. O produto real, porem, ja possui rotas Next/React, APIs, dados world-scoped e fluxos maduros.
+- Decisao: manter o HTML do Claude como contrato visual e vitrine navegavel em `public/handoff/t20-toolkit`, mas converter as superficies reais modulo a modulo para React/TypeScript dentro de `src/app`, preservando dados reais, validacoes, feedback global, quick inspect e links canonicos.
+- Alternativas consideradas:
+  - continuar servindo HTML estatico como produto principal;
+  - copiar o JSX do handoff diretamente para rotas reais com mocks/localStorage;
+  - adiar conversao ate o pacote de design estabilizar totalmente.
+- Motivo: a conversao por modulo reduz regressao funcional e evita transformar prototipo em arquitetura de produto, mantendo a velocidade visual do Claude Design como referencia de implementacao.
+- Impacto: `A1-LP6-R7` passa a converter o primeiro viewport real do Cockpit do Mundo, enquanto o pacote estatico atualizado continua sendo benchmark de QA visual.
+- Riscos/observacoes: a fidelidade visual ainda precisa de QA em browser; os proximos recortes devem continuar pequenos para nao misturar mocks do handoff com contratos reais de dominio.

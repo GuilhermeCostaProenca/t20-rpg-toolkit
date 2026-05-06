@@ -1397,3 +1397,93 @@
   - `npx eslint -- "src/app/(public)/mestre/page.tsx"` -> ok.
 - Pendencias:
   - validar visualmente no browser aberto pelo usuario e ajustar densidade/estetica conforme feedback.
+
+### Sessao: 2026-05-06 15:52 - A1-LP6-R7 inicio da conversao real do Cockpit do Mundo
+- Objetivo:
+  - continuar a refatoracao visual conduzida pelo Claude Design, convertendo o handoff HTML para superficies reais React/TypeScript sem perder dados reais.
+- O que foi feito:
+  - criada branch `codex/a1-lp6-r7-world-cockpit-handoff`.
+  - inspecionado `C:\Users\guilh\Downloads\T20-toolkit (1).zip`, identificando novas telas estaticas de `Campanha` e `Lousa`.
+  - atualizado `public/handoff/t20-toolkit` com o runtime novo do ZIP, sem copiar a pasta `uploads` para `public`.
+  - adicionado `Campanha` e `Lousa` ao hub estatico e restaurada navegacao do sidebar estatico para trocar de HTML com transicao.
+  - convertido o primeiro viewport real de `src/app/app/worlds/[id]/page.tsx` para uma leitura mais proxima do cockpit do handoff: header de mundo ativo, modo, metricas densas, mapa/atlas visual, proxima batida, acesso rapido e zona de decisao.
+  - mantidos os contratos reais de API, criacao de campanha, filtros de memoria, quick inspect e links canonicos.
+- Arquivos principais alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `public/handoff/t20-toolkit/*`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacoes executadas:
+  - tentativa de criar issue Linear para `A1-LP6-R7` falhou por limite gratuito do workspace; rastreio mantido em `ai/tasks.md`, branch e commit.
+  - `npx eslint -- "src/app/app/worlds/[id]/page.tsx"` -> ok.
+  - `npx eslint -- "src/app/app/worlds/[id]/page.tsx" "src/app/(public)/mestre/page.tsx"` -> ok.
+  - `GET /handoff/t20-toolkit/Hub.html`, `Campanha.html`, `Lousa.html` e `/mestre` em `127.0.0.1:3102` -> todos `200`.
+  - Playwright desktop em `/handoff/t20-toolkit/cockpit/Campanha.html` -> renderizou cockpit de campanha; sem erros de console, apenas aviso esperado de Babel in-browser.
+  - Playwright desktop em `/handoff/t20-toolkit/cockpit/Lousa.html` -> renderizou canvas de ideacao; sem erros de console, apenas aviso esperado de Babel in-browser.
+  - Playwright desktop em `/mestre` -> hub renderizou com novos cards `Campanha` e `Lousa`.
+  - Playwright desktop em `/app/worlds/cld8cbf762d6a0cf28a9465e7e` -> rota renderizou estado vazio/erro gracioso; validacao com dados reais ficou bloqueada porque `DATABASE_URL` nao estava disponivel no dev server inicial e Docker Desktop/Postgres local nao estavam ativos.
+- Decisoes tomadas:
+  - DEC-032 registrada: HTML do Claude Design segue como contrato visual/vitrine; produto real deve ser convertido por modulo em React/TypeScript com dados reais.
+- Pendencias:
+  - rodar QA em browser real para `/app/worlds/[id]`, `/mestre`, `Campanha.html` e `Lousa.html`.
+  - fechar commit do recorte apos validacao.
+- Proximo passo recomendado:
+  - continuar `A1-LP6-R7` com ajuste visual fino do restante da pagina do mundo ou abrir `A1-LP6-R8` para Grafo/Visual/Memoria/Forjas reais em recortes pequenos.
+
+### Sessao: 2026-05-06 16:24 - A1-LP6-R7 refinamento do corpo do Cockpit do Mundo
+- Objetivo:
+  - continuar a conversao real do Cockpit do Mundo para se aproximar mais do handoff do Claude Design, alem do primeiro viewport.
+- O que foi feito:
+  - substituidas campanhas em cards grandes por lista operacional densa com sala, data, quick inspect e entrada direta.
+  - convertida a linha viva de eventos para uma tabela/timeline compacta com indice, tipo, escopo, data e acao de inspect.
+  - densificada a memoria consolidada com resultados em lista compacta, preservando filtros, busca transversal, relevancia e quick inspect.
+  - refinados painel tatico, areas ligadas e campanha em destaque para blocos menores e mais proximos do cockpit do handoff.
+- Arquivos principais alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacoes executadas:
+  - `npx eslint -- "src/app/app/worlds/[id]/page.tsx"` -> ok.
+  - `git diff --check` -> ok, apenas aviso conhecido de CRLF no Windows.
+  - commit incremental criado na branch `codex/a1-lp6-r7-world-cockpit-handoff`.
+- Decisoes tomadas:
+  - nenhuma decisao arquitetural nova; mantida DEC-032.
+- Pendencias:
+  - validar `/app/worlds/[id]` com dados reais quando Docker/Postgres local estiver disponivel.
+  - revisar visualmente no browser com um mundo real para calibrar densidade, quebras e proporcoes.
+- Proximo passo recomendado:
+  - seguir no mesmo PR com QA real ou iniciar o proximo modulo real (`Grafo`, `Visual`, `Memoria` ou `Forja`) em recorte separado depois que este corte for regularizado.
+
+### Sessao: 2026-05-06 17:14 - A1-LP6-R7 QA real em Docker
+- Objetivo:
+  - validar a conversao do Cockpit real do Mundo com Postgres/Docker ativos e dados reais.
+- O que foi feito:
+  - localizado o mundo real ativo `cld8cbf762d6a0cf28a9465e7e` (`Mundo Padrao`) no Postgres.
+  - validado `/app/worlds/cld8cbf762d6a0cf28a9465e7e` no app Docker (`127.0.0.1:3000`) em desktop e mobile.
+  - corrigido erro de hidratacao global no `Topbar` causado por renderizacao SSR/client diferente do relogio.
+  - ajustado `allowedDevOrigins` para usar hostnames sem porta no dev server, resolvendo falha de HMR via Docker.
+  - adicionado texto descritivo ao dialog de `Nova campanha` e exercitada a abertura do dialog sem submeter dados.
+- Arquivos principais alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `src/components/topbar.tsx`
+  - `next.config.ts`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacoes executadas:
+  - `npx eslint -- "src/app/app/worlds/[id]/page.tsx" "src/components/topbar.tsx" "next.config.ts"` -> ok.
+  - `git diff --check` -> ok, apenas aviso conhecido de CRLF no Windows.
+  - Docker `t20-clean-app-1` e `t20-clean-db-1` saudaveis.
+  - Playwright desktop em `/app/worlds/cld8cbf762d6a0cf28a9465e7e` -> renderizou `Mundo Padrao`, sem overlay e sem erros/warnings relevantes de console.
+  - Playwright interaction -> botão `Nova campanha` abriu dialog com descricao visivel; sem submissao de dados.
+  - Playwright mobile `390x844` -> primeira tela renderizou sem erro de console.
+- Decisoes tomadas:
+  - `allowedDevOrigins` passa a usar hostnames normalizados, enquanto `serverActions.allowedOrigins` continua com host/porta.
+- Pendencias:
+  - revisar visualmente com mundo mais populado quando houver campanhas/eventos/memoria reais para calibrar listas densas.
+- Proximo passo recomendado:
+  - se o recorte visual for aceito, marcar PR como pronto e seguir para merge em `master`; se nao, continuar ajustes finos no mesmo PR.

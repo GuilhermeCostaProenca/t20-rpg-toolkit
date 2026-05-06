@@ -39,6 +39,18 @@
 - [x] [A1-LP6-R6] Importar o novo pacote completo `T20-toolkit` do Claude Design para `public/handoff/t20-toolkit`, apontar `/` para a landing desse bundle e `/mestre` para o cockpit, preservando navegacao estatica entre Landing, Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa.
 - [x] [A1-LP6-R6B] Criar Hub cinematografico do handoff e navegacao global com transicoes entre Landing, Hub, Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa.
 - [ ] [A1-LP6-R7] Converter o Cockpit real do mundo (`/app/worlds/[id]`) para a anatomia do novo handoff completo, mantendo dados reais, APIs existentes e links canonicos.
+  - [x] Criar branch curta `codex/a1-lp6-r7-world-cockpit-handoff`.
+  - [x] Inspecionar `C:\Users\guilh\Downloads\T20-toolkit (1).zip` e identificar novas telas do handoff (`Campanha`, `Lousa`).
+  - [x] Atualizar a vitrine estatica `public/handoff/t20-toolkit` com o runtime novo sem publicar a pasta `uploads`.
+  - [x] Aplicar primeira conversao visual do primeiro viewport real de `/app/worlds/[id]` para cockpit operacional denso.
+  - [x] Refinar o corpo da rota real com listas densas para campanhas, linha viva, memoria consolidada, painel tatico e campanha em destaque.
+  - [ ] Validar em browser real rota real e prototipo estatico atualizado.
+    - [x] Prototipo estatico atualizado validado em Playwright (`/mestre`, `Campanha.html`, `Lousa.html`) sem erros de console bloqueantes.
+    - [x] Rota real `/app/worlds/[id]` validada em Playwright ate estado vazio/erro gracioso.
+    - [x] Validacao com dados reais executada em Docker/Postgres (`Mundo Padrao`) com desktop, mobile e abertura do dialog `Nova campanha`.
+  - [x] Atualizar memoria do projeto e fechar commit inicial do recorte.
+  - [x] Fechar novo commit incremental do refinamento do corpo apos validacao tecnica.
+  - Observacao Linear: tentativa de criar issue falhou por limite gratuito do workspace; rastreio mantido por `A1-LP6-R7`, branch e commit.
 - [ ] [A1-LP6-R8] Converter Grafo, Visual, Memoria e Forjas reais para a nova anatomia do handoff completo, por recortes pequenos e validados.
 
 ## Concluidas
