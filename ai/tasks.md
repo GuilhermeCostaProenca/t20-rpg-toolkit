@@ -43,11 +43,13 @@
   - [x] Inspecionar `C:\Users\guilh\Downloads\T20-toolkit (1).zip` e identificar novas telas do handoff (`Campanha`, `Lousa`).
   - [x] Atualizar a vitrine estatica `public/handoff/t20-toolkit` com o runtime novo sem publicar a pasta `uploads`.
   - [x] Aplicar primeira conversao visual do primeiro viewport real de `/app/worlds/[id]` para cockpit operacional denso.
+  - [x] Refinar o corpo da rota real com listas densas para campanhas, linha viva, memoria consolidada, painel tatico e campanha em destaque.
   - [ ] Validar em browser real rota real e prototipo estatico atualizado.
     - [x] Prototipo estatico atualizado validado em Playwright (`/mestre`, `Campanha.html`, `Lousa.html`) sem erros de console bloqueantes.
     - [x] Rota real `/app/worlds/[id]` validada em Playwright ate estado vazio/erro gracioso.
     - [ ] Validacao com dados reais pendente porque Postgres/Docker Desktop nao estavam ativos no ambiente local.
-  - [ ] Atualizar memoria do projeto e fechar commit do recorte.
+  - [x] Atualizar memoria do projeto e fechar commit inicial do recorte.
+  - [x] Fechar novo commit incremental do refinamento do corpo apos validacao tecnica.
   - Observacao Linear: tentativa de criar issue falhou por limite gratuito do workspace; rastreio mantido por `A1-LP6-R7`, branch e commit.
 - [ ] [A1-LP6-R8] Converter Grafo, Visual, Memoria e Forjas reais para a nova anatomia do handoff completo, por recortes pequenos e validados.
 

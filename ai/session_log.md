@@ -1432,3 +1432,28 @@
   - fechar commit do recorte apos validacao.
 - Proximo passo recomendado:
   - continuar `A1-LP6-R7` com ajuste visual fino do restante da pagina do mundo ou abrir `A1-LP6-R8` para Grafo/Visual/Memoria/Forjas reais em recortes pequenos.
+
+### Sessao: 2026-05-06 16:24 - A1-LP6-R7 refinamento do corpo do Cockpit do Mundo
+- Objetivo:
+  - continuar a conversao real do Cockpit do Mundo para se aproximar mais do handoff do Claude Design, alem do primeiro viewport.
+- O que foi feito:
+  - substituidas campanhas em cards grandes por lista operacional densa com sala, data, quick inspect e entrada direta.
+  - convertida a linha viva de eventos para uma tabela/timeline compacta com indice, tipo, escopo, data e acao de inspect.
+  - densificada a memoria consolidada com resultados em lista compacta, preservando filtros, busca transversal, relevancia e quick inspect.
+  - refinados painel tatico, areas ligadas e campanha em destaque para blocos menores e mais proximos do cockpit do handoff.
+- Arquivos principais alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacoes executadas:
+  - `npx eslint -- "src/app/app/worlds/[id]/page.tsx"` -> ok.
+  - `git diff --check` -> ok, apenas aviso conhecido de CRLF no Windows.
+  - commit incremental criado na branch `codex/a1-lp6-r7-world-cockpit-handoff`.
+- Decisoes tomadas:
+  - nenhuma decisao arquitetural nova; mantida DEC-032.
+- Pendencias:
+  - validar `/app/worlds/[id]` com dados reais quando Docker/Postgres local estiver disponivel.
+  - revisar visualmente no browser com um mundo real para calibrar densidade, quebras e proporcoes.
+- Proximo passo recomendado:
+  - seguir no mesmo PR com QA real ou iniciar o proximo modulo real (`Grafo`, `Visual`, `Memoria` ou `Forja`) em recorte separado depois que este corte for regularizado.

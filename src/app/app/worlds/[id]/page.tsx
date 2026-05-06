@@ -25,7 +25,6 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { CockpitDetailSheet } from "@/components/cockpit/cockpit-detail-sheet";
 import { ModeSwitcher } from "@/components/world/mode-switcher";
 import {
@@ -1064,67 +1063,62 @@ export default function WorldDetailPage() {
                 }
               />
             ) : (
-              <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+              <div className="overflow-hidden rounded-[18px] border border-white/8 bg-black/20">
                 {world.campaigns.map((campaign, index) => (
-                  <Card
+                  <div
                     key={campaign.id}
-                    className="overflow-hidden rounded-[28px] border-white/10 bg-black/20 transition hover:border-primary/25"
+                    className="grid gap-3 border-b border-white/6 p-4 last:border-b-0 md:grid-cols-[minmax(0,1fr)_150px_220px] md:items-center"
                   >
-                    <CardContent className="p-0">
-                      <div
-                        className="flex min-h-[196px] flex-col justify-between p-5 xl:min-h-[188px]"
-                        style={{
-                          background:
-                            index % 2 === 0
-                              ? "linear-gradient(135deg, rgba(188,74,63,0.18), rgba(9,9,14,0.88))"
-                              : "linear-gradient(135deg, rgba(213,162,64,0.12), rgba(9,9,14,0.88))",
-                        }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <Badge className="border-white/10 bg-black/30 text-white">Campanha</Badge>
-                          <span className="text-xs uppercase tracking-[0.18em] text-white/55">
-                            {formatDate(campaign.updatedAt)}
-                          </span>
-                        </div>
-
-                        <div className="space-y-4">
-                          <div>
-                            <h3 className="text-2xl font-black uppercase tracking-[0.04em] text-white">
-                              {campaign.name}
-                            </h3>
-                            <p className="mt-2 text-sm text-white/66">
-                              Sala: {campaign.roomCode || "sem codigo publico"}
-                            </p>
-                          </div>
-
-                          <div className="flex gap-2">
-                            <Button
-                              className="flex-1 justify-between bg-white text-black hover:bg-white/90"
-                              onClick={() => router.push(`/app/campaign/${campaign.id}`)}
-                            >
-                              Abrir campanha
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              className="border-white/10 bg-white/5"
-                              onClick={() =>
-                                setInspectItem({
-                                  type: "campaign",
-                                  title: campaign.name,
-                                  subtitle: "Leitura rapida da campanha",
-                                  body: `Atualizada em ${formatDateTime(campaign.updatedAt)}.\nCodigo de sala: ${campaign.roomCode || "nao definido"}.`,
-                                  href: `/app/campaign/${campaign.id}`,
-                                })
-                              }
-                            >
-                              <LayoutGrid className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={
+                            index === 0
+                              ? "h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_rgba(213,162,64,0.9)]"
+                              : "h-2 w-2 rounded-full bg-white/18"
+                          }
+                        />
+                        <Badge className="border-white/10 bg-white/5 text-white/75">Campanha</Badge>
+                        <span className="text-[10px] uppercase tracking-[0.18em] text-white/38">
+                          {formatDate(campaign.updatedAt)}
+                        </span>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <h3 className="mt-2 truncate text-lg font-black uppercase tracking-[0.04em] text-foreground">
+                        {campaign.name}
+                      </h3>
+                    </div>
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2">
+                      <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Sala</p>
+                      <p className="mt-1 truncate font-mono text-xs text-white/75">
+                        {campaign.roomCode || "sem codigo"}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        className="min-w-0 flex-1 justify-between bg-white text-black hover:bg-white/90"
+                        onClick={() => router.push(`/app/campaign/${campaign.id}`)}
+                      >
+                        Abrir
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="border-white/10 bg-white/5"
+                        aria-label={`Inspecionar ${campaign.name}`}
+                        onClick={() =>
+                          setInspectItem({
+                            type: "campaign",
+                            title: campaign.name,
+                            subtitle: "Leitura rapida da campanha",
+                            body: `Atualizada em ${formatDateTime(campaign.updatedAt)}.\nCodigo de sala: ${campaign.roomCode || "nao definido"}.`,
+                            href: `/app/campaign/${campaign.id}`,
+                          })
+                        }
+                      >
+                        <LayoutGrid className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -1150,12 +1144,12 @@ export default function WorldDetailPage() {
                 icon={<Activity className="h-6 w-6" />}
               />
             ) : (
-              <div className="grid gap-3 2xl:grid-cols-2">
-                {recentEvents.map((event) => (
+              <div className="overflow-hidden rounded-[18px] border border-white/8 bg-black/20">
+                {recentEvents.map((event, index) => (
                   <button
                     key={event.id}
                     type="button"
-                    className="w-full rounded-[24px] border border-white/8 bg-white/4 p-4 text-left transition hover:border-primary/20 hover:bg-white/6"
+                    className="grid w-full gap-3 border-b border-white/6 p-4 text-left transition last:border-b-0 hover:bg-white/[0.04] md:grid-cols-[72px_minmax(0,1fr)_140px_24px] md:items-center"
                     onClick={() =>
                       setInspectItem({
                         type: "event",
@@ -1165,18 +1159,23 @@ export default function WorldDetailPage() {
                       })
                     }
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Badge className="border-white/10 bg-black/30 text-white">{event.type}</Badge>
-                          <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                            {formatDateTime(event.ts)}
-                          </span>
-                        </div>
-                        <p className="text-sm leading-6 text-foreground">{formatEvent(event)}</p>
-                      </div>
-                      <ChevronRight className="mt-1 h-4 w-4 text-white/35" />
+                    <div className="flex items-center gap-2 md:block">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className="ml-auto h-2 w-2 rounded-full bg-primary/80 shadow-[0_0_10px_rgba(213,162,64,0.7)] md:ml-0 md:mt-2 md:block" />
                     </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge className="border-white/10 bg-white/5 text-white/75">{event.type}</Badge>
+                        <Badge className="border-white/10 bg-black/30 text-white/55">{event.scope}</Badge>
+                      </div>
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-foreground">{formatEvent(event)}</p>
+                    </div>
+                    <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                      {formatDateTime(event.ts)}
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-white/35" />
                   </button>
                 ))}
               </div>
@@ -1292,12 +1291,12 @@ export default function WorldDetailPage() {
                       : "Nenhum evento de memoria corresponde aos filtros atuais."}
                   </div>
                 ) : (
-                  <div className="grid gap-3 2xl:grid-cols-2">
+                  <div className="overflow-hidden rounded-[18px] border border-white/8 bg-black/20">
                     {visibleMemoryEvents.slice(0, 10).map((event) => (
                       <button
                         key={event.id}
                         type="button"
-                        className="w-full rounded-[24px] border border-white/8 bg-white/4 p-4 text-left transition hover:border-primary/20 hover:bg-white/6"
+                        className="grid w-full gap-3 border-b border-white/6 p-4 text-left transition last:border-b-0 hover:bg-white/[0.04] xl:grid-cols-[minmax(0,1fr)_132px] xl:items-start"
                         onClick={() =>
                           setInspectItem({
                             type: "memory",
@@ -1306,43 +1305,45 @@ export default function WorldDetailPage() {
                           })
                         }
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="space-y-2">
-                            <div className="flex flex-wrap gap-2">
-                              <Badge
-                                className={
-                                  getMemoryEventTone(event) === "death"
-                                    ? "border-red-300/20 bg-red-300/10 text-red-100"
-                                    : getMemoryEventTone(event) === "change"
-                                      ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
-                                      : "border-primary/20 bg-primary/10 text-primary"
-                                }
-                              >
-                                {formatMemoryEventType(event.type)}
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap gap-2">
+                            <Badge
+                              className={
+                                getMemoryEventTone(event) === "death"
+                                  ? "border-red-300/20 bg-red-300/10 text-red-100"
+                                  : getMemoryEventTone(event) === "change"
+                                    ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+                                    : "border-primary/20 bg-primary/10 text-primary"
+                              }
+                            >
+                              {formatMemoryEventType(event.type)}
+                            </Badge>
+                            <Badge className="border-white/10 bg-black/30 text-white">
+                              {formatMemoryEventVisibility(event.visibility)}
+                            </Badge>
+                            <Badge className="border-white/10 bg-white/5 text-white/75">
+                              {formatMemoryEventKind(event)}
+                            </Badge>
+                            {isCrossMemoryMode ? (
+                              <Badge className="border-emerald-400/25 bg-emerald-500/10 text-emerald-100">
+                                Relevancia {crossMemoryScoreById[event.id] ?? 0}
                               </Badge>
-                              <Badge className="border-white/10 bg-black/30 text-white">
-                                {formatMemoryEventVisibility(event.visibility)}
-                              </Badge>
-                              <Badge className="border-white/10 bg-white/5 text-white/75">
-                                {formatMemoryEventKind(event)}
-                              </Badge>
-                              <Badge className="border-white/10 bg-white/5 text-white/75">
-                                {formatMemoryEventTemporalLabel(event.ts)}
-                              </Badge>
-                              {isCrossMemoryMode ? (
-                                <Badge className="border-emerald-400/25 bg-emerald-500/10 text-emerald-100">
-                                  Relevancia {crossMemoryScoreById[event.id] ?? 0}
-                                </Badge>
-                              ) : null}
-                            </div>
-                            <p className="text-sm leading-6 text-foreground">{formatMemoryEventText(event)}</p>
-                            {event.campaignId ? (
-                              <p className="text-xs uppercase tracking-[0.14em] text-amber-100/80">
-                                {campaignNameById.get(event.campaignId) || "Campanha ligada"}
-                              </p>
                             ) : null}
                           </div>
-                          <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                          <p className="mt-2 line-clamp-2 text-sm leading-6 text-foreground">
+                            {formatMemoryEventText(event)}
+                          </p>
+                          {event.campaignId ? (
+                            <p className="mt-2 text-xs uppercase tracking-[0.14em] text-amber-100/80">
+                              {campaignNameById.get(event.campaignId) || "Campanha ligada"}
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="flex items-center justify-between gap-3 xl:block xl:text-right">
+                          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                            {formatMemoryEventTemporalLabel(event.ts)}
+                          </span>
+                          <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.12em] text-white/38">
                             {formatDateTime(event.ts)}
                           </span>
                         </div>
@@ -1357,34 +1358,37 @@ export default function WorldDetailPage() {
 
         <div className="space-y-6">
           <section className="chrome-panel rounded-[30px] p-6">
-            <p className="section-eyebrow">Painel tatico</p>
-            <div className="mt-4 space-y-4">
-              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="section-eyebrow">Painel tatico</p>
+              <Badge className="border-primary/20 bg-primary/10 text-primary">Operacional</Badge>
+            </div>
+            <div className="mt-4 overflow-hidden rounded-[18px] border border-white/8 bg-black/20">
+              <div className="grid gap-3 border-b border-white/6 p-4">
                 <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   <Crown className="h-4 w-4 text-primary/80" />
                   Proximo passo forte
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="text-sm leading-6 text-muted-foreground">
                   O Codex do Mundo entrou no shell como a nova camada estrutural de entidades e consulta.
                 </p>
               </div>
 
-              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+              <div className="grid gap-3 border-b border-white/6 p-4">
                 <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   <BookOpenText className="h-4 w-4 text-amber-300/80" />
                   Camada atual
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="text-sm leading-6 text-muted-foreground">
                   Campanhas, eventos, atalhos e memoria recente integrados em uma superficie unica.
                 </p>
               </div>
 
-              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
+              <div className="grid gap-3 p-4">
                 <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   <Sparkles className="h-4 w-4 text-violet-200/80" />
                   Prep imediato
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="text-sm leading-6 text-muted-foreground">
                   {world.nextSession?.campaign?.name
                     ? `Lore priorizado para a proxima mesa de ${world.nextSession.campaign.name}.`
                     : "Lore priorizado para a proxima batida criativa deste mundo."}
@@ -1449,61 +1453,76 @@ export default function WorldDetailPage() {
                   </div>
                 )}
               </div>
+            </div>
 
-              <div className="rounded-[24px] border border-white/8 bg-white/4 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <MapIcon className="h-4 w-4 text-sky-200/80" />
-                  Areas ligadas
-                </div>
-                <div className="mt-3 grid gap-2">
-                  <Button
-                    variant="outline"
-                    className="justify-between border-white/10 bg-white/5"
-                    onClick={() => router.push(`/app/worlds/${worldId}/map`)}
-                  >
-                    Atlas do mundo
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="justify-between border-white/10 bg-white/5"
-                    onClick={() => router.push(`/app/worlds/${worldId}/visual`)}
-                  >
-                    Biblioteca visual
-                    <Images className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="justify-between border-white/10 bg-white/5"
-                    onClick={() => router.push(`/app/worlds/${worldId}/forge/lore`)}
-                  >
-                    Lore-base
-                    <BookOpenText className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="justify-between border-white/10 bg-white/5"
-                    onClick={() => router.push(`/app/worlds/${worldId}/characters`)}
-                  >
-                    Personagens
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
+            <div className="mt-4 rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <MapIcon className="h-4 w-4 text-sky-200/80" />
+                Areas ligadas
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5 px-3 text-xs"
+                  onClick={() => router.push(`/app/worlds/${worldId}/map`)}
+                >
+                  Atlas
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5 px-3 text-xs"
+                  onClick={() => router.push(`/app/worlds/${worldId}/visual`)}
+                >
+                  Visual
+                  <Images className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5 px-3 text-xs"
+                  onClick={() => router.push(`/app/worlds/${worldId}/forge/lore`)}
+                >
+                  Lore
+                  <BookOpenText className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-between border-white/10 bg-white/5 px-3 text-xs"
+                  onClick={() => router.push(`/app/worlds/${worldId}/characters`)}
+                >
+                  PJs
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </section>
 
           {spotlightCampaign ? (
             <section className="chrome-panel rounded-[30px] p-6">
-              <p className="section-eyebrow">Campanha em destaque</p>
-              <div className="mt-4 space-y-4">
-                <h3 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+              <div className="flex items-center justify-between gap-3">
+                <p className="section-eyebrow">Campanha em destaque</p>
+                <Swords className="h-4 w-4 text-primary/80" />
+              </div>
+              <div className="mt-4 rounded-[18px] border border-white/8 bg-black/20 p-4">
+                <h3 className="text-xl font-black uppercase tracking-[0.04em] text-foreground">
                   {spotlightCampaign.name}
                 </h3>
-                <p className="text-sm leading-6 text-muted-foreground">
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   Ultima atualizacao em {formatDateTime(spotlightCampaign.updatedAt)}.
                 </p>
-                <Button className="w-full justify-between" onClick={() => router.push(`/app/campaign/${spotlightCampaign.id}`)}>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Sala</p>
+                    <p className="mt-1 truncate font-mono text-xs text-white/75">
+                      {spotlightCampaign.roomCode || "sem codigo"}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Status</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.12em] text-emerald-100">em campo</p>
+                  </div>
+                </div>
+                <Button className="mt-4 w-full justify-between" onClick={() => router.push(`/app/campaign/${spotlightCampaign.id}`)}>
                   Entrar na campanha
                   <ChevronRight className="h-4 w-4" />
                 </Button>

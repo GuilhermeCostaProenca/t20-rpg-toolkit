@@ -45,6 +45,7 @@
 - Nono corte (`A1-LP6-R6`) importou o novo pacote completo `T20-toolkit` do Claude Design para `public/handoff/t20-toolkit`, atualizou `/` para servir a landing desse bundle e atualizou `/mestre` para servir o cockpit; a vitrine estatica agora navega entre Landing, Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa do handoff.
 - Complemento (`A1-LP6-R6B`) criou o Hub cinematografico do handoff em `/mestre`, com cards de entrada para os modulos e script global de transicao entre Landing, Hub e telas estaticas do pacote.
 - Decimo corte em andamento (`A1-LP6-R7`) iniciou a conversao do Cockpit real do Mundo (`/app/worlds/[id]`) para a anatomia do handoff: o primeiro viewport agora opera como console denso com header de mundo ativo, modo, metricas, mapa/atlas visual, proxima batida, acesso rapido e zona de decisao, preservando dados reais e fluxos existentes.
+- Incremento do mesmo corte densificou o corpo da rota real: campanhas, linha viva de eventos, memoria consolidada, painel tatico e campanha em destaque agora usam listas/painéis compactos mais proximos do cockpit do handoff, sem alterar contratos de API.
 - O pacote `T20-toolkit (1).zip` foi inspecionado e a vitrine estatica recebeu novas telas de `Campanha` e `Lousa`, alem de atualizacoes do runtime de transicao do handoff.
 
 ## Em Andamento
@@ -64,7 +65,7 @@
 - Materializar o blueprint consolidado em prototipo navegavel no Figma (Fase A + B) para servir de contrato visual antes dos proximos recortes de implementacao.
 - Convergir tecnicamente o cockpit estatico de `/mestre` para componentes internos React/TypeScript quando a paridade visual estiver aceita.
 - Aplicar a mesma anatomia de handoff do Codex nas proximas superficies reais de modulo, priorizando Cockpit do Mundo e Forja sem trocar dados reais por prototipo.
-- Finalizar QA visual/funcional de `A1-LP6-R7` em browser real e fechar commit da conversao inicial do Cockpit do Mundo.
+- Finalizar QA visual/funcional de `A1-LP6-R7` em browser real com dados reais e fechar o PR/merge quando Docker/Postgres estiverem disponiveis.
 - Converter o novo handoff completo para rotas reais por modulo, preservando o bundle estatico apenas como referencia/QA visual.
 
 ## Problemas Conhecidos
