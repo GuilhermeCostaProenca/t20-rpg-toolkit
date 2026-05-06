@@ -75,7 +75,6 @@
     transition: background 0.2s, transform 0.2s;
   }
   .nav-cta:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
-  .nav-pill > a.nav-cta[href^="https://github.com"] { display: none; }
 
   /* ─── HERO ───────────────────────────────────────── */
   #hero {
@@ -321,34 +320,30 @@
   @keyframes ringRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
   .die-face {
-    width: 112px; height: 112px;
+    width: 100px; height: 100px;
+    background: linear-gradient(145deg, rgba(20,18,26,0.98), rgba(12,11,17,0.98));
+    border: 1px solid rgba(188,74,63,0.35); border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 1px rgba(188,74,63,0.15), 0 0 40px rgba(188,74,63,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
     position: relative; z-index: 1;
-    overflow: visible;
-    filter: drop-shadow(0 0 28px rgba(188,74,63,0.32)) drop-shadow(0 18px 26px rgba(0,0,0,0.45));
-    transform-box: fill-box;
-    transform-origin: center;
-    transition: filter 0.3s;
+    transition: box-shadow 0.3s;
   }
   .die-face.critical {
-    filter: drop-shadow(0 0 22px rgba(213,162,64,0.65)) drop-shadow(0 0 70px rgba(188,74,63,0.45)) drop-shadow(0 18px 26px rgba(0,0,0,0.48));
-  }
-  .die-face.critical .d20-outline,
-  .die-face.critical .d20-edge {
-    stroke: rgba(213,162,64,0.78);
-  }
-  .die-face.critical .d20-core {
-    fill: rgba(213,162,64,0.14);
+    box-shadow: 0 0 0 2px rgba(213,162,64,0.6), 0 0 60px rgba(213,162,64,0.4), 0 0 120px rgba(188,74,63,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+    border-color: rgba(213,162,64,0.6);
   }
   .die-number {
     font-family: var(--font-d); font-size: 44px; font-weight: 900;
-    fill: #fff; line-height: 1;
+    color: #fff; line-height: 1;
     text-shadow: 0 0 20px rgba(188,74,63,0.6);
     transition: color 0.2s;
     user-select: none;
-    pointer-events: none;
   }
   .die-number.critical-num {
-    fill: #d5a240;
+    background: linear-gradient(135deg, #f4efe7, #d5a240);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
   }
   .die-label {
     font-size: 10px; color: rgba(255,255,255,0.35);
@@ -595,9 +590,7 @@
     <div class="nav-links">
       <a href="#demo">Demo</a>
       <a href="#install">Instalar</a>
-      <a href="Hub.html">Hub</a>
     </div>
-    <button class="nav-cta" type="button" onclick="transitionToHandoff('Hub.html','Hub do Mestre')">Entrar no hub</button>
     <a href="https://github.com/GuilhermeCostaProenca/t20-rpg-toolkit" target="_blank" class="nav-cta">GitHub →</a>
   </div>
 </nav>
@@ -675,8 +668,8 @@
     </p>
 
     <div class="hero-actions">
-      <a href="Hub.html" class="btn-primary" onclick="event.preventDefault(); transitionToHandoff('Hub.html','Hub do Mestre')">
-        <span>Entrar no hub</span>
+      <a href="#install" class="btn-primary">
+        <span>npm install</span>
       </a>
       <a href="#demo" class="btn-ghost">Ver demo ao vivo</a>
     </div>
@@ -698,34 +691,9 @@
 
       <div class="die-display">
         <div class="die-ring" id="dieRing"></div>
-        <svg class="die-face" id="dieFace" viewBox="0 0 100 100" role="img" aria-label="Dado d20">
-          <defs>
-            <linearGradient id="d20Outer" x1="12" y1="8" x2="88" y2="96" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#332632"/>
-              <stop offset="0.42" stop-color="#17131e"/>
-              <stop offset="1" stop-color="#08070d"/>
-            </linearGradient>
-            <linearGradient id="d20FacetA" x1="20" y1="12" x2="70" y2="88" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="rgba(244,239,231,0.16)"/>
-              <stop offset="1" stop-color="rgba(188,74,63,0.05)"/>
-            </linearGradient>
-            <linearGradient id="d20FacetB" x1="78" y1="18" x2="18" y2="86" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="rgba(188,74,63,0.22)"/>
-              <stop offset="1" stop-color="rgba(6,7,12,0.34)"/>
-            </linearGradient>
-          </defs>
-          <polygon class="d20-outline" points="50,4 84,18 98,52 82,84 50,98 18,84 2,52 16,18" fill="url(#d20Outer)" stroke="rgba(188,74,63,0.66)" stroke-width="1.2"/>
-          <polygon points="50,4 84,18 64,40 36,40 16,18" fill="url(#d20FacetA)" opacity="0.9"/>
-          <polygon points="84,18 98,52 68,56 64,40" fill="url(#d20FacetB)" opacity="0.88"/>
-          <polygon points="98,52 82,84 62,70 68,56" fill="rgba(188,74,63,0.12)"/>
-          <polygon points="82,84 50,98 50,72 62,70" fill="rgba(244,239,231,0.05)"/>
-          <polygon points="50,98 18,84 38,70 50,72" fill="rgba(6,7,12,0.32)"/>
-          <polygon points="18,84 2,52 32,56 38,70" fill="rgba(188,74,63,0.08)"/>
-          <polygon points="2,52 16,18 36,40 32,56" fill="rgba(244,239,231,0.08)"/>
-          <polygon class="d20-core" points="36,40 64,40 68,56 62,70 50,72 38,70 32,56" fill="rgba(6,7,12,0.48)" stroke="rgba(244,239,231,0.14)" stroke-width="0.7"/>
-          <path class="d20-edge" d="M50 4 50 72M16 18l20 22M84 18 64 40M2 52l30 4M98 52l-30 4M18 84l20-14M82 84 62 70M50 98V72M36 40l-4 16 6 14 12 2 12-2 6-14-4-16H36Z" fill="none" stroke="rgba(188,74,63,0.34)" stroke-width="0.8"/>
-          <text class="die-number" id="dieNumber" x="50" y="59" text-anchor="middle" dominant-baseline="middle">20</text>
-        </svg>
+        <div class="die-face" id="dieFace">
+          <span class="die-number" id="dieNumber">20</span>
+        </div>
       </div>
       <div class="die-label">d20</div>
 
@@ -862,7 +830,6 @@
   </div>
 </footer>
 
-<script src="handoff-navigation.js"></script>
 <script>
   /* ─── DICE ROLL ─────────────────────────────────── */
   let rolling = false;

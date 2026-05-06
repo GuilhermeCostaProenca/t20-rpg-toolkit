@@ -6,6 +6,7 @@ const NAV_SECTIONS = [
     { id: "cockpit",  label: "Cockpit",     icon: "layout-dashboard" },
     { id: "codex",    label: "Codex",        icon: "crown" },
     { id: "forge",    label: "Forja",         icon: "flame" },
+    { id: "lousa",    label: "Lousa",        icon: "sparkles" },
     { id: "graph",    label: "Grafo",         icon: "waypoints" },
     { id: "visual",   label: "Visual",        icon: "images" },
   ]},
@@ -15,55 +16,72 @@ const NAV_SECTIONS = [
     { id: "memory",   label: "Memória",      icon: "book-marked" },
   ]},
   { id: "support", label: "APOIO", items: [
-    { id: "hub",      label: "Hub",          icon: "layout-dashboard" },
-    { id: "landing",  label: "Landing",      icon: "sparkles" },
     { id: "compendium",label:"Compêndio",   icon: "book-open-text" },
     { id: "map",      label: "Atlas",        icon: "scroll-text" },
     { id: "balance",  label: "Balanceamento",icon: "scale", disabled: true },
   ]},
 ];
 
-const HANDOFF_ROUTES = {
-  hub: "../Hub.html",
-  landing: "../Landing%20Page.html",
+const MODULE_PAGES = {
   cockpit: "Cockpit.html",
   codex: "Codex.html",
   forge: "Forja.html",
   graph: "Grafo.html",
   visual: "Visual.html",
+  campaigns: "Campanha.html",
   live: "Mesa.html",
   memory: "Memoria.html",
-  campaigns: "Forja.html",
   compendium: "Codex.html",
-  map: "Visual.html",
+  map: "Cockpit.html",
+  lousa: "Lousa.html",
 };
 
-const HANDOFF_LABELS = {
-  hub: "Hub do Mestre",
-  landing: "Landing",
-  cockpit: "Cockpit",
-  codex: "Codex",
-  forge: "Forja",
-  graph: "Grafo",
-  visual: "Visual",
-  live: "Mesa ao Vivo",
-  memory: "Memória",
-  campaigns: "Forja",
-  compendium: "Codex",
-  map: "Visual",
-};
+const MODES = [
+  { id:"normal", label:"Normal", icon:"layout-dashboard", desc:"Cockpit operacional" },
+  { id:"lousa",  label:"Lousa",  icon:"sparkles",         desc:"Canvas livre" },
+  { id:"quadro", label:"Quadro", icon:"presentation",     desc:"Mesa & cena" },
+];
 
-function navigateHandoffModule(moduleId) {
-  const route = HANDOFF_ROUTES[moduleId];
-  if (!route) return;
-  if (typeof window.transitionToHandoff === "function") {
-    window.transitionToHandoff(route, HANDOFF_LABELS[moduleId] || "T20 OS");
-    return;
+function ModeSwitcher({ collapsed, mode = "normal", onChange = () => {} }) {
+  if (collapsed) {
+    const cur = MODES.find(m => m.id === mode) || MODES[0];
+    return (
+      <div style={{ display:"flex", justifyContent:"center", padding:"8px 0", borderBottom:"1px solid rgba(255,255,255,.05)" }}>
+        <div title={`Modo: ${cur.label}`} style={{
+          width:32, height:32, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center",
+          border:"1px solid rgba(213,162,64,.3)", background:"rgba(213,162,64,.08)",
+          color:"#d5a240",
+        }}>
+          <LucideIcon name={cur.icon} size={14}/>
+        </div>
+      </div>
+    );
   }
-  window.location.href = route;
+  return (
+    <div style={{ margin:"4px 12px 10px", padding:4, borderRadius:10, border:"1px solid rgba(255,255,255,.06)", background:"rgba(255,255,255,.02)", display:"flex", gap:2 }}>
+      {MODES.map(m => {
+        const isActive = mode === m.id;
+        return (
+          <button key={m.id} onClick={()=>onChange(m.id)} title={m.desc} style={{
+            flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3,
+            padding:"7px 4px", borderRadius:7,
+            border: isActive ? "1px solid rgba(213,162,64,.35)" : "1px solid transparent",
+            background: isActive ? "linear-gradient(180deg,rgba(213,162,64,.14),rgba(213,162,64,.04))" : "transparent",
+            color: isActive ? "#f5ddb1" : "rgba(255,255,255,.45)",
+            fontSize:9, fontWeight:600, letterSpacing:".06em", textTransform:"uppercase",
+            cursor:"pointer", fontFamily:"inherit", transition:"all .14s",
+            boxShadow: isActive ? "inset 0 0 14px rgba(213,162,64,.06)" : "none",
+          }}>
+            <LucideIcon name={m.icon} size={13} color={isActive ? "#d5a240" : "currentColor"}/>
+            <span>{m.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
-function CockpitSidebar({ activeModule, onNavigate, collapsed, onToggle }) {
+function CockpitSidebar({ activeModule, onNavigate, collapsed, onToggle, mode = "normal", onModeChange = () => {} }) {
   const w = collapsed ? 60 : 240;
   return (
     <aside style={{
@@ -112,6 +130,9 @@ function CockpitSidebar({ activeModule, onNavigate, collapsed, onToggle }) {
         </div>
       )}
 
+      {/* Mode switcher */}
+      <ModeSwitcher collapsed={collapsed} mode={mode} onChange={onModeChange} />
+
       {/* Nav */}
       <div style={{ flex: 1, padding: collapsed ? "8px 0" : "4px 8px", display: "flex", flexDirection: "column", gap: collapsed ? 0 : 12 }}>
         {NAV_SECTIONS.map(section => (
@@ -123,7 +144,14 @@ function CockpitSidebar({ activeModule, onNavigate, collapsed, onToggle }) {
               const isActive = activeModule === item.id;
               const isDisabled = item.disabled;
               return (
-                <button key={item.id} onClick={() => !isDisabled && onNavigate(item.id)}
+                <button key={item.id} onClick={() => {
+                  if (isDisabled) return;
+                  onNavigate(item.id);
+                  const target = MODULE_PAGES[item.id];
+                  if (!target) return;
+                  if (window.__t20Transition) window.__t20Transition(target);
+                  else window.location.href = target;
+                }}
                   title={collapsed ? item.label : undefined}
                   style={{
                     display: "flex", alignItems: "center", gap: 10,
@@ -165,4 +193,4 @@ function CockpitSidebar({ activeModule, onNavigate, collapsed, onToggle }) {
   );
 }
 
-Object.assign(window, { CockpitSidebar, navigateHandoffModule, HANDOFF_ROUTES });
+Object.assign(window, { CockpitSidebar, ModeSwitcher });

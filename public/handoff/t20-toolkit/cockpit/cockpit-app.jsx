@@ -111,7 +111,7 @@ function CockpitApp() {
 
       <CockpitSidebar
         activeModule={activeModule}
-        onNavigate={navigateHandoffModule}
+        onNavigate={setActiveModule}
         collapsed={collapsed}
         onToggle={() => setCollapsed(c => !c)}
       />

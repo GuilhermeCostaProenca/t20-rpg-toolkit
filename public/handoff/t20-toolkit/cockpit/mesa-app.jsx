@@ -123,7 +123,10 @@ function MesaApp() {
 
       <CockpitSidebar
         activeModule="live"
-        onNavigate={navigateHandoffModule}
+        onNavigate={id => {
+          const r = { cockpit:"Cockpit.html", codex:"Codex.html", forge:"Forja.html", graph:"Grafo.html", visual:"Visual.html" };
+          if (r[id]) window.location.href = r[id];
+        }}
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(c => !c)}
       />

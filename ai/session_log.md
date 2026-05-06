@@ -1397,3 +1397,38 @@
   - `npx eslint -- "src/app/(public)/mestre/page.tsx"` -> ok.
 - Pendencias:
   - validar visualmente no browser aberto pelo usuario e ajustar densidade/estetica conforme feedback.
+
+### Sessao: 2026-05-06 15:52 - A1-LP6-R7 inicio da conversao real do Cockpit do Mundo
+- Objetivo:
+  - continuar a refatoracao visual conduzida pelo Claude Design, convertendo o handoff HTML para superficies reais React/TypeScript sem perder dados reais.
+- O que foi feito:
+  - criada branch `codex/a1-lp6-r7-world-cockpit-handoff`.
+  - inspecionado `C:\Users\guilh\Downloads\T20-toolkit (1).zip`, identificando novas telas estaticas de `Campanha` e `Lousa`.
+  - atualizado `public/handoff/t20-toolkit` com o runtime novo do ZIP, sem copiar a pasta `uploads` para `public`.
+  - adicionado `Campanha` e `Lousa` ao hub estatico e restaurada navegacao do sidebar estatico para trocar de HTML com transicao.
+  - convertido o primeiro viewport real de `src/app/app/worlds/[id]/page.tsx` para uma leitura mais proxima do cockpit do handoff: header de mundo ativo, modo, metricas densas, mapa/atlas visual, proxima batida, acesso rapido e zona de decisao.
+  - mantidos os contratos reais de API, criacao de campanha, filtros de memoria, quick inspect e links canonicos.
+- Arquivos principais alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `public/handoff/t20-toolkit/*`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/architecture.md`
+  - `ai/decisions.md`
+  - `ai/session_log.md`
+- Validacoes executadas:
+  - tentativa de criar issue Linear para `A1-LP6-R7` falhou por limite gratuito do workspace; rastreio mantido em `ai/tasks.md`, branch e commit.
+  - `npx eslint -- "src/app/app/worlds/[id]/page.tsx"` -> ok.
+  - `npx eslint -- "src/app/app/worlds/[id]/page.tsx" "src/app/(public)/mestre/page.tsx"` -> ok.
+  - `GET /handoff/t20-toolkit/Hub.html`, `Campanha.html`, `Lousa.html` e `/mestre` em `127.0.0.1:3102` -> todos `200`.
+  - Playwright desktop em `/handoff/t20-toolkit/cockpit/Campanha.html` -> renderizou cockpit de campanha; sem erros de console, apenas aviso esperado de Babel in-browser.
+  - Playwright desktop em `/handoff/t20-toolkit/cockpit/Lousa.html` -> renderizou canvas de ideacao; sem erros de console, apenas aviso esperado de Babel in-browser.
+  - Playwright desktop em `/mestre` -> hub renderizou com novos cards `Campanha` e `Lousa`.
+  - Playwright desktop em `/app/worlds/cld8cbf762d6a0cf28a9465e7e` -> rota renderizou estado vazio/erro gracioso; validacao com dados reais ficou bloqueada porque `DATABASE_URL` nao estava disponivel no dev server inicial e Docker Desktop/Postgres local nao estavam ativos.
+- Decisoes tomadas:
+  - DEC-032 registrada: HTML do Claude Design segue como contrato visual/vitrine; produto real deve ser convertido por modulo em React/TypeScript com dados reais.
+- Pendencias:
+  - rodar QA em browser real para `/app/worlds/[id]`, `/mestre`, `Campanha.html` e `Lousa.html`.
+  - fechar commit do recorte apos validacao.
+- Proximo passo recomendado:
+  - continuar `A1-LP6-R7` com ajuste visual fino do restante da pagina do mundo ou abrir `A1-LP6-R8` para Grafo/Visual/Memoria/Forjas reais em recortes pequenos.

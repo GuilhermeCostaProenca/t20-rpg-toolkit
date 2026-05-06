@@ -126,7 +126,8 @@ function GrafoApp() {
   }, []);
 
   function handleNavigation(moduleId) {
-    navigateHandoffModule(moduleId);
+    const routes = { cockpit: "Cockpit.html", codex: "Codex.html", forge: "Forja.html" };
+    if (routes[moduleId]) window.location.href = routes[moduleId];
   }
 
   function handleNavigateTo(name) {

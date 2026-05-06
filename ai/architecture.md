@@ -13,7 +13,7 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 - `src/components/landing/landing-handoff.tsx` + `landing-handoff.module.css`: superficie publica fiel ao handoff visual, com composicao unica para hero premium e painel de tweaks.
 - `src/app/(public)/mestre/page.tsx` + `src/components/mestre/*`: pagina publica do mestre com layout cockpit dedicado (sem depender do shell interno de `/app`), usada como destino direto do CTA da landing.
 - `public/handoff/cockpit/*`: bundle estatico legado do primeiro cockpit aprovado no handoff, mantido como referencia historica do recorte inicial.
-- `public/handoff/t20-toolkit/*`: bundle estatico completo do novo handoff do Claude Design, com landing, tokens, assets e telas de Cockpit, Codex, Forja, Grafo, Visual, Memoria e Mesa; `/` aponta para a landing e `/mestre` aponta para o cockpit desse bundle via iframe para comparacao visual navegavel enquanto as rotas reais sao convertidas por modulo.
+- `public/handoff/t20-toolkit/*`: bundle estatico completo do novo handoff do Claude Design, com landing, tokens, assets e telas de Cockpit, Campanha, Codex, Forja, Lousa, Grafo, Visual, Memoria e Mesa; `/` aponta para a landing e `/mestre` aponta para o hub desse bundle via iframe para comparacao visual navegavel enquanto as rotas reais sao convertidas por modulo.
 - `public/handoff/t20-toolkit/Hub.html` + `handoff-navigation.js`: camada de hub/navegacao global do prototipo estatico, com transicao cinematografica compartilhada entre Landing, Hub e telas de modulo.
 - `src/app/app/worlds/[id]/codex/page.tsx`: indice real do Codex em layout handoff-native, com toolbar densa, chips de tipo, grid operacional, dialog de criacao e painel lateral deslizante de quick inspect sobre as APIs reais de entidades.
 - `src/lib`: Dominio e motor de apoio (combat, balanceamento T20, eventos, validacao, utilitarios).
@@ -47,6 +47,7 @@ Arquitetura world-first: `World` e raiz de dominio. `Campaign` e linha do tempo 
 - `/` e `/mestre` agora desacoplam da implementacao React interna para renderizar, respectivamente, a landing e o hub do pacote estatico completo `public/handoff/t20-toolkit` como fonte de verdade visual imediata.
 - O shell interno (`src/app/app/layout.tsx`) exige `min-w-0` na area principal para que superficies densas world-scoped nao estourem horizontalmente ao lado da sidebar.
 - O indice do Codex passa a ser a primeira conversao de prototipo de handoff para superficie funcional real: os arquivos de handoff orientam anatomia visual, mas dados, criacao, filtros e navegação continuam usando contratos Next/API existentes.
+- O Cockpit real do Mundo (`src/app/app/worlds/[id]/page.tsx`) iniciou a conversao funcional para a anatomia do handoff: primeiro viewport em leitura operacional densa, header de estado, metrico world-scoped, mapa/atlas visual e paineis laterais, mantendo APIs e fluxos existentes.
 
 ## Divida Tecnica Relevante
 - `play/[campaignId]` ainda concentra complexidade elevada apesar de recortes de extracao - impacto: alto, plano: continuar fatiamento modular com testes direcionados.

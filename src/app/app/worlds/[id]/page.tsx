@@ -653,9 +653,9 @@ export default function WorldDetailPage() {
   }
 
   return (
-    <div className="space-y-6 pb-8 xl:space-y-7">
+    <div className="space-y-4 pb-8 xl:space-y-5">
       <section
-        className="world-hero rounded-[32px] px-6 py-7 sm:px-8 xl:px-10"
+        className="world-hero overflow-hidden rounded-[18px] border border-white/8 px-0 py-0 shadow-[inset_0_1px_0_rgba(255,255,255,.04),0_24px_80px_rgba(0,0,0,.42)]"
         style={{
           backgroundImage: world.coverImage
             ? `linear-gradient(120deg, rgba(8,8,13,0.92), rgba(12,10,13,0.8)), url(${world.coverImage})`
@@ -664,8 +664,30 @@ export default function WorldDetailPage() {
           backgroundPosition: "center",
         }}
       >
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.78fr)]">
-          <div className="space-y-6">
+        <div className="flex flex-col gap-4 border-b border-white/7 bg-[linear-gradient(90deg,rgba(8,7,12,.98),rgba(12,10,16,.94))] px-5 py-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(75,159,145,.9)]" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-amber-100/65">
+              Mundo ativo
+            </span>
+            <span className="font-display text-sm font-black uppercase tracking-[0.08em] text-foreground">
+              {world.title}
+            </span>
+            <span className="hidden h-5 w-px bg-white/10 sm:block" />
+            <Badge className="border-emerald-300/20 bg-emerald-300/10 text-emerald-100">
+              Em operacao
+            </Badge>
+            <Badge className="border-white/10 bg-white/5 text-white/70">{world.status}</Badge>
+          </div>
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-white/40">
+            <span>{recentEvents.length} eventos</span>
+            <span className="h-1 w-1 rounded-full bg-white/25" />
+            <span>{memoryEvents.length} memorias</span>
+          </div>
+        </div>
+
+        <div className="grid gap-3 p-3 xl:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.72fr)]">
+          <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="border-primary/20 bg-primary/10 text-primary">{world.status}</Badge>
               <Badge className="border-amber-300/20 bg-amber-300/8 text-amber-100">
@@ -673,53 +695,99 @@ export default function WorldDetailPage() {
               </Badge>
             </div>
 
-            <div className="space-y-3">
+            <div className="rounded-[14px] border border-white/7 bg-black/20 p-5 backdrop-blur-md">
               <p className="section-eyebrow">Cockpit do mundo</p>
-              <h1 className="max-w-4xl text-4xl font-black uppercase tracking-[0.04em] text-foreground sm:text-5xl xl:text-6xl">
+              <h1 className="mt-3 max-w-4xl font-display text-4xl font-black uppercase leading-[0.96] tracking-[0.02em] text-foreground sm:text-5xl">
                 {world.title}
               </h1>
-              <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
+              <p className="mt-4 max-w-3xl text-sm leading-6 text-muted-foreground">
                 {world.description || "Este mundo ainda nao tem descricao registrada, mas o cockpit ja esta pronto para operar campanhas, memoria e contexto."}
               </p>
             </div>
 
-            <ModeSwitcher worldId={worldId} />
+            <div className="rounded-[14px] border border-white/7 bg-black/20 p-3 backdrop-blur-md">
+              <ModeSwitcher worldId={worldId} />
+            </div>
 
-            <div className="grid gap-3 sm:grid-cols-4">
-              <div className="cinematic-frame rounded-2xl p-4">
+            <div className="grid gap-2 sm:grid-cols-4">
+              <div className="cinematic-frame rounded-[12px] p-3">
                 <p className="section-eyebrow">Campanhas</p>
                 <div className="mt-3 flex items-end justify-between">
-                  <span className="text-3xl font-black text-foreground">{world.campaigns.length}</span>
-                  <Swords className="h-5 w-5 text-amber-300/80" />
+                  <span className="font-mono text-2xl font-bold text-foreground">{world.campaigns.length}</span>
+                  <Swords className="h-4 w-4 text-amber-300/80" />
                 </div>
               </div>
-              <div className="cinematic-frame rounded-2xl p-4">
+              <div className="cinematic-frame rounded-[12px] p-3">
                 <p className="section-eyebrow">NPCs</p>
                 <div className="mt-3 flex items-end justify-between">
-                  <span className="text-3xl font-black text-foreground">{world.stats.npcs}</span>
-                  <Users2 className="h-5 w-5 text-primary/80" />
+                  <span className="font-mono text-2xl font-bold text-foreground">{world.stats.npcs}</span>
+                  <Users2 className="h-4 w-4 text-primary/80" />
                 </div>
               </div>
-              <div className="cinematic-frame rounded-2xl p-4">
+              <div className="cinematic-frame rounded-[12px] p-3">
                 <p className="section-eyebrow">Locais</p>
                 <div className="mt-3 flex items-end justify-between">
-                  <span className="text-3xl font-black text-foreground">{world.stats.locations}</span>
-                  <MapPin className="h-5 w-5 text-sky-200/80" />
+                  <span className="font-mono text-2xl font-bold text-foreground">{world.stats.locations}</span>
+                  <MapPin className="h-4 w-4 text-sky-200/80" />
                 </div>
               </div>
-              <div className="cinematic-frame rounded-2xl p-4">
+              <div className="cinematic-frame rounded-[12px] p-3">
                 <p className="section-eyebrow">Sessoes</p>
                 <div className="mt-3 flex items-end justify-between">
-                  <span className="text-3xl font-black text-foreground">{world.stats.sessions}</span>
-                  <Activity className="h-5 w-5 text-emerald-300/80" />
+                  <span className="font-mono text-2xl font-bold text-foreground">{world.stats.sessions}</span>
+                  <Activity className="h-4 w-4 text-emerald-300/80" />
                 </div>
+              </div>
+            </div>
+
+            <div className="relative min-h-[210px] overflow-hidden rounded-[14px] border border-white/8 bg-black">
+              <div
+                className="absolute inset-0 bg-cover bg-center opacity-70 saturate-[.72]"
+                style={{
+                  backgroundImage: `url(${world.coverImage || "/handoff/t20-toolkit/assets/arton-map.jpg"})`,
+                }}
+              />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_70%,rgba(188,74,63,.22),transparent_34%),radial-gradient(circle_at_72%_28%,rgba(213,162,64,.16),transparent_30%),linear-gradient(180deg,rgba(6,7,12,.12),rgba(6,7,12,.76))]" />
+              <div className="absolute inset-0 grid grid-cols-10 grid-rows-6">
+                {Array.from({ length: 60 }).map((_, index) => (
+                  <div key={index} className="border-b border-r border-white/[0.035] bg-black/[0.03]" />
+                ))}
+              </div>
+              <div className="absolute left-[24%] top-[62%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1">
+                <span className="h-3 w-3 rounded-full bg-primary shadow-[0_0_18px_rgba(188,74,63,.85)]" />
+                <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-white drop-shadow">
+                  Foco
+                </span>
+              </div>
+              <div className="absolute right-[18%] top-[32%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1">
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-300 shadow-[0_0_14px_rgba(213,162,64,.75)]" />
+                <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-amber-100 drop-shadow">
+                  Arco
+                </span>
+              </div>
+              <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-3 border-b border-white/7 bg-black/35 px-4 py-3 backdrop-blur-md">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-amber-100/65">
+                    Mapa operacional
+                  </p>
+                  <h2 className="mt-1 text-sm font-bold text-foreground">Estado vivo do mundo</h2>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-white/10 bg-black/45"
+                  onClick={() => router.push(`/app/worlds/${worldId}/map`)}
+                >
+                  Atlas
+                  <MapIcon className="ml-2 h-4 w-4" />
+                </Button>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button size="lg">
+                  <Button size="sm">
                     <Sparkles className="mr-2 h-4 w-4" />
                     Nova campanha
                   </Button>
@@ -773,15 +841,15 @@ export default function WorldDetailPage() {
                 </DialogContent>
               </Dialog>
 
-              <Button variant="outline" size="lg" className="border-white/10 bg-white/5" onClick={loadWorld}>
+              <Button variant="outline" size="sm" className="border-white/10 bg-white/5" onClick={loadWorld}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Atualizar
               </Button>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="cinematic-frame rounded-[28px] p-5">
+          <div className="space-y-3">
+            <div className="cinematic-frame rounded-[14px] p-4">
               <p className="section-eyebrow">Proxima batida</p>
               {world.nextSession ? (
                 <div className="mt-4 space-y-3">
@@ -789,7 +857,7 @@ export default function WorldDetailPage() {
                     <CalendarClock className="h-4 w-4 text-amber-300/80" />
                     Sessao agendada
                   </div>
-                  <h2 className="text-2xl font-black uppercase tracking-[0.04em] text-foreground">
+                  <h2 className="font-display text-2xl font-black uppercase tracking-[0.04em] text-foreground">
                     {world.nextSession.title}
                   </h2>
                   <p className="text-sm text-muted-foreground">
@@ -803,12 +871,13 @@ export default function WorldDetailPage() {
               )}
             </div>
 
-            <div className="cinematic-frame rounded-[28px] p-5">
+            <div className="cinematic-frame rounded-[14px] p-4">
               <p className="section-eyebrow">Acesso rapido</p>
-              <div className="mt-4 grid gap-3">
+              <div className="mt-4 grid grid-cols-2 gap-2">
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/forge`)}
                 >
                   Forja do Mundo
@@ -816,7 +885,8 @@ export default function WorldDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/codex`)}
                 >
                   Codex
@@ -824,7 +894,8 @@ export default function WorldDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/campaigns`)}
                 >
                   Campanhas
@@ -832,7 +903,8 @@ export default function WorldDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/npcs`)}
                 >
                   NPCs
@@ -840,7 +912,8 @@ export default function WorldDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/locations`)}
                 >
                   Locais
@@ -848,7 +921,8 @@ export default function WorldDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/visual`)}
                 >
                   Biblioteca visual
@@ -856,7 +930,8 @@ export default function WorldDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/forge/politics`)}
                 >
                   Politica
@@ -864,7 +939,8 @@ export default function WorldDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/forge/timeline`)}
                 >
                   Cronologia
@@ -872,7 +948,8 @@ export default function WorldDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/forge/lore`)}
                 >
                   Lore-base
@@ -880,7 +957,8 @@ export default function WorldDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="justify-between border-white/10 bg-white/5"
+                  size="sm"
+                  className="justify-between border-white/10 bg-white/5 px-3"
                   onClick={() => router.push(`/app/worlds/${worldId}/compendium`)}
                 >
                   Compendio
@@ -889,7 +967,7 @@ export default function WorldDetailPage() {
               </div>
             </div>
 
-            <div className="cinematic-frame rounded-[28px] p-5">
+            <div className="cinematic-frame rounded-[14px] p-4">
               <p className="section-eyebrow">Zona de decisao</p>
               <div className="mt-4 space-y-3">
                 <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
