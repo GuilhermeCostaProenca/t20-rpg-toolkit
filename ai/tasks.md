@@ -47,7 +47,7 @@
   - [ ] Validar em browser real rota real e prototipo estatico atualizado.
     - [x] Prototipo estatico atualizado validado em Playwright (`/mestre`, `Campanha.html`, `Lousa.html`) sem erros de console bloqueantes.
     - [x] Rota real `/app/worlds/[id]` validada em Playwright ate estado vazio/erro gracioso.
-    - [ ] Validacao com dados reais pendente porque Postgres/Docker Desktop nao estavam ativos no ambiente local.
+    - [x] Validacao com dados reais executada em Docker/Postgres (`Mundo Padrao`) com desktop, mobile e abertura do dialog `Nova campanha`.
   - [x] Atualizar memoria do projeto e fechar commit inicial do recorte.
   - [x] Fechar novo commit incremental do refinamento do corpo apos validacao tecnica.
   - Observacao Linear: tentativa de criar issue falhou por limite gratuito do workspace; rastreio mantido por `A1-LP6-R7`, branch e commit.

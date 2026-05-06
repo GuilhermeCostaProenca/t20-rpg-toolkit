@@ -30,6 +30,7 @@ import { ModeSwitcher } from "@/components/world/mode-switcher";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -791,9 +792,12 @@ export default function WorldDetailPage() {
                     Nova campanha
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="chrome-panel border-white/10 bg-card/85">
+                <DialogContent aria-describedby={undefined} className="chrome-panel border-white/10 bg-card/85">
                   <DialogHeader>
                     <DialogTitle>Iniciar nova campanha</DialogTitle>
+                    <DialogDescription id="create-campaign-description">
+                      Defina o nome e a premissa inicial para abrir uma nova frente de mesa neste mundo.
+                    </DialogDescription>
                   </DialogHeader>
                   <Form {...campaignForm}>
                     <form onSubmit={campaignForm.handleSubmit(handleCreateCampaign)} className="space-y-4">

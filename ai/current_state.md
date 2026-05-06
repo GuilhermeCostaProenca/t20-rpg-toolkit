@@ -46,6 +46,7 @@
 - Complemento (`A1-LP6-R6B`) criou o Hub cinematografico do handoff em `/mestre`, com cards de entrada para os modulos e script global de transicao entre Landing, Hub e telas estaticas do pacote.
 - Decimo corte em andamento (`A1-LP6-R7`) iniciou a conversao do Cockpit real do Mundo (`/app/worlds/[id]`) para a anatomia do handoff: o primeiro viewport agora opera como console denso com header de mundo ativo, modo, metricas, mapa/atlas visual, proxima batida, acesso rapido e zona de decisao, preservando dados reais e fluxos existentes.
 - Incremento do mesmo corte densificou o corpo da rota real: campanhas, linha viva de eventos, memoria consolidada, painel tatico e campanha em destaque agora usam listas/painéis compactos mais proximos do cockpit do handoff, sem alterar contratos de API.
+- Docker/Postgres foram reativados e a rota real `/app/worlds/cld8cbf762d6a0cf28a9465e7e` foi validada com dados reais (`Mundo Padrao`) em desktop/mobile. A QA tambem corrigiu dois problemas globais encontrados no processo: hidratacao do relogio do `Topbar` e origem dev do HMR no Docker.
 - O pacote `T20-toolkit (1).zip` foi inspecionado e a vitrine estatica recebeu novas telas de `Campanha` e `Lousa`, alem de atualizacoes do runtime de transicao do handoff.
 
 ## Em Andamento

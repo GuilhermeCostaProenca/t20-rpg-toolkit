@@ -1457,3 +1457,33 @@
   - revisar visualmente no browser com um mundo real para calibrar densidade, quebras e proporcoes.
 - Proximo passo recomendado:
   - seguir no mesmo PR com QA real ou iniciar o proximo modulo real (`Grafo`, `Visual`, `Memoria` ou `Forja`) em recorte separado depois que este corte for regularizado.
+
+### Sessao: 2026-05-06 17:14 - A1-LP6-R7 QA real em Docker
+- Objetivo:
+  - validar a conversao do Cockpit real do Mundo com Postgres/Docker ativos e dados reais.
+- O que foi feito:
+  - localizado o mundo real ativo `cld8cbf762d6a0cf28a9465e7e` (`Mundo Padrao`) no Postgres.
+  - validado `/app/worlds/cld8cbf762d6a0cf28a9465e7e` no app Docker (`127.0.0.1:3000`) em desktop e mobile.
+  - corrigido erro de hidratacao global no `Topbar` causado por renderizacao SSR/client diferente do relogio.
+  - ajustado `allowedDevOrigins` para usar hostnames sem porta no dev server, resolvendo falha de HMR via Docker.
+  - adicionado texto descritivo ao dialog de `Nova campanha` e exercitada a abertura do dialog sem submeter dados.
+- Arquivos principais alterados:
+  - `src/app/app/worlds/[id]/page.tsx`
+  - `src/components/topbar.tsx`
+  - `next.config.ts`
+  - `ai/tasks.md`
+  - `ai/current_state.md`
+  - `ai/session_log.md`
+- Validacoes executadas:
+  - `npx eslint -- "src/app/app/worlds/[id]/page.tsx" "src/components/topbar.tsx" "next.config.ts"` -> ok.
+  - `git diff --check` -> ok, apenas aviso conhecido de CRLF no Windows.
+  - Docker `t20-clean-app-1` e `t20-clean-db-1` saudaveis.
+  - Playwright desktop em `/app/worlds/cld8cbf762d6a0cf28a9465e7e` -> renderizou `Mundo Padrao`, sem overlay e sem erros/warnings relevantes de console.
+  - Playwright interaction -> botão `Nova campanha` abriu dialog com descricao visivel; sem submissao de dados.
+  - Playwright mobile `390x844` -> primeira tela renderizou sem erro de console.
+- Decisoes tomadas:
+  - `allowedDevOrigins` passa a usar hostnames normalizados, enquanto `serverActions.allowedOrigins` continua com host/porta.
+- Pendencias:
+  - revisar visualmente com mundo mais populado quando houver campanhas/eventos/memoria reais para calibrar listas densas.
+- Proximo passo recomendado:
+  - se o recorte visual for aceito, marcar PR como pronto e seguir para merge em `master`; se nao, continuar ajustes finos no mesmo PR.
